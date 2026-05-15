@@ -1,4 +1,4 @@
-create table references (
+create table candidate_references (
   id uuid primary key default gen_random_uuid(),
   candidate_id uuid references auth.users(id) on delete cascade not null,
   -- referee details (provided by candidate)
@@ -22,14 +22,14 @@ create table references (
   created_at timestamptz default now()
 );
 
-alter table references enable row level security;
+alter table candidate_references enable row level security;
 
 -- Candidates can read their own references
-create policy "Candidates can read own references" on references
+create policy "Candidates can read own references" on candidate_references
   for select using (auth.uid() = candidate_id);
 
 -- Candidates can insert references
-create policy "Candidates can create references" on references
+create policy "Candidates can create references" on candidate_references
   for insert with check (auth.uid() = candidate_id);
 
 -- Service role can update (for webhook/email flows)

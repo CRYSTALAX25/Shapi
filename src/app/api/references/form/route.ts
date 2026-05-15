@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   }
 
   const { data: ref, error } = await supabase
-    .from('references')
+    .from('candidate_references')
     .select('referee_name, referee_relationship, status, candidate_id')
     .eq('token', token)
     .single()

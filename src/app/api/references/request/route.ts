@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
   // Create reference record
   const { data: ref, error } = await supabase
-    .from('references')
+    .from('candidate_references')
     .insert({
       candidate_id: user.id,
       referee_name,
@@ -95,7 +95,7 @@ export async function POST(request: Request) {
 
   // Mark as sent
   await supabase
-    .from('references')
+    .from('candidate_references')
     .update({ status: 'sent', email_sent_at: new Date().toISOString() })
     .eq('id', ref.id)
 

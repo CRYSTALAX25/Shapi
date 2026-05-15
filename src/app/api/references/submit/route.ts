@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   }
 
   const { data: ref, error } = await supabase
-    .from('references')
+    .from('candidate_references')
     .select('id, status, candidate_id')
     .eq('token', token)
     .single()
@@ -54,7 +54,7 @@ Additional: ${anything_else || ''}`,
   }
 
   await supabase
-    .from('references')
+    .from('candidate_references')
     .update({
       status: 'completed',
       completed_at: new Date().toISOString(),
