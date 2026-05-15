@@ -8,13 +8,28 @@ export default function Home() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  const [error, setError] = useState<string | null>(null)
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !type) return
     setLoading(true)
-    // Supabase integration coming next session
-    await new Promise(resolve => setTimeout(resolve, 800))
-    setSubmitted(true)
+    setError(null)
+
+    const res = await fetch('/api/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, type }),
+    })
+
+    if (res.ok) {
+      setSubmitted(true)
+    } else if (res.status === 409) {
+      setError("You're already on the list!")
+      setSubmitted(true)
+    } else {
+      setError('Something went wrong. Try again.')
+    }
     setLoading(false)
   }
 
@@ -235,7 +250,11 @@ export default function Home() {
                 {loading ? 'Joining...' : 'Join the waitlist →'}
               </button>
 
-              {!type && (
+              {error && (
+                <p className="text-[#E8745A] text-xs">{error}</p>
+              )}
+
+              {!type && !error && (
                 <p className="text-white/40 text-xs">
                   Select candidate or company above first
                 </p>
