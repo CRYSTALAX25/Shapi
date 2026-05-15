@@ -18,6 +18,7 @@ export default function CVBuilder() {
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [ready, setReady] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
@@ -40,8 +41,9 @@ export default function CVBuilder() {
       body: JSON.stringify({ messages: newMessages }),
     })
 
-    const { reply } = await res.json()
+    const { reply, ready: profileReady } = await res.json()
     setMessages(prev => [...prev, { role: 'assistant', content: reply }])
+    if (profileReady) setReady(true)
     setLoading(false)
   }
 
@@ -129,7 +131,19 @@ export default function CVBuilder() {
             Send
           </button>
         </div>
-        <p className="text-center text-xs text-[#1C1C2E]/30 mt-2">Your answers are saved as you go</p>
+        {ready ? (
+          <div className="mt-3 flex flex-col items-center gap-2">
+            <button
+              onClick={() => router.push('/pay')}
+              className="bg-[#0B5563] text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#094450] transition-colors"
+            >
+              Continue to payment — $49 →
+            </button>
+            <p className="text-xs text-[#1C1C2E]/40">Your profile is ready to go live</p>
+          </div>
+        ) : (
+          <p className="text-center text-xs text-[#1C1C2E]/30 mt-2">Your answers are saved as you go</p>
+        )}
       </div>
     </div>
   )

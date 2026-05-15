@@ -31,6 +31,7 @@ Rules:
 - When they answer vaguely, ask for specifics ("Can you give me a number or example?")
 - When they undersell themselves, reflect back what they said more powerfully
 - After collecting enough for a role, summarise it back and ask if it's right
+- When the full profile is complete (recent role + achievements + skills + what they want next are all captured), end your final message with the token [PROFILE_READY] on its own line
 - Keep responses short — max 3 sentences + your question
 - Never use jargon or corporate speak
 - If they mention something impressive, acknowledge it genuinely before moving on`
@@ -45,7 +46,9 @@ Rules:
     })),
   })
 
-  const reply = response.content[0].type === 'text' ? response.content[0].text : ''
+  const rawReply = response.content[0].type === 'text' ? response.content[0].text : ''
+  const ready = rawReply.includes('[PROFILE_READY]')
+  const reply = rawReply.replace('[PROFILE_READY]', '').trim()
 
-  return NextResponse.json({ reply })
+  return NextResponse.json({ reply, ready })
 }
