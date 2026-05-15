@@ -36,39 +36,54 @@ Tagline: "Shape what's next." UAE-first launch May 2026.
 
 ## Current routes
 - `/` — Homepage + waitlist form (saves to Supabase, sends Resend confirmation)
-- `/signup` — Create account (candidate or company)
-- `/login` — Sign in
+- `/signup` — Create account (candidate or company) → redirects to /cv-builder on email confirm
+- `/login` — Sign in → redirects to /dashboard
+- `/cv-builder` — Claude AI conversational CV builder (auth protected). Shows [PROFILE_READY] CTA → /pay
+- `/pay` — $49 payment page → Stripe Checkout
+- `/onboarding` — 5-step manual profile form (auth protected). Accessible via "Skip" from cv-builder or after payment
 - `/dashboard` — Candidate/company dashboard (auth protected)
-- `/onboarding` — 5-step candidate profile builder (auth protected)
 - `/api/waitlist` — POST: save to waitlist table + send confirmation email
+- `/api/cv-builder` — POST: Claude API chat endpoint. Returns { reply, ready }
+- `/api/stripe/checkout` — POST: create Stripe checkout session ($49)
+- `/api/stripe/webhook` — POST: handle checkout.session.completed → set profiles.paid=true
+- `/api/profile/update` — POST: update profile fields for authenticated user
 - `/api/auth/signout` — POST: sign out + redirect to /
 
 ## Route protection
 `src/proxy.ts` — Next.js 16 proxy (equivalent to middleware). Redirects unauthenticated users from /onboarding, /dashboard, /profile → /login.
 
 ## Supabase tables
-- `waitlist` — id, email (unique), type (candidate|company), created_at
-- `profiles` — TO CREATE in week 2
+- `waitlist` — id, email (unique), type (candidate|company), created_at ✅ live
+- `profiles` — full schema in supabase/profiles.sql. RLS enabled, auto-create trigger on signup. ⚠️ Ana must run SQL in Supabase editor
+- `evidence` — TO CREATE in week 2 (photos, EXIF metadata, storage refs)
 - `jobs` — TO CREATE in week 3
 - `references` — TO CREATE in week 3
 - `matches` — TO CREATE in week 4
 
 ## Environment variables
-Already in Vercel + .env.local:
+In .env.local (local only):
 - NEXT_PUBLIC_SUPABASE_URL=https://juqgwcipbdzoegodiydh.supabase.co
-- NEXT_PUBLIC_SUPABASE_ANON_KEY
-- SUPABASE_SERVICE_ROLE_KEY
-- RESEND_API_KEY
+- NEXT_PUBLIC_SUPABASE_ANON_KEY ✅
+- SUPABASE_SERVICE_ROLE_KEY ✅
+- RESEND_API_KEY ✅
+- STRIPE_SECRET_KEY ✅ (Shapi account sk_live_51TXPuh...)
+- NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ✅ (pk_live_51TXPuh...)
+- NEXT_PUBLIC_SITE_URL=https://shapi.io ✅
+- STRIPE_WEBHOOK_SECRET ✅ (whsec_rFXsfF...)
 
-To add (week 2):
+In Vercel (⚠️ Ana must add these — NOT yet in Vercel):
 - STRIPE_SECRET_KEY
 - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-- ANTHROPIC_API_KEY
-- OPENAI_API_KEY (Whisper)
+- NEXT_PUBLIC_SITE_URL
+- STRIPE_WEBHOOK_SECRET
+- ANTHROPIC_API_KEY (get from console.anthropic.com → API Keys)
+
+Future:
+- OPENAI_API_KEY (Whisper — week 3)
 
 ## 5-week build plan
 - Week 1 ✅ Foundation, auth, homepage, waitlist, deploy to shapi.io
-- Week 2 🔜 Candidate onboarding data → Supabase, CV builder (Claude chat), Stripe payment ($49), evidence upload
+- Week 2 🔜 CV builder (Claude chat ✅), Stripe payment ($49 ✅), evidence upload (next), profile completion
 - Week 3 Reference collection system, company side (job posting, company profile, trust score)
 - Week 4 Matching engine, candidate ↔ company match scores, polish
 - Week 5 Launch — soft Monday, public Friday

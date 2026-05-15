@@ -58,6 +58,12 @@ export default async function Dashboard() {
               <p className="text-[#1C1C2E]/60 text-sm leading-relaxed">Reference pending. We&apos;ll notify you when it&apos;s complete.</p>
             </div>
 
+            <Link href="/evidence" className="bg-white rounded-2xl p-7 border border-[#1C1C2E]/5 shadow-sm hover:shadow-md transition-shadow group">
+              <div className="w-10 h-10 bg-[#0B5563]/10 rounded-full flex items-center justify-center text-[#0B5563] text-sm mb-5">⬆</div>
+              <h3 className="font-semibold text-[#1C1C2E] text-lg mb-2">Add work evidence</h3>
+              <p className="text-[#1C1C2E]/60 text-sm leading-relaxed">Photos and docs that prove your experience. Makes your profile stand out.</p>
+            </Link>
+
             <div className="bg-white rounded-2xl p-7 border border-[#1C1C2E]/5 shadow-sm opacity-50">
               <div className="w-10 h-10 bg-[#1C1C2E]/10 rounded-full flex items-center justify-center text-[#1C1C2E]/40 text-sm mb-5">▲</div>
               <h3 className="font-semibold text-[#1C1C2E] text-lg mb-2">Profile boost</h3>
