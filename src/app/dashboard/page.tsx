@@ -74,16 +74,27 @@ export default async function Dashboard() {
 
         {type === 'company' && (
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-2xl p-7 border border-[#1C1C2E]/5 shadow-sm">
+            <Link href="/company/onboarding" className="bg-white rounded-2xl p-7 border border-[#1C1C2E]/5 shadow-sm hover:shadow-md transition-shadow">
               <div className="w-10 h-10 bg-[#E8745A] rounded-full flex items-center justify-center text-white text-sm mb-5">+</div>
               <h3 className="font-semibold text-[#1C1C2E] text-lg mb-2">Post a role</h3>
               <p className="text-[#1C1C2E]/60 text-sm leading-relaxed">Add a job and start receiving verified candidate matches.</p>
-            </div>
+            </Link>
 
             <Link href="/candidates" className="bg-white rounded-2xl p-7 border border-[#1C1C2E]/5 shadow-sm hover:shadow-md transition-shadow">
               <div className="w-10 h-10 bg-[#E8745A]/10 rounded-full flex items-center justify-center text-[#E8745A] text-sm mb-5">◎</div>
               <h3 className="font-semibold text-[#1C1C2E] text-lg mb-2">Browse candidates</h3>
-              <p className="text-[#1C1C2E]/60 text-sm leading-relaxed">View verified candidate profiles matched to your roles.</p>
+              <p className="text-[#1C1C2E]/60 text-sm leading-relaxed">View verified candidates matched to your roles.</p>
+            </Link>
+
+            <Link href="/company/pricing" className="bg-[#0B5563] rounded-2xl p-7 shadow-sm hover:shadow-md transition-shadow md:col-span-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white/70 text-sm mb-1">Unlock full profiles</p>
+                  <h3 className="font-semibold text-white text-lg mb-1">Subscribe to start hiring</h3>
+                  <p className="text-white/60 text-sm">From $299/mo · Cancel anytime · Every candidate independently verified</p>
+                </div>
+                <span className="text-white text-2xl flex-shrink-0">→</span>
+              </div>
             </Link>
           </div>
         )}

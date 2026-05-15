@@ -23,16 +23,48 @@ export async function POST(request: Request) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
     const userId = session.metadata?.user_id
+    const tier = session.metadata?.tier
 
     if (userId) {
-      await supabase
-        .from('profiles')
-        .update({
-          paid: true,
-          stripe_customer_id: session.customer as string,
-        })
-        .eq('id', userId)
+      if (tier) {
+        // Company subscription
+        await supabase
+          .from('profiles')
+          .update({
+            paid: true,
+            stripe_customer_id: session.customer as string,
+            subscription_tier: tier,
+            subscription_status: 'active',
+            stripe_subscription_id: session.subscription as string,
+          })
+          .eq('id', userId)
+      } else {
+        // Candidate one-time payment
+        await supabase
+          .from('profiles')
+          .update({
+            paid: true,
+            stripe_customer_id: session.customer as string,
+          })
+          .eq('id', userId)
+      }
     }
+  }
+
+  if (event.type === 'customer.subscription.deleted') {
+    const subscription = event.data.object as Stripe.Subscription
+    await supabase
+      .from('profiles')
+      .update({ subscription_status: 'cancelled', paid: false })
+      .eq('stripe_subscription_id', subscription.id)
+  }
+
+  if (event.type === 'customer.subscription.updated') {
+    const subscription = event.data.object as Stripe.Subscription
+    await supabase
+      .from('profiles')
+      .update({ subscription_status: subscription.status as string })
+      .eq('stripe_subscription_id', subscription.id)
   }
 
   return NextResponse.json({ received: true })
