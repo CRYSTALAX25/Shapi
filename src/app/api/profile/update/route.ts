@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { sendWhatsApp, OPENING_MESSAGE, NO_CV_MESSAGE } from '@/lib/whatsapp'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -11,36 +12,40 @@ export async function POST(request: Request) {
 
   const body = await request.json()
 
+  // Upsert so new users without a profile row still work
   const { error } = await supabase
     .from('profiles')
-    .update({ ...body, updated_at: new Date().toISOString() })
-    .eq('id', user.id)
+    .upsert(
+      { id: user.id, ...body, updated_at: new Date().toISOString() },
+      { onConflict: 'id' }
+    )
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  // When a WhatsApp number is saved for the first time, send the opening message
+  // Send opening WhatsApp message when a number is saved for the first time
   if (body.whatsapp_number) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('full_name, whatsapp_conversation_active')
+      .select('full_name, whatsapp_conversation_active, cv_parsed')
       .eq('id', user.id)
       .single()
 
-    // Only send if conversation hasn't already started
     if (!profile?.whatsapp_conversation_active) {
       const firstName = profile?.full_name?.split(' ')[0] || 'there'
+      const message = profile?.cv_parsed
+        ? OPENING_MESSAGE(firstName)
+        : NO_CV_MESSAGE(firstName)
 
-      // Fire-and-forget — don't block the response
-      fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'https://shapi.io'}/api/whatsapp/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Cookie: request.headers.get('cookie') || '' },
-        body: JSON.stringify({
-          to: body.whatsapp_number,
-          name: firstName,
-        }),
-      }).catch(err => console.error('[WhatsApp] profile/update trigger failed:', err))
+      const { success } = await sendWhatsApp(body.whatsapp_number, message)
+
+      if (success) {
+        await supabase
+          .from('profiles')
+          .update({ whatsapp_conversation_active: true })
+          .eq('id', user.id)
+      }
     }
   }
 

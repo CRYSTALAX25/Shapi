@@ -22,36 +22,42 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'File too large (max 5MB)' }, { status: 400 })
   }
 
-  // Upload to Supabase Storage
   const bytes = await file.arrayBuffer()
   const storagePath = `${user.id}/cv-${Date.now()}.pdf`
 
+  // Upload to Supabase Storage
   const { error: uploadError } = await supabase.storage
     .from('cvs')
     .upload(storagePath, bytes, { contentType: 'application/pdf', upsert: true })
 
   if (uploadError) {
-    return NextResponse.json({ error: uploadError.message }, { status: 500 })
+    console.error('[cv-parse] Storage error:', uploadError.message)
+    return NextResponse.json(
+      { error: `Storage error: ${uploadError.message}` },
+      { status: 500 }
+    )
   }
 
   // Parse with Claude
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
   const base64 = Buffer.from(bytes).toString('base64')
 
-  const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 2000,
-    messages: [
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'document',
-            source: { type: 'base64', media_type: 'application/pdf', data: base64 },
-          },
-          {
-            type: 'text',
-            text: `Extract the candidate's information from this CV and return ONLY a valid JSON object with this exact structure:
+  let response
+  try {
+    response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 2000,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'document',
+              source: { type: 'base64', media_type: 'application/pdf', data: base64 },
+            },
+            {
+              type: 'text',
+              text: `Extract the candidate's information from this CV and return ONLY a valid JSON object with this exact structure:
 {
   "full_name": "string or null",
   "headline": "their current or most recent job title, string or null",
@@ -71,11 +77,15 @@ export async function POST(request: Request) {
 }
 
 Return only the JSON. No explanation, no markdown fences.`,
-          },
-        ],
-      },
-    ],
-  })
+            },
+          ],
+        },
+      ],
+    })
+  } catch (err) {
+    console.error('[cv-parse] Anthropic error:', err)
+    return NextResponse.json({ error: 'AI parsing failed' }, { status: 500 })
+  }
 
   const raw = response.content[0].type === 'text' ? response.content[0].text : '{}'
 
@@ -83,11 +93,12 @@ Return only the JSON. No explanation, no markdown fences.`,
   try {
     parsed = JSON.parse(raw)
   } catch {
-    return NextResponse.json({ error: 'Could not parse CV' }, { status: 500 })
+    return NextResponse.json({ error: 'Could not parse CV response' }, { status: 500 })
   }
 
-  // Save to profile
-  await supabase.from('profiles').update({
+  // Upsert profile (handles both new and existing users)
+  await supabase.from('profiles').upsert({
+    id: user.id,
     cv_storage_path: storagePath,
     cv_parsed: true,
     full_name: parsed.full_name || null,
@@ -98,9 +109,10 @@ Return only the JSON. No explanation, no markdown fences.`,
     skills: parsed.skills || [],
     ai_tier: parsed.ai_tier || null,
     completion_pct: 30,
-  }).eq('id', user.id)
+    updated_at: new Date().toISOString(),
+  }, { onConflict: 'id' })
 
-  // Run matching in the background — don't block the response
+  // Run matching in the background
   matchCandidateToJobs(user.id).catch(err =>
     console.error('[Matching] cv-parse trigger failed:', err)
   )
