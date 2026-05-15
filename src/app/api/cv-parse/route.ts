@@ -1,6 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 import { matchCandidateToJobs } from '@/lib/matching'
 
@@ -97,9 +96,8 @@ Return only the JSON. No explanation, no markdown fences.`,
     return NextResponse.json({ error: 'Could not parse CV response' }, { status: 500 })
   }
 
-  // Upsert profile using admin client (bypasses RLS — user already verified above)
-  const admin = createAdminClient()
-  const { error: upsertError } = await admin.from('profiles').upsert({
+  // Upsert profile
+  const { error: upsertError } = await supabase.from('profiles').upsert({
     id: user.id,
     cv_storage_path: storagePath,
     cv_parsed: true,
