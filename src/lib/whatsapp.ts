@@ -13,12 +13,14 @@ export async function sendWhatsApp(
   const from = process.env.TWILIO_WHATSAPP_FROM
 
   if (!accountSid || !authToken || !from) {
-    console.log('[WhatsApp] Twilio not configured — simulating send to:', to)
-    return { success: true }
+    console.error('[WhatsApp] MISSING ENV VARS — accountSid:', !!accountSid, '| authToken:', !!authToken, '| from:', !!from)
+    return { success: false, error: 'Twilio env vars not configured' }
   }
 
   const cleaned = to.replace(/\s/g, '')
   const recipient = cleaned.startsWith('whatsapp:') ? cleaned : `whatsapp:${cleaned}`
+
+  console.log('[WhatsApp] Sending to:', recipient, '| From:', from)
 
   try {
     const res = await fetch(
@@ -33,12 +35,14 @@ export async function sendWhatsApp(
       }
     )
 
+    const data = await res.json()
+
     if (!res.ok) {
-      const err = await res.json()
-      console.error('[WhatsApp] Twilio error:', err)
-      return { success: false, error: err.message || 'Send failed' }
+      console.error('[WhatsApp] Twilio error:', JSON.stringify(data))
+      return { success: false, error: data.message || 'Send failed' }
     }
 
+    console.log('[WhatsApp] Sent OK, SID:', data.sid)
     return { success: true }
   } catch (err) {
     console.error('[WhatsApp] Network error:', err)

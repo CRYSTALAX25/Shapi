@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 import { sendWhatsApp, OPENING_MESSAGE, NO_CV_MESSAGE } from '@/lib/whatsapp'
 
@@ -12,8 +13,9 @@ export async function POST(request: Request) {
 
   const body = await request.json()
 
-  // Upsert so new users without a profile row still work
-  const { error } = await supabase
+  // Upsert using admin client (bypasses RLS — user already verified above)
+  const admin = createAdminClient()
+  const { error } = await admin
     .from('profiles')
     .upsert(
       { id: user.id, ...body, updated_at: new Date().toISOString() },
@@ -21,12 +23,15 @@ export async function POST(request: Request) {
     )
 
   if (error) {
+    console.error('[profile/update] Upsert error:', error.message)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  console.log('[profile/update] Saved for user:', user.id, 'fields:', Object.keys(body).join(','))
+
   // Send opening WhatsApp message when a number is saved for the first time
   if (body.whatsapp_number) {
-    const { data: profile } = await supabase
+    const { data: profile } = await admin
       .from('profiles')
       .select('full_name, whatsapp_conversation_active, cv_parsed')
       .eq('id', user.id)
@@ -41,7 +46,7 @@ export async function POST(request: Request) {
       const { success } = await sendWhatsApp(body.whatsapp_number, message)
 
       if (success) {
-        await supabase
+        await admin
           .from('profiles')
           .update({ whatsapp_conversation_active: true })
           .eq('id', user.id)
