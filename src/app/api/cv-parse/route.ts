@@ -99,6 +99,7 @@ Return only the JSON. No explanation, no markdown fences.`,
   // Upsert profile
   const { error: upsertError } = await supabase.from('profiles').upsert({
     id: user.id,
+    email: user.email,
     cv_storage_path: storagePath,
     cv_parsed: true,
     full_name: parsed.full_name || null,
@@ -113,8 +114,8 @@ Return only the JSON. No explanation, no markdown fences.`,
   }, { onConflict: 'id' })
 
   if (upsertError) {
-    console.error('[cv-parse] Profile upsert error:', upsertError.message, upsertError.details)
-    return NextResponse.json({ error: 'Failed to save profile data' }, { status: 500 })
+    console.error('[cv-parse] Profile upsert error:', upsertError.message, '|', upsertError.details, '|', upsertError.hint)
+    return NextResponse.json({ error: `Failed to save profile data: ${upsertError.message}` }, { status: 500 })
   }
 
   console.log('[cv-parse] Profile saved for user:', user.id)
