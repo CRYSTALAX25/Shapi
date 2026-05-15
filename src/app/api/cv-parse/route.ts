@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { matchCandidateToJobs } from '@/lib/matching'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -35,7 +36,6 @@ export async function POST(request: Request) {
 
   // Parse with Claude
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-
   const base64 = Buffer.from(bytes).toString('base64')
 
   const response = await anthropic.messages.create({
@@ -47,11 +47,7 @@ export async function POST(request: Request) {
         content: [
           {
             type: 'document',
-            source: {
-              type: 'base64',
-              media_type: 'application/pdf',
-              data: base64,
-            },
+            source: { type: 'base64', media_type: 'application/pdf', data: base64 },
           },
           {
             type: 'text',
@@ -101,7 +97,13 @@ Return only the JSON. No explanation, no markdown fences.`,
     work_history: parsed.work_history || [],
     skills: parsed.skills || [],
     ai_tier: parsed.ai_tier || null,
+    completion_pct: 30,
   }).eq('id', user.id)
+
+  // Run matching in the background — don't block the response
+  matchCandidateToJobs(user.id).catch(err =>
+    console.error('[Matching] cv-parse trigger failed:', err)
+  )
 
   return NextResponse.json({ success: true, profile: parsed })
 }

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { matchJobToCandidates } from '@/lib/matching'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -31,6 +32,13 @@ export async function POST(request: Request) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  // If job goes live immediately, run matching
+  if (data.status === 'live') {
+    matchJobToCandidates(data.id).catch(err =>
+      console.error('[Matching] job create trigger failed:', err)
+    )
   }
 
   return NextResponse.json({ success: true, job: data })
