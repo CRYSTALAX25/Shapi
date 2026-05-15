@@ -80,11 +80,11 @@ export default async function Dashboard() {
               <p className="text-[#1C1C2E]/60 text-sm leading-relaxed">Add a job and start receiving verified candidate matches.</p>
             </div>
 
-            <div className="bg-white rounded-2xl p-7 border border-[#1C1C2E]/5 shadow-sm opacity-50">
-              <div className="w-10 h-10 bg-[#1C1C2E]/10 rounded-full flex items-center justify-center text-[#1C1C2E]/40 text-sm mb-5">◎</div>
-              <h3 className="font-semibold text-[#1C1C2E] text-lg mb-2">Candidate pipeline</h3>
-              <p className="text-[#1C1C2E]/60 text-sm leading-relaxed">Post a role to see matched candidates.</p>
-            </div>
+            <Link href="/candidates" className="bg-white rounded-2xl p-7 border border-[#1C1C2E]/5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-10 h-10 bg-[#E8745A]/10 rounded-full flex items-center justify-center text-[#E8745A] text-sm mb-5">◎</div>
+              <h3 className="font-semibold text-[#1C1C2E] text-lg mb-2">Browse candidates</h3>
+              <p className="text-[#1C1C2E]/60 text-sm leading-relaxed">View verified candidate profiles matched to your roles.</p>
+            </Link>
           </div>
         )}
       </div>
