@@ -40,10 +40,10 @@ export default function Home() {
       <nav className="px-6 py-5 flex items-center justify-between max-w-6xl mx-auto">
         <span className="text-[#0B5563] font-bold text-2xl tracking-tight">shapi</span>
         <a
-          href="#waitlist"
+          href="/signup"
           className="bg-[#0B5563] text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-[#094450] transition-colors"
         >
-          Get early access
+          Get started
         </a>
       </nav>
 
@@ -65,16 +65,16 @@ export default function Home() {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
           <a
-            href="#waitlist"
+            href="/signup"
             className="bg-[#0B5563] text-white px-8 py-4 rounded-full text-base font-semibold hover:bg-[#094450] transition-colors"
           >
             I&apos;m looking for a role — $49
           </a>
           <a
-            href="#waitlist"
+            href="/signup"
             className="bg-[#E8745A] text-white px-8 py-4 rounded-full text-base font-semibold hover:bg-[#d45e42] transition-colors"
           >
-            I&apos;m hiring — 60 days free
+            I&apos;m hiring — post a role free
           </a>
         </div>
 
@@ -188,79 +188,29 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Waitlist */}
+      {/* CTA */}
       <section id="waitlist" className="bg-[#1C1C2E] py-20 px-6">
         <div className="max-w-lg mx-auto text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
-            Get early access
+            Ready to get started?
           </h2>
           <p className="text-white/60 mb-10">
-            First 50 candidates get early access. First 5 companies get 60 days free.
-            UAE launch — May 2026.
+            UAE · Saudi Arabia · GCC · Remote MENA
           </p>
-
-          {submitted ? (
-            <div className="bg-[#0B5563] rounded-2xl p-8">
-              <p className="text-white font-semibold text-lg mb-2">You&apos;re on the list.</p>
-              <p className="text-white/70 text-sm">
-                We&apos;ll be in touch before launch. You&apos;re helping shape what Shapi becomes.
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="flex gap-3 bg-white/10 p-1.5 rounded-full mb-6">
-                <button
-                  type="button"
-                  onClick={() => setType('candidate')}
-                  className={`flex-1 py-2.5 rounded-full text-sm font-medium transition-colors ${
-                    type === 'candidate'
-                      ? 'bg-[#0B5563] text-white'
-                      : 'text-white/60 hover:text-white'
-                  }`}
-                >
-                  I&apos;m a candidate
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setType('company')}
-                  className={`flex-1 py-2.5 rounded-full text-sm font-medium transition-colors ${
-                    type === 'company'
-                      ? 'bg-[#E8745A] text-white'
-                      : 'text-white/60 hover:text-white'
-                  }`}
-                >
-                  I&apos;m a company
-                </button>
-              </div>
-
-              <input
-                type="email"
-                placeholder="your@email.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                className="w-full bg-white/10 text-white placeholder-white/40 border border-white/20 rounded-full px-6 py-4 text-sm focus:outline-none focus:border-[#E8745A] transition-colors"
-              />
-
-              <button
-                type="submit"
-                disabled={!type || loading}
-                className="w-full bg-[#E8745A] text-white py-4 rounded-full font-semibold text-sm hover:bg-[#d45e42] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Joining...' : 'Join the waitlist →'}
-              </button>
-
-              {error && (
-                <p className="text-[#E8745A] text-xs">{error}</p>
-              )}
-
-              {!type && !error && (
-                <p className="text-white/40 text-xs">
-                  Select candidate or company above first
-                </p>
-              )}
-            </form>
-          )}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="/signup"
+              className="bg-[#0B5563] text-white px-8 py-4 rounded-full font-semibold text-sm hover:bg-[#094450] transition-colors"
+            >
+              Build my verified profile — $49 →
+            </a>
+            <a
+              href="/signup"
+              className="bg-[#E8745A] text-white px-8 py-4 rounded-full font-semibold text-sm hover:bg-[#d45e42] transition-colors"
+            >
+              Start hiring →
+            </a>
+          </div>
         </div>
       </section>
 
