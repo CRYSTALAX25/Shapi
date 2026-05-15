@@ -30,7 +30,7 @@ export async function POST(request: Request) {
         quantity: 1,
       },
     ],
-    success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding?payment=success`,
+    success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/upload-cv?payment=success`,
     cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/pay`,
     metadata: {
       user_id: user.id,

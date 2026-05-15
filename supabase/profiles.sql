@@ -17,6 +17,12 @@ create table profiles (
   -- profile status
   profile_live bool default false,
   completion_pct int default 0,
+  -- cv upload
+  cv_storage_path text,
+  cv_parsed bool default false,
+  -- whatsapp
+  whatsapp_number text,
+  whatsapp_conversation_active bool default false,
   -- payment
   paid bool default false,
   stripe_customer_id text,
