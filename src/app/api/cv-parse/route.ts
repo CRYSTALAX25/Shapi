@@ -26,7 +26,7 @@ export async function POST(request: Request) {
   const storagePath = `${user.id}/cv-${Date.now()}.pdf`
 
   const { error: uploadError } = await supabase.storage
-    .from('cvs')
+    .from('csv')
     .upload(storagePath, bytes, { contentType: 'application/pdf', upsert: true })
 
   if (uploadError) {
