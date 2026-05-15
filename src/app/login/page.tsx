@@ -30,22 +30,57 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F4EE] flex items-center justify-center px-6">
-      <div className="max-w-md w-full">
+    <div className="min-h-screen bg-[#060609] flex items-center justify-center px-6">
+      <style>{`
+        @keyframes gradientShift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        .gradient-border-card {
+          background: linear-gradient(#060609, #060609) padding-box,
+                      linear-gradient(135deg, rgba(34,211,238,0.2), rgba(139,92,246,0.2)) border-box;
+          border: 1px solid transparent;
+          transition: all 0.25s ease;
+        }
+        input:focus {
+          background: linear-gradient(#060609, #060609) padding-box,
+                      linear-gradient(135deg, rgba(34,211,238,0.5), rgba(139,92,246,0.5)) border-box !important;
+        }
+      `}</style>
+
+      {/* Dot grid */}
+      <div className="fixed inset-0 pointer-events-none" style={{
+        backgroundImage: 'radial-gradient(circle, rgba(34,211,238,0.08) 1px, transparent 1px)',
+        backgroundSize: '44px 44px',
+      }} />
+
+      {/* Orb */}
+      <div className="fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none" style={{
+        background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)',
+      }} />
+
+      <div className="relative z-10 max-w-md w-full">
         <div className="text-center mb-10">
-          <Link href="/" className="text-[#0B5563] font-bold text-2xl tracking-tight">shapi</Link>
-          <h1 className="text-2xl font-bold text-[#1C1C2E] mt-6 mb-2">Welcome back</h1>
-          <p className="text-[#1C1C2E]/60 text-sm">Sign in to your Shapi account</p>
+          <Link href="/" className="font-black text-2xl tracking-tighter" style={{
+            background: 'linear-gradient(135deg, #A78BFA, #22D3EE, #FB7185)',
+            backgroundSize: '200% 200%',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            animation: 'gradientShift 5s ease infinite',
+          }}>shapi</Link>
+          <h1 className="text-2xl font-black text-white mt-6 mb-2">Welcome back</h1>
+          <p className="text-white/35 text-sm">Sign in to your Shapi account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <input
             type="email"
             placeholder="Email address"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
-            className="w-full bg-white border border-[#1C1C2E]/10 rounded-2xl px-5 py-4 text-[#1C1C2E] placeholder-[#1C1C2E]/40 focus:outline-none focus:border-[#0B5563] transition-colors text-sm"
+            className="gradient-border-card w-full px-5 py-4 rounded-2xl text-white placeholder-white/25 focus:outline-none text-sm bg-transparent"
           />
 
           <input
@@ -54,22 +89,26 @@ export default function Login() {
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
-            className="w-full bg-white border border-[#1C1C2E]/10 rounded-2xl px-5 py-4 text-[#1C1C2E] placeholder-[#1C1C2E]/40 focus:outline-none focus:border-[#0B5563] transition-colors text-sm"
+            className="gradient-border-card w-full px-5 py-4 rounded-2xl text-white placeholder-white/25 focus:outline-none text-sm bg-transparent"
           />
 
-          {error && <p className="text-red-500 text-xs">{error}</p>}
+          {error && (
+            <p className="text-[#FB7185] text-xs bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3">
+              {error}
+            </p>
+          )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#0B5563] text-white py-4 rounded-full font-semibold text-sm hover:bg-[#094450] transition-colors disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] py-4 rounded-full font-black text-sm text-[#060609] hover:opacity-90 transition-opacity disabled:opacity-50 mt-2"
           >
             {loading ? 'Signing in...' : 'Sign in →'}
           </button>
 
-          <div className="flex justify-between text-xs text-[#1C1C2E]/40">
-            <Link href="/signup" className="text-[#0B5563] font-medium hover:underline">Create account</Link>
-            <Link href="/reset-password" className="hover:text-[#1C1C2E]/70 transition-colors">Forgot password?</Link>
+          <div className="flex justify-between text-xs pt-1">
+            <Link href="/signup" className="text-[#22D3EE] font-semibold hover:opacity-80 transition-opacity">Create account</Link>
+            <Link href="/reset-password" className="text-white/30 hover:text-white/60 transition-colors">Forgot password?</Link>
           </div>
         </form>
       </div>
