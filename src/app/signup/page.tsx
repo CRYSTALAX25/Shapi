@@ -24,7 +24,7 @@ export default function SignUp() {
       password,
       options: {
         data: { type },
-        emailRedirectTo: `${location.origin}/cv-builder`,
+        emailRedirectTo: `${location.origin}/upload-cv`,
       },
     })
 
