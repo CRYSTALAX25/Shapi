@@ -36,10 +36,10 @@ export default async function Dashboard() {
 
         {type === 'candidate' && (
           <div className="grid md:grid-cols-2 gap-6">
-            <Link href="/onboarding" className="bg-white rounded-2xl p-7 border border-[#1C1C2E]/5 shadow-sm hover:shadow-md transition-shadow group">
+            <Link href="/upload-cv" className="bg-white rounded-2xl p-7 border border-[#1C1C2E]/5 shadow-sm hover:shadow-md transition-shadow group">
               <div className="w-10 h-10 bg-[#0B5563] rounded-full flex items-center justify-center text-white text-sm mb-5">→</div>
-              <h3 className="font-semibold text-[#1C1C2E] text-lg mb-2">Complete your profile</h3>
-              <p className="text-[#1C1C2E]/60 text-sm leading-relaxed">Add your work history, skills, and first reference to go live.</p>
+              <h3 className="font-semibold text-[#1C1C2E] text-lg mb-2">Build your profile</h3>
+              <p className="text-[#1C1C2E]/60 text-sm leading-relaxed">Drop your CV — we read it and ask you the right questions. Takes 3 minutes.</p>
               <div className="mt-4 h-1.5 bg-[#1C1C2E]/5 rounded-full">
                 <div className="h-1.5 bg-[#0B5563] rounded-full w-[10%]" />
               </div>
