@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import ShapiCharacter from '@/components/ShapiCharacter'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 type Candidate = {
   id: string
@@ -13,43 +14,124 @@ type Candidate = {
   completion_pct: number
   summary: string | null
   whatsapp_chat: unknown[]
+  industry: string | null
+  match_score?: number
 }
 
-export default async function CompanyDashboard() {
+type Role = {
+  id: string
+  title: string
+  department: string | null
+  location: string | null
+  requirements: string | null
+  description: string | null
+  salary_min: number | null
+  salary_max: number | null
+  salary_currency: string | null
+  status: string
+  created_at: string
+}
+
+function scoreCandidate(candidate: Candidate, role: Role): number {
+  let score = 0
+
+  const reqText = `${role.requirements || ''} ${role.description || ''} ${role.title || ''}`.toLowerCase()
+  const candidateSkills = (candidate.skills || []).map(s => s.toLowerCase())
+
+  if (candidateSkills.length > 0) {
+    let matchCount = 0
+    for (const skill of candidateSkills) {
+      const escaped = skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      if (new RegExp(`\\b${escaped}\\b`).test(reqText)) matchCount++
+    }
+    score += Math.round((matchCount / candidateSkills.length) * 50)
+  }
+
+  if (role.location && candidate.location) {
+    const roleCity = role.location.toLowerCase()
+    const candCity = candidate.location.toLowerCase()
+    if (roleCity.includes(candCity) || candCity.includes(roleCity)) {
+      score += 20
+    } else {
+      const roleWords = roleCity.split(/[\s,]+/)
+      const candWords = candCity.split(/[\s,]+/)
+      if (roleWords.some(w => w.length > 2 && candWords.includes(w))) score += 10
+    }
+  } else if (!role.location) {
+    score += 10
+  }
+
+  const deptText = `${role.department || ''} ${role.title || ''}`.toLowerCase()
+  const headlineText = `${candidate.headline || ''} ${candidate.industry || ''}`.toLowerCase()
+  if (deptText && headlineText) {
+    const deptWords = deptText.split(/[\s,\/\-]+/).filter(w => w.length > 3)
+    const headlineWords = headlineText.split(/[\s,\/\-]+/)
+    if (deptWords.some(w => headlineWords.some(h => h.includes(w) || w.includes(h)))) score += 15
+  }
+
+  score += Math.round((candidate.completion_pct / 100) * 15)
+  return Math.min(score, 100)
+}
+
+function matchLabel(score: number) {
+  if (score >= 75) return { label: 'Strong match', colour: 'bg-emerald-500/15 text-emerald-400' }
+  if (score >= 50) return { label: 'Good match', colour: 'bg-[#22D3EE]/10 text-[#22D3EE]' }
+  if (score >= 30) return { label: 'Possible', colour: 'bg-[#A78BFA]/10 text-[#A78BFA]' }
+  return { label: 'Low match', colour: 'bg-white/[0.07] text-white/35' }
+}
+
+export default async function CompanyDashboard({ searchParams }: { searchParams: Promise<{ role?: string }> }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   const { data: company } = await supabase
     .from('profiles')
-    .select('full_name, type, paid, subscription_status, subscription_tier, company_name, company_data, company_size')
+    .select('full_name, type, paid, subscription_status, company_name, company_data, company_size')
     .eq('id', user.id)
     .single()
 
   if (!company || company.type !== 'company') redirect('/dashboard')
 
   const isPaid = company?.paid && company?.subscription_status === 'active'
-
-  const [candidatesResult, rolesResult] = await Promise.all([
-    supabase
-      .from('profiles')
-      .select('id, full_name, headline, location, skills, ai_tier, completion_pct, summary, whatsapp_chat')
-      .eq('type', 'candidate')
-      .gte('completion_pct', 30)
-      .order('completion_pct', { ascending: false })
-      .limit(50),
-    supabase
-      .from('roles')
-      .select('id, title, department, location, salary_min, salary_max, salary_currency, status, created_at')
-      .eq('company_id', user.id)
-      .order('created_at', { ascending: false }),
-  ])
-
-  const candidates = candidatesResult.data
-  const roles = rolesResult.data || []
-  const count = candidates?.length || 0
   const companyName = company.company_name || company.full_name || 'Your company'
   const companyData = company.company_data as Record<string, unknown> | null
+
+  // Fetch all active roles for this company
+  const { data: roles } = await supabase
+    .from('roles')
+    .select('id, title, department, location, requirements, description, salary_min, salary_max, salary_currency, status, created_at')
+    .eq('company_id', user.id)
+    .order('created_at', { ascending: false })
+
+  const allRoles: Role[] = roles || []
+  const activeRoles = allRoles.filter(r => r.status === 'active')
+
+  // Determine selected role
+  const sp = await searchParams
+  const selectedRoleId = sp.role || activeRoles[0]?.id || null
+  const selectedRole = allRoles.find(r => r.id === selectedRoleId) || null
+
+  // Fetch candidates (admin client)
+  const admin = createAdminClient()
+  const { data: rawCandidates } = await admin
+    .from('profiles')
+    .select('id, full_name, headline, location, skills, ai_tier, completion_pct, summary, whatsapp_chat, industry')
+    .eq('type', 'candidate')
+    .gte('completion_pct', 20)
+    .order('completion_pct', { ascending: false })
+    .limit(200)
+
+  const allCandidates: Candidate[] = rawCandidates || []
+
+  // Score and sort candidates if a role is selected
+  const candidates: Candidate[] = selectedRole
+    ? allCandidates
+        .map(c => ({ ...c, match_score: scoreCandidate(c, selectedRole) }))
+        .sort((a, b) => (b.match_score ?? 0) - (a.match_score ?? 0))
+    : allCandidates
+
+  const count = candidates.length
 
   const aiTierColour: Record<string, string> = {
     user: 'bg-[#22D3EE]/10 text-[#22D3EE]',
@@ -73,6 +155,24 @@ export default async function CompanyDashboard() {
           background: linear-gradient(#0d0d14, #0d0d14) padding-box,
                       linear-gradient(135deg, rgba(34,211,238,0.25), rgba(139,92,246,0.25)) border-box;
         }
+        .role-tab {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 12px;
+          padding: 8px 14px;
+          font-size: 13px;
+          font-weight: 600;
+          color: rgba(255,255,255,0.4);
+          transition: all 0.15s;
+          white-space: nowrap;
+        }
+        .role-tab:hover { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.18); }
+        .role-tab.active {
+          background: linear-gradient(#0d0d14, #0d0d14) padding-box,
+                      linear-gradient(135deg, #22D3EE, #A78BFA) border-box;
+          border: 1px solid transparent;
+          color: white;
+        }
       `}</style>
 
       <div className="fixed inset-0 pointer-events-none" style={{
@@ -88,7 +188,6 @@ export default async function CompanyDashboard() {
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
-            animation: 'gradientShift 5s ease infinite',
           }}>shapi</Link>
           <div className="flex items-center gap-6">
             <span className="text-white/30 text-sm">{companyName}</span>
@@ -121,7 +220,7 @@ export default async function CompanyDashboard() {
           </Link>
         </div>
 
-        {/* Company data panel */}
+        {/* Company intelligence */}
         {companyData && (
           <div className="gradient-border-card rounded-2xl p-5 mb-5">
             <div className="flex items-start justify-between gap-4 mb-3">
@@ -159,33 +258,71 @@ export default async function CompanyDashboard() {
           </div>
         )}
 
-        {/* Open roles */}
-        {roles.length > 0 && (
+        {/* Role tabs */}
+        {allRoles.length > 0 && (
           <div className="mb-6">
-            <p className="text-white/35 text-xs font-bold uppercase tracking-wider mb-3">Your open roles</p>
-            <div className="grid sm:grid-cols-2 gap-3">
-              {roles.map(role => (
-                <div key={role.id} className="gradient-border-card rounded-xl p-4">
-                  <div className="flex items-start justify-between gap-2 mb-1">
-                    <p className="text-white font-bold text-sm">{role.title}</p>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${
-                      role.status === 'active' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-white/[0.07] text-white/35'
-                    }`}>{role.status}</span>
-                  </div>
-                  {role.department && <p className="text-white/35 text-xs">{role.department}</p>}
-                  {role.location && <p className="text-white/30 text-xs">📍 {role.location}</p>}
-                  {role.salary_min && role.salary_max && (
-                    <p className="text-[#22D3EE] text-xs font-semibold mt-2">
-                      {role.salary_currency} {role.salary_min.toLocaleString()}–{role.salary_max.toLocaleString()}
-                    </p>
-                  )}
-                </div>
-              ))}
+            <div className="flex items-center gap-3 mb-3 flex-wrap">
+              <p className="text-white/35 text-xs font-bold uppercase tracking-wider flex-shrink-0">Matching for</p>
+              <div className="flex gap-2 flex-wrap">
+                {activeRoles.map(role => (
+                  <Link
+                    key={role.id}
+                    href={`/company/dashboard?role=${role.id}`}
+                    className={`role-tab ${selectedRoleId === role.id ? 'active' : ''}`}
+                  >
+                    {role.title}
+                    {role.department && <span className="text-white/30 font-normal ml-1">· {role.department}</span>}
+                  </Link>
+                ))}
+                {allRoles.filter(r => r.status !== 'active').map(role => (
+                  <Link
+                    key={role.id}
+                    href={`/company/dashboard?role=${role.id}`}
+                    className={`role-tab ${selectedRoleId === role.id ? 'active' : ''}`}
+                  >
+                    {role.title}
+                    <span className="text-white/25 font-normal ml-1">· {role.status}</span>
+                  </Link>
+                ))}
+              </div>
               <Link href="/company/roles/new"
-                className="gradient-border-card rounded-xl p-4 flex items-center justify-center hover:bg-white/[0.02] transition-colors">
-                <span className="text-white/30 text-sm font-bold">+ Post another role</span>
+                className="role-tab text-white/25 hover:text-white/50">
+                + New role
               </Link>
             </div>
+
+            {selectedRole && (
+              <div className="gradient-border-card rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-white font-bold text-sm">{selectedRole.title}</p>
+                  <p className="text-white/35 text-xs">
+                    {[selectedRole.department, selectedRole.location].filter(Boolean).join(' · ')}
+                    {selectedRole.salary_min && selectedRole.salary_max && (
+                      <span className="text-[#22D3EE] ml-2">
+                        {selectedRole.salary_currency} {selectedRole.salary_min.toLocaleString()}–{selectedRole.salary_max.toLocaleString()}
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <p className="text-white/25 text-xs flex-shrink-0">
+                  {count} candidate{count !== 1 ? 's' : ''} scored
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* No roles yet — prompt */}
+        {allRoles.length === 0 && (
+          <div className="gradient-border-card rounded-2xl p-6 mb-6 flex items-center justify-between gap-6">
+            <div>
+              <p className="text-white font-bold mb-1">Post a role to see matched candidates</p>
+              <p className="text-white/35 text-sm">Once you post a role, we rank all verified candidates by how well they match it.</p>
+            </div>
+            <Link href="/company/roles/new"
+              className="flex-shrink-0 bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] px-5 py-3 rounded-full font-black text-sm text-[#060609] hover:opacity-90 transition-opacity">
+              Post a role →
+            </Link>
           </div>
         )}
 
@@ -208,6 +345,7 @@ export default async function CompanyDashboard() {
           </div>
         )}
 
+        {/* Candidate list */}
         {count === 0 ? (
           <div className="gradient-border-card rounded-2xl p-16 text-center flex flex-col items-center">
             <ShapiCharacter mood="idle" size={72} className="mb-6" />
@@ -216,8 +354,11 @@ export default async function CompanyDashboard() {
           </div>
         ) : (
           <div className="grid gap-4">
-            {(candidates as Candidate[]).map(c => {
+            {candidates.map(c => {
               const hasDeepDive = Array.isArray(c.whatsapp_chat) && c.whatsapp_chat.length > 2
+              const ms = c.match_score
+              const ml = ms !== undefined ? matchLabel(ms) : null
+
               return (
                 <div key={c.id}
                   className="gradient-border-card card-hover rounded-2xl p-6 transition-all duration-200">
@@ -242,6 +383,11 @@ export default async function CompanyDashboard() {
                             AI {c.ai_tier}
                           </span>
                         )}
+                        {ml && (
+                          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${ml.colour}`}>
+                            {ml.label}
+                          </span>
+                        )}
                       </div>
                       <p className={`text-sm mb-1 ${isPaid ? 'text-white/60' : 'text-white/60 blur-sm select-none'}`}>
                         {isPaid ? (c.headline || '—') : 'Senior Professional · 8+ years'}
@@ -251,7 +397,6 @@ export default async function CompanyDashboard() {
                           📍 {isPaid ? c.location : 'Dubai, UAE'}
                         </p>
                       )}
-                      {/* Skills */}
                       {c.skills && c.skills.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-3">
                           {c.skills.slice(0, 5).map((skill, i) => (
@@ -264,7 +409,6 @@ export default async function CompanyDashboard() {
                           )}
                         </div>
                       )}
-                      {/* Summary preview */}
                       {isPaid && c.summary && (
                         <p className="text-white/35 text-xs leading-relaxed line-clamp-2">{c.summary}</p>
                       )}
@@ -272,15 +416,29 @@ export default async function CompanyDashboard() {
 
                     {/* Right side */}
                     <div className="flex flex-col items-end gap-3 flex-shrink-0">
-                      <div className="text-right">
-                        <div className="text-3xl font-black" style={{
-                          background: 'linear-gradient(135deg, #22D3EE, #A78BFA)',
-                          WebkitBackgroundClip: 'text',
-                          WebkitTextFillColor: 'transparent',
-                          backgroundClip: 'text',
-                        }}>{c.completion_pct}%</div>
-                        <div className="text-white/25 text-xs">complete</div>
-                      </div>
+                      {ms !== undefined ? (
+                        <div className="text-right">
+                          <div className="text-3xl font-black" style={{
+                            background: ms >= 50
+                              ? 'linear-gradient(135deg, #22D3EE, #A78BFA)'
+                              : 'linear-gradient(135deg, #A78BFA, #FB7185)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                          }}>{ms}%</div>
+                          <div className="text-white/25 text-xs">match</div>
+                        </div>
+                      ) : (
+                        <div className="text-right">
+                          <div className="text-3xl font-black" style={{
+                            background: 'linear-gradient(135deg, #22D3EE, #A78BFA)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                          }}>{c.completion_pct}%</div>
+                          <div className="text-white/25 text-xs">complete</div>
+                        </div>
+                      )}
                       {isPaid && (
                         <Link href={`/candidates/${c.id}`}
                           className="bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#060609] text-xs font-black px-4 py-2 rounded-full hover:opacity-90 transition-opacity">
