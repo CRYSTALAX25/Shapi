@@ -47,14 +47,27 @@ export async function POST(request: Request) {
   const body = await request.json()
   const mode: string = body.mode // 'english' | 'native' | 'universal'
   const targetIndustry: string | null = body.targetIndustry || null // override profile industry
+  const forceRefresh: boolean = body.forceRefresh || false // bypass cache
+
+  // Cache key: "english", "native", "universal", "english_tech", etc.
+  const cacheKey = targetIndustry ? `english_${targetIndustry}` : mode
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, industry, whatsapp_number, ai_tier')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, industry, whatsapp_number, ai_tier, cv_cache')
     .eq('id', user.id)
     .single()
 
   if (!profile || profileError) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+
+  // ── Cache check ─────────────────────────────────────────────────────────────
+  if (!forceRefresh) {
+    const cache = (profile.cv_cache as Record<string, unknown> | null) || {}
+    if (cache[cacheKey]) {
+      const cached = cache[cacheKey] as { cv: unknown; meta: unknown }
+      return NextResponse.json({ cv: cached.cv, meta: cached.meta, cached: true })
+    }
+  }
 
   // Fetch identity/language fields separately — graceful if columns don't exist yet
   let extraFields: {
@@ -191,15 +204,20 @@ Return ONLY valid JSON:
 
     const cv = JSON.parse(jsonMatch[0])
 
-    // Merge with profile fields not in the CV (for the render)
-    return NextResponse.json({
-      cv,
-      meta: {
-        whatsapp_number: profile.whatsapp_number,
-        ai_tier: profile.ai_tier,
-        has_whatsapp: userMessages.length > 0,
-      }
-    })
+    const meta = {
+      whatsapp_number: profile.whatsapp_number,
+      ai_tier: profile.ai_tier,
+      has_whatsapp: userMessages.length > 0,
+    }
+
+    // ── Save to cache ──────────────────────────────────────────────────────────
+    try {
+      const existingCache = (profile.cv_cache as Record<string, unknown> | null) || {}
+      const updatedCache = { ...existingCache, [cacheKey]: { cv, meta, generated_at: new Date().toISOString() } }
+      await supabase.from('profiles').update({ cv_cache: updatedCache }).eq('id', user.id)
+    } catch { /* Cache save failing is non-fatal */ }
+
+    return NextResponse.json({ cv, meta })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[cv/generate] error:', msg)

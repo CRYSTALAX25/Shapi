@@ -50,24 +50,32 @@ function PrintContent() {
   const [cv, setCv] = useState<CV | null>(null)
   const [meta, setMeta] = useState<Meta | null>(null)
   const [error, setError] = useState('')
+  const [fromCache, setFromCache] = useState(false)
   const fetched = useRef(false)
 
-  useEffect(() => {
-    if (fetched.current) return
-    fetched.current = true
-
+  const loadCV = (forceRefresh = false) => {
+    setCv(null)
+    setError('')
+    setFromCache(false)
     fetch('/api/cv/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mode, ...(targetIndustry ? { targetIndustry } : {}) }),
+      body: JSON.stringify({ mode, ...(targetIndustry ? { targetIndustry } : {}), ...(forceRefresh ? { forceRefresh: true } : {}) }),
     })
       .then(r => r.json())
       .then(d => {
         if (d.error) { setError(d.error); return }
         setCv(d.cv)
         setMeta(d.meta)
+        setFromCache(!!d.cached)
       })
       .catch(e => setError(e?.message || 'Failed to generate CV — please try again.'))
+  }
+
+  useEffect(() => {
+    if (fetched.current) return
+    fetched.current = true
+    loadCV()
   }, [mode])
 
   const isRTL = cv && ['ar', 'he', 'ur', 'fa'].includes(cv.languageCode)
@@ -77,7 +85,7 @@ function PrintContent() {
       <div style={{ minHeight: '100vh', background: '#060609', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16, padding: 24 }}>
         <div style={{ color: '#FB7185', fontSize: 16, fontWeight: 700 }}>Something went wrong</div>
         <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>{error}</div>
-        <button onClick={() => { fetched.current = false; setError(''); setCv(null) }}
+        <button onClick={() => { fetched.current = false; loadCV(true) }}
           style={{ background: 'linear-gradient(135deg,#22D3EE,#A78BFA)', color: '#060609', border: 'none', borderRadius: 99, padding: '10px 24px', fontWeight: 700, cursor: 'pointer', marginTop: 8 }}>
           Try again
         </button>
@@ -191,6 +199,12 @@ function PrintContent() {
         {!isNative && <button className="btn btn-secondary" onClick={() => router.push('/profile/print?lang=native')}>🌐 Native version</button>}
         {!isUniversal && <button className="btn btn-secondary" onClick={() => router.push('/profile/print?lang=universal')}>📋 Universal version</button>}
         {(isNative || isUniversal) && <button className="btn btn-secondary" onClick={() => router.push('/profile/print')}>🇬🇧 English version</button>}
+        {fromCache && (
+          <button className="btn btn-secondary" onClick={() => { fetched.current = false; loadCV(true) }}
+            title="Regenerate with latest data">
+            ↺ Regenerate
+          </button>
+        )}
         <button className="btn btn-primary" onClick={() => {
           // Give browser a tick to finish rendering before print dialog opens
           setTimeout(() => window.print(), 100)
