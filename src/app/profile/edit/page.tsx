@@ -20,6 +20,10 @@ export default function EditProfile() {
   const [whatsapp, setWhatsapp] = useState('')
   const [skillsRaw, setSkillsRaw] = useState('') // comma-separated
   const [workHistory, setWorkHistory] = useState<WorkEntry[]>([])
+  const [linkedinUrl, setLinkedinUrl] = useState('')
+  const [githubUrl, setGithubUrl] = useState('')
+  const [websiteUrl, setWebsiteUrl] = useState('')
+  const [portfolioUrl, setPortfolioUrl] = useState('')
 
   useEffect(() => {
     fetch('/api/profile/get')
@@ -32,6 +36,10 @@ export default function EditProfile() {
         setSummary(data.summary || '')
         setWhatsapp(data.whatsapp_number || '')
         setSkillsRaw(Array.isArray(data.skills) ? data.skills.join(', ') : '')
+        setLinkedinUrl(data.linkedin_url || '')
+        setGithubUrl(data.github_url || '')
+        setWebsiteUrl(data.website_url || '')
+        setPortfolioUrl(data.portfolio_url || '')
         setWorkHistory(
           Array.isArray(data.work_history)
             ? data.work_history.map((w: Partial<WorkEntry>) => ({
@@ -64,6 +72,10 @@ export default function EditProfile() {
         whatsapp_number: whatsapp.trim() || null,
         skills: skillsRaw.split(',').map(s => s.trim()).filter(Boolean),
         work_history: workHistory.filter(w => w.title || w.company),
+        linkedin_url: linkedinUrl.trim() || null,
+        github_url: githubUrl.trim() || null,
+        website_url: websiteUrl.trim() || null,
+        portfolio_url: portfolioUrl.trim() || null,
       }),
     })
     setSaving(false)
@@ -232,6 +244,70 @@ export default function EditProfile() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Links & online presence */}
+        <div className="gradient-border-card rounded-2xl p-6 mb-5 space-y-4">
+          <div>
+            <p className="text-white/50 text-xs font-bold uppercase tracking-wider">Links & online presence</p>
+            <p className="text-white/20 text-xs mt-1">Shown on your public profile. All optional.</p>
+          </div>
+          <div>
+            <label>LinkedIn URL</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 text-sm font-bold select-none">in</span>
+              <input
+                className="field"
+                style={{ paddingLeft: 32 }}
+                value={linkedinUrl}
+                onChange={e => setLinkedinUrl(e.target.value)}
+                placeholder="https://linkedin.com/in/yourname"
+                type="url"
+              />
+            </div>
+          </div>
+          <div>
+            <label>GitHub URL</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 text-xs select-none">{'</>'}</span>
+              <input
+                className="field"
+                style={{ paddingLeft: 36 }}
+                value={githubUrl}
+                onChange={e => setGithubUrl(e.target.value)}
+                placeholder="https://github.com/yourname"
+                type="url"
+              />
+            </div>
+          </div>
+          <div>
+            <label>Personal website</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 text-xs select-none">🌐</span>
+              <input
+                className="field"
+                style={{ paddingLeft: 30 }}
+                value={websiteUrl}
+                onChange={e => setWebsiteUrl(e.target.value)}
+                placeholder="https://yourname.com"
+                type="url"
+              />
+            </div>
+          </div>
+          <div>
+            <label>Portfolio / project URL</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 text-xs select-none">🗂</span>
+              <input
+                className="field"
+                style={{ paddingLeft: 30 }}
+                value={portfolioUrl}
+                onChange={e => setPortfolioUrl(e.target.value)}
+                placeholder="https://behance.net/yourname or github repo"
+                type="url"
+              />
+            </div>
           </div>
         </div>
 

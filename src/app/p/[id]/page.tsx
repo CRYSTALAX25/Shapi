@@ -20,7 +20,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
   // Support short 8-char IDs (from the share link) or full UUIDs
   const { data: c } = await admin
     .from('profiles')
-    .select('id, full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, completion_pct, profile_live, industry')
+    .select('id, full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, completion_pct, profile_live, industry, linkedin_url, github_url, website_url, portfolio_url')
     .ilike('id', `${id}%`)
     .eq('type', 'candidate')
     .limit(1)
@@ -89,6 +89,40 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
           </div>
 
           {c.summary && <p className="text-white/55 text-sm leading-relaxed">{c.summary}</p>}
+
+          {/* Profile links */}
+          {(c.linkedin_url || c.github_url || c.website_url || c.portfolio_url) && (
+            <div className="flex flex-wrap gap-2 mt-5">
+              {c.linkedin_url && (
+                <a href={c.linkedin_url} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:opacity-80"
+                  style={{ background: 'rgba(0,119,181,0.12)', color: '#0ea5e9', border: '1px solid rgba(0,119,181,0.25)' }}>
+                  <span className="font-black">in</span> LinkedIn
+                </a>
+              )}
+              {c.github_url && (
+                <a href={c.github_url} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:opacity-80"
+                  style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.12)' }}>
+                  {'</>'} GitHub
+                </a>
+              )}
+              {c.website_url && (
+                <a href={c.website_url} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:opacity-80"
+                  style={{ background: 'rgba(34,211,238,0.08)', color: '#22D3EE', border: '1px solid rgba(34,211,238,0.2)' }}>
+                  🌐 Website
+                </a>
+              )}
+              {c.portfolio_url && (
+                <a href={c.portfolio_url} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:opacity-80"
+                  style={{ background: 'rgba(167,139,250,0.1)', color: '#A78BFA', border: '1px solid rgba(167,139,250,0.2)' }}>
+                  🗂 Portfolio
+                </a>
+              )}
+            </div>
+          )}
 
           <div className="mt-5 pt-5 border-t border-white/[0.06]">
             <p className="text-white/25 text-xs">

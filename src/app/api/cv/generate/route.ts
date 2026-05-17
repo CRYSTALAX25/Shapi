@@ -1,7 +1,18 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
-import { redirect } from 'next/navigation'
+
+// Countries where English is the primary native language — hide native CV option for these
+const NATIVE_ENGLISH_COUNTRIES = [
+  'uk', 'united kingdom', 'england', 'scotland', 'wales', 'northern ireland',
+  'usa', 'united states', 'united states of america', 'america',
+  'australia', 'canada', 'ireland', 'new zealand', 'nz',
+]
+
+export function isNativeEnglishLocation(location: string): boolean {
+  const loc = (location || '').toLowerCase()
+  return NATIVE_ENGLISH_COUNTRIES.some(c => loc.includes(c))
+}
 
 // Extend Vercel function timeout to 60s for Claude CV generation
 export const maxDuration = 60
@@ -37,7 +48,7 @@ export async function POST(request: Request) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, industry, whatsapp_number, ai_tier')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, industry, whatsapp_number, ai_tier, native_language')
     .eq('id', user.id)
     .single()
 
@@ -51,8 +62,33 @@ export async function POST(request: Request) {
   const industry = (profile.industry as string) || 'general'
   const industryGuide = INDUSTRY_GUIDES[industry] || INDUSTRY_GUIDES.general
 
+  // Determine native language — priority: stored field > location detection > WhatsApp message detection > Arabic default
+  const storedNativeLang = profile.native_language as string | null
+  const locationLang = (() => {
+    const loc = (profile.location as string || '').toLowerCase()
+    if (loc.includes('saudi') || loc.includes('riyadh') || loc.includes('jeddah') || loc.includes('ksa')) return 'Arabic'
+    if (loc.includes('uae') || loc.includes('dubai') || loc.includes('abu dhabi')) return null // multilingual, detect from messages
+    if (loc.includes('france') || loc.includes('paris')) return 'French'
+    if (loc.includes('spain') || loc.includes('madrid')) return 'Spanish'
+    if (loc.includes('germany') || loc.includes('berlin')) return 'German'
+    if (loc.includes('brazil') || loc.includes('portugal')) return 'Portuguese'
+    if (loc.includes('china') || loc.includes('beijing') || loc.includes('shanghai')) return 'Chinese (Simplified)'
+    if (loc.includes('japan') || loc.includes('tokyo')) return 'Japanese'
+    if (loc.includes('korea') || loc.includes('seoul')) return 'Korean'
+    if (loc.includes('russia') || loc.includes('moscow')) return 'Russian'
+    if (loc.includes('turkey') || loc.includes('istanbul')) return 'Turkish'
+    if (loc.includes('iran') || loc.includes('tehran')) return 'Farsi'
+    if (loc.includes('india') || loc.includes('mumbai') || loc.includes('delhi')) return null // many languages, detect
+    if (loc.includes('pakistan') || loc.includes('karachi')) return 'Urdu'
+    return null
+  })()
+
+  const resolvedNativeLang = storedNativeLang || locationLang
+
   const languageInstruction = mode === 'native'
-    ? `Detect the candidate's native language from their messages: "${sampleText || 'No messages'}". If unclear, default to Arabic. Translate ALL text values into that language. Keep JSON keys in English.`
+    ? resolvedNativeLang
+      ? `Translate this ENTIRE CV into ${resolvedNativeLang}. Every word of every text value must be written in ${resolvedNativeLang}. Do not leave any English text in the values. Keep JSON keys in English.`
+      : `Detect the candidate's native language from their WhatsApp messages: "${sampleText || 'No messages'}". If unclear, default to Arabic. Translate ALL text values into that detected language. Every word must be in the target language. Keep JSON keys in English.`
     : `Write everything in polished professional English.`
 
   const prompt = `You are an expert CV writer producing a world-class ${mode === 'native' ? 'native language' : 'English'} CV.
@@ -76,8 +112,8 @@ Using ALL of the above — CV data AND WhatsApp insights — produce an enriched
 
 Return ONLY valid JSON:
 {
-  "language": "${mode === 'english' ? 'English' : 'detected language name'}",
-  "languageCode": "${mode === 'english' ? 'en' : 'detected 2-letter code'}",
+  "language": "${mode === 'english' ? 'English' : (resolvedNativeLang || 'detected language name')}",
+  "languageCode": "${mode === 'english' ? 'en' : 'detected 2-letter ISO code e.g. ar, fr, es'}",
   "full_name": "...",
   "headline": "...",
   "location": "...",

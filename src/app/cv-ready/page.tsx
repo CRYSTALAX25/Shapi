@@ -16,6 +16,19 @@ type Profile = {
   cv_kit_purchased: boolean
   full_name: string | null
   id: string
+  location: string | null
+  native_language: string | null
+}
+
+const NATIVE_ENGLISH_COUNTRIES = [
+  'uk', 'united kingdom', 'england', 'scotland', 'wales', 'northern ireland',
+  'usa', 'united states', 'australia', 'canada', 'ireland', 'new zealand',
+]
+
+function isNativeEnglish(profile: Profile): boolean {
+  if (profile.native_language?.toLowerCase() === 'english') return true
+  const loc = (profile.location || '').toLowerCase()
+  return NATIVE_ENGLISH_COUNTRIES.some(c => loc.includes(c))
 }
 
 export default function CVReady() {
@@ -34,7 +47,13 @@ export default function CVReady() {
           router.replace('/profile')
           return
         }
-        setProfile({ cv_kit_purchased: true, full_name: d.profile.full_name, id: d.profile.id || '' })
+        setProfile({
+          cv_kit_purchased: true,
+          full_name: d.profile.full_name,
+          id: d.profile.id || '',
+          location: d.profile.location || null,
+          native_language: d.profile.native_language || null,
+        })
         setReady(true)
 
         // Fetch the before/after preview
@@ -58,6 +77,7 @@ export default function CVReady() {
 
   const firstName = profile?.full_name?.split(' ')[0] || 'there'
   const profileId = profile?.id?.slice(0, 8) || ''
+  const hideNative = profile ? isNativeEnglish(profile) : false
 
   return (
     <div className="min-h-screen bg-[#060609]">
@@ -126,7 +146,9 @@ export default function CVReady() {
           </div>
           <h1 className="text-3xl font-black text-white mb-2">{firstName}, your CV Kit is ready.</h1>
           <p className="text-white/40 text-sm leading-relaxed max-w-sm mx-auto">
-            Two versions — English and native language — both enriched with your WhatsApp conversation.
+            {hideNative
+              ? 'Your CV — enriched with your WhatsApp conversation and optimised for your industry.'
+              : 'Two versions — English and native language — both enriched with your WhatsApp conversation.'}
           </p>
         </div>
 
@@ -227,17 +249,19 @@ export default function CVReady() {
             <span className="text-[#22D3EE] text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
           </a>
 
-          <a href="/profile/print?lang=native" target="_blank"
-            className="flex items-center justify-between p-4 bg-white/[0.04] rounded-xl hover:bg-white/[0.07] transition-colors group">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[#A78BFA]/10 flex items-center justify-center text-lg">🌐</div>
-              <div>
-                <p className="text-white font-bold text-sm">Native language CV</p>
-                <p className="text-white/35 text-xs">Auto-translated · same format · review before sending</p>
+          {!hideNative && (
+            <a href="/profile/print?lang=native" target="_blank"
+              className="flex items-center justify-between p-4 bg-white/[0.04] rounded-xl hover:bg-white/[0.07] transition-colors group">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[#A78BFA]/10 flex items-center justify-center text-lg">🌐</div>
+                <div>
+                  <p className="text-white font-bold text-sm">Native language CV</p>
+                  <p className="text-white/35 text-xs">Auto-translated · same format · review before sending</p>
+                </div>
               </div>
-            </div>
-            <span className="text-[#A78BFA] text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
-          </a>
+              <span className="text-[#A78BFA] text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
+            </a>
+          )}
         </div>
 
         {/* Shareable link */}
