@@ -41,8 +41,11 @@ type Meta = {
 function PrintContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const isNative = searchParams.get('lang') === 'native'
-  const mode = isNative ? 'native' : 'english'
+  const lang = searchParams.get('lang')
+  const targetIndustry = searchParams.get('industry') // e.g. 'media', 'tech', 'hospitality'
+  const isNative = lang === 'native'
+  const isUniversal = lang === 'universal'
+  const mode = isNative ? 'native' : isUniversal ? 'universal' : 'english'
 
   const [cv, setCv] = useState<CV | null>(null)
   const [meta, setMeta] = useState<Meta | null>(null)
@@ -56,7 +59,7 @@ function PrintContent() {
     fetch('/api/cv/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mode }),
+      body: JSON.stringify({ mode, ...(targetIndustry ? { targetIndustry } : {}) }),
     })
       .then(r => r.json())
       .then(d => {
@@ -96,9 +99,18 @@ function PrintContent() {
         }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 15, fontWeight: 600 }}>
-          {isNative ? 'Writing your native language CV…' : 'Writing your CV…'}
+          {isNative ? 'Writing your native language CV…'
+            : isUniversal ? 'Writing your universal CV…'
+            : targetIndustry ? `Writing your ${targetIndustry} CV…`
+            : 'Writing your CV…'}
         </p>
-        <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: 13 }}>Claude is weaving in your WhatsApp answers — about 20 seconds.</p>
+        <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: 13 }}>
+          {isUniversal
+            ? 'Claude is removing jargon and making your achievements cross-industry — about 20 seconds.'
+            : targetIndustry
+            ? `Claude is re-framing your achievements for ${targetIndustry} — about 20 seconds.`
+            : 'Claude is weaving in your WhatsApp answers — about 20 seconds.'}
+        </p>
       </div>
     )
   }
@@ -176,11 +188,9 @@ function PrintContent() {
       {/* Toolbar — hidden on print */}
       <div className="no-print">
         <button className="btn btn-secondary" onClick={() => router.back()}>← Back</button>
-        {isNative ? (
-          <button className="btn btn-secondary" onClick={() => router.push('/profile/print')}>🇬🇧 English version</button>
-        ) : (
-          <button className="btn btn-secondary" onClick={() => router.push('/profile/print?lang=native')}>🌐 Native version</button>
-        )}
+        {!isNative && <button className="btn btn-secondary" onClick={() => router.push('/profile/print?lang=native')}>🌐 Native version</button>}
+        {!isUniversal && <button className="btn btn-secondary" onClick={() => router.push('/profile/print?lang=universal')}>📋 Universal version</button>}
+        {(isNative || isUniversal) && <button className="btn btn-secondary" onClick={() => router.push('/profile/print')}>🇬🇧 English version</button>}
         <button className="btn btn-primary" onClick={() => {
           // Give browser a tick to finish rendering before print dialog opens
           setTimeout(() => window.print(), 100)
@@ -197,6 +207,16 @@ function PrintContent() {
         {isNative && cv.languageCode !== 'en' && (
           <div className="translation-notice">
             🌐 {cv.language} version — auto-translated by Shapi AI. Review before sending.
+          </div>
+        )}
+        {isUniversal && (
+          <div className="translation-notice" style={{ background: '#f0fdf4', borderColor: '#86efac', color: '#166534' }}>
+            📋 Universal version — industry jargon removed. Suitable for career changes and cross-sector applications.
+          </div>
+        )}
+        {targetIndustry && !isNative && !isUniversal && (
+          <div className="translation-notice" style={{ background: '#eff6ff', borderColor: '#93c5fd', color: '#1e40af' }}>
+            🎯 {targetIndustry.charAt(0).toUpperCase() + targetIndustry.slice(1)}-targeted version — achievements re-framed for this sector.
           </div>
         )}
 

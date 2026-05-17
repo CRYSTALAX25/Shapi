@@ -23,7 +23,7 @@ export default function CVDownloadButton({ cvParsed }: { cvParsed: boolean }) {
         <p className="text-white font-bold text-sm">Download your CV</p>
       </div>
       <p className="text-white/35 text-xs mb-4 leading-relaxed">
-        English + native language PDF versions. $29 one-time — yours to keep and use anywhere.
+        3 CVs: English, native language, and universal. $29 one-time — yours to keep.
       </p>
 
       {cvParsed ? (

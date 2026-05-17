@@ -15,7 +15,7 @@ type Preview = {
 }
 
 type Profile = {
-  cv_kit_purchased: boolean
+  cv_kit_purchased?: boolean
   full_name: string | null
   id: string
   location: string | null
@@ -78,12 +78,8 @@ export default function CVReady() {
     fetch('/api/profile/get')
       .then(r => r.json())
       .then(d => {
-        if (!d.profile || !d.profile.cv_kit_purchased) {
-          router.replace('/profile')
-          return
-        }
         setProfile({
-          cv_kit_purchased: true,
+          cv_kit_purchased: d.profile.cv_kit_purchased ?? false,
           full_name: d.profile.full_name,
           id: d.profile.id || '',
           location: d.profile.location || null,
@@ -200,10 +196,10 @@ export default function CVReady() {
           <h1 className="text-3xl font-black text-white mb-2">{firstName}, your CV Kit is ready.</h1>
           <p className="text-white/40 text-sm leading-relaxed max-w-sm mx-auto">
             {showEnglish && showNative
-              ? `Two versions — English and ${nativeLabel} — both enriched with your WhatsApp conversation.`
+              ? `English and ${nativeLabel} versions ready — plus generate for any target industry below.`
               : showNative && !showEnglish
-              ? `Your ${nativeLabel} CV — enriched with your WhatsApp conversation and optimised for your industry.`
-              : 'Your CV — enriched with your WhatsApp conversation and optimised for your industry.'}
+              ? `Your ${nativeLabel} CV is ready — enriched with your WhatsApp conversation.`
+              : 'Your CV is ready — generate a version for any industry you\'re targeting.'}
           </p>
         </div>
 
@@ -280,7 +276,7 @@ export default function CVReady() {
                 {loadingPreview
                   ? 'Claude is writing your enhanced version…'
                   : preview?.whatsapp_count
-                  ? `Built from ${preview.whatsapp_count} WhatsApp message${preview.whatsapp_count !== 1 ? 's' : ''} · ${showEnglish && showNative ? '2 CV languages' : '1 CV language'}`
+                  ? `Built from ${preview.whatsapp_count} WhatsApp message${preview.whatsapp_count !== 1 ? 's' : ''} · generate for any industry below`
                   : 'Enhanced and industry-formatted by Claude'}
               </p>
               <div className="h-px flex-1 bg-white/[0.06]" />
@@ -349,6 +345,45 @@ export default function CVReady() {
               <span className="text-white/30 text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
             </a>
           )}
+        </div>
+
+        {/* Target industry versions */}
+        <div className="gradient-border-card rounded-2xl p-5 mb-6">
+          <div className="flex items-start justify-between mb-1">
+            <p className="text-white/35 text-xs font-bold uppercase tracking-wider">Applying to a different sector?</p>
+            <span className="text-[10px] font-bold bg-[#22D3EE]/10 text-[#22D3EE] px-2 py-0.5 rounded-full flex-shrink-0">Included</span>
+          </div>
+          <p className="text-white/25 text-xs mb-4">
+            Pick any industry below — Shapi rewrites your achievements through that sector&apos;s lens. Same experience, different framing.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: 'Tech', key: 'tech', emoji: '💻' },
+              { label: 'Media', key: 'creative', emoji: '🎬' },
+              { label: 'Finance', key: 'finance', emoji: '📊' },
+              { label: 'Hospitality', key: 'hospitality', emoji: '🏨' },
+              { label: 'Marketing', key: 'marketing', emoji: '📣' },
+              { label: 'Operations', key: 'operations', emoji: '⚙️' },
+              { label: 'Sales', key: 'sales', emoji: '🤝' },
+              { label: 'Universal', key: 'universal', emoji: '📋', isUniversal: true },
+            ].map((ind) => (
+              <a
+                key={ind.key}
+                href={ind.isUniversal ? '/profile/print?lang=universal' : `/profile/print?industry=${ind.key}`}
+                target="_blank"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105"
+                style={{
+                  background: ind.isUniversal ? 'rgba(52,211,153,0.08)' : 'rgba(255,255,255,0.05)',
+                  border: ind.isUniversal ? '1px solid rgba(52,211,153,0.2)' : '1px solid rgba(255,255,255,0.08)',
+                  color: ind.isUniversal ? '#34D399' : 'rgba(255,255,255,0.55)',
+                }}
+              >
+                <span>{ind.emoji}</span>
+                {ind.label}
+              </a>
+            ))}
+          </div>
+          <p className="text-white/15 text-[10px] mt-3">Each opens as a fresh PDF — Claude re-writes your bullets for that industry in ~20 seconds</p>
         </div>
 
         {/* Send to yourself */}

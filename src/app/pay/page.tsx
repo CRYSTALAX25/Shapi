@@ -173,9 +173,9 @@ export default function Pay() {
 
           <div className="space-y-3 mb-6">
             {[
-              { icon: '✨', label: 'Full enhanced CV', sub: 'Every section enriched with your WhatsApp conversation' },
+              { icon: '✨', label: 'Enhanced CV — every version', sub: 'Your WhatsApp answers woven into every bullet point' },
+              { icon: '🎯', label: 'Generate for any industry', sub: 'Tech, media, finance, hospitality — one click, re-framed' },
               { icon: '🌐', label: 'Native language version', sub: 'Croatian, Arabic, Tagalog — whatever you chose' },
-              { icon: '🏭', label: 'Industry-optimised formatting', sub: 'Finance, operations, tech, hospitality and more' },
               { icon: '📤', label: 'Send to your WhatsApp & email', sub: 'Open on any device, print to PDF instantly' },
               { icon: '✓', label: 'Verified profile badge', sub: 'Shapi-verified on your public profile' },
             ].map((item, i) => (

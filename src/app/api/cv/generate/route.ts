@@ -44,7 +44,9 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { mode } = await request.json() // 'english' | 'native'
+  const body = await request.json()
+  const mode: string = body.mode // 'english' | 'native' | 'universal'
+  const targetIndustry: string | null = body.targetIndustry || null // override profile industry
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
@@ -76,7 +78,7 @@ export async function POST(request: Request) {
   const allChat: Array<{ role: string; content: string }> = Array.isArray(profile.whatsapp_chat) ? profile.whatsapp_chat as Array<{ role: string; content: string }> : []
   const userMessages = allChat.filter(m => m.role === 'user').map(m => m.content)
   const sampleText = userMessages.slice(0, 5).join(' | ')
-  const industry = (profile.industry as string) || 'general'
+  const industry = targetIndustry || (profile.industry as string) || 'general'
   const industryGuide = INDUSTRY_GUIDES[industry] || INDUSTRY_GUIDES.general
 
   // ── Native language resolution — nationality-first, never guess from WhatsApp ──
@@ -124,9 +126,16 @@ export async function POST(request: Request) {
     ? resolvedNativeLang
       ? `Translate this ENTIRE CV into ${resolvedNativeLang}. Every word of every text value must be in ${resolvedNativeLang}. Do not leave any English text in the values. Keep JSON keys in English.`
       : `You cannot determine this candidate's native language from available data. Write the CV in English and note in the "language" field: "Native language not detected — candidate should declare in profile settings."`
+    : mode === 'universal'
+    ? `Write everything in polished, plain professional English. No industry-specific jargon. Focus entirely on transferable skills, leadership qualities, problem-solving, and measurable outcomes that would be understood and valued across ANY industry. Strip out niche terminology and replace with universally understood language.`
     : `Write everything in polished professional English.`
 
-  const prompt = `You are an expert CV writer producing a world-class ${mode === 'native' ? 'native language' : 'English'} CV.
+  const promptTitle = mode === 'native' ? 'native language'
+    : mode === 'universal' ? 'industry-agnostic universal'
+    : targetIndustry ? `${targetIndustry}-targeted English`
+    : 'English'
+
+  const prompt = `You are an expert CV writer producing a world-class ${promptTitle} CV.
 
 CANDIDATE INFO:
 - Name: ${profile.full_name || ''}
@@ -138,8 +147,10 @@ CANDIDATE INFO:
 - Skills: ${JSON.stringify(skills)}
 - WhatsApp conversation (use these stories and insights to ENRICH achievements and summary — this is gold): ${JSON.stringify(userMessages)}
 
-INDUSTRY WRITING GUIDE — ${industry.toUpperCase()}:
-${industryGuide}
+${mode === 'universal'
+  ? `UNIVERSAL CV MODE: This CV must work for candidates switching industries or applying for cross-sector roles. Avoid all industry-specific jargon. Lead with: leadership, communication, problem-solving, project management, budgets, team size, % improvements, time saved, revenue impact. Every achievement must be understood by a hiring manager in ANY sector.`
+  : `INDUSTRY WRITING GUIDE — ${industry.toUpperCase()}:\n${industryGuide}`
+}
 
 LANGUAGE: ${languageInstruction}
 
@@ -147,8 +158,8 @@ Using ALL of the above — CV data AND WhatsApp insights — produce an enriched
 
 Return ONLY valid JSON:
 {
-  "language": "${mode === 'english' ? 'English' : (resolvedNativeLang || 'detected language name')}",
-  "languageCode": "${mode === 'english' ? 'en' : 'detected 2-letter ISO code e.g. ar, fr, es'}",
+  "language": "${mode === 'english' ? 'English' : mode === 'universal' ? 'Universal (English)' : (resolvedNativeLang || 'detected language name')}",
+  "languageCode": "${mode === 'native' ? 'detected 2-letter ISO code e.g. ar, fr, es' : 'en'}",
   "full_name": "...",
   "headline": "...",
   "location": "...",
