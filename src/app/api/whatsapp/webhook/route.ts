@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendWhatsApp } from '@/lib/whatsapp'
+import { sendProfileLiveEmail, sendCompanyMatchEmail } from '@/lib/email'
 
 // ── Industry detection ───────────────────────────────────────────────────────
 function detectIndustry(headline: string, workHistory: Array<{ title?: string; company?: string }>): string {
@@ -290,6 +291,48 @@ This is exchange ${userTurns + 1}. ${userTurns >= 9 ? 'You have enough. Wrap up 
   await admin.from('profiles').update(updates).eq('id', profile.id)
 
   await sendWhatsApp(phone, cleanReply)
+
+  // ── Post-completion emails (non-blocking) ────────────────────────────────
+  if (isDone) {
+    // Fetch email for the candidate
+    const { data: authUser } = await admin.auth.admin.getUserById(profile.id as string)
+    const candidateEmail = authUser?.user?.email
+
+    if (candidateEmail) {
+      // 1. Tell candidate their profile is live
+      sendProfileLiveEmail(candidateEmail, profile.full_name as string || '', profile.id as string)
+        .catch(err => console.error('[email] profile-live failed:', err))
+
+      // 2. Find companies with active roles that match this candidate well
+      const { data: activeRoles } = await admin
+        .from('roles')
+        .select('id, title, company_id')
+        .eq('status', 'active')
+
+      if (activeRoles && activeRoles.length > 0) {
+        // Simple scoring: count how many candidate skills appear in role title (fast, no Claude)
+        const candidateSkillsLower = ((profile.skills as string[]) || []).map((s: string) => s.toLowerCase())
+        const headlineLower = ((profile.headline as string) || '').toLowerCase()
+
+        for (const role of activeRoles) {
+          const roleText = role.title.toLowerCase()
+          const skillHits = candidateSkillsLower.filter(s => roleText.includes(s)).length
+          const headlineHit = roleText.split(/\s+/).some((w: string) => w.length > 3 && headlineLower.includes(w))
+          const quickScore = Math.min(100, skillHits * 20 + (headlineHit ? 30 : 0) + 20) // baseline 20
+
+          if (quickScore >= 40) {
+            // Get company email
+            const { data: companyAuth } = await admin.auth.admin.getUserById(role.company_id)
+            const companyEmail = companyAuth?.user?.email
+            if (companyEmail) {
+              sendCompanyMatchEmail(companyEmail, '', role.title, quickScore, 1)
+                .catch(err => console.error('[email] company-match failed:', err))
+            }
+          }
+        }
+      }
+    }
+  }
 
   console.log('[webhook] Replied to:', phone, '| exchange:', userTurns + 1, '| industry:', industry, '| done:', isDone)
   return new NextResponse('', { status: 200 })

@@ -1,6 +1,7 @@
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { sendCvKitEmail } from '@/lib/email'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -51,6 +52,18 @@ export async function POST(request: Request) {
           })
           .eq('id', userId)
         console.log('[stripe/webhook] CV Kit purchased for user:', userId)
+
+        // Email the candidate their CV is ready
+        const customerEmail = session.customer_details?.email || session.customer_email
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', userId)
+          .single()
+        if (customerEmail) {
+          sendCvKitEmail(customerEmail, profile?.full_name || '')
+            .catch(err => console.error('[stripe/webhook] cv-kit email failed:', err))
+        }
 
       } else {
         // Generic candidate one-time payment
