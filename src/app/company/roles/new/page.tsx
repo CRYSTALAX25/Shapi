@@ -14,6 +14,11 @@ export default function NewRole() {
   const [stage, setStage] = useState<Stage>('form')
   const [error, setError] = useState('')
 
+  // JD paste
+  const [jdText, setJdText] = useState('')
+  const [parsing, setParsing] = useState(false)
+  const [parsedOk, setParsedOk] = useState(false)
+
   // Core fields
   const [title, setTitle] = useState('')
   const [department, setDepartment] = useState('')
@@ -31,6 +36,42 @@ export default function NewRole() {
   const [successLooksLike, setSuccessLooksLike] = useState('')
   const [dealBreakers, setDealBreakers] = useState('')
   const [growthPath, setGrowthPath] = useState('')
+
+  const parseJD = async () => {
+    if (!jdText.trim()) return
+    setParsing(true)
+    setParsedOk(false)
+    setError('')
+    try {
+      const res = await fetch('/api/company/parse-jd', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jd_text: jdText }),
+      })
+      const d = await res.json()
+      if (!res.ok || d.error) { setError(d.error || 'Parse failed'); return }
+
+      const p = d.parsed
+      if (p.title) setTitle(p.title)
+      if (p.department) setDepartment(p.department)
+      if (p.location) setLocation(p.location)
+      if (typeof p.remote === 'boolean') setRemote(p.remote)
+      if (p.salary_min) setSalaryMin(String(p.salary_min))
+      if (p.salary_max) setSalaryMax(String(p.salary_max))
+      if (p.salary_currency && CURRENCIES.includes(p.salary_currency)) setCurrency(p.salary_currency)
+      if (p.problem_to_solve) setProblemToSolve(p.problem_to_solve)
+      if (p.ideal_candidate) setIdealCandidate(p.ideal_candidate)
+      if (p.team_context) setTeamContext(p.team_context)
+      if (p.what_success_looks_like) setSuccessLooksLike(p.what_success_looks_like)
+      if (p.deal_breakers) setDealBreakers(p.deal_breakers)
+      if (p.growth_path) setGrowthPath(p.growth_path)
+      setParsedOk(true)
+    } catch {
+      setError('Failed to parse JD — please try again.')
+    } finally {
+      setParsing(false)
+    }
+  }
 
   const submit = async () => {
     setError('')
@@ -154,6 +195,38 @@ export default function NewRole() {
         {error && (
           <div className="bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3 mb-6 text-sm text-[#FB7185]">{error}</div>
         )}
+
+        {/* JD paste — optional shortcut */}
+        <div className="gradient-border-card rounded-2xl p-6 mb-5">
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div>
+              <p className="text-white/50 text-xs font-bold uppercase tracking-wider">Already have a JD?</p>
+              <p className="text-white/25 text-xs mt-0.5">Paste it and we&apos;ll extract the fields for you. You can edit anything after.</p>
+            </div>
+            {parsedOk && (
+              <span className="flex-shrink-0 bg-emerald-500/15 text-emerald-400 text-xs font-bold px-3 py-1 rounded-full">✓ Fields filled</span>
+            )}
+          </div>
+          <textarea
+            className="field"
+            rows={4}
+            value={jdText}
+            onChange={e => { setJdText(e.target.value); setParsedOk(false) }}
+            placeholder="Paste your existing job description here…"
+            style={{ resize: 'vertical' }}
+          />
+          <button
+            type="button"
+            onClick={parseJD}
+            disabled={parsing || !jdText.trim()}
+            className="mt-3 px-5 py-2 rounded-full text-xs font-black transition-opacity disabled:opacity-40"
+            style={{ background: 'rgba(34,211,238,0.12)', color: '#22D3EE', border: '1px solid rgba(34,211,238,0.2)' }}>
+            {parsing ? 'Extracting…' : 'Extract fields →'}
+          </button>
+          {parsedOk && (
+            <p className="text-white/30 text-xs mt-2">Fields below have been filled from your JD. Review and add anything missing.</p>
+          )}
+        </div>
 
         {/* Section 1 — basics */}
         <div className="gradient-border-card rounded-2xl p-6 mb-5 space-y-4">
