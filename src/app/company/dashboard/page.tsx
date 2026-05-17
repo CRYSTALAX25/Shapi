@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import ShapiCharacter from '@/components/ShapiCharacter'
 import { createAdminClient } from '@/lib/supabase/admin'
+import ShortlistButton from './ShortlistButton'
 
 type Candidate = {
   id: string
@@ -132,6 +133,14 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
     .limit(200)
 
   const allCandidates: Candidate[] = rawCandidates || []
+
+  // Fetch existing shortlists for this company+role so buttons show correct state
+  const { data: shortlistData } = await supabase
+    .from('company_shortlists')
+    .select('candidate_id')
+    .eq('company_id', user.id)
+    .eq('role_id', selectedRoleId || '')
+  const shortlistedIds = new Set((shortlistData || []).map(s => s.candidate_id))
 
   // Score and sort candidates if a role is selected
   const candidates: Candidate[] = selectedRole
@@ -453,6 +462,13 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                           className="bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#060609] text-xs font-black px-4 py-2 rounded-full hover:opacity-90 transition-opacity">
                           View profile →
                         </Link>
+                      )}
+                      {isPaid && selectedRoleId && (
+                        <ShortlistButton
+                          candidateId={c.id}
+                          roleId={selectedRoleId}
+                          initialShortlisted={shortlistedIds.has(c.id)}
+                        />
                       )}
                     </div>
                   </div>

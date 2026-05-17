@@ -179,9 +179,18 @@ function PrintContent() {
         {isNative ? (
           <button className="btn btn-secondary" onClick={() => router.push('/profile/print')}>🇬🇧 English version</button>
         ) : (
-          <button className="btn btn-secondary" onClick={() => router.push('/profile/print?lang=native')}>🌐 Native language</button>
+          <button className="btn btn-secondary" onClick={() => router.push('/profile/print?lang=native')}>🌐 Native version</button>
         )}
-        <button className="btn btn-primary" onClick={() => window.print()}>Download PDF ↓</button>
+        <button className="btn btn-primary" onClick={() => {
+          // Give browser a tick to finish rendering before print dialog opens
+          setTimeout(() => window.print(), 100)
+        }}>
+          ↓ Save as PDF
+        </button>
+      </div>
+      {/* Print tip — shown only on screen, hidden on print */}
+      <div className="no-print" style={{ position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.75)', color: 'rgba(255,255,255,0.5)', fontSize: 12, padding: '8px 16px', borderRadius: 99, whiteSpace: 'nowrap', backdropFilter: 'blur(8px)' }}>
+        Click &quot;Save as PDF&quot; → in the print dialog choose &quot;Save as PDF&quot; as the destination
       </div>
 
       <div className="page">

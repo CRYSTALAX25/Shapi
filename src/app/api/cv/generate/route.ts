@@ -46,13 +46,24 @@ export async function POST(request: Request) {
 
   const { mode } = await request.json() // 'english' | 'native'
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, industry, whatsapp_number, ai_tier, native_language')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, industry, whatsapp_number, ai_tier')
     .eq('id', user.id)
     .single()
 
-  if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+  if (!profile || profileError) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+
+  // Fetch optional new columns gracefully — won't crash if columns don't exist yet
+  let extraFields: { native_language?: string | null } | null = null
+  try {
+    const { data } = await supabase
+      .from('profiles')
+      .select('native_language')
+      .eq('id', user.id)
+      .single()
+    extraFields = data
+  } catch { extraFields = null }
 
   const workHistory: WorkEntry[] = Array.isArray(profile.work_history) ? profile.work_history as WorkEntry[] : []
   const skills: string[] = Array.isArray(profile.skills) ? profile.skills as string[] : []
@@ -63,7 +74,7 @@ export async function POST(request: Request) {
   const industryGuide = INDUSTRY_GUIDES[industry] || INDUSTRY_GUIDES.general
 
   // Determine native language — priority: stored field > location detection > WhatsApp message detection > Arabic default
-  const storedNativeLang = profile.native_language as string | null
+  const storedNativeLang = (extraFields?.native_language as string | null) ?? null
   const locationLang = (() => {
     const loc = (profile.location as string || '').toLowerCase()
     if (loc.includes('saudi') || loc.includes('riyadh') || loc.includes('jeddah') || loc.includes('ksa')) return 'Arabic'

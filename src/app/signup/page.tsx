@@ -1,13 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
-export default function SignUp() {
-  const [email, setEmail] = useState('')
+function SignUpForm() {
+  const searchParams = useSearchParams()
+  const companyInvite = searchParams.get('company_invite') // company owner's user ID
+  const inviteEmail = searchParams.get('email') // pre-filled email from invite
+
+  const [email, setEmail] = useState(inviteEmail || '')
   const [password, setPassword] = useState('')
-  const [type, setType] = useState<'candidate' | 'company' | null>(null)
+  // If arriving via company invite, type is locked to 'company'
+  const [type, setType] = useState<'candidate' | 'company' | null>(companyInvite ? 'company' : null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
@@ -19,14 +26,25 @@ export default function SignUp() {
     setError(null)
 
     const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { type },
-        emailRedirectTo: `${location.origin}/upload-cv`,
+        data: { type, company_invite: companyInvite || undefined },
+        emailRedirectTo: companyInvite
+          ? `${location.origin}/company/dashboard?joined=1`
+          : `${location.origin}/upload-cv`,
       },
     })
+
+    // If invite: link this user to the company immediately
+    if (!error && signUpData?.user && companyInvite) {
+      await fetch('/api/company/invite/accept', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ company_id: companyInvite, user_id: signUpData.user.id, email }),
+      }).catch(() => {})
+    }
 
     if (error) {
       setError(error.message)
@@ -93,36 +111,47 @@ export default function SignUp() {
             backgroundClip: 'text',
             animation: 'gradientShift 5s ease infinite',
           }}>shapi</Link>
-          <h1 className="text-2xl font-black text-white mt-6 mb-2">Create your account</h1>
-          <p className="text-white/35 text-sm">Start building your verified profile</p>
+          {companyInvite ? (
+            <>
+              <h1 className="text-2xl font-black text-white mt-6 mb-2">You&apos;ve been invited</h1>
+              <p className="text-white/35 text-sm">Create your account to join your team on Shapi</p>
+            </>
+          ) : (
+            <>
+              <h1 className="text-2xl font-black text-white mt-6 mb-2">Create your account</h1>
+              <p className="text-white/35 text-sm">Start building your verified profile</p>
+            </>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">
-          {/* Type toggle */}
-          <div className="flex gap-2 bg-white/[0.04] border border-white/[0.08] p-1.5 rounded-full">
-            <button
-              type="button"
-              onClick={() => setType('candidate')}
-              className={`flex-1 py-2.5 rounded-full text-sm font-bold transition-all ${
-                type === 'candidate'
-                  ? 'bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#060609]'
-                  : 'text-white/40 hover:text-white/70'
-              }`}
-            >
-              I&apos;m a candidate
-            </button>
-            <button
-              type="button"
-              onClick={() => setType('company')}
-              className={`flex-1 py-2.5 rounded-full text-sm font-bold transition-all ${
-                type === 'company'
-                  ? 'bg-gradient-to-r from-[#FB7185] to-[#A78BFA] text-[#060609]'
-                  : 'text-white/40 hover:text-white/70'
-              }`}
-            >
-              I&apos;m hiring
-            </button>
-          </div>
+          {/* Type toggle — hidden if arriving via company invite */}
+          {!companyInvite && (
+            <div className="flex gap-2 bg-white/[0.04] border border-white/[0.08] p-1.5 rounded-full">
+              <button
+                type="button"
+                onClick={() => setType('candidate')}
+                className={`flex-1 py-2.5 rounded-full text-sm font-bold transition-all ${
+                  type === 'candidate'
+                    ? 'bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#060609]'
+                    : 'text-white/40 hover:text-white/70'
+                }`}
+              >
+                I&apos;m a candidate
+              </button>
+              <button
+                type="button"
+                onClick={() => setType('company')}
+                className={`flex-1 py-2.5 rounded-full text-sm font-bold transition-all ${
+                  type === 'company'
+                    ? 'bg-gradient-to-r from-[#FB7185] to-[#A78BFA] text-[#060609]'
+                    : 'text-white/40 hover:text-white/70'
+                }`}
+              >
+                I&apos;m hiring
+              </button>
+            </div>
+          )}
 
           <input
             type="email"
@@ -168,5 +197,17 @@ export default function SignUp() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function SignUp() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#060609] flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-[#22D3EE] animate-spin" />
+      </div>
+    }>
+      <SignUpForm />
+    </Suspense>
   )
 }
