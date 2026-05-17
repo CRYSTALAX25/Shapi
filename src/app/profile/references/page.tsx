@@ -22,11 +22,12 @@ type JobForm = {
   company: string
   dates: string
   managerName: string
-  managerEmail: string
+  managerPhone: string   // primary — WhatsApp / SMS
+  managerEmail: string   // secondary
   managerTitle: string
 }
 
-const EMPTY_JOB: JobForm = { myTitle: '', company: '', dates: '', managerName: '', managerEmail: '', managerTitle: '' }
+const EMPTY_JOB: JobForm = { myTitle: '', company: '', dates: '', managerName: '', managerPhone: '', managerEmail: '', managerTitle: '' }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   pending:   { label: 'Not sent',   color: 'rgba(255,255,255,0.3)',  bg: 'rgba(255,255,255,0.04)' },
@@ -101,8 +102,8 @@ export default function References() {
     const setSent = slot === 1 ? setSent1 : setSent2
     const setError = slot === 1 ? setError1 : setError2
 
-    if (!form.managerName || !form.managerEmail || !form.company) {
-      setError('Manager name, email, and company are required.')
+    if (!form.managerName || !form.company || (!form.managerPhone && !form.managerEmail)) {
+      setError('Manager name, company, and at least a phone number or email are required.')
       return
     }
     setSending(true)
@@ -113,7 +114,8 @@ export default function References() {
       body: JSON.stringify({
         job_slot: slot,
         referee_name: form.managerName,
-        referee_email: form.managerEmail,
+        referee_phone: form.managerPhone || undefined,
+        referee_email: form.managerEmail || undefined,
         referee_title: form.managerTitle || undefined,
         candidate_job_title: form.myTitle || undefined,
         candidate_company: form.company,
@@ -243,13 +245,21 @@ export default function References() {
                   <FieldStyle label="Dates (approx)" placeholder="2022 – 2024" value={form.dates} onChange={v => setForm(f => ({ ...f, dates: v }))} />
 
                   <div className="border-t border-white/[0.06] pt-4">
-                    <p className="text-white/35 text-xs font-bold uppercase tracking-wider mb-4">Direct manager</p>
+                    <div className="flex items-start justify-between mb-4">
+                      <p className="text-white/35 text-xs font-bold uppercase tracking-wider">Direct manager</p>
+                      <p className="text-white/20 text-xs">At least one contact method required</p>
+                    </div>
                     <div className="space-y-3">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <FieldStyle label="Manager's full name *" placeholder="Sarah Al-Mutairi" value={form.managerName} onChange={v => setForm(f => ({ ...f, managerName: v }))} />
                         <FieldStyle label="Their job title" placeholder="VP Operations" value={form.managerTitle} onChange={v => setForm(f => ({ ...f, managerTitle: v }))} />
                       </div>
-                      <FieldStyle label="Work email *" placeholder="sarah@company.com" value={form.managerEmail} onChange={v => setForm(f => ({ ...f, managerEmail: v }))} type="email" />
+                      <FieldStyle label="WhatsApp / Phone number (primary)" placeholder="+971 50 123 4567" value={form.managerPhone} onChange={v => setForm(f => ({ ...f, managerPhone: v }))} type="tel">
+                        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', marginTop: 5 }}>We try WhatsApp first — if they&apos;re not on it, we fall back to SMS automatically.</p>
+                      </FieldStyle>
+                      <FieldStyle label="Work email (secondary)" placeholder="sarah@company.com" value={form.managerEmail} onChange={v => setForm(f => ({ ...f, managerEmail: v }))} type="email">
+                        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', marginTop: 5 }}>Sent alongside WhatsApp — they click whichever they see first.</p>
+                      </FieldStyle>
                     </div>
                   </div>
 

@@ -61,9 +61,11 @@ export default function ReferencePage() {
   const [anythingElse, setAnythingElse] = useState('')
   // Manager nominations
   const [colName, setColName] = useState('')
+  const [colPhone, setColPhone] = useState('')
   const [colEmail, setColEmail] = useState('')
   const [colTitle, setColTitle] = useState('')
   const [stkName, setStkName] = useState('')
+  const [stkPhone, setStkPhone] = useState('')
   const [stkEmail, setStkEmail] = useState('')
   const [stkCompany, setStkCompany] = useState('')
   // Colleague / stakeholder fields
@@ -90,8 +92,14 @@ export default function ReferencePage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(isManager ? {
         token, quality, achievement, skills, would_rehire: wouldRehire, anything_else: anythingElse,
-        colleague_name: colName || undefined, colleague_email: colEmail || undefined, colleague_title: colTitle || undefined,
-        stakeholder_name: stkName || undefined, stakeholder_email: stkEmail || undefined, stakeholder_company: stkCompany || undefined,
+        colleague_name: colName || undefined,
+        colleague_phone: colPhone || undefined,
+        colleague_email: colEmail || undefined,
+        colleague_title: colTitle || undefined,
+        stakeholder_name: stkName || undefined,
+        stakeholder_phone: stkPhone || undefined,
+        stakeholder_email: stkEmail || undefined,
+        stakeholder_company: stkCompany || undefined,
       } : { token, how_worked: howWorked, biggest_strength: biggestStrength, extra }),
     })
     setDone(true)
@@ -255,22 +263,32 @@ export default function ReferencePage() {
               We&apos;ll reach out to them directly — {first} won&apos;t be told who you named.
             </p>
 
+            {/* Colleague */}
             <div className="mb-5">
-              <p className="text-white/60 text-sm font-bold mb-3">Colleague — someone on {first}&apos;s team</p>
+              <p className="text-white/60 text-sm font-bold mb-1">Colleague — someone on {first}&apos;s team</p>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', marginBottom: 12 }}>We&apos;ll message them on WhatsApp first, then SMS, then email — whichever reaches them.</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
                 <input style={FSI} value={colName} onChange={e => setColName(e.target.value)} placeholder="Full name" />
-                <input style={FSI} value={colEmail} onChange={e => setColEmail(e.target.value)} placeholder="Work email" type="email" />
+                <input style={FSI} value={colPhone} onChange={e => setColPhone(e.target.value)} placeholder="WhatsApp / phone (primary)" type="tel" />
               </div>
-              <input style={FSI} value={colTitle} onChange={e => setColTitle(e.target.value)} placeholder="Their job title (optional)" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input style={FSI} value={colEmail} onChange={e => setColEmail(e.target.value)} placeholder="Email (secondary)" type="email" />
+                <input style={FSI} value={colTitle} onChange={e => setColTitle(e.target.value)} placeholder="Their job title (optional)" />
+              </div>
             </div>
 
+            {/* Stakeholder */}
             <div>
-              <p className="text-white/60 text-sm font-bold mb-3">Stakeholder — a client, partner, or senior leader they worked with</p>
+              <p className="text-white/60 text-sm font-bold mb-1">Stakeholder — a client, partner, or senior leader they worked with</p>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', marginBottom: 12 }}>Same — WhatsApp first, SMS fallback, email as backup.</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-2">
                 <input style={FSI} value={stkName} onChange={e => setStkName(e.target.value)} placeholder="Full name" />
-                <input style={FSI} value={stkEmail} onChange={e => setStkEmail(e.target.value)} placeholder="Work email" type="email" />
+                <input style={FSI} value={stkPhone} onChange={e => setStkPhone(e.target.value)} placeholder="WhatsApp / phone (primary)" type="tel" />
               </div>
-              <input style={FSI} value={stkCompany} onChange={e => setStkCompany(e.target.value)} placeholder="Their company / role (optional)" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input style={FSI} value={stkEmail} onChange={e => setStkEmail(e.target.value)} placeholder="Email (secondary)" type="email" />
+                <input style={FSI} value={stkCompany} onChange={e => setStkCompany(e.target.value)} placeholder="Their company / role (optional)" />
+              </div>
             </div>
           </div>
         </>)}

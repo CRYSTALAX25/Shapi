@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendNominatedReferenceEmail, sendReferencesVerifiedEmail } from '@/lib/email'
+import { sendReferenceOutreach } from '@/lib/whatsapp'
 import { NextResponse } from 'next/server'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
@@ -11,9 +12,9 @@ export async function POST(request: Request) {
     token,
     // Manager questions (5)
     quality, achievement, skills, would_rehire, anything_else,
-    // Manager nominations
-    colleague_name, colleague_email, colleague_title,
-    stakeholder_name, stakeholder_email, stakeholder_company,
+    // Manager nominations — now include phone for each
+    colleague_name, colleague_phone, colleague_email, colleague_title,
+    stakeholder_name, stakeholder_phone, stakeholder_email, stakeholder_company,
     // Colleague / stakeholder questions (3)
     how_worked, biggest_strength, extra,
   } = body
@@ -74,13 +75,13 @@ export async function POST(request: Request) {
   // ── Manager only: create + email the 2 nominees ──────────────────────────
   if (isManager) {
     const nominees = [
-      colleague_name && colleague_email
-        ? { ref_type: 'colleague' as const, name: colleague_name, email: colleague_email, extra: colleague_title || null }
+      colleague_name && (colleague_phone || colleague_email)
+        ? { ref_type: 'colleague' as const, name: colleague_name, phone: colleague_phone || null, email: colleague_email || null, extra: colleague_title || null }
         : null,
-      stakeholder_name && stakeholder_email
-        ? { ref_type: 'stakeholder' as const, name: stakeholder_name, email: stakeholder_email, extra: stakeholder_company || null }
+      stakeholder_name && (stakeholder_phone || stakeholder_email)
+        ? { ref_type: 'stakeholder' as const, name: stakeholder_name, phone: stakeholder_phone || null, email: stakeholder_email || null, extra: stakeholder_company || null }
         : null,
-    ].filter(Boolean) as Array<{ ref_type: 'colleague' | 'stakeholder'; name: string; email: string; extra: string | null }>
+    ].filter(Boolean) as Array<{ ref_type: 'colleague' | 'stakeholder'; name: string; phone: string | null; email: string | null; extra: string | null }>
 
     const { data: profile } = await admin.from('profiles').select('full_name').eq('id', ref.candidate_id).single()
     const candidateName = (profile?.full_name as string) || 'the candidate'
@@ -94,6 +95,7 @@ export async function POST(request: Request) {
           nominated_by: ref.id,
           nominator_name: ref.referee_name,
           referee_name: nominee.name,
+          referee_phone: nominee.phone,
           referee_email: nominee.email,
           referee_title: nominee.extra,
           referee_relationship: nominee.ref_type,
@@ -105,21 +107,45 @@ export async function POST(request: Request) {
 
         if (inserted) {
           const row = inserted as { id: string; token: string }
-          await sendNominatedReferenceEmail({
-            to: nominee.email,
-            refereeName: nominee.name,
-            candidateName,
-            nominatorName: ref.referee_name as string,
-            nominatorCompany: ref.candidate_company as string,
-            nomineeRole: nominee.ref_type,
-            referenceUrl: `${SITE}/reference/${row.token}`,
-          })
-          await admin.from('candidate_references')
-            .update({ status: 'contacted', contacted_at: new Date().toISOString() })
-            .eq('id', row.id)
+          const referenceUrl = `${SITE}/reference/${row.token}`
+          let contacted = false
+
+          // 1. WhatsApp / SMS first
+          if (nominee.phone) {
+            const waMsg =
+              `Hi ${nominee.name.split(' ')[0]} 👋 ${ref.referee_name} at ${ref.candidate_company} suggested you worked with ${candidateName} and might share a perspective.\n\n` +
+              `${candidateName.split(' ')[0]} doesn't know we've reached out — you can be completely candid. Takes 2 minutes:\n\n${referenceUrl}`
+
+            const { whatsapp, sms } = await sendReferenceOutreach({
+              phone: nominee.phone,
+              message: waMsg,
+              label: `${nominee.ref_type} ref for ${candidateName}`,
+            })
+            if (whatsapp || sms) contacted = true
+          }
+
+          // 2. Email — always send if provided
+          if (nominee.email) {
+            await sendNominatedReferenceEmail({
+              to: nominee.email,
+              refereeName: nominee.name,
+              candidateName,
+              nominatorName: ref.referee_name as string,
+              nominatorCompany: ref.candidate_company as string,
+              nomineeRole: nominee.ref_type,
+              referenceUrl,
+            })
+            contacted = true
+          }
+
+          if (contacted) {
+            await admin.from('candidate_references')
+              .update({ status: 'contacted', contacted_at: new Date().toISOString() })
+              .eq('id', row.id)
+          }
         }
       } catch (err) {
-        console.error(`[references/submit] ${nominee.ref_type} email failed:`, err)
+        console.error(`[references/submit] ${nominee.ref_type} outreach failed:`, err)
       }
     }
   }
