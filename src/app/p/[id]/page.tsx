@@ -28,6 +28,21 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
 
   if (!c) notFound()
 
+  // Fetch completed references (public data only — no responses, no names of nominees)
+  const { data: refRows } = await admin
+    .from('candidate_references')
+    .select('ref_type, extracted_skills, job_slot')
+    .eq('candidate_id', c.id)
+    .eq('status', 'completed')
+
+  const completedRefs = refRows || []
+  const refCount = completedRefs.length
+  // Merge all extracted skills from references, deduplicate, cap at 10
+  const refSkillsRaw: string[] = completedRefs.flatMap(r => Array.isArray(r.extracted_skills) ? r.extracted_skills : [])
+  const refSkills = [...new Set(refSkillsRaw)].slice(0, 10)
+  const managerRefs = completedRefs.filter(r => r.ref_type === 'manager').length
+  const independentRefs = completedRefs.filter(r => r.ref_type !== 'manager').length
+
   const skills: string[] = Array.isArray(c.skills) ? c.skills : []
   const workHistory: WorkEntry[] = Array.isArray(c.work_history) ? c.work_history : []
   const userAnswers = (Array.isArray(c.whatsapp_chat) ? c.whatsapp_chat : [])
@@ -236,6 +251,64 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
                     <p className="text-white/15 text-[10px] mt-2">Assessed via Shapi conversation</p>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* References badge */}
+            {refCount > 0 && (
+              <div className="rounded-2xl p-6" style={{
+                background: refCount >= 3
+                  ? 'linear-gradient(#0d0d14,#0d0d14) padding-box, linear-gradient(135deg,rgba(52,211,153,0.3),rgba(34,211,238,0.2)) border-box'
+                  : 'linear-gradient(#0d0d14,#0d0d14) padding-box, linear-gradient(135deg,rgba(34,211,238,0.15),rgba(139,92,246,0.15)) border-box',
+                border: '1px solid transparent',
+              }}>
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div>
+                    <p className="text-white font-black text-2xl leading-none">{refCount}</p>
+                    <p className="text-white/50 text-xs mt-0.5 font-bold uppercase tracking-wider">
+                      verified reference{refCount !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  {refCount >= 3 && (
+                    <span className="flex-shrink-0 text-[10px] font-black px-2.5 py-1 rounded-full"
+                      style={{ background: 'rgba(52,211,153,0.15)', color: '#34D399' }}>
+                      ✓ Verified
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-1.5 mb-4">
+                  {managerRefs > 0 && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#22D3EE]/60 flex-shrink-0" />
+                      <p className="text-white/40 text-xs">{managerRefs} direct manager{managerRefs !== 1 ? 's' : ''}</p>
+                    </div>
+                  )}
+                  {independentRefs > 0 && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#A78BFA]/60 flex-shrink-0" />
+                      <p className="text-white/40 text-xs">{independentRefs} independently nominated</p>
+                    </div>
+                  )}
+                </div>
+
+                {refSkills.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-white/25 text-[10px] uppercase tracking-wider font-bold mb-2">Mentioned by references</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {refSkills.map((s, i) => (
+                        <span key={i} className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                          style={{ background: 'rgba(52,211,153,0.1)', color: '#34D399' }}>
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <p className="text-white/20 text-[10px] leading-relaxed">
+                  Candidate was not told who was contacted. References sourced independently via Shapi.
+                </p>
               </div>
             )}
 
