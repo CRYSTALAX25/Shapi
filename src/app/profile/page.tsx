@@ -25,6 +25,13 @@ export default async function ProfilePage() {
 
   if (!profile || profile.type !== 'candidate') redirect('/dashboard')
 
+  // Fetch evidence count
+  const { count: evidenceCount } = await supabase
+    .from('evidence')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+  const hasEvidence = (evidenceCount ?? 0) > 0
+
   const skills: string[] = Array.isArray(profile.skills) ? profile.skills : []
   const workHistory: WorkEntry[] = Array.isArray(profile.work_history) ? profile.work_history : []
   const completion = profile.completion_pct || 0
@@ -236,14 +243,25 @@ export default async function ProfilePage() {
             {/* CV Download CTA */}
             <CVDownloadButton cvParsed={!!profile.cv_parsed} />
 
-            {/* Add evidence CTA */}
-            {!profile.profile_live && (
-              <Link href="/evidence" className="block gradient-border-card rounded-2xl p-5 hover:bg-white/[0.02] transition-colors">
-                <p className="text-white font-bold text-sm mb-1">Add work evidence</p>
-                <p className="text-white/35 text-xs">Photos, docs, references that prove your track record</p>
-                <p className="text-[#22D3EE] text-xs font-semibold mt-3">Upload evidence →</p>
-              </Link>
-            )}
+            {/* Evidence CTA / status */}
+            <Link href="/evidence" className="block gradient-border-card rounded-2xl p-5 hover:bg-white/[0.02] transition-colors">
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <p className="text-white font-bold text-sm">Work evidence</p>
+                {hasEvidence ? (
+                  <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full flex-shrink-0">
+                    {evidenceCount} file{evidenceCount !== 1 ? 's' : ''} ✓
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold bg-[#FB7185]/12 text-[#FB7185] px-2 py-0.5 rounded-full flex-shrink-0">Optional</span>
+                )}
+              </div>
+              <p className="text-white/35 text-xs">
+                {hasEvidence ? 'Photos and docs uploaded — strengthens your verified profile.' : 'Photos, docs, references that prove your track record'}
+              </p>
+              <p className="text-[#22D3EE] text-xs font-semibold mt-3">
+                {hasEvidence ? 'Add more →' : 'Upload evidence →'}
+              </p>
+            </Link>
           </div>
         </div>
       </div>

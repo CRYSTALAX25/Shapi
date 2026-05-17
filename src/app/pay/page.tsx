@@ -40,11 +40,8 @@ export default function Pay() {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.push('/login'); return }
-    const type = user.user_metadata?.type || 'candidate'
-    const res = await fetch('/api/stripe/checkout', {
+    const res = await fetch('/api/stripe/cv-checkout', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type }),
     })
     const { url } = await res.json()
     if (url) window.location.href = url
@@ -169,7 +166,7 @@ export default function Pay() {
               <p className="text-white/35 text-sm mt-1">Download instantly · yours to keep</p>
             </div>
             <div className="text-right">
-              <p className="text-3xl font-black text-white">$49</p>
+              <p className="text-3xl font-black text-white">$29</p>
               <p className="text-white/30 text-xs">one-time · no subscription</p>
             </div>
           </div>
@@ -198,7 +195,7 @@ export default function Pay() {
             className="w-full py-4 rounded-full font-black text-sm transition-opacity disabled:opacity-40"
             style={{ background: 'linear-gradient(135deg, #22D3EE, #A78BFA)', color: '#060609' }}
           >
-            {loading ? 'Redirecting to payment…' : 'Unlock my enhanced CV — $49 →'}
+            {loading ? 'Redirecting to payment…' : 'Unlock my enhanced CV — $29 →'}
           </button>
 
           <p className="text-center text-xs text-white/20 mt-4">
