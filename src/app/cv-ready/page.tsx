@@ -491,7 +491,7 @@ export default function CVReady() {
             </div>
             <p className="text-white/60 text-sm font-bold mb-1">Get the stories that win the role you actually want</p>
             <p className="text-white/35 text-xs mb-4 leading-relaxed">
-              Claude will interview you on WhatsApp about your specific experience in up to 3 industries — the bar management, the NEOM opening, the service manuals. The stuff that only comes out when you&apos;re asked directly.
+              Claude reviews your CV and WhatsApp answers, identifies what&apos;s missing for {matchedIndustries.length > 0 ? matchedIndustries.map(i => INDUSTRY_META[i]?.label || i).join(', ') : 'your target industries'}, then interviews you on WhatsApp to surface the specific projects, numbers and stories that only come out when you&apos;re asked directly.
             </p>
             <button onClick={upgradeToPro}
               className="w-full py-3 rounded-xl font-black text-sm transition-all hover:opacity-90"
