@@ -74,6 +74,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: dbError.message }, { status: 500 })
   }
 
+  // Bump completion % for adding evidence (non-fatal)
+  try {
+    const { data: prof } = await supabase.from('profiles').select('completion_pct').eq('id', user.id).single()
+    const current = (prof?.completion_pct as number) || 0
+    if (current < 75) {
+      await supabase.from('profiles').update({ completion_pct: 75 }).eq('id', user.id)
+    }
+  } catch { /* non-fatal */ }
+
   // Return a signed URL for immediate preview
   let url: string | null = null
   try {

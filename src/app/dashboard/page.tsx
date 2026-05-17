@@ -20,15 +20,18 @@ export default async function Dashboard() {
   let interestedRolesCount = 0
   let shortlistedByCount = 0
   let activeApplicationsCount = 0
+  let evidenceCount = 0
   if (type === 'candidate') {
-    const [interestsRes, shortlistRes, appsRes] = await Promise.all([
+    const [interestsRes, shortlistRes, appsRes, evidenceRes] = await Promise.all([
       supabase.from('candidate_interests').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('company_shortlists').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('active_applications').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
+      supabase.from('evidence').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
     ])
     interestedRolesCount = interestsRes.count ?? 0
     shortlistedByCount = shortlistRes.count ?? 0
     activeApplicationsCount = appsRes.count ?? 0
+    evidenceCount = evidenceRes.count ?? 0
   }
 
   const completion = profile?.completion_pct ?? 0
@@ -297,17 +300,31 @@ export default async function Dashboard() {
               {/* Evidence */}
               <Link href="/evidence" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.02]">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#FB7185]/15 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-5 h-5 text-[#FB7185]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${evidenceCount > 0 ? 'bg-emerald-500/15' : 'bg-[#FB7185]/15'}`}>
+                    {evidenceCount > 0 ? (
+                      <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5 text-[#FB7185]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    )}
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-0.5">
-                      <h3 className="font-bold text-white text-sm">Add work evidence</h3>
-                      <span className="text-[10px] font-bold bg-[#FB7185]/15 text-[#FB7185] px-2 py-0.5 rounded-full">Optional</span>
+                      <h3 className="font-bold text-white text-sm">Work evidence</h3>
+                      {evidenceCount > 0 ? (
+                        <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">
+                          {evidenceCount} file{evidenceCount !== 1 ? 's' : ''} ✓
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold bg-[#FB7185]/15 text-[#FB7185] px-2 py-0.5 rounded-full">Add now</span>
+                      )}
                     </div>
-                    <p className="text-white/35 text-xs">Photos and docs that prove your experience.</p>
+                    <p className="text-white/35 text-xs">
+                      {evidenceCount > 0 ? 'Photos and docs uploaded — adds weight to your profile.' : 'Photos and docs that prove your experience.'}
+                    </p>
                   </div>
                 </div>
               </Link>
