@@ -12,29 +12,54 @@ export default async function Dashboard() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name')
+    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased')
     .eq('id', user.id)
     .single()
 
-  // Fetch candidate signals (interests expressed + companies who shortlisted them)
+  // Fetch candidate signals
   let interestedRolesCount = 0
   let shortlistedByCount = 0
   let activeApplicationsCount = 0
   let evidenceCount = 0
+  let completedRefsCount = 0
   if (type === 'candidate') {
-    const [interestsRes, shortlistRes, appsRes, evidenceRes] = await Promise.all([
+    const [interestsRes, shortlistRes, appsRes, evidenceRes, refsRes] = await Promise.all([
       supabase.from('candidate_interests').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('company_shortlists').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('active_applications').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('evidence').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      supabase.from('candidate_references').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id).eq('status', 'completed'),
     ])
     interestedRolesCount = interestsRes.count ?? 0
     shortlistedByCount = shortlistRes.count ?? 0
     activeApplicationsCount = appsRes.count ?? 0
     evidenceCount = evidenceRes.count ?? 0
+    completedRefsCount = refsRes.count ?? 0
   }
 
-  const completion = profile?.completion_pct ?? 0
+  // Tier detection
+  const cvKitPurchased = !!profile?.cv_kit_purchased
+  const isRolesBoard = !!profile?.paid || !!profile?.subscription_tier
+  const isActive = profile?.subscription_status === 'active'
+
+  // Dynamic completion — calculated from real data, tier-aware
+  let completion: number
+  if (isRolesBoard) {
+    // Roles Board tier: CV + WhatsApp + Evidence + References (5% each, max 25%)
+    let score = 0
+    if (profile?.cv_parsed) score += 25
+    if (profile?.whatsapp_number) score += 25
+    if (evidenceCount > 0) score += 25
+    score += Math.min(25, completedRefsCount * 5)
+    completion = score
+  } else {
+    // CV Kit tier: CV + WhatsApp + Purchased (each ~33%)
+    let score = 0
+    if (profile?.cv_parsed) score += 34
+    if (profile?.whatsapp_number) score += 33
+    if (cvKitPurchased) score += 33
+    completion = score
+  }
   const firstName = profile?.full_name?.split(' ')[0] || null
   const circumference = 2 * Math.PI * 34
   const dashOffset = circumference * (1 - completion / 100)
@@ -205,6 +230,20 @@ export default async function Dashboard() {
               </div>
             </div>
 
+            {/* ── Tier label ── */}
+            <div className="mb-3 flex items-center gap-2">
+              <span className="text-white/20 text-xs font-bold uppercase tracking-wider">Your plan:</span>
+              {isActive ? (
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(251,113,133,0.15)', color: '#FB7185' }}>Shapi Active</span>
+              ) : isRolesBoard ? (
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.12)', color: '#22D3EE' }}>Open Roles Board</span>
+              ) : cvKitPurchased ? (
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.12)', color: '#A78BFA' }}>CV Kit</span>
+              ) : (
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.3)' }}>Free</span>
+              )}
+            </div>
+
             {/* Status grid */}
             <div className="grid md:grid-cols-2 gap-4">
 
@@ -279,57 +318,133 @@ export default async function Dashboard() {
                 </div>
               )}
 
-              {/* Verification */}
-              <div className="gradient-border-card rounded-2xl p-6 opacity-50">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-white/[0.05] flex items-center justify-center flex-shrink-0">
-                    <svg className="w-5 h-5 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <h3 className="font-bold text-white text-sm">Independent verification</h3>
-                      <span className="text-[10px] font-bold bg-white/[0.07] text-white/35 px-2 py-0.5 rounded-full">Pending</span>
+              {/* CV Kit CTA — only if not yet purchased */}
+              {!cvKitPurchased && profile?.cv_parsed && (
+                <Link href="/pay" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.02] md:col-span-2" style={{
+                  background: 'linear-gradient(#0d0d14,#0d0d14) padding-box, linear-gradient(135deg,rgba(167,139,250,0.3),rgba(34,211,238,0.2)) border-box',
+                  border: '1px solid transparent',
+                }}>
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-bold text-white text-sm">Get your enhanced CV</h3>
+                        <span className="text-[10px] font-bold bg-[#A78BFA]/15 text-[#A78BFA] px-2 py-0.5 rounded-full">$29 one-time</span>
+                      </div>
+                      <p className="text-white/35 text-xs">English + native language version, industry-optimised, send to WhatsApp or email.</p>
                     </div>
-                    <p className="text-white/35 text-xs">We contact your references. Usually 48hrs.</p>
+                    <span className="text-[#A78BFA] font-black text-sm flex-shrink-0">Unlock →</span>
                   </div>
-                </div>
-              </div>
+                </Link>
+              )}
 
-              {/* Evidence */}
-              <Link href="/evidence" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.02]">
-                <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${evidenceCount > 0 ? 'bg-emerald-500/15' : 'bg-[#FB7185]/15'}`}>
-                    {evidenceCount > 0 ? (
+              {/* CV Kit done */}
+              {cvKitPurchased && (
+                <Link href="/cv-ready" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.02]">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
                       <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                    ) : (
-                      <svg className="w-5 h-5 text-[#FB7185]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    )}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <h3 className="font-bold text-white text-sm">Work evidence</h3>
-                      {evidenceCount > 0 ? (
-                        <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">
-                          {evidenceCount} file{evidenceCount !== 1 ? 's' : ''} ✓
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-bold bg-[#FB7185]/15 text-[#FB7185] px-2 py-0.5 rounded-full">Add now</span>
-                      )}
                     </div>
-                    <p className="text-white/35 text-xs">
-                      {evidenceCount > 0 ? 'Photos and docs uploaded — adds weight to your profile.' : 'Photos and docs that prove your experience.'}
-                    </p>
+                    <div>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <h3 className="font-bold text-white text-sm">CV Kit</h3>
+                        <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">Ready ✓</span>
+                      </div>
+                      <p className="text-white/35 text-xs">Your enhanced CV is ready — download or send it.</p>
+                    </div>
+                  </div>
+                </Link>
+              )}
+
+              {/* Verification — only shown on Roles Board tier */}
+              {isRolesBoard ? (
+                <Link href="/profile/references" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.02]">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${completedRefsCount >= 3 ? 'bg-emerald-500/15' : 'bg-white/[0.05]'}`}>
+                      <svg className={`w-5 h-5 ${completedRefsCount >= 3 ? 'text-emerald-400' : 'text-white/30'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={completedRefsCount >= 3 ? 2 : 1.5} d={completedRefsCount >= 3 ? 'M5 13l4 4L19 7' : 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'} />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <h3 className="font-bold text-white text-sm">Independent verification</h3>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${completedRefsCount >= 3 ? 'bg-emerald-500/15 text-emerald-400' : 'bg-white/[0.07] text-white/35'}`}>
+                          {completedRefsCount >= 3 ? `${completedRefsCount} verified ✓` : completedRefsCount > 0 ? `${completedRefsCount} so far` : 'Pending'}
+                        </span>
+                      </div>
+                      <p className="text-white/35 text-xs">References contacted independently — they nominate colleagues.</p>
+                    </div>
+                  </div>
+                </Link>
+              ) : (
+                <div className="gradient-border-card rounded-2xl p-6 opacity-40">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-white/[0.05] flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <h3 className="font-bold text-white text-sm">Independent verification</h3>
+                        <span className="text-[10px] font-bold bg-white/[0.07] text-white/25 px-2 py-0.5 rounded-full">Roles Board</span>
+                      </div>
+                      <p className="text-white/25 text-xs">Unlocks when you join the Open Roles Board.</p>
+                    </div>
                   </div>
                 </div>
-              </Link>
+              )}
 
-              {/* Matches / shortlisted signal */}
+              {/* Evidence — shown for all, locked label if not on roles board */}
+              {isRolesBoard ? (
+                <Link href="/evidence" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.02]">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${evidenceCount > 0 ? 'bg-emerald-500/15' : 'bg-[#FB7185]/15'}`}>
+                      {evidenceCount > 0 ? (
+                        <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="w-5 h-5 text-[#FB7185]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      )}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <h3 className="font-bold text-white text-sm">Work evidence</h3>
+                        {evidenceCount > 0 ? (
+                          <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">{evidenceCount} file{evidenceCount !== 1 ? 's' : ''} ✓</span>
+                        ) : (
+                          <span className="text-[10px] font-bold bg-[#FB7185]/15 text-[#FB7185] px-2 py-0.5 rounded-full">Add now</span>
+                        )}
+                      </div>
+                      <p className="text-white/35 text-xs">{evidenceCount > 0 ? 'Photos and docs uploaded — adds weight to your profile.' : 'Photos and docs that prove your experience.'}</p>
+                    </div>
+                  </div>
+                </Link>
+              ) : (
+                <div className="gradient-border-card rounded-2xl p-6 opacity-40">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-white/[0.05] flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <h3 className="font-bold text-white text-sm">Work evidence</h3>
+                        <span className="text-[10px] font-bold bg-white/[0.07] text-white/25 px-2 py-0.5 rounded-full">Roles Board</span>
+                      </div>
+                      <p className="text-white/25 text-xs">Unlocks when you join the Open Roles Board.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Matches / shortlisted signal — only Roles Board */}
+              {isRolesBoard && (
               <div className={`gradient-border-card rounded-2xl p-6 md:col-span-2 ${shortlistedByCount === 0 ? 'opacity-50' : ''}`}>
                 <div className="flex items-center justify-between">
                   <div>
@@ -350,6 +465,8 @@ export default async function Dashboard() {
                   </div>
                 </div>
               </div>
+              )}
+
             </div>
 
             {/* ─── Open Roles Board ─── */}
