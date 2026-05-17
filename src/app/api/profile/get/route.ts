@@ -8,9 +8,9 @@ export async function GET() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, whatsapp_number, skills, work_history, ai_tier')
+    .select('full_name, headline, location, summary, whatsapp_number, skills, work_history, ai_tier, cv_kit_purchased')
     .eq('id', user.id)
     .single()
 
-  return NextResponse.json(profile || {})
+  return NextResponse.json({ profile: profile ? { ...profile, id: user.id } : null })
 }

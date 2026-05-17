@@ -24,7 +24,8 @@ export default function EditProfile() {
   useEffect(() => {
     fetch('/api/profile/get')
       .then(r => r.json())
-      .then(data => {
+      .then(({ profile: data }) => {
+        if (!data) return
         setFullName(data.full_name || '')
         setHeadline(data.headline || '')
         setLocation(data.location || '')

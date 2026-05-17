@@ -1,29 +1,63 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
-export default async function CVReady() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+type Preview = {
+  before: string | null
+  after: string | null
+  has_whatsapp: boolean
+  whatsapp_count?: number
+  industry?: string
+}
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('cv_kit_purchased, full_name, summary, whatsapp_chat, skills, industry')
-    .eq('id', user.id)
-    .single()
+type Profile = {
+  cv_kit_purchased: boolean
+  full_name: string | null
+  id: string
+}
 
-  if (!profile?.cv_kit_purchased) redirect('/profile')
+export default function CVReady() {
+  const router = useRouter()
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [preview, setPreview] = useState<Preview | null>(null)
+  const [loadingPreview, setLoadingPreview] = useState(false)
+  const [ready, setReady] = useState(false)
 
-  const firstName = (profile.full_name as string)?.split(' ')[0] || 'there'
-  const rawSummary = profile.summary as string | null
-  const whatsappChat = Array.isArray(profile.whatsapp_chat) ? profile.whatsapp_chat as Array<{ role: string; content: string }> : []
-  const hasWhatsApp = whatsappChat.filter(m => m.role === 'user').length > 0
-  const industry = (profile.industry as string) || null
+  useEffect(() => {
+    // Fetch profile to gate access
+    fetch('/api/profile/get')
+      .then(r => r.json())
+      .then(d => {
+        if (!d.profile || !d.profile.cv_kit_purchased) {
+          router.replace('/profile')
+          return
+        }
+        setProfile({ cv_kit_purchased: true, full_name: d.profile.full_name, id: d.profile.id || '' })
+        setReady(true)
 
-  // Build a short "what Shapi added" example from whatsapp answers
-  const userAnswers = whatsappChat.filter(m => m.role === 'user').map(m => m.content)
-  const sampleAnswer = userAnswers.find(a => a.length > 40) || null
+        // Fetch the before/after preview
+        setLoadingPreview(true)
+        fetch('/api/cv/preview')
+          .then(r => r.json())
+          .then(p => setPreview(p))
+          .catch(() => {})
+          .finally(() => setLoadingPreview(false))
+      })
+      .catch(() => router.replace('/login'))
+  }, [router])
+
+  if (!ready) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#060609', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>Loading…</div>
+      </div>
+    )
+  }
+
+  const firstName = profile?.full_name?.split(' ')[0] || 'there'
+  const profileId = profile?.id?.slice(0, 8) || ''
 
   return (
     <div className="min-h-screen bg-[#060609]">
@@ -33,18 +67,38 @@ export default async function CVReady() {
                       linear-gradient(135deg, rgba(34,211,238,0.15), rgba(139,92,246,0.15)) border-box;
           border: 1px solid transparent;
         }
-        .before-card {
-          background: rgba(255,255,255,0.03);
+        .before-col {
+          background: rgba(255,255,255,0.025);
           border: 1px solid rgba(255,255,255,0.07);
-          border-radius: 12px;
-          padding: 16px;
+          border-radius: 14px;
+          padding: 18px;
+          flex: 1;
         }
-        .after-card {
-          background: linear-gradient(135deg, rgba(34,211,238,0.05), rgba(167,139,250,0.05));
+        .after-col {
+          background: linear-gradient(135deg, rgba(34,211,238,0.06), rgba(167,139,250,0.06));
           border: 1px solid rgba(34,211,238,0.2);
-          border-radius: 12px;
-          padding: 16px;
+          border-radius: 14px;
+          padding: 18px;
+          flex: 1;
+          position: relative;
         }
+        .after-col::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: 14px;
+          background: linear-gradient(135deg, rgba(34,211,238,0.03), rgba(167,139,250,0.03));
+          pointer-events: none;
+        }
+        .shimmer {
+          background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+          border-radius: 6px;
+          height: 12px;
+          margin-bottom: 8px;
+        }
+        @keyframes shimmer { to { background-position: -200% 0; } }
       `}</style>
 
       <div className="fixed inset-0 pointer-events-none" style={{
@@ -58,7 +112,7 @@ export default async function CVReady() {
             background: 'linear-gradient(135deg, #A78BFA, #22D3EE)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>shapi</Link>
-          <Link href="/dashboard" className="text-white/30 text-sm hover:text-white/60">Dashboard →</Link>
+          <Link href="/dashboard" className="text-white/30 text-sm hover:text-white/60 transition-colors">Dashboard →</Link>
         </div>
       </nav>
 
@@ -72,9 +126,90 @@ export default async function CVReady() {
           </div>
           <h1 className="text-3xl font-black text-white mb-2">{firstName}, your CV Kit is ready.</h1>
           <p className="text-white/40 text-sm leading-relaxed max-w-sm mx-auto">
-            Two versions — English and native language — both enriched with your WhatsApp conversation. Yours to keep.
+            Two versions — English and native language — both enriched with your WhatsApp conversation.
           </p>
         </div>
+
+        {/* Before / After */}
+        {(loadingPreview || preview?.has_whatsapp) && (
+          <div className="gradient-border-card rounded-2xl p-5 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-white/35 text-xs font-bold uppercase tracking-wider">What Shapi added to your CV</p>
+              {preview?.industry && (
+                <span className="text-white/25 text-xs capitalize">{preview.industry}-optimised</span>
+              )}
+            </div>
+
+            {/* Two columns */}
+            <div className="flex gap-3 mb-1" style={{ alignItems: 'stretch' }}>
+              {/* Before */}
+              <div className="before-col">
+                <p className="text-white/20 text-[10px] font-bold uppercase tracking-wider mb-3">
+                  Before — from your upload
+                </p>
+                {loadingPreview ? (
+                  <>
+                    <div className="shimmer w-full" />
+                    <div className="shimmer w-4/5" />
+                    <div className="shimmer w-3/5" />
+                  </>
+                ) : (
+                  <p className="text-white/35 text-xs leading-relaxed" style={{ fontStyle: 'italic' }}>
+                    &ldquo;{preview?.before
+                      ? preview.before.slice(0, 180) + (preview.before.length > 180 ? '…' : '')
+                      : 'Basic work history — titles, companies, dates. No specific achievements or metrics.'}
+                    &rdquo;
+                  </p>
+                )}
+              </div>
+
+              {/* Arrow */}
+              <div className="flex items-center flex-shrink-0 px-1">
+                <div style={{
+                  color: 'transparent',
+                  background: 'linear-gradient(135deg, #22D3EE, #A78BFA)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  fontSize: 20,
+                  fontWeight: 900,
+                }}>→</div>
+              </div>
+
+              {/* After */}
+              <div className="after-col">
+                <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: '#22D3EE', opacity: 0.7 }}>
+                  After — Shapi-enhanced
+                </p>
+                {loadingPreview ? (
+                  <>
+                    <div className="shimmer w-full" style={{ background: 'linear-gradient(90deg, rgba(34,211,238,0.06) 25%, rgba(34,211,238,0.12) 50%, rgba(34,211,238,0.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+                    <div className="shimmer w-11/12" style={{ background: 'linear-gradient(90deg, rgba(34,211,238,0.06) 25%, rgba(34,211,238,0.12) 50%, rgba(34,211,238,0.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+                    <div className="shimmer w-3/4" style={{ background: 'linear-gradient(90deg, rgba(34,211,238,0.06) 25%, rgba(34,211,238,0.12) 50%, rgba(34,211,238,0.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+                  </>
+                ) : (
+                  <p className="text-white/80 text-xs leading-relaxed">
+                    {preview?.after
+                      ? preview.after
+                      : 'Enhanced with specific achievements, metrics, and stories from your WhatsApp conversation.'}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Divider line label */}
+            <div className="flex items-center gap-3 mt-4">
+              <div className="h-px flex-1 bg-white/[0.06]" />
+              <p className="text-white/20 text-[10px]">
+                {loadingPreview
+                  ? 'Claude is writing your enhanced version…'
+                  : preview?.whatsapp_count
+                  ? `Built from ${preview.whatsapp_count} WhatsApp message${preview.whatsapp_count !== 1 ? 's' : ''} · 2 CV languages`
+                  : 'Enhanced and industry-formatted by Claude'}
+              </p>
+              <div className="h-px flex-1 bg-white/[0.06]" />
+            </div>
+          </div>
+        )}
 
         {/* Downloads */}
         <div className="gradient-border-card rounded-2xl p-5 mb-6 space-y-3">
@@ -86,9 +221,7 @@ export default async function CVReady() {
               <div className="w-9 h-9 rounded-lg bg-[#22D3EE]/10 flex items-center justify-center text-lg">🇬🇧</div>
               <div>
                 <p className="text-white font-bold text-sm">English CV</p>
-                <p className="text-white/35 text-xs">
-                  {industry ? `${industry.charAt(0).toUpperCase() + industry.slice(1)}-optimised` : 'Industry-tailored'} · ATS-friendly · print to PDF
-                </p>
+                <p className="text-white/35 text-xs">Industry-optimised · ATS-friendly · print to PDF</p>
               </div>
             </div>
             <span className="text-[#22D3EE] text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
@@ -107,67 +240,20 @@ export default async function CVReady() {
           </a>
         </div>
 
-        {/* What Shapi added — before/after */}
-        {hasWhatsApp && (
-          <div className="gradient-border-card rounded-2xl p-5 mb-6">
-            <p className="text-white/35 text-xs font-bold uppercase tracking-wider mb-4">What Shapi added to your CV</p>
-
-            <div className="grid sm:grid-cols-2 gap-3 mb-4">
-              <div className="before-card">
-                <p className="text-white/25 text-[10px] font-bold uppercase tracking-wider mb-2">Before — from your upload</p>
-                <p className="text-white/40 text-xs leading-relaxed line-clamp-4">
-                  {rawSummary
-                    ? rawSummary.slice(0, 200) + (rawSummary.length > 200 ? '…' : '')
-                    : 'Basic work history — titles, companies, dates.'}
-                </p>
-              </div>
-              <div className="after-card">
-                <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: '#22D3EE' }}>After — Shapi-enhanced</p>
-                <p className="text-white/70 text-xs leading-relaxed">
-                  Same CV, enriched with your specific stories, numbers, and achievements from the WhatsApp conversation. Industry-formatted.
-                </p>
-              </div>
-            </div>
-
-            {sampleAnswer && (
-              <div className="bg-white/[0.03] rounded-xl p-4">
-                <p className="text-white/25 text-[10px] uppercase tracking-wider mb-2">From your WhatsApp — woven into the CV</p>
-                <p className="text-white/55 text-xs leading-relaxed italic">
-                  &ldquo;{sampleAnswer.slice(0, 180)}{sampleAnswer.length > 180 ? '…' : ''}&rdquo;
-                </p>
-              </div>
-            )}
-
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              {[
-                { label: 'Messages analysed', value: String(userAnswers.length) },
-                { label: 'Format', value: industry ? industry.charAt(0).toUpperCase() + industry.slice(1) : 'General' },
-                { label: 'Languages', value: '2' },
-              ].map((stat, i) => (
-                <div key={i} className="text-center">
-                  <div className="text-lg font-black" style={{
-                    background: 'linear-gradient(135deg, #22D3EE, #A78BFA)',
-                    WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-                  }}>{stat.value}</div>
-                  <div className="text-white/25 text-[10px]">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Shareable profile link */}
+        {/* Shareable link */}
         <div className="gradient-border-card rounded-2xl p-5 mb-8">
-          <p className="text-white/35 text-xs font-bold uppercase tracking-wider mb-3">Your shareable profile</p>
-          <p className="text-white/50 text-xs leading-relaxed mb-3">
-            Send this link to hiring managers directly. It shows your full verified profile — no login required for them.
+          <p className="text-white/35 text-xs font-bold uppercase tracking-wider mb-2">Your shareable profile</p>
+          <p className="text-white/35 text-xs leading-relaxed mb-3">
+            Send this to hiring managers. They see your full verified profile — no login needed.
           </p>
           <div className="flex items-center gap-3 bg-white/[0.04] rounded-xl px-4 py-3">
-            <code className="text-[#22D3EE] text-sm font-bold flex-1">
-              shapi.io/p/{user.id.slice(0, 8)}
+            <code className="text-[#22D3EE] text-sm font-bold flex-1 truncate">
+              shapi.io/p/{profileId}
             </code>
-            <a href={`/p/${user.id.slice(0, 8)}`} target="_blank"
-              className="text-white/30 text-xs hover:text-white/60 flex-shrink-0">Preview →</a>
+            <a href={`/p/${profileId}`} target="_blank"
+              className="text-white/30 text-xs hover:text-white/60 flex-shrink-0 transition-colors">
+              Preview →
+            </a>
           </div>
         </div>
 
