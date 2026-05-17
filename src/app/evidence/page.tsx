@@ -1,18 +1,46 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 
-type Upload = {
+type ActiveUpload = {
   name: string
   size: number
   status: 'uploading' | 'done' | 'error'
 }
 
+type EvidenceItem = {
+  id: string
+  file_name: string
+  file_type: string
+  file_size: number
+  caption: string | null
+  status: string
+  created_at: string
+  storage_path: string
+  url: string | null
+}
+
 export default function Evidence() {
-  const [uploads, setUploads] = useState<Upload[]>([])
+  const [activeUploads, setActiveUploads] = useState<ActiveUpload[]>([])
+  const [saved, setSaved] = useState<EvidenceItem[]>([])
+  const [loadingSaved, setLoadingSaved] = useState(true)
   const [dragging, setDragging] = useState(false)
+  const [deleting, setDeleting] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const loadSaved = async () => {
+    try {
+      const res = await fetch('/api/evidence/upload')
+      if (res.ok) {
+        const { items } = await res.json()
+        setSaved(items || [])
+      }
+    } catch { /* non-fatal */ }
+    setLoadingSaved(false)
+  }
+
+  useEffect(() => { loadSaved() }, [])
 
   const upload = async (file: File) => {
     const form = new FormData()
@@ -23,19 +51,36 @@ export default function Evidence() {
 
   const addFiles = (files: FileList) => {
     const incoming = Array.from(files)
-    const startIdx = uploads.length
-    setUploads(prev => [...prev, ...incoming.map(f => ({ name: f.name, size: f.size, status: 'uploading' as const }))])
+    const startIdx = activeUploads.length
+    setActiveUploads(prev => [...prev, ...incoming.map(f => ({ name: f.name, size: f.size, status: 'uploading' as const }))])
     incoming.forEach(async (file, i) => {
       const ok = await upload(file)
-      setUploads(prev => prev.map((u, j) => j === startIdx + i ? { ...u, status: ok ? 'done' : 'error' } : u))
+      setActiveUploads(prev => prev.map((u, j) => j === startIdx + i ? { ...u, status: ok ? 'done' : 'error' } : u))
+      if (ok) loadSaved()
     })
+  }
+
+  const deleteItem = async (id: string) => {
+    setDeleting(id)
+    try {
+      const res = await fetch('/api/evidence/upload', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      if (res.ok) {
+        setSaved(prev => prev.filter(item => item.id !== id))
+      }
+    } catch { /* non-fatal */ }
+    setDeleting(null)
   }
 
   const fmt = (bytes: number) => bytes < 1024 * 1024
     ? `${(bytes / 1024).toFixed(0)} KB`
     : `${(bytes / 1024 / 1024).toFixed(1)} MB`
 
-  const allDone = uploads.length > 0 && uploads.every(u => u.status !== 'uploading')
+  const isImage = (type: string) => type.startsWith('image/')
+  const allDone = activeUploads.length > 0 && activeUploads.every(u => u.status !== 'uploading')
 
   return (
     <div className="min-h-screen bg-[#060609]">
@@ -49,6 +94,7 @@ export default function Evidence() {
           background: linear-gradient(#060609, #060609) padding-box,
                       linear-gradient(135deg, rgba(34,211,238,0.5), rgba(139,92,246,0.5)) border-box !important;
         }
+        .evidence-thumb:hover .evidence-overlay { opacity: 1; }
       `}</style>
 
       <div className="fixed inset-0 pointer-events-none" style={{
@@ -119,10 +165,10 @@ export default function Evidence() {
           />
         </div>
 
-        {/* Upload list */}
-        {uploads.length > 0 && (
+        {/* Active upload progress */}
+        {activeUploads.length > 0 && (
           <div className="space-y-3 mb-6">
-            {uploads.map((u, i) => (
+            {activeUploads.map((u, i) => (
               <div key={i} className="gradient-border-card rounded-xl px-5 py-4 flex items-center gap-4">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
                   u.status === 'done' ? 'bg-emerald-500/20' :
@@ -145,13 +191,90 @@ export default function Evidence() {
                 <div className="flex-1 min-w-0">
                   <p className="text-white/80 text-sm font-medium truncate">{u.name}</p>
                   <p className="text-white/30 text-xs">
-                    {fmt(u.size)} · {u.status === 'uploading' ? 'Uploading...' : u.status === 'done' ? 'Uploaded ✓' : 'Failed — try again'}
+                    {fmt(u.size)} · {u.status === 'uploading' ? 'Uploading...' : u.status === 'done' ? 'Saved ✓' : 'Failed — try again'}
                   </p>
                 </div>
               </div>
             ))}
           </div>
         )}
+
+        {/* Saved evidence gallery */}
+        {loadingSaved ? (
+          <div className="text-center py-10">
+            <div className="w-5 h-5 rounded-full border-2 border-white/20 border-t-white/60 animate-spin mx-auto" />
+          </div>
+        ) : saved.length > 0 ? (
+          <div className="mb-8">
+            <p className="text-white/40 text-xs font-bold uppercase tracking-wider mb-4">
+              Saved evidence — {saved.length} file{saved.length !== 1 ? 's' : ''}
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {saved.map(item => (
+                <div key={item.id} className="evidence-thumb relative rounded-xl overflow-hidden aspect-square bg-white/[0.04] border border-white/[0.07] group cursor-default">
+                  {/* Thumbnail */}
+                  {isImage(item.file_type) && item.url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={item.url}
+                      alt={item.file_name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                      <svg className="w-8 h-8 text-[#FB7185]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                          d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-white/30 text-xs font-medium">PDF</span>
+                    </div>
+                  )}
+
+                  {/* Hover overlay */}
+                  <div className="evidence-overlay absolute inset-0 bg-[#060609]/85 opacity-0 transition-opacity duration-200 flex flex-col justify-between p-3">
+                    <div className="flex items-start justify-between gap-1">
+                      <p className="text-white/80 text-xs font-medium leading-tight line-clamp-2 flex-1">{item.file_name}</p>
+                      <span style={{
+                        background: item.status === 'verified' ? 'rgba(52,211,153,0.15)' : 'rgba(34,211,238,0.12)',
+                        color: item.status === 'verified' ? '#34D399' : '#22D3EE',
+                        fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 100, flexShrink: 0,
+                      }}>
+                        {item.status === 'verified' ? '✓ Verified' : '✓ Saved'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-white/30 text-xs">{fmt(item.file_size)}</span>
+                      <div className="flex items-center gap-2">
+                        {item.url && (
+                          <a
+                            href={item.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[#22D3EE] text-xs font-bold hover:text-white transition-colors"
+                            onClick={e => e.stopPropagation()}
+                          >
+                            Open →
+                          </a>
+                        )}
+                        <button
+                          onClick={() => deleteItem(item.id)}
+                          disabled={deleting === item.id}
+                          className="text-[#FB7185]/70 text-xs font-bold hover:text-[#FB7185] transition-colors disabled:opacity-40"
+                        >
+                          {deleting === item.id ? '…' : 'Remove'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : !loadingSaved && activeUploads.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-white/20 text-sm">No evidence uploaded yet — drop your first file above.</p>
+          </div>
+        ) : null}
 
         {allDone && (
           <Link href="/dashboard"
