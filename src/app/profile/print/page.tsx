@@ -30,53 +30,83 @@ type TranslatedCV = {
   skills: string[]
 }
 
-async function translateCV(profile: Record<string, unknown>, chatAnswers: Array<{role: string; content: string}>): Promise<TranslatedCV | null> {
+async function generateCV(
+  profile: Record<string, unknown>,
+  chatMessages: Array<{role: string; content: string}>,
+  mode: 'english' | 'native'
+): Promise<TranslatedCV | null> {
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-  const userMessages = chatAnswers.filter(m => m.role === 'user').map(m => m.content)
-  const sampleText = userMessages.slice(0, 3).join(' | ')
-
+  const userMessages = chatMessages.filter(m => m.role === 'user').map(m => m.content)
+  const sampleText = userMessages.slice(0, 5).join(' | ')
   const workHistory: WorkEntry[] = Array.isArray(profile.work_history) ? profile.work_history as WorkEntry[] : []
   const skills: string[] = Array.isArray(profile.skills) ? profile.skills as string[] : []
+  const industry = (profile.industry as string) || 'general'
 
-  const prompt = `You are translating a professional CV into the candidate's native language.
+  const industryInstructions: Record<string, string> = {
+    finance: 'Lead achievements with numbers. Formal tone. Highlight P&L, AUM, risk, compliance outcomes.',
+    tech: 'Name specific stack in context. Quantify scale (users, uptime, latency). Show ownership.',
+    creative: 'Evocative language. Name brands and campaigns. Include reach/engagement metrics.',
+    healthcare: 'Certifications and licenses prominent. Clinical hours and patient volumes. Formal and precise.',
+    legal: 'Practice areas clear. Deal/case experience named. Academic credentials weighted.',
+    marketing: 'Every campaign gets a metric: ROAS, conversion, CAC, reach. Channel ownership clear.',
+    operations: 'Certifications and licences first. Volume, scale, safety record. Direct and factual.',
+    hospitality: 'Property name and star rating upfront. RevPAR, covers, guest scores. Languages listed.',
+    education: 'Student outcomes and cohort size. Research and publications. Safeguarding noted.',
+    sales: 'Quota attainment % in every role. Deal size, revenue generated. Methodology named.',
+    general: 'Lead with impact. Quantify wherever possible. Clear upward progression.',
+  }
 
-Detect the candidate's native language from these WhatsApp messages they wrote:
-"${sampleText || 'No messages available'}"
+  const industryGuide = industryInstructions[industry] || industryInstructions.general
 
-If you cannot detect a clear non-English language, default to Arabic.
+  const languageInstruction = mode === 'native'
+    ? `Detect the candidate's native language from their messages: "${sampleText || 'No messages'}". If unclear, default to Arabic. Translate ALL text values into that language.`
+    : `Write everything in polished professional English.`
 
-Return a JSON object with this exact structure (translate ALL text values, keep the JSON keys in English):
+  const prompt = `You are an expert CV writer producing a world-class ${mode === 'native' ? 'native language' : 'English'} CV.
+
+CANDIDATE INFO:
+- Name: ${profile.full_name || ''}
+- Headline: ${profile.headline || ''}
+- Location: ${profile.location || ''}
+- Industry: ${industry}
+- Summary: ${(profile.summary as string || '').replace(/"/g, "'")}
+- Work history: ${JSON.stringify(workHistory)}
+- Skills: ${JSON.stringify(skills)}
+- WhatsApp conversation (use these stories, quotes, and insights to ENRICH the achievements and summary — this is the gold): ${JSON.stringify(userMessages)}
+
+INDUSTRY WRITING GUIDE — ${industry.toUpperCase()}:
+${industryGuide}
+
+LANGUAGE: ${languageInstruction}
+
+Using ALL of the above — CV data AND WhatsApp insights — produce an enriched, polished CV. The WhatsApp answers often contain specific numbers, challenges, and stories that are missing from the raw CV. Weave them in.
+
+Return ONLY valid JSON in this exact structure (keep JSON keys in English, translate values if native mode):
 {
-  "language": "Arabic",
-  "languageCode": "ar",
-  "full_name": "${profile.full_name || ''}",
-  "headline": "${profile.headline || ''}",
-  "location": "${profile.location || ''}",
-  "summary": "${(profile.summary as string || '').replace(/"/g, "'")}",
+  "language": "${mode === 'english' ? 'English' : 'detected language name'}",
+  "languageCode": "${mode === 'english' ? 'en' : 'detected 2-letter code'}",
+  "full_name": "...",
+  "headline": "...",
+  "location": "...",
+  "summary": "...",
   "sectionLabels": {
-    "profile": "Profile",
-    "inTheirOwnWords": "In Their Own Words",
-    "experience": "Experience",
-    "skills": "Skills",
-    "present": "Present",
-    "verifiedBy": "Verified profile · shapi.io"
+    "profile": "...",
+    "inTheirOwnWords": "...",
+    "experience": "...",
+    "skills": "...",
+    "present": "...",
+    "verifiedBy": "..."
   },
-  "workHistory": ${JSON.stringify(workHistory)},
-  "chatAnswers": ${JSON.stringify(userMessages.slice(0, 3))},
-  "skills": ${JSON.stringify(skills)}
-}
-
-Rules:
-- Translate ALL string values (name, headline, location, summary, job titles, companies, achievements, skills, chat answers, section labels) into the detected language
-- For Arabic/Hebrew/Urdu: set languageCode to "ar"/"he"/"ur" (right-to-left languages)
-- Keep dates and numbers as-is
-- Return ONLY valid JSON, no other text`
+  "workHistory": [{"title":"...","company":"...","start":"...","end":"...","achievements":"..."}],
+  "chatAnswers": ["best quote 1 from whatsapp", "best quote 2", "best quote 3"],
+  "skills": ["skill1","skill2"]
+}`
 
   try {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
+      max_tokens: 3000,
       messages: [{ role: 'user', content: prompt }],
     })
 
@@ -85,7 +115,7 @@ Rules:
     if (!jsonMatch) return null
     return JSON.parse(jsonMatch[0]) as TranslatedCV
   } catch (err) {
-    console.error('[print] Translation error:', err)
+    console.error('[print] CV generation error:', err)
     return null
   }
 }
@@ -115,10 +145,16 @@ export default async function PrintCV({
   const allChatMessages: Array<{role: string; content: string}> = Array.isArray(profile.whatsapp_chat) ? profile.whatsapp_chat : []
   const chatAnswers = allChatMessages.filter(m => m.role === 'user').slice(0, 3)
 
-  // Native language: translate everything with Claude
+  // Generate enriched CV via Claude — always, for both English and native versions
+  // English version: polished + industry-aware + WhatsApp insights woven in
+  // Native version: same but fully translated
   let translated: TranslatedCV | null = null
-  if (isNative) {
-    translated = await translateCV(profile as Record<string, unknown>, allChatMessages)
+  if (allChatMessages.length > 0 || profile.work_history) {
+    translated = await generateCV(
+      profile as Record<string, unknown>,
+      allChatMessages,
+      isNative ? 'native' : 'english'
+    )
   }
 
   const isRTL = translated && ['ar', 'he', 'ur', 'fa'].includes(translated.languageCode)
