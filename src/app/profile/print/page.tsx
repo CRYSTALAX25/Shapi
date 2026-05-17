@@ -155,20 +155,26 @@ function PrintContent() {
 
   return (
     <>
+      {/* Force light mode at browser level — prevents Chrome dark mode inverting CV colours */}
+      <meta name="color-scheme" content="light" />
       <style>{`
-        * { margin: 0; padding: 0; box-sizing: border-box; color-scheme: light; }
-        html, body { background: #f8f8f8 !important; color: #1a1a2e !important; color-scheme: light !important; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { color-scheme: light !important; background: #f8f8f8 !important; }
+        html, body { background: #f8f8f8 !important; color: #1a1a2e !important; }
 
         .no-print {
-          position: fixed; top: 16px; right: 16px; z-index: 100;
-          display: flex; gap: 10px; align-items: center;
+          position: fixed; top: 12px; right: 12px; z-index: 9999;
+          display: flex; gap: 8px; align-items: center;
+          background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
+          padding: 8px 12px; border-radius: 999px;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.12);
         }
         .btn { padding: 10px 20px; border-radius: 999px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; font-family: system-ui, sans-serif; }
         .btn-primary { background: linear-gradient(135deg,#22D3EE,#A78BFA); color: #060609; }
         .btn-secondary { background: #e8e8e8; color: #333; }
 
         .page {
-          max-width: 800px; margin: 32px auto; padding: 56px 64px;
+          max-width: 800px; margin: 72px auto 32px; padding: 56px 64px;
           background: white; box-shadow: 0 4px 40px rgba(0,0,0,0.08);
           font-family: ${isRTL ? "'Noto Sans Arabic','Arial',sans-serif" : "'Georgia',serif"};
           color: #1a1a2e; direction: ${isRTL ? 'rtl' : 'ltr'};
