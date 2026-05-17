@@ -29,16 +29,57 @@ export async function POST(request: Request) {
     return new NextResponse('', { status: 200 })
   }
 
-  // ── Voice note handling ──────────────────────────────────────────────────
+  // ── Voice note handling — Deepgram transcription ────────────────────────
+  let userMessage = body?.trim() || ''
+
   if (numMedia > 0 && mediaType.startsWith('audio/')) {
-    await sendWhatsApp(
-      phone,
-      `I got your voice note 🎙️ — voice transcription is coming very soon. Could you type your answer for now? I don't want to miss anything you said.`
-    )
-    return new NextResponse('', { status: 200 })
+    const mediaUrl = formData.get('MediaUrl0') as string
+    console.log('[webhook] Voice note received, transcribing:', mediaUrl)
+
+    try {
+      // Download audio from Twilio (requires Basic auth)
+      const accountSid = process.env.TWILIO_ACCOUNT_SID!
+      const authToken = process.env.TWILIO_AUTH_TOKEN!
+      const twilioAuth = Buffer.from(`${accountSid}:${authToken}`).toString('base64')
+
+      const audioRes = await fetch(mediaUrl, {
+        headers: { Authorization: `Basic ${twilioAuth}` },
+      })
+      if (!audioRes.ok) throw new Error(`Failed to fetch audio: ${audioRes.status}`)
+      const audioBuffer = await audioRes.arrayBuffer()
+
+      // Send to Deepgram for transcription
+      const deepgramRes = await fetch(
+        'https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&detect_language=true',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Token ${process.env.DEEPGRAM_API_KEY}`,
+            'Content-Type': mediaType,
+          },
+          body: audioBuffer,
+        }
+      )
+
+      if (!deepgramRes.ok) throw new Error(`Deepgram error: ${deepgramRes.status}`)
+      const deepgramData = await deepgramRes.json()
+      const transcript = deepgramData?.results?.channels?.[0]?.alternatives?.[0]?.transcript?.trim()
+
+      if (transcript) {
+        console.log('[webhook] Transcribed:', transcript.slice(0, 100))
+        userMessage = transcript
+      } else {
+        console.log('[webhook] Empty transcript from Deepgram')
+        await sendWhatsApp(phone, `I got your voice note 🎙️ but couldn't make it out clearly — could you try again or type it?`)
+        return new NextResponse('', { status: 200 })
+      }
+    } catch (err) {
+      console.error('[webhook] Transcription error:', err)
+      await sendWhatsApp(phone, `I got your voice note 🎙️ but hit a snag transcribing it — could you type your answer? Don't want to miss anything.`)
+      return new NextResponse('', { status: 200 })
+    }
   }
 
-  const userMessage = body?.trim()
   if (!userMessage) return new NextResponse('', { status: 200 })
 
   // ── Conversation history ─────────────────────────────────────────────────
