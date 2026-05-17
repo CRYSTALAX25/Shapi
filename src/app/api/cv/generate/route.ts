@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, industry, whatsapp_number, ai_tier, industry_chats')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, industry, whatsapp_number, ai_tier, industry_chats, native_language, cv_language_preference')
     .eq('id', user.id)
     .single()
 
@@ -83,18 +83,17 @@ export async function POST(request: Request) {
     }
   }
 
-  // Fetch identity/language fields separately — graceful if columns don't exist yet
+  // Fetch supplementary language fields — graceful if columns don't exist yet
+  // NOTE: native_language and cv_language_preference are already in the main profile query above
   let extraFields: {
-    native_language?: string | null
     nationality?: string | null
     languages_spoken?: Array<{ language: string; level: string }> | null
     whatsapp_language?: string | null
-    cv_language_preference?: string | null
   } | null = null
   try {
     const { data } = await supabase
       .from('profiles')
-      .select('native_language, nationality, languages_spoken, whatsapp_language, cv_language_preference')
+      .select('nationality, languages_spoken, whatsapp_language')
       .eq('id', user.id)
       .single()
     extraFields = data
@@ -125,7 +124,8 @@ export async function POST(request: Request) {
 
   // cv_language_preference is the most explicit signal — candidate chose it directly
   // Strip "Both — English and " or "Both — " prefix if present; extract the non-English language
-  const rawLangPref = extraFields?.cv_language_preference || null
+  // Use profile directly for critical language fields (always loaded), extraFields as supplement
+  const rawLangPref = (profile.cv_language_preference as string | null) || null
   let prefLang: string | null = null
   if (rawLangPref) {
     const pref = rawLangPref.toLowerCase().trim()
@@ -141,7 +141,7 @@ export async function POST(request: Request) {
     }
   }
 
-  const storedNativeLang = extraFields?.native_language || null
+  const storedNativeLang = (profile.native_language as string | null) || null
   const languagesOnCV = (extraFields?.languages_spoken || []) as Array<{ language: string; level: string }>
   const nativeOnCV = languagesOnCV.find(l =>
     l.level?.toLowerCase().includes('native') && l.language?.toLowerCase() !== 'english'
@@ -159,7 +159,7 @@ export async function POST(request: Request) {
 
   const languageInstruction = mode === 'native'
     ? resolvedNativeLang
-      ? `Translate this ENTIRE CV into ${resolvedNativeLang}. Every word of every text value must be in ${resolvedNativeLang}. Do not leave any English text in the values. Keep JSON keys in English.`
+      ? `You MUST write this ENTIRE CV in ${resolvedNativeLang}. This is critical. Every single word of every text value — summary, job titles, company names (if translatable), achievements, skills, section labels, quotes — MUST be in ${resolvedNativeLang}. Do NOT write any English words in the values. The JSON keys stay in English but ALL values must be in ${resolvedNativeLang}. Set languageCode to the correct 2-letter ISO code for ${resolvedNativeLang}.`
       : `You cannot determine this candidate's native language from available data. Write the CV in English and note in the "language" field: "Native language not detected — candidate should declare in profile settings."`
     : mode === 'universal'
     ? `Write everything in polished, plain professional English. No industry-specific jargon. Focus entirely on transferable skills, leadership qualities, problem-solving, and measurable outcomes that would be understood and valued across ANY industry. Strip out niche terminology and replace with universally understood language.`
