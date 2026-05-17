@@ -186,12 +186,12 @@ function PrintContent() {
         .meta { font-size: 13px; color: #888; display: flex; gap: 16px; flex-wrap: wrap; }
         .badge { display: inline-block; background: #f0f0f8; color: #6B21A8; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px; font-family: system-ui, sans-serif; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .section { margin-bottom: 28px; }
-        .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; font-family: system-ui, sans-serif; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 6px; }
+        .section { margin-bottom: 28px; break-inside: avoid; page-break-inside: avoid; }
+        .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #999; font-family: system-ui, sans-serif; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 6px; break-after: avoid; page-break-after: avoid; }
 
         .summary { font-size: 14px; line-height: 1.7; color: #444; }
 
-        .job { margin-bottom: 20px; }
+        .job { margin-bottom: 20px; break-inside: avoid; page-break-inside: avoid; }
         .job-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
         .job-title { font-size: 15px; font-weight: 700; }
         .job-company { font-size: 14px; color: #666; margin-bottom: 4px; }
@@ -201,7 +201,7 @@ function PrintContent() {
         .skills { display: flex; flex-wrap: wrap; gap: 8px; }
         .skill { background: #f5f5f5; color: #444; font-size: 12px; padding: 4px 12px; border-radius: 999px; font-family: system-ui, sans-serif; }
 
-        .quote { border-${isRTL ? 'right' : 'left'}: 3px solid #A78BFA; padding-${isRTL ? 'right' : 'left'}: 16px; margin-bottom: 12px; font-size: 14px; line-height: 1.6; color: #555; font-style: italic; }
+        .quote { border-${isRTL ? 'right' : 'left'}: 3px solid #A78BFA; padding-${isRTL ? 'right' : 'left'}: 16px; margin-bottom: 12px; font-size: 14px; line-height: 1.6; color: #555; font-style: italic; break-inside: avoid; page-break-inside: avoid; }
 
         .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #eee; font-size: 11px; color: #bbb; font-family: system-ui, sans-serif; text-align: center; }
 
