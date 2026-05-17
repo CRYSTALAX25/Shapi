@@ -16,6 +16,21 @@ export default async function Dashboard() {
     .eq('id', user.id)
     .single()
 
+  // Fetch candidate signals (interests expressed + companies who shortlisted them)
+  let interestedRolesCount = 0
+  let shortlistedByCount = 0
+  let activeApplicationsCount = 0
+  if (type === 'candidate') {
+    const [interestsRes, shortlistRes, appsRes] = await Promise.all([
+      supabase.from('candidate_interests').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
+      supabase.from('company_shortlists').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
+      supabase.from('active_applications').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
+    ])
+    interestedRolesCount = interestsRes.count ?? 0
+    shortlistedByCount = shortlistRes.count ?? 0
+    activeApplicationsCount = appsRes.count ?? 0
+  }
+
   const completion = profile?.completion_pct ?? 0
   const firstName = profile?.full_name?.split(' ')[0] || null
   const circumference = 2 * Math.PI * 34
@@ -80,9 +95,13 @@ export default async function Dashboard() {
         <div className="flex items-center gap-5">
           <span className="text-sm text-white/25 hidden sm:block">{user.email}</span>
           {type === 'candidate' && (
-            <Link href="/profile" className="text-sm text-[#22D3EE] font-semibold hover:opacity-80 transition-opacity">
-              View profile →
-            </Link>
+            <>
+              <Link href="/roles" className="text-sm text-white/40 hover:text-white/70 transition-colors hidden md:block">Roles</Link>
+              <Link href="/active" className="text-sm text-white/40 hover:text-white/70 transition-colors hidden md:block">Active</Link>
+              <Link href="/profile" className="text-sm text-[#22D3EE] font-semibold hover:opacity-80 transition-opacity">
+                View profile →
+              </Link>
+            </>
           )}
           {type === 'company' && (
             <Link href="/company/dashboard" className="text-sm text-[#22D3EE] font-semibold hover:opacity-80 transition-opacity">
@@ -293,17 +312,97 @@ export default async function Dashboard() {
                 </div>
               </Link>
 
-              {/* Matches banner */}
-              <div className="gradient-border-card rounded-2xl p-6 md:col-span-2 opacity-50">
+              {/* Matches / shortlisted signal */}
+              <div className={`gradient-border-card rounded-2xl p-6 md:col-span-2 ${shortlistedByCount === 0 ? 'opacity-50' : ''}`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-white/25 text-xs font-bold uppercase tracking-wider mb-1">Company matches</p>
-                    <h3 className="font-bold text-white mb-1">Complete your profile to unlock matches</h3>
-                    <p className="text-white/35 text-xs">Once verified, matched companies can view and reach out to you.</p>
+                    <p className="text-white/25 text-xs font-bold uppercase tracking-wider mb-1">Company signals</p>
+                    <h3 className="font-bold text-white mb-1">
+                      {shortlistedByCount > 0
+                        ? `${shortlistedByCount} compan${shortlistedByCount === 1 ? 'y has' : 'ies have'} shortlisted you`
+                        : 'Complete your profile to unlock matches'}
+                    </h3>
+                    <p className="text-white/35 text-xs">
+                      {shortlistedByCount > 0
+                        ? `You've expressed interest in ${interestedRolesCount} role${interestedRolesCount !== 1 ? 's' : ''}. Mutual matches trigger introductions.`
+                        : 'Once verified, matched companies can view and reach out to you.'}
+                    </p>
                   </div>
-                  <div className="text-5xl font-black text-white/[0.07]">0</div>
+                  <div className="text-5xl font-black" style={{ color: shortlistedByCount > 0 ? '#22D3EE' : 'rgba(255,255,255,0.07)' }}>
+                    {shortlistedByCount}
+                  </div>
                 </div>
               </div>
+            </div>
+
+            {/* ─── Open Roles Board ─── */}
+            <div className="mt-4">
+              <Link href="/roles" className="gradient-border-card rounded-2xl p-6 flex items-center justify-between hover:bg-white/[0.02] transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'linear-gradient(135deg, rgba(34,211,238,0.15), rgba(139,92,246,0.15))' }}>
+                    <svg className="w-5 h-5 text-[#22D3EE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white text-sm mb-0.5">Open roles board</h3>
+                    <p className="text-white/35 text-xs">Browse verified company roles ranked by your match score.</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {interestedRolesCount > 0 && (
+                    <span className="text-xs font-bold px-2.5 py-1 rounded-full"
+                      style={{ background: 'rgba(34,211,238,0.12)', color: '#22D3EE' }}>
+                      {interestedRolesCount} interested
+                    </span>
+                  )}
+                  <svg className="w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </Link>
+            </div>
+
+            {/* ─── Shapi Active ─── */}
+            <div className="mt-4">
+              <Link href="/active" className="block rounded-2xl p-6 hover:opacity-90 transition-opacity"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(251,113,133,0.12) 0%, rgba(139,92,246,0.12) 50%, rgba(34,211,238,0.12) 100%)',
+                  border: '1px solid rgba(251,113,133,0.2)',
+                }}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-bold px-2.5 py-1 rounded-full"
+                        style={{ background: 'rgba(251,113,133,0.2)', color: '#FB7185' }}>
+                        NEW
+                      </span>
+                      <h3 className="font-bold text-white">Shapi Active</h3>
+                    </div>
+                    <p className="text-white/45 text-sm mb-3">
+                      Scan for jobs, draft personalised outreach, track applications, prep for interviews — all in one place.
+                    </p>
+                    <div className="flex items-center gap-4 text-xs text-white/30">
+                      <span>🔍 Job scanner</span>
+                      <span>✉️ Email drafter</span>
+                      <span>📋 Application tracker</span>
+                      <span>🎯 Interview prep</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-4">
+                    {activeApplicationsCount > 0 && (
+                      <span className="text-2xl font-black" style={{ color: '#FB7185' }}>{activeApplicationsCount}</span>
+                    )}
+                    {activeApplicationsCount > 0 && (
+                      <span className="text-white/25 text-[10px]">applications</span>
+                    )}
+                    <svg className="w-5 h-5 text-white/30 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                </div>
+              </Link>
             </div>
           </>
         )}
