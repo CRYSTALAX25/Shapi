@@ -22,7 +22,7 @@ export default async function CompanyDashboard() {
 
   const { data: company } = await supabase
     .from('profiles')
-    .select('full_name, type, paid, subscription_status, subscription_tier, company_name')
+    .select('full_name, type, paid, subscription_status, subscription_tier, company_name, company_data, company_size')
     .eq('id', user.id)
     .single()
 
@@ -30,16 +30,26 @@ export default async function CompanyDashboard() {
 
   const isPaid = company?.paid && company?.subscription_status === 'active'
 
-  const { data: candidates } = await supabase
-    .from('profiles')
-    .select('id, full_name, headline, location, skills, ai_tier, completion_pct, summary, whatsapp_chat')
-    .eq('type', 'candidate')
-    .gte('completion_pct', 30)
-    .order('completion_pct', { ascending: false })
-    .limit(50)
+  const [candidatesResult, rolesResult] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, full_name, headline, location, skills, ai_tier, completion_pct, summary, whatsapp_chat')
+      .eq('type', 'candidate')
+      .gte('completion_pct', 30)
+      .order('completion_pct', { ascending: false })
+      .limit(50),
+    supabase
+      .from('roles')
+      .select('id, title, department, location, salary_min, salary_max, salary_currency, status, created_at')
+      .eq('company_id', user.id)
+      .order('created_at', { ascending: false }),
+  ])
 
+  const candidates = candidatesResult.data
+  const roles = rolesResult.data || []
   const count = candidates?.length || 0
   const companyName = company.company_name || company.full_name || 'Your company'
+  const companyData = company.company_data as Record<string, unknown> | null
 
   const aiTierColour: Record<string, string> = {
     user: 'bg-[#22D3EE]/10 text-[#22D3EE]',
@@ -98,16 +108,86 @@ export default async function CompanyDashboard() {
       <div className="relative z-10 max-w-6xl mx-auto px-6 pt-10 pb-20">
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-black text-white mb-2">
-            {count} verified candidate{count !== 1 ? 's' : ''}
-          </h1>
-          <p className="text-white/40 text-sm">
-            {isPaid
-              ? 'You have full access — view profiles, references, and contact directly.'
-              : 'Subscribe to unlock full profiles and direct contact.'}
-          </p>
+        <div className="flex items-start justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-3xl font-black text-white mb-1">{companyName}</h1>
+            <p className="text-white/40 text-sm">
+              {isPaid ? 'Full access · View profiles, contact directly' : 'Subscribe to unlock full profiles'}
+            </p>
+          </div>
+          <Link href="/company/roles/new"
+            className="flex-shrink-0 bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] px-5 py-2.5 rounded-full font-black text-xs text-[#060609] hover:opacity-90 transition-opacity">
+            + Post a role
+          </Link>
         </div>
+
+        {/* Company data panel */}
+        {companyData && (
+          <div className="gradient-border-card rounded-2xl p-5 mb-5">
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <div>
+                <p className="text-white/35 text-[10px] font-bold uppercase tracking-widest mb-1">Company intelligence</p>
+                <p className="text-white/70 text-sm leading-relaxed">{companyData.description as string}</p>
+              </div>
+              {!!companyData.glassdoor_rating && (
+                <div className="flex-shrink-0 text-center bg-[#22D3EE]/10 rounded-xl px-4 py-3">
+                  <div className="text-2xl font-black text-[#22D3EE]">{String(companyData.glassdoor_rating)}</div>
+                  <div className="text-white/30 text-[10px]">Glassdoor</div>
+                </div>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {!!companyData.industry && <span className="bg-white/[0.05] text-white/50 text-xs px-3 py-1 rounded-full">{String(companyData.industry)}</span>}
+              {!!companyData.size && <span className="bg-white/[0.05] text-white/50 text-xs px-3 py-1 rounded-full">{String(companyData.size)} employees</span>}
+              {!!companyData.headquarters && <span className="bg-white/[0.05] text-white/50 text-xs px-3 py-1 rounded-full">📍 {String(companyData.headquarters)}</span>}
+              {!!companyData.reddit_sentiment && (
+                <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
+                  companyData.reddit_sentiment === 'positive' ? 'bg-emerald-500/15 text-emerald-400' :
+                  companyData.reddit_sentiment === 'negative' ? 'bg-[#FB7185]/15 text-[#FB7185]' :
+                  'bg-white/[0.05] text-white/40'
+                }`}>Reddit: {String(companyData.reddit_sentiment)}</span>
+              )}
+            </div>
+            {Array.isArray(companyData.recent_news) && companyData.recent_news.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-white/[0.06]">
+                <p className="text-white/25 text-[10px] uppercase tracking-wider mb-1">Recent news</p>
+                {(companyData.recent_news as string[]).map((n, i) => (
+                  <p key={i} className="text-white/40 text-xs py-0.5">· {n}</p>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Open roles */}
+        {roles.length > 0 && (
+          <div className="mb-6">
+            <p className="text-white/35 text-xs font-bold uppercase tracking-wider mb-3">Your open roles</p>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {roles.map(role => (
+                <div key={role.id} className="gradient-border-card rounded-xl p-4">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <p className="text-white font-bold text-sm">{role.title}</p>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${
+                      role.status === 'active' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-white/[0.07] text-white/35'
+                    }`}>{role.status}</span>
+                  </div>
+                  {role.department && <p className="text-white/35 text-xs">{role.department}</p>}
+                  {role.location && <p className="text-white/30 text-xs">📍 {role.location}</p>}
+                  {role.salary_min && role.salary_max && (
+                    <p className="text-[#22D3EE] text-xs font-semibold mt-2">
+                      {role.salary_currency} {role.salary_min.toLocaleString()}–{role.salary_max.toLocaleString()}
+                    </p>
+                  )}
+                </div>
+              ))}
+              <Link href="/company/roles/new"
+                className="gradient-border-card rounded-xl p-4 flex items-center justify-center hover:bg-white/[0.02] transition-colors">
+                <span className="text-white/30 text-sm font-bold">+ Post another role</span>
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Paywall banner */}
         {!isPaid && count > 0 && (

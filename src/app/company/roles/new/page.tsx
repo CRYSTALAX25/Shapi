@@ -1,0 +1,308 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import ShapiCharacter from '@/components/ShapiCharacter'
+
+type Stage = 'form' | 'generating' | 'done'
+
+const CURRENCIES = ['USD', 'AED', 'SAR', 'GBP', 'EUR', 'INR']
+
+export default function NewRole() {
+  const router = useRouter()
+  const [stage, setStage] = useState<Stage>('form')
+  const [error, setError] = useState('')
+
+  // Core fields
+  const [title, setTitle] = useState('')
+  const [department, setDepartment] = useState('')
+  const [location, setLocation] = useState('')
+  const [remote, setRemote] = useState(false)
+  const [salaryMin, setSalaryMin] = useState('')
+  const [salaryMax, setSalaryMax] = useState('')
+  const [currency, setCurrency] = useState('USD')
+  const [salaryVisible, setSalaryVisible] = useState(true)
+
+  // WhatsApp-style deep questions
+  const [problemToSolve, setProblemToSolve] = useState('')
+  const [idealCandidate, setIdealCandidate] = useState('')
+  const [teamContext, setTeamContext] = useState('')
+  const [successLooksLike, setSuccessLooksLike] = useState('')
+  const [dealBreakers, setDealBreakers] = useState('')
+  const [growthPath, setGrowthPath] = useState('')
+
+  const submit = async () => {
+    setError('')
+    if (!title.trim()) { setError('Role title is required'); return }
+    if (!salaryMin || !salaryMax) { setError('Salary range is required — candidates need to know'); return }
+    if (parseInt(salaryMin) >= parseInt(salaryMax)) { setError('Salary max must be greater than min'); return }
+    if (!problemToSolve.trim()) { setError('Tell us the problem this person needs to solve'); return }
+
+    setStage('generating')
+
+    const res = await fetch('/api/company/roles', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: title.trim(),
+        department: department.trim() || null,
+        location: location.trim() || null,
+        remote,
+        salary_min: parseInt(salaryMin),
+        salary_max: parseInt(salaryMax),
+        salary_currency: currency,
+        salary_visible: salaryVisible,
+        problem_to_solve: problemToSolve.trim(),
+        ideal_candidate: idealCandidate.trim(),
+        team_context: teamContext.trim(),
+        what_success_looks_like: successLooksLike.trim(),
+        deal_breakers: dealBreakers.trim(),
+        growth_path: growthPath.trim(),
+      }),
+    })
+
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}))
+      setError(d.error || 'Something went wrong — try again')
+      setStage('form')
+      return
+    }
+
+    setStage('done')
+  }
+
+  if (stage === 'generating') {
+    return (
+      <Screen>
+        <div className="text-center max-w-sm">
+          <ShapiCharacter mood="thinking" size={90} className="mx-auto mb-6" />
+          <h2 className="text-2xl font-black text-white mb-3">Writing your job description...</h2>
+          <p className="text-white/40 text-sm leading-relaxed">
+            Claude is turning your answers into a real, specific JD — not a template. About 15 seconds.
+          </p>
+        </div>
+      </Screen>
+    )
+  }
+
+  if (stage === 'done') {
+    return (
+      <Screen>
+        <div className="text-center max-w-sm">
+          <ShapiCharacter mood="happy" size={90} className="mx-auto mb-6" />
+          <h2 className="text-2xl font-black text-white mb-3">Role posted.</h2>
+          <p className="text-white/40 text-sm leading-relaxed mb-8">
+            Claude has written your job description. We&apos;ll start matching verified candidates to it now.
+          </p>
+          <div className="space-y-3">
+            <button
+              onClick={() => router.push('/company/dashboard')}
+              className="w-full bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] py-4 rounded-full font-black text-sm text-[#060609] hover:opacity-90 transition-opacity">
+              View all roles →
+            </button>
+            <button
+              onClick={() => { setStage('form'); setTitle(''); setProblemToSolve(''); setSalaryMin(''); setSalaryMax('') }}
+              className="w-full py-3 text-sm text-white/30 hover:text-white/60 transition-colors">
+              Post another role
+            </button>
+          </div>
+        </div>
+      </Screen>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-[#060609]">
+      <style>{`
+        .gradient-border-card {
+          background: linear-gradient(#0d0d14, #0d0d14) padding-box,
+                      linear-gradient(135deg, rgba(34,211,238,0.15), rgba(139,92,246,0.15)) border-box;
+          border: 1px solid transparent;
+        }
+        .field { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: white; outline: none; transition: border-color 0.2s; }
+        .field::placeholder { color: rgba(255,255,255,0.2); }
+        .field:focus { border-color: rgba(34,211,238,0.5); }
+        label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.35); margin-bottom: 8px; }
+        .required::after { content: " *"; color: #FB7185; }
+      `}</style>
+
+      <div className="fixed inset-0 pointer-events-none" style={{
+        backgroundImage: 'radial-gradient(circle, rgba(34,211,238,0.07) 1px, transparent 1px)',
+        backgroundSize: '44px 44px',
+      }} />
+
+      <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-white/[0.05]">
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{
+          background: 'linear-gradient(135deg, #A78BFA, #22D3EE)',
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+        }}>shapi</Link>
+        <Link href="/company/dashboard" className="text-white/40 text-sm hover:text-white/70 transition-colors">
+          ← Dashboard
+        </Link>
+      </nav>
+
+      <div className="relative z-10 max-w-3xl mx-auto px-6 pt-10 pb-24">
+
+        <div className="mb-8">
+          <h1 className="text-3xl font-black text-white mb-2">Post a new role.</h1>
+          <p className="text-white/40 text-sm leading-relaxed">
+            Answer honestly — Claude will write the job description from your answers. The more specific you are, the better your matches.
+          </p>
+        </div>
+
+        {error && (
+          <div className="bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3 mb-6 text-sm text-[#FB7185]">{error}</div>
+        )}
+
+        {/* Section 1 — basics */}
+        <div className="gradient-border-card rounded-2xl p-6 mb-5 space-y-4">
+          <p className="text-white/50 text-xs font-bold uppercase tracking-wider">Role basics</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <label className="required">Job title</label>
+              <input className="field" value={title} onChange={e => setTitle(e.target.value)}
+                placeholder="Head of Operations" />
+            </div>
+            <div>
+              <label>Department</label>
+              <input className="field" value={department} onChange={e => setDepartment(e.target.value)}
+                placeholder="Operations, Finance, Tech..." />
+            </div>
+            <div>
+              <label>Location</label>
+              <input className="field" value={location} onChange={e => setLocation(e.target.value)}
+                placeholder="Dubai, UAE" />
+            </div>
+          </div>
+
+          <label className="flex items-center gap-3 cursor-pointer">
+            <div
+              onClick={() => setRemote(!remote)}
+              className={`w-10 h-6 rounded-full transition-colors relative ${remote ? 'bg-[#22D3EE]' : 'bg-white/10'}`}>
+              <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${remote ? 'left-5' : 'left-1'}`} />
+            </div>
+            <span className="text-white/50 text-sm">Remote / hybrid OK</span>
+          </label>
+        </div>
+
+        {/* Section 2 — salary (mandatory) */}
+        <div className="gradient-border-card rounded-2xl p-6 mb-5">
+          <div className="flex items-center gap-3 mb-4">
+            <p className="text-white/50 text-xs font-bold uppercase tracking-wider">Salary range</p>
+            <span className="text-[#FB7185] text-xs font-bold">Required</span>
+          </div>
+          <p className="text-white/25 text-xs mb-4 leading-relaxed">
+            Mandatory on Shapi. Candidates pre-qualify themselves — you only hear from people who&apos;re genuinely interested at this range.
+          </p>
+
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div>
+              <label className="required">Currency</label>
+              <select className="field" value={currency} onChange={e => setCurrency(e.target.value)}
+                style={{ appearance: 'none' }}>
+                {CURRENCIES.map(c => <option key={c} value={c} style={{ background: '#0d0d14' }}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="required">Minimum</label>
+              <input className="field" type="number" value={salaryMin} onChange={e => setSalaryMin(e.target.value)}
+                placeholder="80000" />
+            </div>
+            <div>
+              <label className="required">Maximum</label>
+              <input className="field" type="number" value={salaryMax} onChange={e => setSalaryMax(e.target.value)}
+                placeholder="120000" />
+            </div>
+          </div>
+
+          {salaryMin && salaryMax && parseInt(salaryMin) < parseInt(salaryMax) && (
+            <p className="text-[#22D3EE] text-xs font-semibold">
+              {currency} {parseInt(salaryMin).toLocaleString()} – {parseInt(salaryMax).toLocaleString()} per year
+            </p>
+          )}
+
+          <label className="flex items-center gap-3 cursor-pointer mt-4">
+            <div
+              onClick={() => setSalaryVisible(!salaryVisible)}
+              className={`w-10 h-6 rounded-full transition-colors relative ${salaryVisible ? 'bg-[#22D3EE]' : 'bg-white/10'}`}>
+              <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${salaryVisible ? 'left-5' : 'left-1'}`} />
+            </div>
+            <span className="text-white/50 text-sm">Show salary publicly on role listing</span>
+          </label>
+        </div>
+
+        {/* Section 3 — the real questions */}
+        <div className="gradient-border-card rounded-2xl p-6 mb-5 space-y-5">
+          <div>
+            <p className="text-white/50 text-xs font-bold uppercase tracking-wider mb-1">The honest brief</p>
+            <p className="text-white/25 text-xs">This is what Shapi uses to write your JD and match candidates. Be specific.</p>
+          </div>
+
+          <div>
+            <label className="required">What problem does this person need to solve in the first 90 days?</label>
+            <textarea className="field" rows={3} value={problemToSolve} onChange={e => setProblemToSolve(e.target.value)}
+              placeholder="E.g. We're scaling from 3 to 8 markets and our ops infrastructure is breaking. We need someone to rebuild our vendor management and reporting from scratch before Q3."
+              style={{ resize: 'vertical' }} />
+          </div>
+
+          <div>
+            <label>What does the ideal candidate look like? Think of the best person you've hired for something similar.</label>
+            <textarea className="field" rows={3} value={idealCandidate} onChange={e => setIdealCandidate(e.target.value)}
+              placeholder="E.g. Someone who's done this in a high-growth environment before — not necessarily our industry. Execution-first, doesn't need to be told twice, builds systems not just fixes symptoms."
+              style={{ resize: 'vertical' }} />
+          </div>
+
+          <div>
+            <label>What&apos;s the team they&apos;re joining like?</label>
+            <textarea className="field" rows={2} value={teamContext} onChange={e => setTeamContext(e.target.value)}
+              placeholder="E.g. Team of 6, mostly under 35, fast-moving, direct culture. Reports to the COO. Two direct reports from day one."
+              style={{ resize: 'vertical' }} />
+          </div>
+
+          <div>
+            <label>What does success look like at the end of year one?</label>
+            <textarea className="field" rows={2} value={successLooksLike} onChange={e => setSuccessLooksLike(e.target.value)}
+              placeholder="E.g. All 8 markets on one reporting system, vendor cost down 15%, and the team doesn't need me in ops decisions anymore."
+              style={{ resize: 'vertical' }} />
+          </div>
+
+          <div>
+            <label>What would make you reject an otherwise strong candidate?</label>
+            <textarea className="field" rows={2} value={dealBreakers} onChange={e => setDealBreakers(e.target.value)}
+              placeholder="E.g. Anyone who needs a lot of structure or hand-holding. We move fast and expect people to drive themselves."
+              style={{ resize: 'vertical' }} />
+          </div>
+
+          <div>
+            <label>Where does this role lead in 2 years?</label>
+            <textarea className="field" rows={2} value={growthPath} onChange={e => setGrowthPath(e.target.value)}
+              placeholder="E.g. This is a stepping stone to a regional VP role as we expand. We promote from within wherever possible."
+              style={{ resize: 'vertical' }} />
+          </div>
+        </div>
+
+        <button
+          onClick={submit}
+          className="w-full bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] py-4 rounded-full font-black text-sm text-[#060609] hover:opacity-90 transition-opacity"
+        >
+          Post role — Claude writes the JD →
+        </button>
+        <p className="text-center text-white/20 text-xs mt-3">You can edit the generated description after posting</p>
+      </div>
+    </div>
+  )
+}
+
+function Screen({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-[#060609] flex items-center justify-center px-6">
+      <div className="fixed inset-0 pointer-events-none" style={{
+        backgroundImage: 'radial-gradient(circle, rgba(34,211,238,0.08) 1px, transparent 1px)',
+        backgroundSize: '44px 44px',
+      }} />
+      <div className="relative z-10 w-full max-w-sm flex flex-col items-center">{children}</div>
+    </div>
+  )
+}
