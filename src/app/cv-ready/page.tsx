@@ -18,17 +18,48 @@ type Profile = {
   id: string
   location: string | null
   native_language: string | null
+  cv_language_preference: string | null
 }
 
-const NATIVE_ENGLISH_COUNTRIES = [
-  'uk', 'united kingdom', 'england', 'scotland', 'wales', 'northern ireland',
-  'usa', 'united states', 'australia', 'canada', 'ireland', 'new zealand',
-]
+// Resolve what to show from the candidate's WhatsApp language selection
+// Returns: { showEnglish, showNative, nativeLabel }
+function resolveCVLanguages(profile: Profile): { showEnglish: boolean; showNative: boolean; nativeLabel: string } {
+  const pref = (profile.cv_language_preference || '').toLowerCase().trim()
+  const nativeFallback = profile.native_language || 'Native language'
 
-function isNativeEnglish(profile: Profile): boolean {
-  if (profile.native_language?.toLowerCase() === 'english') return true
-  const loc = (profile.location || '').toLowerCase()
-  return NATIVE_ENGLISH_COUNTRIES.some(c => loc.includes(c))
+  // They explicitly chose English only
+  if (pref === 'english') {
+    return { showEnglish: true, showNative: false, nativeLabel: nativeFallback }
+  }
+
+  // They chose both (stored as "Both — English and Croatian" etc.)
+  if (pref.startsWith('both')) {
+    // Extract the non-English language from the preference string if possible
+    const match = pref.match(/both\s*[—\-+&and]+\s*english\s*[+&and]+\s*(.+)/i)
+      || pref.match(/both\s*[—\-+&and]+\s*(.+)\s*[+&and]+\s*english/i)
+      || pref.match(/both[^\w]*english[^\w]*(?:and|&|\+)[^\w]*(.+)/i)
+      || pref.match(/both[^\w]*(.+)[^\w]*(?:and|&|\+)[^\w]*english/i)
+    const extracted = match?.[1]?.trim()
+    const nativeLabel = extracted
+      ? extracted.charAt(0).toUpperCase() + extracted.slice(1)
+      : nativeFallback
+    return { showEnglish: true, showNative: true, nativeLabel }
+  }
+
+  // No preference set yet — fall back to location/native_language detection
+  if (!profile.cv_language_preference) {
+    const NATIVE_ENGLISH = ['uk', 'united kingdom', 'england', 'scotland', 'wales', 'northern ireland',
+      'usa', 'united states', 'australia', 'canada', 'ireland', 'new zealand']
+    const isEngNative = profile.native_language?.toLowerCase() === 'english'
+      || NATIVE_ENGLISH.some(c => (profile.location || '').toLowerCase().includes(c))
+    return { showEnglish: true, showNative: !isEngNative, nativeLabel: nativeFallback }
+  }
+
+  // They chose a specific language (e.g., "Croatian", "Tagalog", "French")
+  // Treat their chosen language as primary — show it first, offer English as optional
+  const chosenLabel = profile.cv_language_preference.charAt(0).toUpperCase() + profile.cv_language_preference.slice(1)
+  const isEnglishChosen = pref === 'english'
+  return { showEnglish: !isEnglishChosen, showNative: true, nativeLabel: chosenLabel }
 }
 
 export default function CVReady() {
@@ -53,6 +84,7 @@ export default function CVReady() {
           id: d.profile.id || '',
           location: d.profile.location || null,
           native_language: d.profile.native_language || null,
+          cv_language_preference: d.profile.cv_language_preference || null,
         })
         setReady(true)
 
@@ -77,7 +109,9 @@ export default function CVReady() {
 
   const firstName = profile?.full_name?.split(' ')[0] || 'there'
   const profileId = profile?.id?.slice(0, 8) || ''
-  const hideNative = profile ? isNativeEnglish(profile) : false
+  const { showEnglish, showNative, nativeLabel } = profile
+    ? resolveCVLanguages(profile)
+    : { showEnglish: true, showNative: false, nativeLabel: 'Native language' }
 
   return (
     <div className="min-h-screen bg-[#060609]">
@@ -146,9 +180,11 @@ export default function CVReady() {
           </div>
           <h1 className="text-3xl font-black text-white mb-2">{firstName}, your CV Kit is ready.</h1>
           <p className="text-white/40 text-sm leading-relaxed max-w-sm mx-auto">
-            {hideNative
-              ? 'Your CV — enriched with your WhatsApp conversation and optimised for your industry.'
-              : 'Two versions — English and native language — both enriched with your WhatsApp conversation.'}
+            {showEnglish && showNative
+              ? `Two versions — English and ${nativeLabel} — both enriched with your WhatsApp conversation.`
+              : showNative && !showEnglish
+              ? `Your ${nativeLabel} CV — enriched with your WhatsApp conversation and optimised for your industry.`
+              : 'Your CV — enriched with your WhatsApp conversation and optimised for your industry.'}
           </p>
         </div>
 
@@ -225,7 +261,7 @@ export default function CVReady() {
                 {loadingPreview
                   ? 'Claude is writing your enhanced version…'
                   : preview?.whatsapp_count
-                  ? `Built from ${preview.whatsapp_count} WhatsApp message${preview.whatsapp_count !== 1 ? 's' : ''} · 2 CV languages`
+                  ? `Built from ${preview.whatsapp_count} WhatsApp message${preview.whatsapp_count !== 1 ? 's' : ''} · ${showEnglish && showNative ? '2 CV languages' : '1 CV language'}`
                   : 'Enhanced and industry-formatted by Claude'}
               </p>
               <div className="h-px flex-1 bg-white/[0.06]" />
@@ -237,29 +273,61 @@ export default function CVReady() {
         <div className="gradient-border-card rounded-2xl p-5 mb-6 space-y-3">
           <p className="text-white/35 text-xs font-bold uppercase tracking-wider mb-1">Download your CVs</p>
 
-          <a href="/profile/print" target="_blank"
-            className="flex items-center justify-between p-4 bg-white/[0.04] rounded-xl hover:bg-white/[0.07] transition-colors group">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[#22D3EE]/10 flex items-center justify-center text-lg">🇬🇧</div>
-              <div>
-                <p className="text-white font-bold text-sm">English CV</p>
-                <p className="text-white/35 text-xs">Industry-optimised · ATS-friendly · print to PDF</p>
+          {showEnglish && (
+            <a href="/profile/print" target="_blank"
+              className="flex items-center justify-between p-4 bg-white/[0.04] rounded-xl hover:bg-white/[0.07] transition-colors group">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-[#22D3EE]/10 flex items-center justify-center text-lg">🇬🇧</div>
+                <div>
+                  <p className="text-white font-bold text-sm">English CV</p>
+                  <p className="text-white/35 text-xs">Industry-optimised · ATS-friendly · print to PDF</p>
+                </div>
               </div>
-            </div>
-            <span className="text-[#22D3EE] text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
-          </a>
+              <span className="text-[#22D3EE] text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
+            </a>
+          )}
 
-          {!hideNative && (
+          {showNative && (
             <a href="/profile/print?lang=native" target="_blank"
               className="flex items-center justify-between p-4 bg-white/[0.04] rounded-xl hover:bg-white/[0.07] transition-colors group">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-[#A78BFA]/10 flex items-center justify-center text-lg">🌐</div>
                 <div>
-                  <p className="text-white font-bold text-sm">Native language CV</p>
-                  <p className="text-white/35 text-xs">Auto-translated · same format · review before sending</p>
+                  <p className="text-white font-bold text-sm">{nativeLabel} CV</p>
+                  <p className="text-white/35 text-xs">
+                    {showEnglish ? 'Auto-translated · same format · review before sending' : 'Industry-optimised · print to PDF'}
+                  </p>
                 </div>
               </div>
               <span className="text-[#A78BFA] text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
+            </a>
+          )}
+
+          {/* Always offer the other language as an optional extra — no extra charge */}
+          {showNative && !showEnglish && (
+            <a href="/profile/print" target="_blank"
+              className="flex items-center justify-between p-4 bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-colors group border border-white/[0.05]">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-white/[0.05] flex items-center justify-center text-lg">🇬🇧</div>
+                <div>
+                  <p className="text-white/50 font-bold text-sm">English CV</p>
+                  <p className="text-white/25 text-xs">Also available — useful for international roles</p>
+                </div>
+              </div>
+              <span className="text-white/30 text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
+            </a>
+          )}
+          {showEnglish && !showNative && (profile?.native_language && profile.native_language.toLowerCase() !== 'english') && (
+            <a href="/profile/print?lang=native" target="_blank"
+              className="flex items-center justify-between p-4 bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-colors group border border-white/[0.05]">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-white/[0.05] flex items-center justify-center text-lg">🌐</div>
+                <div>
+                  <p className="text-white/50 font-bold text-sm">{profile.native_language} CV</p>
+                  <p className="text-white/25 text-xs">Also available — applying locally? Grab this too</p>
+                </div>
+              </div>
+              <span className="text-white/30 text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
             </a>
           )}
         </div>

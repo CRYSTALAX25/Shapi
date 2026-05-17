@@ -126,7 +126,7 @@ export async function POST(request: Request) {
   // Look up profile — limit(1) survives duplicate rows
   const { data: profiles } = await admin
     .from('profiles')
-    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed')
+    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language')
     .eq('whatsapp_number', phone)
     .order('cv_parsed', { ascending: false })
     .limit(1)
@@ -135,6 +135,62 @@ export async function POST(request: Request) {
 
   if (!profile) {
     console.log('[webhook] No profile found for:', phone)
+    return new NextResponse('', { status: 200 })
+  }
+
+  // ── CV language preference capture ───────────────────────────────────────
+  // awaiting_cv_language: null | 'choice' | 'custom'
+  // 'choice'  = we sent the numbered menu, waiting for 1/2/3/4 or direct language name
+  // 'custom'  = they picked Other (4), waiting for them to type the language name
+  const awaitingLang = profile.awaiting_cv_language as string | null
+
+  if (awaitingLang === 'choice' || awaitingLang === 'custom') {
+    const reply = body?.trim() || ''
+    const replyLower = reply.toLowerCase()
+    const detectedNative = (profile.native_language as string | null) || null
+
+    let preference: string | null = null
+    let nextStep: string | null = null
+    let responseMsg = ''
+
+    if (awaitingLang === 'custom') {
+      // Whatever they typed IS the language — store it directly
+      preference = reply
+      responseMsg = `Perfect — we'll build your CV in *${reply}*. Head back to the app to generate and download it 🎉`
+    } else {
+      // Parse their choice from the menu
+      if (reply === '1' || replyLower.includes('english only') || (replyLower === 'english' && !replyLower.includes('+'))) {
+        preference = 'English'
+        responseMsg = `Got it — English CV it is. Head to the app to generate and download yours 🎉`
+      } else if (reply === '2' && detectedNative) {
+        preference = detectedNative
+        responseMsg = `Perfect — ${detectedNative} CV coming up. Head to the app to generate and download it 🎉`
+      } else if (reply === '3') {
+        preference = detectedNative ? `Both — English and ${detectedNative}` : 'Both — English and native language'
+        responseMsg = `Both versions — love it. Head to the app to generate and download them 🎉`
+      } else if (reply === '4' || replyLower.includes('other')) {
+        // Ask them to type the language
+        nextStep = 'custom'
+        responseMsg = `No problem — just type the language you want your CV in and we'll handle it.`
+      } else {
+        // They typed a language name directly instead of a number — treat it as their answer
+        preference = reply
+        responseMsg = `Got it — *${reply}* CV it is. Head to the app to generate and download it 🎉`
+      }
+    }
+
+    const langUpdates: Record<string, unknown> = { updated_at: new Date().toISOString() }
+    if (preference) {
+      langUpdates.cv_language_preference = preference
+      langUpdates.awaiting_cv_language = null
+    }
+    if (nextStep) {
+      langUpdates.awaiting_cv_language = nextStep
+    }
+
+    await admin.from('profiles').update(langUpdates).eq('id', profile.id)
+    await sendWhatsApp(phone, responseMsg)
+    console.log('[webhook] CV language captured:', preference || 'awaiting custom', '| phone:', phone)
     return new NextResponse('', { status: 200 })
   }
 
@@ -338,6 +394,34 @@ Return ONLY valid JSON:
   await admin.from('profiles').update(updates).eq('id', profile.id)
 
   await sendWhatsApp(phone, cleanReply)
+
+  // ── CV language preference question — sent immediately after [DONE] ──────
+  if (isDone) {
+    const detectedNative = (profile.native_language as string | null) || null
+
+    // Build the options dynamically based on what we know about them
+    let langQuestion: string
+    if (detectedNative) {
+      langQuestion = `One last thing before we build your CV 🎨
+
+Which language do you want it in?
+
+1️⃣ English
+2️⃣ ${detectedNative}
+3️⃣ Both — English + ${detectedNative}
+4️⃣ Other — just type the language you need`
+    } else {
+      langQuestion = `One last thing before we build your CV 🎨
+
+Which language do you want it in?
+
+1️⃣ English
+2️⃣ Other — just type the language you need`
+    }
+
+    await sendWhatsApp(phone, langQuestion)
+    await admin.from('profiles').update({ awaiting_cv_language: 'choice' }).eq('id', profile.id)
+  }
 
   // ── Post-completion emails (non-blocking) ────────────────────────────────
   if (isDone) {
