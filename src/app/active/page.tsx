@@ -36,6 +36,16 @@ type PrepGuide = {
     culture_themes: string[]
     known_challenges: string[]
   }
+  social_intel: {
+    linkedin_posts: Array<{
+      summary: string
+      posted: string
+      how_to_use: string
+    }>
+    social_themes: string[]
+    leadership_voice: string
+    conversation_starters: string[]
+  }
   why_they_will_love_you: string[]
   your_stories: Array<{
     situation: string
@@ -107,7 +117,7 @@ export default function ActivePage() {
   const [prepApp, setPrepApp] = useState<Application | null>(null)
   const [prepping, setPrepping] = useState(false)
   const [prep, setPrep] = useState<PrepGuide | null>(null)
-  const [prepSection, setPrepSection] = useState<'snapshot' | 'stories' | 'questions' | 'ask' | 'salary'>('snapshot')
+  const [prepSection, setPrepSection] = useState<'snapshot' | 'social' | 'stories' | 'questions' | 'ask' | 'salary'>('snapshot')
 
   const loadApplications = useCallback(async () => {
     setAppsLoading(true)
@@ -676,7 +686,7 @@ export default function ActivePage() {
                   </svg>
                 </div>
                 <p className="text-white font-bold mb-2">Researching {prepApp?.company_name}...</p>
-                <p className="text-white/30 text-sm">Scanning news, culture, Glassdoor reviews, interview questions. Takes ~30s.</p>
+                <p className="text-white/30 text-sm">Scanning news, culture, Glassdoor, LinkedIn posts, social media. Takes ~40s.</p>
               </div>
             )}
 
@@ -697,6 +707,7 @@ export default function ActivePage() {
                 <div className="flex gap-2 flex-wrap">
                   {([
                     ['snapshot', '🏢 Company'],
+                    ['social', '📱 Social intel'],
                     ['stories', '📖 Your stories'],
                     ['questions', '❓ Questions'],
                     ['ask', '💬 Ask them'],
@@ -759,6 +770,86 @@ export default function ActivePage() {
                             </li>
                           ))}
                         </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Social intel */}
+                {prepSection === 'social' && (
+                  <div className="space-y-4">
+                    {/* Conversation starters — most actionable, show first */}
+                    {prep.social_intel?.conversation_starters?.length > 0 && (
+                      <div className="rounded-2xl p-6"
+                        style={{ background: 'linear-gradient(135deg, rgba(251,113,133,0.08), rgba(139,92,246,0.08))', border: '1px solid rgba(251,113,133,0.2)' }}>
+                        <h3 className="text-[#FB7185] text-xs font-bold uppercase tracking-wider mb-4">
+                          💬 Use these in the interview
+                        </h3>
+                        <ul className="space-y-3">
+                          {prep.social_intel.conversation_starters.map((s, i) => (
+                            <li key={i} className="flex gap-3">
+                              <span className="text-[#FB7185] font-black flex-shrink-0 text-sm">→</span>
+                              <p className="text-white/80 text-sm leading-relaxed italic">&ldquo;{s}&rdquo;</p>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Leadership voice */}
+                    {prep.social_intel?.leadership_voice && (
+                      <div className="gradient-border-card rounded-2xl p-5">
+                        <h3 className="text-[#22D3EE] text-xs font-bold uppercase tracking-wider mb-2">
+                          🎙 What leadership is championing right now
+                        </h3>
+                        <p className="text-white/70 text-sm leading-relaxed">{prep.social_intel.leadership_voice}</p>
+                      </div>
+                    )}
+
+                    {/* LinkedIn posts */}
+                    {prep.social_intel?.linkedin_posts?.length > 0 && (
+                      <div className="space-y-3">
+                        <h3 className="text-white/50 text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                          <span style={{ background: 'linear-gradient(135deg,#0077B5,#00A0DC)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>in</span>
+                          Recent LinkedIn activity
+                        </h3>
+                        {prep.social_intel.linkedin_posts.map((post, i) => (
+                          <div key={i} className="gradient-border-card rounded-xl p-5">
+                            <div className="flex items-start justify-between gap-3 mb-3">
+                              <p className="text-white/75 text-sm leading-relaxed">{post.summary}</p>
+                              {post.posted && (
+                                <span className="text-white/25 text-[10px] flex-shrink-0">{post.posted}</span>
+                              )}
+                            </div>
+                            {post.how_to_use && (
+                              <div className="rounded-lg p-3" style={{ background: 'rgba(34,211,238,0.06)', border: '1px solid rgba(34,211,238,0.1)' }}>
+                                <p className="text-[#22D3EE] text-[10px] font-bold uppercase tracking-wider mb-1">How to use this</p>
+                                <p className="text-white/60 text-xs leading-relaxed">{post.how_to_use}</p>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Social themes */}
+                    {prep.social_intel?.social_themes?.length > 0 && (
+                      <div className="gradient-border-card rounded-2xl p-5">
+                        <h3 className="text-[#A78BFA] text-xs font-bold uppercase tracking-wider mb-3">Recurring themes across their social</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {prep.social_intel.social_themes.map((t, i) => (
+                            <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full"
+                              style={{ background: 'rgba(139,92,246,0.12)', color: '#A78BFA', border: '1px solid rgba(139,92,246,0.2)' }}>
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {!prep.social_intel && (
+                      <div className="gradient-border-card rounded-2xl p-10 text-center">
+                        <p className="text-white/30 text-sm">No social data found for this company. Try regenerating prep.</p>
                       </div>
                     )}
                   </div>

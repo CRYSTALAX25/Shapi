@@ -26,12 +26,12 @@ export async function POST(request: Request) {
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
-    max_tokens: 2500,
+    max_tokens: 3500,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tools: [{ type: 'web_search_20250305', name: 'web_search' } as any],
     messages: [{
       role: 'user',
-      content: `Research ${company_name} and prepare comprehensive interview prep for this candidate.
+      content: `Research ${company_name} thoroughly and prepare a comprehensive interview prep guide for this candidate. Use multiple searches.
 
 CANDIDATE:
 - Name: ${profile.full_name}
@@ -41,12 +41,15 @@ CANDIDATE:
 - Their own words from WhatsApp: ${userAnswers.slice(0, 3).join(' | ')}
 - Key requirements they need to meet: ${(key_requirements || []).join(', ')}
 
-Search for:
+Search for ALL of the following:
 1. ${company_name} recent news (last 6 months)
 2. ${company_name} culture, values, leadership team
 3. ${company_name} challenges or strategic priorities
 4. Common interview questions for ${job_title} roles
 5. ${company_name} Glassdoor reviews (themes)
+6. ${company_name} LinkedIn page recent posts (last 30 days) — what are they talking about, celebrating, hiring for, announcing?
+7. ${company_name} on Twitter/X or Instagram recent posts — any campaigns, launches, events, wins they're proud of?
+8. CEO or founder of ${company_name} LinkedIn posts — what are they personally sharing or advocating for?
 
 Then return a complete interview prep guide as JSON:
 {
@@ -56,6 +59,21 @@ Then return a complete interview prep guide as JSON:
     "recent_news": ["news1", "news2", "news3"],
     "culture_themes": ["theme1", "theme2"],
     "known_challenges": ["challenge1", "challenge2"]
+  },
+  "social_intel": {
+    "linkedin_posts": [
+      {
+        "summary": "What the post was about",
+        "posted": "approx date or 'recent'",
+        "how_to_use": "Mention this in the interview by saying '...'"
+      }
+    ],
+    "social_themes": ["Recurring theme 1 across their posts", "Theme 2"],
+    "leadership_voice": "What the CEO/founder is personally championing right now",
+    "conversation_starters": [
+      "I noticed you recently posted about X — that really resonated because...",
+      "I saw your team celebrated Y last week — it shows the culture of..."
+    ]
   },
   "why_they_will_love_you": [
     "Specific reason 1 tied to their needs + candidate background",
@@ -79,7 +97,7 @@ Then return a complete interview prep guide as JSON:
     }
   ],
   "questions_to_ask_them": [
-    "Insightful question 1 (shows you researched them)",
+    "Insightful question 1 (references something specific you found in research)",
     "Question 2",
     "Question 3"
   ],
