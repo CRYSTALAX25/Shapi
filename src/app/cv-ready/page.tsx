@@ -73,9 +73,10 @@ export default function CVReady() {
   const [ready, setReady] = useState(false)
   const [sendEmailState, setSendEmailState] = useState<SendState>('idle')
   const [sendWAState, setSendWAState] = useState<SendState>('idle')
+  // English CV pre-generation state
+  const [englishCvStatus, setEnglishCvStatus] = useState<'generating' | 'ready'>('generating')
 
   useEffect(() => {
-    // Fetch profile to gate access
     const supabase = createClient()
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) { router.replace('/login'); return }
@@ -95,6 +96,19 @@ export default function CVReady() {
         cv_language_preference: p?.cv_language_preference ?? null,
       })
       setReady(true)
+
+      // ── Silently pre-generate the English CV in the background ──────────────
+      // This runs immediately so by the time the user clicks "Download PDF"
+      // it's already cached and the print page renders instantly.
+      fetch('/api/cv/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'english' }),
+      })
+        .then(r => r.json())
+        .then(d => { if (!d.error) setEnglishCvStatus('ready') })
+        .catch(() => setEnglishCvStatus('ready')) // on error, still let them try
+      // ─────────────────────────────────────────────────────────────────────────
 
       // Fetch the before/after preview
       setLoadingPreview(true)
@@ -175,6 +189,8 @@ export default function CVReady() {
           margin-bottom: 8px;
         }
         @keyframes shimmer { to { background-position: -200% 0; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
       `}</style>
 
       <div className="fixed inset-0 pointer-events-none" style={{
@@ -296,16 +312,35 @@ export default function CVReady() {
           <p className="text-white/35 text-xs font-bold uppercase tracking-wider mb-1">Download your CVs</p>
 
           {showEnglish && (
-            <a href="/profile/print" target="_blank"
-              className="flex items-center justify-between p-4 bg-white/[0.04] rounded-xl hover:bg-white/[0.07] transition-colors group">
+            <a
+              href={englishCvStatus === 'ready' ? '/profile/print' : undefined}
+              onClick={englishCvStatus !== 'ready' ? e => e.preventDefault() : undefined}
+              target="_blank"
+              className="flex items-center justify-between p-4 rounded-xl transition-colors group"
+              style={{
+                background: englishCvStatus === 'ready' ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)',
+                cursor: englishCvStatus === 'ready' ? 'pointer' : 'default',
+              }}
+            >
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-[#22D3EE]/10 flex items-center justify-center text-lg">🇬🇧</div>
                 <div>
                   <p className="text-white font-bold text-sm">English CV</p>
-                  <p className="text-white/35 text-xs">Industry-optimised · ATS-friendly · print to PDF</p>
+                  {englishCvStatus === 'generating' ? (
+                    <p className="text-[#22D3EE]/60 text-xs flex items-center gap-1">
+                      <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#22D3EE', opacity: 0.7, animation: 'pulse 1.2s ease-in-out infinite' }} />
+                      Writing your CV… ready in ~20 seconds
+                    </p>
+                  ) : (
+                    <p className="text-white/35 text-xs">Industry-optimised · ATS-friendly · print to PDF</p>
+                  )}
                 </div>
               </div>
-              <span className="text-[#22D3EE] text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
+              {englishCvStatus === 'generating' ? (
+                <div style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(34,211,238,0.2)', borderTopColor: '#22D3EE', animation: 'spin 0.9s linear infinite' }} />
+              ) : (
+                <span className="text-[#22D3EE] text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
+              )}
             </a>
           )}
 
