@@ -20,7 +20,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
   // Support short 8-char IDs (from the share link) or full UUIDs
   const { data: c } = await admin
     .from('profiles')
-    .select('id, full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, completion_pct, profile_live, industry, linkedin_url, github_url, website_url, portfolio_url')
+    .select('id, full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, completion_pct, profile_live, industry, linkedin_url, github_url, website_url, portfolio_url, languages_spoken, language_proficiency, english_level, native_language')
     .ilike('id', `${id}%`)
     .eq('type', 'candidate')
     .limit(1)
@@ -33,6 +33,14 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
   const userAnswers = (Array.isArray(c.whatsapp_chat) ? c.whatsapp_chat : [])
     .filter((m: {role: string; content: string}) => m.role === 'user')
     .slice(0, 3)
+  const languagesSpoken: Array<{ language: string; level: string }> = Array.isArray(c.languages_spoken) ? c.languages_spoken : []
+  const langProficiency = c.language_proficiency as {
+    conversation_language?: string
+    cefr_level?: string
+    ielts_equivalent?: string
+    english_level?: string
+    proficiency_notes?: string
+  } | null
 
   const aiTierLabel: Record<string, string> = { user: 'AI User', integrator: 'AI Integrator', builder: 'AI Builder' }
 
@@ -182,6 +190,52 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
                     <span key={i} className="bg-white/[0.06] text-white/60 text-xs px-3 py-1.5 rounded-full">{s}</span>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Languages & proficiency */}
+            {(languagesSpoken.length > 0 || langProficiency) && (
+              <div className="gradient-border-card rounded-2xl p-6">
+                <h2 className="text-white font-black text-xs uppercase tracking-widest mb-4 opacity-50">Languages</h2>
+
+                {languagesSpoken.length > 0 && (
+                  <div className="space-y-2 mb-4">
+                    {languagesSpoken.map((lang, i) => (
+                      <div key={i} className="flex items-center justify-between">
+                        <span className="text-white/70 text-sm">{lang.language}</span>
+                        <span className="text-white/35 text-xs capitalize bg-white/[0.05] px-2 py-0.5 rounded-full">{lang.level}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {langProficiency?.cefr_level && (
+                  <div className="border-t border-white/[0.06] pt-4 mt-2">
+                    <p className="text-white/25 text-xs mb-3 uppercase tracking-wider font-bold">Assessed proficiency</p>
+                    <div className="flex gap-2 flex-wrap">
+                      <div className="bg-[#22D3EE]/10 border border-[#22D3EE]/20 rounded-xl px-3 py-2 text-center flex-1 min-w-[70px]">
+                        <p className="text-[#22D3EE] text-base font-black">{langProficiency.cefr_level}</p>
+                        <p className="text-white/30 text-[10px]">CEFR</p>
+                      </div>
+                      {langProficiency.ielts_equivalent && (
+                        <div className="bg-[#A78BFA]/10 border border-[#A78BFA]/20 rounded-xl px-3 py-2 text-center flex-1 min-w-[70px]">
+                          <p className="text-[#A78BFA] text-base font-black">{langProficiency.ielts_equivalent}</p>
+                          <p className="text-white/30 text-[10px]">IELTS est.</p>
+                        </div>
+                      )}
+                      {langProficiency.english_level && langProficiency.english_level !== 'unassessed' && (
+                        <div className="bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-3 py-2 text-center flex-1 min-w-[70px]">
+                          <p className="text-[#FB7185] text-base font-black">{langProficiency.english_level}</p>
+                          <p className="text-white/30 text-[10px]">English</p>
+                        </div>
+                      )}
+                    </div>
+                    {langProficiency.proficiency_notes && (
+                      <p className="text-white/25 text-xs mt-3 leading-relaxed">{langProficiency.proficiency_notes}</p>
+                    )}
+                    <p className="text-white/15 text-[10px] mt-2">Assessed via Shapi conversation</p>
+                  </div>
+                )}
               </div>
             )}
 

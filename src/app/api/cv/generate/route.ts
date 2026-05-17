@@ -54,12 +54,17 @@ export async function POST(request: Request) {
 
   if (!profile || profileError) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
 
-  // Fetch optional new columns gracefully — won't crash if columns don't exist yet
-  let extraFields: { native_language?: string | null } | null = null
+  // Fetch identity/language fields separately — graceful if columns don't exist yet
+  let extraFields: {
+    native_language?: string | null
+    nationality?: string | null
+    languages_spoken?: Array<{ language: string; level: string }> | null
+    whatsapp_language?: string | null
+  } | null = null
   try {
     const { data } = await supabase
       .from('profiles')
-      .select('native_language')
+      .select('native_language, nationality, languages_spoken, whatsapp_language')
       .eq('id', user.id)
       .single()
     extraFields = data
@@ -73,33 +78,37 @@ export async function POST(request: Request) {
   const industry = (profile.industry as string) || 'general'
   const industryGuide = INDUSTRY_GUIDES[industry] || INDUSTRY_GUIDES.general
 
-  // Determine native language — priority: stored field > location detection > WhatsApp message detection > Arabic default
-  const storedNativeLang = (extraFields?.native_language as string | null) ?? null
-  const locationLang = (() => {
-    const loc = (profile.location as string || '').toLowerCase()
-    if (loc.includes('saudi') || loc.includes('riyadh') || loc.includes('jeddah') || loc.includes('ksa')) return 'Arabic'
-    if (loc.includes('uae') || loc.includes('dubai') || loc.includes('abu dhabi')) return null // multilingual, detect from messages
-    if (loc.includes('france') || loc.includes('paris')) return 'French'
-    if (loc.includes('spain') || loc.includes('madrid')) return 'Spanish'
-    if (loc.includes('germany') || loc.includes('berlin')) return 'German'
-    if (loc.includes('brazil') || loc.includes('portugal')) return 'Portuguese'
-    if (loc.includes('china') || loc.includes('beijing') || loc.includes('shanghai')) return 'Chinese (Simplified)'
-    if (loc.includes('japan') || loc.includes('tokyo')) return 'Japanese'
-    if (loc.includes('korea') || loc.includes('seoul')) return 'Korean'
-    if (loc.includes('russia') || loc.includes('moscow')) return 'Russian'
-    if (loc.includes('turkey') || loc.includes('istanbul')) return 'Turkish'
-    if (loc.includes('iran') || loc.includes('tehran')) return 'Farsi'
-    if (loc.includes('india') || loc.includes('mumbai') || loc.includes('delhi')) return null // many languages, detect
-    if (loc.includes('pakistan') || loc.includes('karachi')) return 'Urdu'
-    return null
-  })()
+  // ── Native language resolution — nationality-first, never guess from WhatsApp ──
+  // Priority order:
+  // 1. Manually declared native_language in profile (set by candidate in profile/edit)
+  // 2. native_language extracted from their actual CV document (nationality-based)
+  // 3. The language they wrote WhatsApp in (if non-English — signals fluency, not necessarily native)
+  // 4. Never fall back to location or WhatsApp content — ask candidate instead
 
-  const resolvedNativeLang = storedNativeLang || locationLang
+  const storedNativeLang = extraFields?.native_language || null
+  const cvNativeLang = storedNativeLang  // cv-parse stores it from nationality field
+
+  // Find their strongest non-English language from languages_spoken list on CV
+  const languagesOnCV = (extraFields?.languages_spoken || []) as Array<{ language: string; level: string }>
+  const nativeOnCV = languagesOnCV.find(l =>
+    l.level?.toLowerCase().includes('native') && l.language?.toLowerCase() !== 'english'
+  )
+  const nonEnglishOnCV = languagesOnCV.find(l => l.language?.toLowerCase() !== 'english')
+
+  // WhatsApp language (stored separately — what they actually wrote in)
+  const whatsappLang = extraFields?.whatsapp_language || null
+
+  const resolvedNativeLang =
+    cvNativeLang ||                     // From CV nationality (most authoritative)
+    nativeOnCV?.language ||            // Native-level language listed on CV
+    nonEnglishOnCV?.language ||        // Any non-English language on CV
+    whatsappLang ||                    // Language they wrote WhatsApp in (signal, not definitive)
+    null                               // Unknown — don't guess
 
   const languageInstruction = mode === 'native'
     ? resolvedNativeLang
-      ? `Translate this ENTIRE CV into ${resolvedNativeLang}. Every word of every text value must be written in ${resolvedNativeLang}. Do not leave any English text in the values. Keep JSON keys in English.`
-      : `Detect the candidate's native language from their WhatsApp messages: "${sampleText || 'No messages'}". If unclear, default to Arabic. Translate ALL text values into that detected language. Every word must be in the target language. Keep JSON keys in English.`
+      ? `Translate this ENTIRE CV into ${resolvedNativeLang}. Every word of every text value must be in ${resolvedNativeLang}. Do not leave any English text in the values. Keep JSON keys in English.`
+      : `You cannot determine this candidate's native language from available data. Write the CV in English and note in the "language" field: "Native language not detected — candidate should declare in profile settings."`
     : `Write everything in polished professional English.`
 
   const prompt = `You are an expert CV writer producing a world-class ${mode === 'native' ? 'native language' : 'English'} CV.

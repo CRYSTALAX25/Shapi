@@ -24,6 +24,15 @@ export default function EditProfile() {
   const [githubUrl, setGithubUrl] = useState('')
   const [websiteUrl, setWebsiteUrl] = useState('')
   const [portfolioUrl, setPortfolioUrl] = useState('')
+  const [nationality, setNationality] = useState('')
+  const [nativeLanguage, setNativeLanguage] = useState('')
+  const [languageProficiency, setLanguageProficiency] = useState<{
+    conversation_language?: string
+    cefr_level?: string
+    ielts_equivalent?: string
+    english_level?: string
+    proficiency_notes?: string
+  } | null>(null)
 
   useEffect(() => {
     fetch('/api/profile/get')
@@ -40,6 +49,9 @@ export default function EditProfile() {
         setGithubUrl(data.github_url || '')
         setWebsiteUrl(data.website_url || '')
         setPortfolioUrl(data.portfolio_url || '')
+        setNationality(data.nationality || '')
+        setNativeLanguage(data.native_language || '')
+        setLanguageProficiency(data.language_proficiency || null)
         setWorkHistory(
           Array.isArray(data.work_history)
             ? data.work_history.map((w: Partial<WorkEntry>) => ({
@@ -76,6 +88,8 @@ export default function EditProfile() {
         github_url: githubUrl.trim() || null,
         website_url: websiteUrl.trim() || null,
         portfolio_url: portfolioUrl.trim() || null,
+        nationality: nationality.trim() || null,
+        native_language: nativeLanguage.trim() || null,
       }),
     })
     setSaving(false)
@@ -309,6 +323,65 @@ export default function EditProfile() {
               />
             </div>
           </div>
+        </div>
+
+        {/* Identity & Languages */}
+        <div className="gradient-border-card rounded-2xl p-6 mb-5 space-y-4">
+          <div>
+            <p className="text-white/50 text-xs font-bold uppercase tracking-wider">Identity & languages</p>
+            <p className="text-white/20 text-xs mt-1">Detected from your CV. Correct if anything is wrong — used for native language CV generation.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label>Nationality</label>
+              <input
+                className="field"
+                value={nationality}
+                onChange={e => setNationality(e.target.value)}
+                placeholder="e.g. Croatian, British, Saudi Arabian"
+              />
+            </div>
+            <div>
+              <label>Native language</label>
+              <input
+                className="field"
+                value={nativeLanguage}
+                onChange={e => setNativeLanguage(e.target.value)}
+                placeholder="e.g. Croatian, Arabic, French"
+              />
+            </div>
+          </div>
+
+          {/* Language proficiency — read-only, set by WhatsApp analysis */}
+          {languageProficiency && (
+            <div className="bg-white/[0.03] border border-white/[0.07] rounded-xl p-4">
+              <p className="text-white/35 text-xs font-bold uppercase tracking-wider mb-3">Language proficiency — assessed from WhatsApp</p>
+              <div className="flex flex-wrap gap-3">
+                {languageProficiency.cefr_level && (
+                  <div className="bg-[#22D3EE]/10 border border-[#22D3EE]/20 rounded-xl px-4 py-2 text-center">
+                    <p className="text-[#22D3EE] text-lg font-black">{languageProficiency.cefr_level}</p>
+                    <p className="text-white/30 text-xs">CEFR · {languageProficiency.conversation_language || 'Language'}</p>
+                  </div>
+                )}
+                {languageProficiency.ielts_equivalent && (
+                  <div className="bg-[#A78BFA]/10 border border-[#A78BFA]/20 rounded-xl px-4 py-2 text-center">
+                    <p className="text-[#A78BFA] text-lg font-black">{languageProficiency.ielts_equivalent}</p>
+                    <p className="text-white/30 text-xs">IELTS equivalent</p>
+                  </div>
+                )}
+                {languageProficiency.english_level && languageProficiency.english_level !== 'unassessed' && (
+                  <div className="bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-2 text-center">
+                    <p className="text-[#FB7185] text-lg font-black">{languageProficiency.english_level}</p>
+                    <p className="text-white/30 text-xs">English CEFR</p>
+                  </div>
+                )}
+              </div>
+              {languageProficiency.proficiency_notes && (
+                <p className="text-white/30 text-xs mt-3 leading-relaxed">{languageProficiency.proficiency_notes}</p>
+              )}
+              <p className="text-white/15 text-xs mt-2">Assessed automatically — complete more of your WhatsApp conversation to improve accuracy.</p>
+            </div>
+          )}
         </div>
 
         {/* Save */}

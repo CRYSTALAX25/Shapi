@@ -286,6 +286,53 @@ This is exchange ${userTurns + 1}. ${userTurns >= 9 ? 'You have enough. Wrap up 
   if (isDone) {
     updates.completion_pct = Math.max((profile.completion_pct as number) || 0, 65)
     updates.whatsapp_conversation_active = false
+
+    // ── Language proficiency assessment from the conversation ────────────────
+    // Analyse the candidate's actual writing quality — don't guess from location
+    const userMessages = chatHistory.filter(m => m.role === 'user').map(m => m.content)
+    if (userMessages.length >= 3) {
+      try {
+        const langAssess = await anthropic.messages.create({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 400,
+          messages: [{
+            role: 'user',
+            content: `Analyse the language quality of these WhatsApp messages written by a job candidate. Assess their proficiency in whichever language(s) they wrote in.
+
+MESSAGES:
+${userMessages.map((m, i) => `${i + 1}. "${m}"`).join('\n')}
+
+Return ONLY valid JSON:
+{
+  "conversation_language": "the main language they wrote in e.g. English, Arabic, Italian, French",
+  "conversation_language_code": "2-letter ISO code e.g. en, ar, it, fr",
+  "cefr_level": "A1 | A2 | B1 | B2 | C1 | C2 — their proficiency in the conversation language",
+  "ielts_equivalent": "e.g. 7.0-8.0 — IELTS band equivalent of the CEFR level",
+  "english_level": "CEFR level specifically for English — A1/A2/B1/B2/C1/C2. If they wrote in English, same as cefr_level. If another language, estimate from any English words used or mark as 'unassessed'",
+  "proficiency_notes": "1 sentence: what's strong and what's a gap e.g. 'Strong vocabulary and complex sentences, minor grammar errors — native-level fluency evident'"
+}`,
+          }],
+        })
+
+        const langText = langAssess.content[0].type === 'text' ? langAssess.content[0].text : ''
+        const langMatch = langText.match(/\{[\s\S]*\}/)
+        if (langMatch) {
+          const langData = JSON.parse(langMatch[0])
+          updates.language_proficiency = langData
+          if (langData.english_level && langData.english_level !== 'unassessed') {
+            updates.english_level = langData.english_level
+          }
+          // If they wrote in a non-English language and we don't have a native_language set yet,
+          // use the conversation language as a signal (but don't override CV-detected nationality)
+          if (langData.conversation_language_code !== 'en') {
+            updates.whatsapp_language = langData.conversation_language
+          }
+        }
+      } catch (err) {
+        console.error('[webhook] Language assessment failed:', err)
+        // Non-fatal — continue
+      }
+    }
   }
 
   await admin.from('profiles').update(updates).eq('id', profile.id)

@@ -63,6 +63,13 @@ export async function POST(request: Request) {
   "headline": "their current or most recent job title, string or null",
   "location": "city, country if present, string or null",
   "summary": "their profile summary or objective if present, string or null",
+  "nationality": "nationality as explicitly stated on CV e.g. 'Croatian', 'British', 'Saudi Arabian'. null if not mentioned.",
+  "country_of_origin": "country of birth or origin if mentioned anywhere on the CV. null if not found.",
+  "native_language": "infer from nationality only — e.g. Croatian nationality = Croatian, Saudi = Arabic, French = French. If dual nationality or unclear, return the non-English one. null if truly cannot determine.",
+  "languages_spoken": [
+    {"language": "English", "level": "fluent/native/professional/basic — as stated on CV or inferred"},
+    {"language": "Arabic", "level": "native"}
+  ],
   "work_history": [
     {
       "title": "job title",
@@ -75,6 +82,8 @@ export async function POST(request: Request) {
   "skills": ["skill1", "skill2"],
   "ai_tier": "user | integrator | builder | null — infer from skills/tools mentioned"
 }
+
+IMPORTANT for languages_spoken: include ALL languages mentioned anywhere on the CV. If they list languages on the CV, capture them all with their stated proficiency levels.
 
 Return only the JSON. No explanation, no markdown fences.`,
             },
@@ -96,7 +105,7 @@ Return only the JSON. No explanation, no markdown fences.`,
     return NextResponse.json({ error: 'Could not parse CV response' }, { status: 500 })
   }
 
-  // Upsert profile
+  // Upsert profile — including nationality and languages extracted from the actual CV document
   const { error: upsertError } = await supabase.from('profiles').upsert({
     id: user.id,
     cv_storage_path: storagePath,
@@ -108,6 +117,11 @@ Return only the JSON. No explanation, no markdown fences.`,
     work_history: parsed.work_history || [],
     skills: parsed.skills || [],
     ai_tier: parsed.ai_tier || null,
+    // Identity & language — sourced from the CV document itself, not guessed
+    nationality: parsed.nationality || null,
+    country_of_origin: parsed.country_of_origin || null,
+    native_language: parsed.native_language || null,
+    languages_spoken: parsed.languages_spoken || [],
     completion_pct: 30,
     updated_at: new Date().toISOString(),
   }, { onConflict: 'id' })
