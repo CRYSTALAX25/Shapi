@@ -44,9 +44,10 @@ export async function sendWhatsApp(to: string, message: string): Promise<{ succe
   return { success: false, error: result.error }
 }
 
-// ── SMS (falls back to TWILIO_FROM if TWILIO_SMS_FROM not set — same number works for both) ───
+// ── SMS — falls back through TWILIO_SMS_FROM → TWILIO_FROM → TWILIO_WHATSAPP_FROM (stripped) ───
 export async function sendSMS(to: string, message: string): Promise<{ success: boolean; error?: string }> {
-  const from = process.env.TWILIO_SMS_FROM || process.env.TWILIO_FROM
+  const raw = process.env.TWILIO_SMS_FROM || process.env.TWILIO_FROM || process.env.TWILIO_WHATSAPP_FROM
+  const from = raw?.replace(/^whatsapp:/, '') || null
   if (!from) { console.warn('[SMS] No SMS number configured — SMS skipped'); return { success: false, error: 'SMS not configured' } }
 
   const cleaned = to.replace(/\s/g, '').replace(/^whatsapp:/, '')
