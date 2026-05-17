@@ -25,8 +25,8 @@ export async function POST(request: Request) {
 
   const name = (profile.full_name as string) || 'there'
   const firstName = name.split(' ')[0]
-  const englishUrl = `${SITE}/profile/print`
-  const nativeUrl = `${SITE}/profile/print?lang=native`
+  const englishUrl = `${SITE}/cv-ready`
+  const nativeUrl = `${SITE}/cv-ready`
 
   const results: { email?: boolean; whatsapp?: boolean } = {}
 
@@ -52,9 +52,7 @@ export async function POST(request: Request) {
     if (!phone) {
       results.whatsapp = false
     } else {
-      const msg = showNative
-        ? `Hi ${firstName} 👋 Your Shapi CVs are ready.\n\n🇬🇧 English CV:\n${englishUrl}\n\n🌐 ${nativeLabel} CV:\n${nativeUrl}\n\nOpen either link → Ctrl+P / pinch-to-print → Save as PDF.`
-        : `Hi ${firstName} 👋 Your Shapi CV is ready.\n\n🇬🇧 English CV:\n${englishUrl}\n\nOpen the link → tap the share icon → Print → Save as PDF.`
+      const msg = `Hi ${firstName} 👋 Your Shapi CV Kit is ready.\n\n📄 Open your CV Kit:\n${englishUrl}\n\nOpen the link in your browser → download English${showNative ? `, ${nativeLabel},` : ''} and industry-targeted versions.`
 
       const wa = await sendWhatsApp(phone, msg)
       results.whatsapp = wa.success
