@@ -191,12 +191,12 @@ function PrintContent() {
 
         .summary { font-size: 14px; line-height: 1.7; color: #444; text-align: justify; }
 
-        .job { margin-bottom: 20px; break-inside: avoid; page-break-inside: avoid; }
-        .job-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
+        .job { margin-bottom: 20px; break-inside: avoid; page-break-inside: avoid; orphans: 4; widows: 4; }
+        .job-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; break-after: avoid; page-break-after: avoid; }
         .job-title { font-size: 15px; font-weight: 700; }
-        .job-company { font-size: 14px; color: #666; margin-bottom: 4px; }
+        .job-company { font-size: 14px; color: #666; margin-bottom: 4px; break-after: avoid; page-break-after: avoid; }
         .job-dates { font-size: 12px; color: #999; font-family: system-ui, sans-serif; white-space: nowrap; }
-        .job-achievements { font-size: 13px; line-height: 1.65; color: #555; margin-top: 6px; white-space: pre-line; text-align: justify; }
+        .job-achievements { font-size: 13px; line-height: 1.65; color: #555; margin-top: 6px; white-space: pre-line; text-align: justify; orphans: 4; widows: 4; }
 
         .skills { display: flex; flex-wrap: wrap; gap: 8px; }
         .skill { background: #f5f5f5; color: #444; font-size: 12px; padding: 4px 12px; border-radius: 999px; font-family: system-ui, sans-serif; }
