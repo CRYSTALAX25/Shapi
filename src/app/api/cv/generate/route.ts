@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, industry, whatsapp_number, ai_tier')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, industry, whatsapp_number, ai_tier, industry_chats')
     .eq('id', user.id)
     .single()
 
@@ -107,6 +107,12 @@ export async function POST(request: Request) {
   // Cap at 10 messages to keep prompt size manageable and avoid truncated JSON
   const cappedMessages = userMessages.slice(0, 10)
   const sampleText = cappedMessages.slice(0, 5).join(' | ')
+
+  // ── Pro deep-dive answers for this specific industry ─────────────────────────
+  const industryChats = (profile.industry_chats as Record<string, { answers?: string[] }> | null) || {}
+  const deepDiveAnswers: string[] = targetIndustry && industryChats[targetIndustry]?.answers
+    ? industryChats[targetIndustry].answers!
+    : []
   const industry = targetIndustry || (profile.industry as string) || 'general'
   const industryGuide = INDUSTRY_GUIDES[industry] || INDUSTRY_GUIDES.general
 
@@ -174,7 +180,7 @@ CANDIDATE INFO:
 - Summary: ${(profile.summary as string || '').replace(/"/g, "'")}
 - Work history: ${JSON.stringify(workHistory)}
 - Skills: ${JSON.stringify(skills)}
-- WhatsApp conversation (use these stories and insights to ENRICH achievements and summary — this is gold): ${JSON.stringify(cappedMessages)}
+- WhatsApp conversation (use these stories and insights to ENRICH achievements and summary — this is gold): ${JSON.stringify(cappedMessages)}${deepDiveAnswers.length > 0 ? `\n- INDUSTRY DEEP-DIVE ANSWERS (${targetIndustry} specific — these are the most valuable, prioritise them heavily): ${JSON.stringify(deepDiveAnswers)}` : ''}
 
 ${mode === 'universal'
   ? `UNIVERSAL CV MODE: This CV must work for candidates switching industries or applying for cross-sector roles. Avoid all industry-specific jargon. Lead with: leadership, communication, problem-solving, project management, budgets, team size, % improvements, time saved, revenue impact. Every achievement must be understood by a hiring manager in ANY sector.`

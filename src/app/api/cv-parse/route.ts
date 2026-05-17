@@ -80,8 +80,11 @@ export async function POST(request: Request) {
     }
   ],
   "skills": ["skill1", "skill2"],
-  "ai_tier": "user | integrator | builder | null — infer from skills/tools mentioned"
+  "ai_tier": "user | integrator | builder | null — infer from skills/tools mentioned",
+  "matched_industries": ["hospitality", "operations"]
 }
+
+For matched_industries: identify the 2-4 industries this candidate has REAL experience in based on their work history. Only pick from: finance, tech, creative, healthcare, legal, marketing, operations, hospitality, education, sales. Return only industries where they have genuine hands-on experience — not industries they might pivot into. Be selective, max 4.
 
 IMPORTANT for languages_spoken: include ALL languages mentioned anywhere on the CV. If they list languages on the CV, capture them all with their stated proficiency levels.
 
@@ -122,6 +125,7 @@ Return only the JSON. No explanation, no markdown fences.`,
     country_of_origin: parsed.country_of_origin || null,
     native_language: parsed.native_language || null,
     languages_spoken: parsed.languages_spoken || [],
+    matched_industries: parsed.matched_industries || [],
     completion_pct: 30,
     updated_at: new Date().toISOString(),
   }, { onConflict: 'id' })

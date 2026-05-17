@@ -4,14 +4,33 @@ import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
-export async function POST() {
+const TIERS = {
+  kit: {
+    amount: 2500, // $25
+    name: 'Shapi CV Kit',
+    description: 'English + native language CVs · All matched industry versions · Downloadable PDF · Shareable profile link.',
+    product: 'cv_kit',
+  },
+  pro: {
+    amount: 5900, // $59
+    name: 'Shapi CV Pro',
+    description: 'Everything in CV Kit · WhatsApp deep-dive for up to 3 target industries · Stories that basic reframing can\'t find · The CV that wins the specific role you want.',
+    product: 'cv_pro',
+  },
+}
+
+export async function POST(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const body = await request.json().catch(() => ({}))
+  const tierKey = (body.tier === 'pro' ? 'pro' : 'kit') as 'kit' | 'pro'
+  const tier = TIERS[tierKey]
+
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, stripe_customer_id, cv_parsed')
+    .select('full_name, stripe_customer_id, cv_parsed, cv_tier')
     .eq('id', user.id)
     .single()
 
@@ -19,8 +38,13 @@ export async function POST() {
     return NextResponse.json({ error: 'Upload your CV first' }, { status: 400 })
   }
 
+  // Already on pro — no need to buy kit
+  if (profile.cv_tier === 'pro' && tierKey === 'kit') {
+    return NextResponse.json({ error: 'Already on Pro tier' }, { status: 400 })
+  }
+
   // Get or create Stripe customer
-  let customerId = profile.stripe_customer_id
+  let customerId = profile.stripe_customer_id as string | undefined
   if (!customerId) {
     const customer = await stripe.customers.create({
       email: user.email,
@@ -38,11 +62,10 @@ export async function POST() {
       {
         price_data: {
           currency: 'usd',
-          unit_amount: 2900, // $29
+          unit_amount: tier.amount,
           product_data: {
-            name: 'Shapi CV Kit',
-            description: 'Your AI-built professional CV — English + native language versions, downloadable PDF, shareable profile link.',
-            images: [],
+            name: tier.name,
+            description: tier.description,
           },
         },
         quantity: 1,
@@ -50,7 +73,7 @@ export async function POST() {
     ],
     success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/cv-ready?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/profile`,
-    metadata: { user_id: user.id, product: 'cv_kit' },
+    metadata: { user_id: user.id, product: tier.product, cv_tier: tierKey },
   })
 
   return NextResponse.json({ url: session.url })

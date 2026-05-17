@@ -17,11 +17,14 @@ type Preview = {
 
 type Profile = {
   cv_kit_purchased?: boolean
+  cv_tier?: string | null
   full_name: string | null
   id: string
   location: string | null
   native_language: string | null
   cv_language_preference: string | null
+  matched_industries?: string[]
+  industry_chats?: Record<string, { status?: string; answers?: string[] }>
 }
 
 // Resolve what to show from the candidate's WhatsApp language selection
@@ -75,6 +78,9 @@ export default function CVReady() {
   const [sendWAState, setSendWAState] = useState<SendState>('idle')
   // English CV pre-generation state
   const [englishCvStatus, setEnglishCvStatus] = useState<'generating' | 'ready'>('generating')
+  // Pro deep-dive state
+  const [deepDiveState, setDeepDiveState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [selectedIndustries, setSelectedIndustries] = useState<string[]>([])
 
   useEffect(() => {
     const supabase = createClient()
@@ -83,17 +89,20 @@ export default function CVReady() {
 
       const { data: p } = await supabase
         .from('profiles')
-        .select('full_name, cv_kit_purchased, location, native_language, cv_language_preference')
+        .select('full_name, cv_kit_purchased, cv_tier, location, native_language, cv_language_preference, matched_industries, industry_chats')
         .eq('id', user.id)
         .single()
 
       setProfile({
         cv_kit_purchased: p?.cv_kit_purchased ?? false,
+        cv_tier: p?.cv_tier ?? null,
         full_name: p?.full_name ?? null,
         id: user.id,
         location: p?.location ?? null,
         native_language: p?.native_language ?? null,
         cv_language_preference: p?.cv_language_preference ?? null,
+        matched_industries: (p?.matched_industries as string[]) ?? [],
+        industry_chats: (p?.industry_chats as Record<string, { status?: string; answers?: string[] }>) ?? {},
       })
       setReady(true)
 
@@ -157,6 +166,48 @@ export default function CVReady() {
   const { showEnglish, showNative, nativeLabel } = profile
     ? resolveCVLanguages(profile)
     : { showEnglish: true, showNative: false, nativeLabel: 'Native language' }
+
+  const isPro = profile?.cv_tier === 'pro'
+  const matchedIndustries = profile?.matched_industries || []
+  const industryChats = profile?.industry_chats || {}
+
+  const INDUSTRY_META: Record<string, { label: string; emoji: string }> = {
+    finance: { label: 'Finance', emoji: '📊' },
+    tech: { label: 'Tech', emoji: '💻' },
+    creative: { label: 'Media & Creative', emoji: '🎬' },
+    healthcare: { label: 'Healthcare', emoji: '🏥' },
+    legal: { label: 'Legal', emoji: '⚖️' },
+    marketing: { label: 'Marketing', emoji: '📣' },
+    operations: { label: 'Operations', emoji: '⚙️' },
+    hospitality: { label: 'Hospitality', emoji: '🏨' },
+    education: { label: 'Education', emoji: '🎓' },
+    sales: { label: 'Sales', emoji: '🤝' },
+  }
+
+  const sendDeepDive = async () => {
+    if (selectedIndustries.length === 0) return
+    setDeepDiveState('sending')
+    try {
+      const res = await fetch('/api/cv/deepdive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ industries: selectedIndustries }),
+      })
+      setDeepDiveState(res.ok ? 'sent' : 'error')
+    } catch {
+      setDeepDiveState('error')
+    }
+  }
+
+  const upgradeToPro = async () => {
+    const res = await fetch('/api/stripe/cv-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tier: 'pro' }),
+    })
+    const data = await res.json()
+    if (data.url) window.location.href = data.url
+  }
 
   return (
     <div className="min-h-screen bg-[#060609]">
@@ -398,44 +449,117 @@ export default function CVReady() {
           )}
         </div>
 
-        {/* Target industry versions */}
-        <div className="gradient-border-card rounded-2xl p-5 mb-6">
-          <div className="flex items-start justify-between mb-1">
-            <p className="text-white/35 text-xs font-bold uppercase tracking-wider">Applying to a different sector?</p>
-            <span className="text-[10px] font-bold bg-[#22D3EE]/10 text-[#22D3EE] px-2 py-0.5 rounded-full flex-shrink-0">Included</span>
-          </div>
-          <p className="text-white/25 text-xs mb-4">
-            Pick any industry below — Shapi rewrites your achievements through that sector&apos;s lens. Same experience, different framing.
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {[
-              { label: 'Tech', key: 'tech', emoji: '💻' },
-              { label: 'Media', key: 'creative', emoji: '🎬' },
-              { label: 'Finance', key: 'finance', emoji: '📊' },
-              { label: 'Hospitality', key: 'hospitality', emoji: '🏨' },
-              { label: 'Marketing', key: 'marketing', emoji: '📣' },
-              { label: 'Operations', key: 'operations', emoji: '⚙️' },
-              { label: 'Sales', key: 'sales', emoji: '🤝' },
-              { label: 'Universal', key: 'universal', emoji: '📋', isUniversal: true },
-            ].map((ind) => (
-              <a
-                key={ind.key}
-                href={ind.isUniversal ? '/profile/print?lang=universal' : `/profile/print?industry=${ind.key}`}
-                target="_blank"
+        {/* Industry CVs — matched to their background */}
+        {matchedIndustries.length > 0 && (
+          <div className="gradient-border-card rounded-2xl p-5 mb-6">
+            <div className="flex items-start justify-between mb-1">
+              <p className="text-white/35 text-xs font-bold uppercase tracking-wider">Your industry CVs</p>
+              <span className="text-[10px] font-bold bg-[#22D3EE]/10 text-[#22D3EE] px-2 py-0.5 rounded-full flex-shrink-0">Included</span>
+            </div>
+            <p className="text-white/25 text-xs mb-4">
+              Based on your background, Shapi identified these industries. Each CV reframes your achievements for that sector.
+            </p>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {matchedIndustries.map((ind) => {
+                const meta = INDUSTRY_META[ind] || { label: ind, emoji: '📄' }
+                return (
+                  <a key={ind} href={`/profile/print?industry=${ind}`} target="_blank"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105"
+                    style={{ background: 'rgba(34,211,238,0.06)', border: '1px solid rgba(34,211,238,0.15)', color: 'rgba(255,255,255,0.7)' }}>
+                    <span>{meta.emoji}</span>{meta.label}
+                    <span className="text-[#22D3EE] ml-1">↓</span>
+                  </a>
+                )
+              })}
+              <a href="/profile/print?lang=universal" target="_blank"
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105"
-                style={{
-                  background: ind.isUniversal ? 'rgba(52,211,153,0.08)' : 'rgba(255,255,255,0.05)',
-                  border: ind.isUniversal ? '1px solid rgba(52,211,153,0.2)' : '1px solid rgba(255,255,255,0.08)',
-                  color: ind.isUniversal ? '#34D399' : 'rgba(255,255,255,0.55)',
-                }}
-              >
-                <span>{ind.emoji}</span>
-                {ind.label}
+                style={{ background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.15)', color: 'rgba(52,211,153,0.8)' }}>
+                <span>📋</span>Universal
+                <span className="text-[#34D399] ml-1">↓</span>
               </a>
-            ))}
+            </div>
+            <p className="text-white/15 text-[10px]">Opens in a new tab — click &quot;Save as PDF&quot; to download</p>
           </div>
-          <p className="text-white/15 text-[10px] mt-3">Each opens as a fresh PDF — Claude re-writes your bullets for that industry in ~20 seconds</p>
-        </div>
+        )}
+
+        {/* Pro deep-dive — only if kit tier */}
+        {!isPro && (
+          <div className="gradient-border-card rounded-2xl p-5 mb-6" style={{ borderColor: 'rgba(167,139,250,0.3)' }}>
+            <div className="flex items-start justify-between mb-2">
+              <p className="text-[#A78BFA] text-xs font-bold uppercase tracking-wider">CV Pro — $59</p>
+              <span className="text-[10px] font-bold bg-[#A78BFA]/10 text-[#A78BFA] px-2 py-0.5 rounded-full flex-shrink-0">Upgrade</span>
+            </div>
+            <p className="text-white/60 text-sm font-bold mb-1">Get the stories that win the role you actually want</p>
+            <p className="text-white/35 text-xs mb-4 leading-relaxed">
+              Claude will interview you on WhatsApp about your specific experience in up to 3 industries — the bar management, the NEOM opening, the service manuals. The stuff that only comes out when you&apos;re asked directly.
+            </p>
+            <button onClick={upgradeToPro}
+              className="w-full py-3 rounded-xl font-black text-sm transition-all hover:opacity-90"
+              style={{ background: 'linear-gradient(135deg, #A78BFA, #22D3EE)', color: '#060609' }}>
+              Upgrade to Pro — $59 →
+            </button>
+          </div>
+        )}
+
+        {/* Pro deep-dive UI — only for pro tier */}
+        {isPro && matchedIndustries.length > 0 && (
+          <div className="gradient-border-card rounded-2xl p-5 mb-6" style={{ borderColor: 'rgba(167,139,250,0.25)' }}>
+            <div className="flex items-start justify-between mb-1">
+              <p className="text-[#A78BFA] text-xs font-bold uppercase tracking-wider">Pro deep-dive</p>
+              <span className="text-[10px] font-bold bg-[#A78BFA]/10 text-[#A78BFA] px-2 py-0.5 rounded-full">Pro ✓</span>
+            </div>
+            <p className="text-white/60 text-sm font-bold mb-1">Pick up to 3 industries for a targeted WhatsApp interview</p>
+            <p className="text-white/30 text-xs mb-4">Claude will ask you 6–8 targeted questions to surface the stories that make your CV exceptional for each sector.</p>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {matchedIndustries.map((ind) => {
+                const meta = INDUSTRY_META[ind] || { label: ind, emoji: '📄' }
+                const isSelected = selectedIndustries.includes(ind)
+                const isDone = industryChats[ind]?.status === 'questions_sent' || (industryChats[ind]?.answers?.length ?? 0) > 0
+                return (
+                  <button key={ind}
+                    disabled={isDone || deepDiveState === 'sent'}
+                    onClick={() => {
+                      if (isDone) return
+                      setSelectedIndustries(prev =>
+                        prev.includes(ind)
+                          ? prev.filter(i => i !== ind)
+                          : prev.length < 3 ? [...prev, ind] : prev
+                      )
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all"
+                    style={{
+                      background: isDone ? 'rgba(52,211,153,0.08)' : isSelected ? 'rgba(167,139,250,0.2)' : 'rgba(255,255,255,0.05)',
+                      border: isDone ? '1px solid rgba(52,211,153,0.3)' : isSelected ? '1px solid rgba(167,139,250,0.5)' : '1px solid rgba(255,255,255,0.08)',
+                      color: isDone ? '#34D399' : isSelected ? '#A78BFA' : 'rgba(255,255,255,0.5)',
+                      cursor: isDone ? 'default' : 'pointer',
+                    }}>
+                    <span>{meta.emoji}</span>
+                    {meta.label}
+                    {isDone && <span>✓</span>}
+                  </button>
+                )
+              })}
+            </div>
+            {deepDiveState === 'sent' ? (
+              <p className="text-[#34D399] text-sm font-bold text-center py-2">✓ Questions sent to WhatsApp — answer them and your CVs will be ready</p>
+            ) : (
+              <button
+                onClick={sendDeepDive}
+                disabled={selectedIndustries.length === 0 || deepDiveState === 'sending'}
+                className="w-full py-3 rounded-xl font-black text-sm transition-all disabled:opacity-40"
+                style={{ background: 'linear-gradient(135deg, #A78BFA, #22D3EE)', color: '#060609' }}>
+                {deepDiveState === 'sending'
+                  ? 'Sending questions…'
+                  : selectedIndustries.length === 0
+                  ? 'Select industries above'
+                  : `Send ${selectedIndustries.length} industry deep-dive to WhatsApp →`}
+              </button>
+            )}
+            {deepDiveState === 'error' && (
+              <p className="text-[#FB7185] text-xs mt-2 text-center">Something went wrong — check your WhatsApp number in your profile.</p>
+            )}
+          </div>
+        )}
 
         {/* Send to yourself */}
         <div className="gradient-border-card rounded-2xl p-5 mb-6">
