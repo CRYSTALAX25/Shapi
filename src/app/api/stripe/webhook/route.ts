@@ -26,6 +26,8 @@ export async function POST(request: Request) {
     const tier = session.metadata?.tier
 
     if (userId) {
+      const product = session.metadata?.product
+
       if (tier) {
         // Company subscription
         await supabase
@@ -38,8 +40,20 @@ export async function POST(request: Request) {
             stripe_subscription_id: session.subscription as string,
           })
           .eq('id', userId)
+
+      } else if (product === 'cv_kit') {
+        // Candidate CV Kit — $29 one-time
+        await supabase
+          .from('profiles')
+          .update({
+            cv_kit_purchased: true,
+            stripe_customer_id: session.customer as string,
+          })
+          .eq('id', userId)
+        console.log('[stripe/webhook] CV Kit purchased for user:', userId)
+
       } else {
-        // Candidate one-time payment
+        // Generic candidate one-time payment
         await supabase
           .from('profiles')
           .update({

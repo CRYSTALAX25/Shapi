@@ -63,7 +63,11 @@ export default async function ProfilePage() {
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
         }}>shapi</Link>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <Link href="/profile/edit"
+            className="text-white/50 text-xs font-bold px-4 py-2 rounded-full border border-white/[0.12] hover:border-white/30 transition-colors">
+            Edit profile
+          </Link>
           <a href="/profile/print" target="_blank"
             className="bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#060609] text-xs font-black px-4 py-2 rounded-full hover:opacity-90 transition-opacity">
             Download CV ↓
