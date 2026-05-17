@@ -1,103 +1,117 @@
 import { createClient } from '@/lib/supabase/server'
-import { Resend } from 'resend'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { sendManagerReferenceEmail } from '@/lib/email'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const body = await request.json()
+  const {
+    job_slot,            // 1 | 2
+    referee_name,
+    referee_email,
+    referee_title,       // manager's job title
+    candidate_job_title,
+    candidate_company,
+    candidate_dates,
+  } = body
 
-  const { referee_name, referee_email, referee_relationship } = await request.json()
-
-  if (!referee_name || !referee_email || !referee_relationship) {
+  if (!referee_name || !referee_email || !job_slot || !candidate_company) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
-  // Get candidate name
+  const admin = createAdminClient()
+
   const { data: profile } = await supabase
     .from('profiles')
     .select('full_name')
     .eq('id', user.id)
     .single()
 
-  const candidateName = profile?.full_name || user.email
+  const candidateName = (profile?.full_name as string) || 'the candidate'
 
-  // Create reference record
-  const { data: ref, error } = await supabase
+  // Upsert — one manager per job_slot per candidate (replace if they re-submit)
+  const { data: existing } = await admin
     .from('candidate_references')
-    .insert({
-      candidate_id: user.id,
+    .select('id, token')
+    .eq('candidate_id', user.id)
+    .eq('job_slot', job_slot)
+    .eq('ref_type', 'manager')
+    .maybeSingle()
+
+  let ref: { id: string; token: string }
+
+  if (existing) {
+    await admin.from('candidate_references').update({
       referee_name,
       referee_email,
-      referee_relationship,
+      referee_title: referee_title || null,
+      candidate_job_title: candidate_job_title || null,
+      candidate_company,
+      candidate_dates: candidate_dates || null,
       status: 'pending',
-    })
-    .select()
-    .single()
+      updated_at: new Date().toISOString(),
+    }).eq('id', existing.id)
+    ref = existing as { id: string; token: string }
+  } else {
+    const { data: inserted, error } = await admin.from('candidate_references').insert({
+      candidate_id: user.id,
+      ref_type: 'manager',
+      job_slot,
+      referee_name,
+      referee_email,
+      referee_title: referee_title || null,
+      referee_relationship: 'direct_manager',
+      candidate_job_title: candidate_job_title || null,
+      candidate_company,
+      candidate_dates: candidate_dates || null,
+      status: 'pending',
+    }).select('id, token').single()
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error || !inserted) {
+      console.error('[references/request]', error?.message)
+      return NextResponse.json({ error: error?.message || 'Insert failed' }, { status: 500 })
+    }
+    ref = inserted as { id: string; token: string }
   }
 
-  // Send reference request email
-  const resend = new Resend(process.env.RESEND_API_KEY)
+  // Send reference request email to the manager
   const referenceUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/reference/${ref.token}`
+  try {
+    await sendManagerReferenceEmail({
+      to: referee_email,
+      refereeName: referee_name,
+      candidateName,
+      candidateJobTitle: candidate_job_title || 'their role',
+      candidateCompany: candidate_company,
+      candidateDates: candidate_dates || '',
+      referenceUrl,
+    })
+    await admin.from('candidate_references')
+      .update({ status: 'contacted', contacted_at: new Date().toISOString() })
+      .eq('id', ref.id)
+  } catch (err) {
+    console.error('[references/request] Email failed:', err)
+  }
 
-  await resend.emails.send({
-    from: 'Shapi <hello@shapi.io>',
-    to: referee_email,
-    subject: `${candidateName} has listed you as a reference on Shapi`,
-    html: `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #1C1C2E;">
-        <div style="padding: 40px 0 20px;">
-          <span style="color: #0B5563; font-weight: bold; font-size: 20px;">shapi</span>
-        </div>
+  return NextResponse.json({ success: true, id: ref.id })
+}
 
-        <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 12px;">
-          ${candidateName} has listed you as a reference
-        </h1>
+// GET — list all references for the current candidate (for status tracker)
+export async function GET() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-        <p style="color: #555; line-height: 1.6; margin-bottom: 20px;">
-          Hi ${referee_name},<br><br>
-          ${candidateName} is building a verified professional profile on Shapi and has listed you as a reference
-          (${referee_relationship}).
-        </p>
-
-        <p style="color: #555; line-height: 1.6; margin-bottom: 28px;">
-          We'd love to hear from you — it takes about 5 minutes. Your honest answers help ${candidateName.split(' ')[0]}
-          stand out to the right employers, and may highlight skills they haven't even mentioned themselves.
-        </p>
-
-        <div style="margin-bottom: 32px;">
-          <a href="${referenceUrl}"
-             style="background: #0B5563; color: white; padding: 14px 28px; border-radius: 100px;
-                    text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block;">
-            Give a reference →
-          </a>
-        </div>
-
-        <p style="color: #999; font-size: 13px; line-height: 1.5;">
-          This link is unique to you. Your responses will appear on ${candidateName.split(' ')[0]}'s Shapi profile
-          and cannot be edited by them. If you'd prefer not to provide a reference, simply ignore this email.
-        </p>
-
-        <div style="border-top: 1px solid #eee; margin-top: 40px; padding-top: 20px;">
-          <p style="color: #bbb; font-size: 12px;">
-            Shapi — Verified professional profiles. shapi.io
-          </p>
-        </div>
-      </div>
-    `,
-  })
-
-  // Mark as sent
-  await supabase
+  const admin = createAdminClient()
+  const { data: refs } = await admin
     .from('candidate_references')
-    .update({ status: 'sent', email_sent_at: new Date().toISOString() })
-    .eq('id', ref.id)
+    .select('id, ref_type, job_slot, referee_name, referee_title, candidate_company, candidate_job_title, candidate_dates, status, nominated_by, nominator_name')
+    .eq('candidate_id', user.id)
+    .order('job_slot', { ascending: true })
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ refs: refs || [] })
 }

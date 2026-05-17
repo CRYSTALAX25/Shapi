@@ -109,7 +109,104 @@ export async function sendCvKitEmail(to: string, name: string) {
   })
 }
 
-// ── 3. Company: new candidate matched to their role ─────────────────────────
+// ── 3. Reference request → manager ────────────────────────────────────────
+
+export async function sendManagerReferenceEmail(opts: {
+  to: string
+  refereeName: string
+  candidateName: string
+  candidateJobTitle: string
+  candidateCompany: string
+  candidateDates: string
+  referenceUrl: string
+}) {
+  const { to, refereeName, candidateName, candidateJobTitle, candidateCompany, candidateDates, referenceUrl } = opts
+  const candidateFirst = candidateName.split(' ')[0]
+  const refereeFirst = refereeName.split(' ')[0]
+
+  const html = emailShell(`
+    ${h1(`${candidateFirst} has listed you as a reference.`)}
+    ${p(`Hi ${refereeFirst} — ${candidateName} is building a verified profile on Shapi and listed you as their manager during their time at <strong style="color:rgba(255,255,255,0.75)">${candidateCompany}</strong> (${candidateDates}).`)}
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px 18px;margin:16px 0">
+      <p style="color:rgba(255,255,255,0.3);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 6px">Their role</p>
+      <p style="color:rgba(255,255,255,0.75);font-size:14px;font-weight:700;margin:0">${candidateJobTitle} · ${candidateCompany}</p>
+    </div>
+    ${p(`Takes about 5 minutes. Your honest answers appear verbatim on their profile — ${candidateFirst} cannot edit them.`)}
+    ${p(`At the end, we&apos;ll ask you to nominate a colleague and a stakeholder who worked with ${candidateFirst}. We&apos;ll reach out to them independently — ${candidateFirst} won&apos;t know who you&apos;ve named.`)}
+    ${btn(`Give a reference →`, referenceUrl)}
+    ${divider()}
+    ${p(`<span style="font-size:13px;color:rgba(255,255,255,0.3)">If you&apos;d prefer not to provide a reference, simply ignore this email. The link expires after 30 days.</span>`)}
+  `)
+
+  await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: `${candidateName} has listed you as a reference on Shapi`,
+    html,
+  })
+}
+
+// ── 4. Reference request → nominated colleague / stakeholder ───────────────
+
+export async function sendNominatedReferenceEmail(opts: {
+  to: string
+  refereeName: string
+  candidateName: string
+  nominatorName: string
+  nominatorCompany: string
+  nomineeRole: 'colleague' | 'stakeholder'
+  referenceUrl: string
+}) {
+  const { to, refereeName, candidateName, nominatorName, nominatorCompany, nomineeRole, referenceUrl } = opts
+  const candidateFirst = candidateName.split(' ')[0]
+  const refereeFirst = refereeName.split(' ')[0]
+  const roleLabel = nomineeRole === 'colleague' ? 'a colleague' : 'a stakeholder'
+
+  const html = emailShell(`
+    ${h1(`A quick word about ${candidateName}.`)}
+    ${p(`Hi ${refereeFirst} — <strong style="color:rgba(255,255,255,0.75)">${nominatorName}</strong> at ${nominatorCompany} suggested you worked with ${candidateFirst} and might be able to share a perspective.`)}
+    ${p(`${candidateFirst} is on Shapi — a verified hiring platform. ${nominatorName} nominated you as ${roleLabel} who knows their work well.`)}
+    <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:10px;padding:14px 18px;margin:16px 0">
+      <p style="color:rgba(167,139,250,0.8);font-size:13px;font-weight:700;margin:0">${candidateFirst} doesn&apos;t know we&apos;ve reached out — you can be completely candid.</p>
+    </div>
+    ${p(`3 short questions. Takes 2 minutes.`)}
+    ${btn(`Share your perspective →`, referenceUrl)}
+    ${divider()}
+    ${p(`<span style="font-size:13px;color:rgba(255,255,255,0.3)">No obligation — if you&apos;d prefer not to respond, simply ignore this. The link expires after 30 days.</span>`)}
+  `)
+
+  await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: `A quick word about ${candidateName} — takes 2 minutes`,
+    html,
+  })
+}
+
+// ── 5. Candidate: references verified ─────────────────────────────────────
+
+export async function sendReferencesVerifiedEmail(to: string, name: string, count: number) {
+  const firstName = name?.split(' ')[0] || 'there'
+  const profileUrl = `${SITE}/profile`
+
+  const html = emailShell(`
+    ${h1(`${firstName}, your references are verified. ✅`)}
+    ${p(`<strong style="color:rgba(255,255,255,0.75)">${count} reference${count !== 1 ? 's' : ''}</strong> have been submitted to your Shapi profile. They appear exactly as written — you haven&apos;t seen them and can&apos;t edit them, which is what makes them credible.`)}
+    ${p(`Companies viewing your profile can now see your verification score and the number of independent references backing you up.`)}
+    ${btn(`View your profile →`, profileUrl)}
+    ${divider()}
+    ${p(`<span style="font-size:13px;color:rgba(255,255,255,0.3)">The names of your nominated references (colleague and stakeholder) remain confidential — only the count and summary appear publicly.</span>`)}
+  `)
+
+  await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: `${count} reference${count !== 1 ? 's' : ''} verified on your Shapi profile`,
+    html,
+  })
+}
+
+// ── 6. Company: new candidate matched to their role ─────────────────────────
 
 export async function sendCompanyMatchEmail(
   to: string,
