@@ -12,6 +12,11 @@ export async function POST(request: Request) {
 
   const body = await request.json()
 
+  // Normalise WhatsApp number — strip spaces so +966 50 250 6355 → +966502506355
+  if (body.whatsapp_number) {
+    body.whatsapp_number = (body.whatsapp_number as string).replace(/\s+/g, '').trim()
+  }
+
   // Upsert profile
   const { error } = await supabase
     .from('profiles')

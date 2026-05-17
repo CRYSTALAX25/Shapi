@@ -10,7 +10,8 @@ export async function POST(request: Request) {
   const numMedia = parseInt((formData.get('NumMedia') as string) || '0')
   const mediaType = (formData.get('MediaContentType0') as string) || ''
 
-  const phone = from?.replace('whatsapp:', '').trim()
+  // Normalise: strip whatsapp: prefix and ALL spaces so +966 50 250 6355 → +966502506355
+  const phone = from?.replace('whatsapp:', '').replace(/\s+/g, '').trim()
   if (!phone) return new NextResponse('', { status: 200 })
 
   console.log('[webhook] Message from:', phone, '| body:', body?.slice(0, 80), '| media:', numMedia, mediaType)
