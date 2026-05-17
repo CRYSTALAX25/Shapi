@@ -18,12 +18,15 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient()
 
-  // Look up profile by WhatsApp number
-  const { data: profile } = await admin
+  // Look up profile by WhatsApp number — use limit(1) to survive duplicate rows
+  const { data: profiles } = await admin
     .from('profiles')
     .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed')
     .eq('whatsapp_number', phone)
-    .single()
+    .order('cv_parsed', { ascending: false })
+    .limit(1)
+
+  const profile = profiles?.[0] ?? null
 
   if (!profile) {
     console.log('[webhook] No profile found for:', phone)
