@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 
 type SendState = 'idle' | 'sending' | 'sent' | 'error'
 
@@ -75,36 +76,34 @@ export default function CVReady() {
 
   useEffect(() => {
     // Fetch profile to gate access
-    fetch('/api/profile/get')
-      .then(r => r.json())
-      .then(d => {
-        if (!d.profile) {
-          // Not authenticated — send to login
-          router.replace('/login')
-          return
-        }
-        setProfile({
-          cv_kit_purchased: d.profile.cv_kit_purchased ?? false,
-          full_name: d.profile.full_name,
-          id: d.profile.id || '',
-          location: d.profile.location || null,
-          native_language: d.profile.native_language || null,
-          cv_language_preference: d.profile.cv_language_preference || null,
-        })
-        setReady(true)
+    const supabase = createClient()
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) { router.replace('/login'); return }
 
-        // Fetch the before/after preview
-        setLoadingPreview(true)
-        fetch('/api/cv/preview')
-          .then(r => r.json())
-          .then(p => setPreview(p))
-          .catch(() => {})
-          .finally(() => setLoadingPreview(false))
+      const { data: p } = await supabase
+        .from('profiles')
+        .select('full_name, cv_kit_purchased, location, native_language, cv_language_preference')
+        .eq('id', user.id)
+        .single()
+
+      setProfile({
+        cv_kit_purchased: p?.cv_kit_purchased ?? false,
+        full_name: p?.full_name ?? null,
+        id: user.id,
+        location: p?.location ?? null,
+        native_language: p?.native_language ?? null,
+        cv_language_preference: p?.cv_language_preference ?? null,
       })
-      .catch(() => {
-        // Network error — don't redirect, just show the page with empty profile
-        setReady(true)
-      })
+      setReady(true)
+
+      // Fetch the before/after preview
+      setLoadingPreview(true)
+      fetch('/api/cv/preview')
+        .then(r => r.json())
+        .then(pp => setPreview(pp))
+        .catch(() => {})
+        .finally(() => setLoadingPreview(false))
+    })
   }, [router])
 
   if (!ready) {
