@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import CVDownloadButton from '@/components/CVDownloadButton'
+import ShapiCharacter from '@/components/ShapiCharacter'
 
 type WorkEntry = {
   title?: string
@@ -77,10 +78,18 @@ export default async function ProfilePage() {
 
         {/* Status banner */}
         {!isLive && (
-          <div className="gradient-border-card rounded-2xl px-5 py-4 mb-6 flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-[#A78BFA] animate-pulse flex-shrink-0" />
+          <div className="gradient-border-card rounded-2xl px-5 py-4 mb-6 flex items-center gap-4">
+            <ShapiCharacter mood="thinking" size={48} className="flex-shrink-0" />
             <p className="text-white/60 text-sm">
               Your profile is <span className="text-white font-semibold">being verified</span> — it will go live once our team confirms your references. Usually 48hrs.
+            </p>
+          </div>
+        )}
+        {isLive && (
+          <div className="gradient-border-card rounded-2xl px-5 py-4 mb-6 flex items-center gap-4">
+            <ShapiCharacter mood="happy" size={48} className="flex-shrink-0" />
+            <p className="text-white/60 text-sm">
+              Your profile is <span className="text-[#22D3EE] font-semibold">live</span> — companies can now find and view you. 🎉
             </p>
           </div>
         )}

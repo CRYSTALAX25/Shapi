@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import ShapiCharacter from '@/components/ShapiCharacter'
 
 export default async function Dashboard() {
   const supabase = await createClient()
@@ -11,7 +12,7 @@ export default async function Dashboard() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, cv_parsed, whatsapp_number, completion_pct, paid, subscription_status, subscription_tier')
+    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name')
     .eq('id', user.id)
     .single()
 
@@ -19,6 +20,26 @@ export default async function Dashboard() {
   const firstName = profile?.full_name?.split(' ')[0] || null
   const circumference = 2 * Math.PI * 34
   const dashOffset = circumference * (1 - completion / 100)
+
+  const chatLength = Array.isArray(profile?.whatsapp_chat) ? profile.whatsapp_chat.length : 0
+  const conversationDone = chatLength >= 8
+
+  // Pick Shapi mood based on candidate state
+  const shapiMood = !profile?.cv_parsed
+    ? 'idle'
+    : !profile?.whatsapp_number
+    ? 'listening'
+    : conversationDone
+    ? 'happy'
+    : 'thinking'
+
+  const shapiMessage = !profile?.cv_parsed
+    ? `Hey${firstName ? ` ${firstName}` : ''} — drop your CV and I'll take it from here. No forms, I promise.`
+    : !profile?.whatsapp_number
+    ? `CV's in. Now I want to hear about the stuff that never makes it onto paper. Check your WhatsApp.`
+    : conversationDone
+    ? `Your profile is being built${firstName ? `, ${firstName}` : ''}. I've got everything I need — sit tight.`
+    : `I'm working through your profile. Keep an eye on WhatsApp — I may have a few more questions.`
 
   return (
     <div className="min-h-screen bg-[#060609] text-white">
@@ -76,21 +97,34 @@ export default async function Dashboard() {
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 pt-12 pb-24">
 
-        {/* Header */}
-        <div className="mb-10">
-          <h1 className="text-3xl font-black text-white mb-1">
-            Welcome back{firstName ? `, ${firstName}` : ''}.
-          </h1>
-          <p className="text-white/35 text-sm">
-            {type === 'company'
-              ? 'Post jobs, review verified candidates, manage your pipeline.'
-              : profile?.headline || 'Your verified profile is being built.'}
-          </p>
-        </div>
-
         {/* ─── CANDIDATE VIEW ─── */}
         {type === 'candidate' && (
           <>
+            {/* Shapi greeting banner */}
+            <div className="gradient-border-card rounded-2xl p-5 mb-6 flex items-center gap-5">
+              <ShapiCharacter mood={shapiMood} size={64} className="flex-shrink-0" />
+              <div>
+                <p className="text-white/35 text-[10px] font-bold uppercase tracking-widest mb-1">Shapi says</p>
+                <p className="text-white text-sm leading-relaxed font-medium">{shapiMessage}</p>
+              </div>
+              {!profile?.cv_parsed && (
+                <Link href="/upload-cv"
+                  className="ml-auto flex-shrink-0 bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] px-4 py-2 rounded-full text-xs font-black text-[#060609] hover:opacity-90 transition-opacity">
+                  Start →
+                </Link>
+              )}
+            </div>
+
+            {/* Header */}
+            <div className="mb-8">
+              <h1 className="text-3xl font-black text-white mb-1">
+                Welcome back{firstName ? `, ${firstName}` : ''}.
+              </h1>
+              <p className="text-white/35 text-sm">
+                {profile?.headline || 'Your verified profile is being built.'}
+              </p>
+            </div>
+
             {/* Progress card */}
             <div className="gradient-border-card rounded-2xl p-7 mb-5">
               <div className="flex items-center gap-6">
@@ -120,7 +154,7 @@ export default async function Dashboard() {
                 <div className="flex-1 min-w-0">
                   <p className="text-white/35 text-xs font-bold uppercase tracking-wider mb-1">Profile completion</p>
                   <h2 className="text-xl font-black text-white mb-1">
-                    {completion === 0 && 'Let\'s get started'}
+                    {completion === 0 && "Let's get started"}
                     {completion > 0 && completion < 50 && 'Good start — keep going'}
                     {completion >= 50 && completion < 90 && 'Almost there'}
                     {completion >= 90 && 'Profile complete'}
@@ -128,12 +162,11 @@ export default async function Dashboard() {
                   <p className="text-white/35 text-sm">
                     {completion === 0 && 'Upload your CV — takes 3 minutes. No forms.'}
                     {completion > 0 && completion < 30 && 'Complete the WhatsApp conversation to go deeper.'}
-                    {completion >= 30 && completion < 90 && 'Verification in progress. We\'ll notify you when live.'}
-                    {completion >= 90 && 'You\'re being matched with companies now.'}
+                    {completion >= 30 && completion < 90 && "Verification in progress. We'll notify you when live."}
+                    {completion >= 90 && "You're being matched with companies now."}
                   </p>
                 </div>
 
-                {/* CTA */}
                 {!profile?.cv_parsed && (
                   <Link href="/upload-cv"
                     className="flex-shrink-0 bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] px-5 py-2.5 rounded-full text-sm font-black text-[#060609] hover:opacity-90 transition-opacity">
@@ -142,7 +175,6 @@ export default async function Dashboard() {
                 )}
               </div>
 
-              {/* Progress bar */}
               <div className="mt-5 h-1 bg-white/[0.06] rounded-full overflow-hidden">
                 <div className="h-full rounded-full transition-all" style={{
                   width: `${completion}%`,
@@ -183,7 +215,7 @@ export default async function Dashboard() {
                     <div>
                       <div className="flex items-center gap-2 mb-0.5">
                         <h3 className="font-bold text-white text-sm">Upload your CV</h3>
-                        <span className="text-[10px] font-bold bg-[#22D3EE]/15 text-[#22D3EE] px-2 py-0.5 rounded-full">Start here →</span>
+                        <span className="text-[10px] font-bold bg-[#22D3EE]/15 text[#22D3EE] px-2 py-0.5 rounded-full">Start here →</span>
                       </div>
                       <p className="text-white/35 text-xs">Drop it and we build your profile. 3 minutes.</p>
                     </div>
@@ -278,60 +310,69 @@ export default async function Dashboard() {
 
         {/* ─── COMPANY VIEW ─── */}
         {type === 'company' && (
-          <div className="grid md:grid-cols-2 gap-4">
-            <Link href="/company/onboarding" className="gradient-border-card rounded-2xl p-7 block hover:bg-white/[0.02]">
-              <div className="w-11 h-11 rounded-xl bg-[#22D3EE]/15 flex items-center justify-center mb-5">
-                <svg className="w-5 h-5 text-[#22D3EE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
-                </svg>
-              </div>
-              <h3 className="font-bold text-white mb-1">Post a role</h3>
-              <p className="text-white/40 text-sm">Add a job and start receiving verified candidate matches.</p>
-            </Link>
+          <>
+            <div className="mb-8">
+              <h1 className="text-3xl font-black text-white mb-1">
+                Welcome back{firstName ? `, ${firstName}` : ''}.
+              </h1>
+              <p className="text-white/35 text-sm">Post jobs, review verified candidates, manage your pipeline.</p>
+            </div>
 
-            <Link href="/candidates" className="gradient-border-card rounded-2xl p-7 block hover:bg-white/[0.02]">
-              <div className="w-11 h-11 rounded-xl bg-[#A78BFA]/15 flex items-center justify-center mb-5">
-                <svg className="w-5 h-5 text-[#A78BFA]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              <h3 className="font-bold text-white mb-1">Browse verified candidates</h3>
-              <p className="text-white/40 text-sm">View candidates matched to your roles.</p>
-            </Link>
-
-            {profile?.subscription_status === 'active' ? (
-              <div className="gradient-border-card rounded-2xl p-7 md:col-span-2">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-white/25 text-xs font-bold uppercase tracking-wider mb-1">Subscription</p>
-                    <h3 className="font-bold text-white">{profile.subscription_tier === 'growth' ? 'Growth' : 'Starter'} plan active</h3>
-                    <p className="text-white/35 text-xs mt-1">Full access to candidate profiles and outreach.</p>
-                  </div>
-                  <div className="w-11 h-11 rounded-xl bg-emerald-500/15 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <Link href="/company/pricing" className="md:col-span-2 rounded-2xl p-7 block hover:opacity-90 transition-opacity" style={{
-                background: 'linear-gradient(135deg, rgba(8,145,178,0.85) 0%, rgba(109,40,217,0.85) 100%)',
-                border: '1px solid rgba(34,211,238,0.2)',
-              }}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-white/60 text-xs font-bold uppercase tracking-wider mb-1">Unlock full profiles</p>
-                    <h3 className="font-bold text-white text-lg mb-1">Subscribe to start hiring →</h3>
-                    <p className="text-white/50 text-sm">From $299/mo · Cancel anytime · Every candidate independently verified</p>
-                  </div>
-                  <svg className="w-7 h-7 text-white/40 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            <div className="grid md:grid-cols-2 gap-4">
+              <Link href="/company/onboarding" className="gradient-border-card rounded-2xl p-7 block hover:bg-white/[0.02]">
+                <div className="w-11 h-11 rounded-xl bg-[#22D3EE]/15 flex items-center justify-center mb-5">
+                  <svg className="w-5 h-5 text-[#22D3EE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
                   </svg>
                 </div>
+                <h3 className="font-bold text-white mb-1">Post a role</h3>
+                <p className="text-white/40 text-sm">Add a job and start receiving verified candidate matches.</p>
               </Link>
-            )}
-          </div>
+
+              <Link href="/company/dashboard" className="gradient-border-card rounded-2xl p-7 block hover:bg-white/[0.02]">
+                <div className="w-11 h-11 rounded-xl bg-[#A78BFA]/15 flex items-center justify-center mb-5">
+                  <svg className="w-5 h-5 text-[#A78BFA]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <h3 className="font-bold text-white mb-1">Browse verified candidates</h3>
+                <p className="text-white/40 text-sm">View candidates matched to your roles.</p>
+              </Link>
+
+              {profile?.subscription_status === 'active' ? (
+                <div className="gradient-border-card rounded-2xl p-7 md:col-span-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white/25 text-xs font-bold uppercase tracking-wider mb-1">Subscription</p>
+                      <h3 className="font-bold text-white">{profile.subscription_tier === 'growth' ? 'Growth' : 'Starter'} plan active</h3>
+                      <p className="text-white/35 text-xs mt-1">Full access to candidate profiles and outreach.</p>
+                    </div>
+                    <div className="w-11 h-11 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <Link href="/company/pricing" className="md:col-span-2 rounded-2xl p-7 block hover:opacity-90 transition-opacity" style={{
+                  background: 'linear-gradient(135deg, rgba(8,145,178,0.85) 0%, rgba(109,40,217,0.85) 100%)',
+                  border: '1px solid rgba(34,211,238,0.2)',
+                }}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white/60 text-xs font-bold uppercase tracking-wider mb-1">Unlock full profiles</p>
+                      <h3 className="font-bold text-white text-lg mb-1">Subscribe to start hiring →</h3>
+                      <p className="text-white/50 text-sm">From $299/mo · Cancel anytime · Every candidate independently verified</p>
+                    </div>
+                    <svg className="w-7 h-7 text-white/40 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                </Link>
+              )}
+            </div>
+          </>
         )}
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import ShapiCharacter from '@/components/ShapiCharacter'
 
 type Candidate = {
   id: string
@@ -128,8 +129,9 @@ export default async function CompanyDashboard() {
         )}
 
         {count === 0 ? (
-          <div className="gradient-border-card rounded-2xl p-16 text-center">
-            <p className="text-white/50 font-bold mb-2">No verified candidates yet</p>
+          <div className="gradient-border-card rounded-2xl p-16 text-center flex flex-col items-center">
+            <ShapiCharacter mood="idle" size={72} className="mb-6" />
+            <p className="text-white/60 font-bold text-lg mb-2">No verified candidates yet</p>
             <p className="text-white/25 text-sm">We&apos;re onboarding candidates now — check back soon.</p>
           </div>
         ) : (
