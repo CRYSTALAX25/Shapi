@@ -78,6 +78,11 @@ export default function CVReady() {
     fetch('/api/profile/get')
       .then(r => r.json())
       .then(d => {
+        if (!d.profile) {
+          // Not authenticated — send to login
+          router.replace('/login')
+          return
+        }
         setProfile({
           cv_kit_purchased: d.profile.cv_kit_purchased ?? false,
           full_name: d.profile.full_name,
@@ -96,7 +101,10 @@ export default function CVReady() {
           .catch(() => {})
           .finally(() => setLoadingPreview(false))
       })
-      .catch(() => router.replace('/login'))
+      .catch(() => {
+        // Network error — don't redirect, just show the page with empty profile
+        setReady(true)
+      })
   }, [router])
 
   if (!ready) {
