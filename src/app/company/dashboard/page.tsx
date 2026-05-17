@@ -85,11 +85,20 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: company } = await supabase
-    .from('profiles')
-    .select('full_name, type, paid, subscription_status, company_name, company_data, company_size')
-    .eq('id', user.id)
-    .single()
+  const [companyResult, membersResult] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('full_name, type, paid, subscription_status, company_name, company_data, company_size')
+      .eq('id', user.id)
+      .single(),
+    supabase
+      .from('company_members')
+      .select('id, email, accepted_at')
+      .eq('company_id', user.id)
+      .order('created_at', { ascending: false }),
+  ])
+  const company = companyResult.data
+  const teamMembers = membersResult.data || []
 
   if (!company || company.type !== 'company') redirect('/dashboard')
 
@@ -461,6 +470,48 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
             })}
           </div>
         )}
+
+        {/* Team members / invite */}
+        <div className="gradient-border-card rounded-2xl p-5 mt-8">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-white font-bold text-sm">Team access</p>
+              <p className="text-white/30 text-xs mt-0.5">Invite colleagues to view candidates and manage roles</p>
+            </div>
+          </div>
+
+          {teamMembers.length > 0 && (
+            <div className="space-y-2 mb-4">
+              {teamMembers.map(m => (
+                <div key={m.id} className="flex items-center justify-between px-3 py-2 bg-white/[0.03] rounded-xl">
+                  <span className="text-white/60 text-sm">{m.email}</span>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                    m.accepted_at
+                      ? 'bg-emerald-500/15 text-emerald-400'
+                      : 'bg-white/[0.07] text-white/30'
+                  }`}>
+                    {m.accepted_at ? 'Active' : 'Invited'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <form action="/api/company/invite" method="post" className="flex gap-2">
+            <input
+              name="email"
+              type="email"
+              required
+              placeholder="colleague@company.com"
+              className="flex-1 bg-white/[0.04] border border-white/[0.09] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/20 outline-none focus:border-[#22D3EE]/40"
+            />
+            <button type="submit"
+              className="flex-shrink-0 bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#060609] text-xs font-black px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity">
+              Invite
+            </button>
+          </form>
+        </div>
+
       </div>
     </div>
   )
