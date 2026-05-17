@@ -156,8 +156,8 @@ function PrintContent() {
   return (
     <>
       <style>{`
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #f8f8f8; }
+        * { margin: 0; padding: 0; box-sizing: border-box; color-scheme: light; }
+        html, body { background: #f8f8f8 !important; color: #1a1a2e !important; color-scheme: light !important; }
 
         .no-print {
           position: fixed; top: 16px; right: 16px; z-index: 100;
