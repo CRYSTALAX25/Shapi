@@ -180,7 +180,7 @@ Return ONLY valid JSON:
   try {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
     const response = await anthropic.messages.create({
-      model: 'claude-haiku-4-5',
+      model: 'claude-3-5-haiku-20241022',
       max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }],
     })
@@ -201,7 +201,8 @@ Return ONLY valid JSON:
       }
     })
   } catch (err) {
-    console.error('[cv/generate] error:', err)
-    return NextResponse.json({ error: 'CV generation failed' }, { status: 500 })
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[cv/generate] error:', msg)
+    return NextResponse.json({ error: msg || 'CV generation failed' }, { status: 500 })
   }
 }

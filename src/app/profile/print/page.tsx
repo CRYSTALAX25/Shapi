@@ -62,8 +62,17 @@ function PrintContent() {
       body: JSON.stringify({ mode, ...(targetIndustry ? { targetIndustry } : {}) }),
     })
       .then(r => r.json())
+      .then(async r => {
+        if (!r.ok) {
+          const d = await r.json().catch(() => ({}))
+          setError(d.error || `Server error ${r.status}`)
+          return r
+        }
+        return r
+      })
+      .then(r => (r instanceof Response ? r.json() : r))
       .then(d => {
-        if (d.error) { setError(d.error); return }
+        if (!d || d.error) { setError(d?.error || 'Unknown error'); return }
         setCv(d.cv)
         setMeta(d.meta)
       })
