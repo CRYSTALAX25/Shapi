@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import CVDownloadButton from '@/components/CVDownloadButton'
 
 type WorkEntry = {
   title?: string
@@ -61,9 +62,15 @@ export default async function ProfilePage() {
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
         }}>shapi</Link>
-        <Link href="/dashboard" className="text-white/40 text-sm hover:text-white/70 transition-colors">
-          ← Dashboard
-        </Link>
+        <div className="flex items-center gap-4">
+          <a href="/profile/print" target="_blank"
+            className="bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#060609] text-xs font-black px-4 py-2 rounded-full hover:opacity-90 transition-opacity">
+            Download CV ↓
+          </a>
+          <Link href="/dashboard" className="text-white/40 text-sm hover:text-white/70 transition-colors">
+            ← Dashboard
+          </Link>
+        </div>
       </nav>
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 pb-20 pt-4">
@@ -212,6 +219,9 @@ export default async function ProfilePage() {
                 ))}
               </div>
             </div>
+
+            {/* CV Download CTA */}
+            <CVDownloadButton cvParsed={!!profile.cv_parsed} />
 
             {/* Add evidence CTA */}
             {!profile.profile_live && (

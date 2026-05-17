@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import ShapiCharacter from '@/components/ShapiCharacter'
 
 type Stage = 'upload' | 'parsing' | 'whatsapp' | 'no-cv' | 'done'
 
@@ -86,12 +87,7 @@ export default function UploadCV() {
     return (
       <Screen>
         <div className="text-center max-w-sm">
-          <div className="flex gap-2 justify-center mb-8">
-            {[0, 150, 300].map(d => (
-              <div key={d} className="w-3 h-3 rounded-full bg-[#22D3EE]/40 animate-bounce"
-                style={{ animationDelay: `${d}ms` }} />
-            ))}
-          </div>
+          <ShapiCharacter mood="thinking" size={90} className="mx-auto mb-6" />
           <p className="text-white font-black text-xl mb-2">Reading your CV...</p>
           <p className="text-white/35 text-sm">{fileName}</p>
           <p className="text-white/25 text-sm mt-3">Extracting your experience, skills and achievements. About 10 seconds.</p>
@@ -106,11 +102,7 @@ export default function UploadCV() {
       <Screen>
         <div className="max-w-md w-full">
           <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#22D3EE] to-[#A78BFA] flex items-center justify-center mx-auto mb-5">
-              <svg className="w-6 h-6 text-[#060609]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
+            <ShapiCharacter mood="happy" size={80} className="mx-auto mb-5" />
             <h1 className="text-2xl font-black text-white mb-2">CV read. Profile started.</h1>
             <p className="text-white/40 text-sm leading-relaxed">
               We've captured your experience. Now we go deeper — the things no CV captures. We'll do it over WhatsApp, at your pace.
