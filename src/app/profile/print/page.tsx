@@ -220,12 +220,10 @@ function PrintContent() {
         {!isNative && <button className="btn btn-secondary" onClick={() => router.push('/profile/print?lang=native')}>🌐 Native version</button>}
         {!isUniversal && <button className="btn btn-secondary" onClick={() => router.push('/profile/print?lang=universal')}>📋 Universal version</button>}
         {(isNative || isUniversal) && <button className="btn btn-secondary" onClick={() => router.push('/profile/print')}>🇬🇧 English version</button>}
-        {fromCache && (
-          <button className="btn btn-secondary" onClick={() => { fetched.current = false; loadCV(true) }}
-            title="Regenerate with latest data">
-            ↺ Regenerate
-          </button>
-        )}
+        <button className="btn btn-secondary" onClick={() => { fetched.current = false; loadCV(true) }}
+          title="Regenerate with latest data">
+          ↺ Regenerate
+        </button>
         <button className="btn btn-primary" onClick={() => {
           // Give browser a tick to finish rendering before print dialog opens
           setTimeout(() => window.print(), 100)

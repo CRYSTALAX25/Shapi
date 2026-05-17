@@ -72,8 +72,15 @@ export async function POST(request: Request) {
   } catch { existingCache = {} }
 
   if (!forceRefresh && existingCache[cacheKey]) {
-    const cached = existingCache[cacheKey] as { cv: unknown; meta: unknown }
-    return NextResponse.json({ cv: cached.cv, meta: cached.meta, cached: true })
+    const cached = existingCache[cacheKey] as { cv: { languageCode?: string; language?: string }; meta: unknown }
+    // For native mode, reject cached result if it's English — it was generated before translation was working
+    const cachedLangCode = cached.cv?.languageCode || 'en'
+    const isCachedEnglish = cachedLangCode === 'en' || cachedLangCode === ''
+    if (mode === 'native' && isCachedEnglish) {
+      // Stale English cache — fall through to regenerate
+    } else {
+      return NextResponse.json({ cv: cached.cv, meta: cached.meta, cached: true })
+    }
   }
 
   // Fetch identity/language fields separately — graceful if columns don't exist yet
