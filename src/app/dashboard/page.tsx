@@ -58,6 +58,16 @@ export default async function Dashboard() {
         <Link href="/" className="animated-gradient font-black text-xl tracking-tighter">shapi</Link>
         <div className="flex items-center gap-5">
           <span className="text-sm text-white/25 hidden sm:block">{user.email}</span>
+          {type === 'candidate' && (
+            <Link href="/profile" className="text-sm text-[#22D3EE] font-semibold hover:opacity-80 transition-opacity">
+              View profile →
+            </Link>
+          )}
+          {type === 'company' && (
+            <Link href="/company/dashboard" className="text-sm text-[#22D3EE] font-semibold hover:opacity-80 transition-opacity">
+              Browse candidates →
+            </Link>
+          )}
           <form action="/api/auth/signout" method="post">
             <button className="text-sm text-white/30 hover:text-white/70 transition-colors">Sign out</button>
           </form>
