@@ -98,16 +98,25 @@ export default function CVReady() {
       setReady(true)
 
       // ── Silently pre-generate the English CV in the background ──────────────
-      // This runs immediately so by the time the user clicks "Download PDF"
-      // it's already cached and the print page renders instantly.
+      // Stores result in sessionStorage so the print page renders instantly
+      // without any spinner — no API call needed on the print side.
       fetch('/api/cv/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode: 'english' }),
       })
         .then(r => r.json())
-        .then(d => { if (!d.error) setEnglishCvStatus('ready') })
-        .catch(() => setEnglishCvStatus('ready')) // on error, still let them try
+        .then(d => {
+          if (!d.error) {
+            try {
+              sessionStorage.setItem('shapi_cv_english', JSON.stringify({ cv: d.cv, meta: d.meta }))
+            } catch { /* sessionStorage may be blocked in some browsers */ }
+            setEnglishCvStatus('ready')
+          } else {
+            setEnglishCvStatus('ready') // let them try even if generation failed
+          }
+        })
+        .catch(() => setEnglishCvStatus('ready'))
       // ─────────────────────────────────────────────────────────────────────────
 
       // Fetch the before/after preview

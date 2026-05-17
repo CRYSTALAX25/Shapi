@@ -221,7 +221,6 @@ Return ONLY valid JSON:
 
     // ── Save to cache ──────────────────────────────────────────────────────────
     try {
-      const existingCache = (profile.cv_cache as Record<string, unknown> | null) || {}
       const updatedCache = { ...existingCache, [cacheKey]: { cv, meta, generated_at: new Date().toISOString() } }
       await supabase.from('profiles').update({ cv_cache: updatedCache }).eq('id', user.id)
     } catch { /* Cache save failing is non-fatal */ }

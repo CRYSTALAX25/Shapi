@@ -57,6 +57,23 @@ function PrintContent() {
     setCv(null)
     setError('')
     setFromCache(false)
+
+    // Check sessionStorage first for instant render (English CV pre-generated on cv-ready page)
+    if (!forceRefresh && mode === 'english' && !targetIndustry) {
+      try {
+        const stored = sessionStorage.getItem('shapi_cv_english')
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          if (parsed.cv) {
+            setCv(parsed.cv)
+            setMeta(parsed.meta)
+            setFromCache(true)
+            return // done — no API call needed
+          }
+        }
+      } catch { /* ignore */ }
+    }
+
     fetch('/api/cv/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -68,6 +85,10 @@ function PrintContent() {
         setCv(d.cv)
         setMeta(d.meta)
         setFromCache(!!d.cached)
+        // Store English CV in sessionStorage for future visits in this session
+        if (mode === 'english' && !targetIndustry) {
+          try { sessionStorage.setItem('shapi_cv_english', JSON.stringify({ cv: d.cv, meta: d.meta })) } catch { /* ignore */ }
+        }
       })
       .catch(e => setError(e?.message || 'Failed to generate CV — please try again.'))
   }
