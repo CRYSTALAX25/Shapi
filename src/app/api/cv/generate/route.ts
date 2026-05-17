@@ -60,11 +60,12 @@ export async function POST(request: Request) {
     nationality?: string | null
     languages_spoken?: Array<{ language: string; level: string }> | null
     whatsapp_language?: string | null
+    cv_language_preference?: string | null
   } | null = null
   try {
     const { data } = await supabase
       .from('profiles')
-      .select('native_language, nationality, languages_spoken, whatsapp_language')
+      .select('native_language, nationality, languages_spoken, whatsapp_language, cv_language_preference')
       .eq('id', user.id)
       .single()
     extraFields = data
@@ -85,24 +86,38 @@ export async function POST(request: Request) {
   // 3. The language they wrote WhatsApp in (if non-English — signals fluency, not necessarily native)
   // 4. Never fall back to location or WhatsApp content — ask candidate instead
 
-  const storedNativeLang = extraFields?.native_language || null
-  const cvNativeLang = storedNativeLang  // cv-parse stores it from nationality field
+  // cv_language_preference is the most explicit signal — candidate chose it directly
+  // Strip "Both — English and " or "Both — " prefix if present; extract the non-English language
+  const rawLangPref = extraFields?.cv_language_preference || null
+  let prefLang: string | null = null
+  if (rawLangPref) {
+    const pref = rawLangPref.toLowerCase().trim()
+    if (pref === 'english') {
+      prefLang = null // English only — no native
+    } else if (pref.startsWith('both')) {
+      // "Both — English and Croatian" → extract "Croatian"
+      const m = rawLangPref.match(/both\s*[—\-]+\s*english\s*(?:and|&|\+)\s*(.+)/i)
+        || rawLangPref.match(/both\s*[—\-]+\s*(.+)\s*(?:and|&|\+)\s*english/i)
+      prefLang = m?.[1]?.trim() || null
+    } else {
+      prefLang = rawLangPref.trim() // e.g. "Croatian", "Tagalog", "French"
+    }
+  }
 
-  // Find their strongest non-English language from languages_spoken list on CV
+  const storedNativeLang = extraFields?.native_language || null
   const languagesOnCV = (extraFields?.languages_spoken || []) as Array<{ language: string; level: string }>
   const nativeOnCV = languagesOnCV.find(l =>
     l.level?.toLowerCase().includes('native') && l.language?.toLowerCase() !== 'english'
   )
   const nonEnglishOnCV = languagesOnCV.find(l => l.language?.toLowerCase() !== 'english')
-
-  // WhatsApp language (stored separately — what they actually wrote in)
   const whatsappLang = extraFields?.whatsapp_language || null
 
   const resolvedNativeLang =
-    cvNativeLang ||                     // From CV nationality (most authoritative)
+    prefLang ||                        // Explicit candidate choice (most authoritative)
+    storedNativeLang ||                // From CV nationality field
     nativeOnCV?.language ||            // Native-level language listed on CV
     nonEnglishOnCV?.language ||        // Any non-English language on CV
-    whatsappLang ||                    // Language they wrote WhatsApp in (signal, not definitive)
+    whatsappLang ||                    // Language they wrote WhatsApp in
     null                               // Unknown — don't guess
 
   const languageInstruction = mode === 'native'
