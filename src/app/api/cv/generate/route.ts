@@ -54,19 +54,26 @@ export async function POST(request: Request) {
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, industry, whatsapp_number, ai_tier, cv_cache')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, industry, whatsapp_number, ai_tier')
     .eq('id', user.id)
     .single()
 
   if (!profile || profileError) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
 
-  // ── Cache check ─────────────────────────────────────────────────────────────
-  if (!forceRefresh) {
-    const cache = (profile.cv_cache as Record<string, unknown> | null) || {}
-    if (cache[cacheKey]) {
-      const cached = cache[cacheKey] as { cv: unknown; meta: unknown }
-      return NextResponse.json({ cv: cached.cv, meta: cached.meta, cached: true })
-    }
+  // ── Cache check (separate query — cv_cache column may not exist yet) ─────────
+  let existingCache: Record<string, unknown> = {}
+  try {
+    const { data: cacheRow } = await supabase
+      .from('profiles')
+      .select('cv_cache')
+      .eq('id', user.id)
+      .single()
+    existingCache = (cacheRow?.cv_cache as Record<string, unknown>) || {}
+  } catch { existingCache = {} }
+
+  if (!forceRefresh && existingCache[cacheKey]) {
+    const cached = existingCache[cacheKey] as { cv: unknown; meta: unknown }
+    return NextResponse.json({ cv: cached.cv, meta: cached.meta, cached: true })
   }
 
   // Fetch identity/language fields separately — graceful if columns don't exist yet
@@ -90,7 +97,9 @@ export async function POST(request: Request) {
   const skills: string[] = Array.isArray(profile.skills) ? profile.skills as string[] : []
   const allChat: Array<{ role: string; content: string }> = Array.isArray(profile.whatsapp_chat) ? profile.whatsapp_chat as Array<{ role: string; content: string }> : []
   const userMessages = allChat.filter(m => m.role === 'user').map(m => m.content)
-  const sampleText = userMessages.slice(0, 5).join(' | ')
+  // Cap at 10 messages to keep prompt size manageable and avoid truncated JSON
+  const cappedMessages = userMessages.slice(0, 10)
+  const sampleText = cappedMessages.slice(0, 5).join(' | ')
   const industry = targetIndustry || (profile.industry as string) || 'general'
   const industryGuide = INDUSTRY_GUIDES[industry] || INDUSTRY_GUIDES.general
 
@@ -158,7 +167,7 @@ CANDIDATE INFO:
 - Summary: ${(profile.summary as string || '').replace(/"/g, "'")}
 - Work history: ${JSON.stringify(workHistory)}
 - Skills: ${JSON.stringify(skills)}
-- WhatsApp conversation (use these stories and insights to ENRICH achievements and summary — this is gold): ${JSON.stringify(userMessages)}
+- WhatsApp conversation (use these stories and insights to ENRICH achievements and summary — this is gold): ${JSON.stringify(cappedMessages)}
 
 ${mode === 'universal'
   ? `UNIVERSAL CV MODE: This CV must work for candidates switching industries or applying for cross-sector roles. Avoid all industry-specific jargon. Lead with: leadership, communication, problem-solving, project management, budgets, team size, % improvements, time saved, revenue impact. Every achievement must be understood by a hiring manager in ANY sector.`
@@ -194,7 +203,7 @@ Return ONLY valid JSON:
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
+      max_tokens: 4000,
       messages: [{ role: 'user', content: prompt }],
     })
 
