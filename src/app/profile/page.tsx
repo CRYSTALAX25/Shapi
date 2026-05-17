@@ -19,7 +19,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, whatsapp_number, completion_pct')
     .eq('id', user.id)
     .single()
 
@@ -34,8 +34,14 @@ export default async function ProfilePage() {
 
   const skills: string[] = Array.isArray(profile.skills) ? profile.skills : []
   const workHistory: WorkEntry[] = Array.isArray(profile.work_history) ? profile.work_history : []
-  const completion = profile.completion_pct || 0
   const isLive = profile.profile_live
+  const cvKitPurchased = !!profile.cv_kit_purchased
+
+  // Calculate completion dynamically from real data
+  let completion = 0
+  if (profile.cv_parsed) completion += 34
+  if (profile.whatsapp_number) completion += 33
+  if (cvKitPurchased) completion += 33
 
   const aiTierLabel: Record<string, string> = {
     user: 'AI User',
@@ -175,24 +181,6 @@ export default async function ProfilePage() {
               </div>
             )}
 
-            {/* WhatsApp deep dive answers */}
-            {Array.isArray(profile.whatsapp_chat) && profile.whatsapp_chat.length > 0 && (
-              <div className="gradient-border-card rounded-2xl p-6">
-                <h2 className="text-white font-black text-sm uppercase tracking-widest mb-2 opacity-50">In their own words</h2>
-                <p className="text-white/30 text-xs mb-5">From their Shapi conversation</p>
-                <div className="space-y-4">
-                  {(profile.whatsapp_chat as Array<{role: string; content: string}>)
-                    .filter(m => m.role === 'user')
-                    .slice(0, 4)
-                    .map((m, i) => (
-                      <div key={i} className="bg-white/[0.03] rounded-xl px-4 py-3">
-                        <p className="text-white/60 text-sm leading-relaxed">&ldquo;{m.content}&rdquo;</p>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )}
-
             {/* Empty state */}
             {workHistory.length === 0 && (
               <div className="gradient-border-card rounded-2xl p-8 text-center">
@@ -241,7 +229,7 @@ export default async function ProfilePage() {
             </div>
 
             {/* CV Download CTA */}
-            <CVDownloadButton cvParsed={!!profile.cv_parsed} />
+            <CVDownloadButton cvParsed={!!profile.cv_parsed} cvKitPurchased={cvKitPurchased} />
 
             {/* Evidence CTA / status */}
             <Link href="/evidence" className="block gradient-border-card rounded-2xl p-5 hover:bg-white/[0.02] transition-colors">
