@@ -235,3 +235,41 @@ export async function sendCompanyMatchEmail(
     html,
   })
 }
+
+// ── 7. Candidate: CV links sent to their own email ──────────────────────────
+
+export async function sendCVLinksEmail(opts: {
+  to: string
+  name: string
+  showNative: boolean
+  nativeLabel: string
+}) {
+  const { to, name, showNative, nativeLabel } = opts
+  const firstName = name?.split(' ')[0] || 'there'
+  const englishUrl = `${SITE}/profile/print`
+  const nativeUrl = `${SITE}/profile/print?lang=native`
+
+  const html = emailShell(`
+    ${h1(`Your CV is ready, ${firstName}.`)}
+    ${p('Click the link below to open your CV — then use your browser\'s print function (Ctrl+P / Cmd+P) and select "Save as PDF" to download it.')}
+    ${divider()}
+    <div style="margin-bottom:16px">
+      <p style="color:rgba(255,255,255,0.35);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin:0 0 8px">🇬🇧 English CV</p>
+      ${btn('Open English CV →', englishUrl)}
+    </div>
+    ${showNative ? `
+    <div style="margin-top:20px">
+      <p style="color:rgba(255,255,255,0.35);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin:0 0 8px">🌐 ${nativeLabel} CV</p>
+      ${btn('Open ' + nativeLabel + ' CV →', nativeUrl)}
+    </div>` : ''}
+    ${divider()}
+    ${p('Both CVs are enriched with your WhatsApp conversation and optimised for your industry. Review before sending — especially the ' + (showNative ? nativeLabel + ' version.' : 'content.'))}
+  `)
+
+  await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: `Your Shapi CV is ready to download`,
+    html,
+  })
+}

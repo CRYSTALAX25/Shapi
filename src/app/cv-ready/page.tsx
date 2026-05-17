@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
+type SendState = 'idle' | 'sending' | 'sent' | 'error'
+
 type Preview = {
   before: string | null
   after: string | null
@@ -68,6 +70,8 @@ export default function CVReady() {
   const [preview, setPreview] = useState<Preview | null>(null)
   const [loadingPreview, setLoadingPreview] = useState(false)
   const [ready, setReady] = useState(false)
+  const [sendEmailState, setSendEmailState] = useState<SendState>('idle')
+  const [sendWAState, setSendWAState] = useState<SendState>('idle')
 
   useEffect(() => {
     // Fetch profile to gate access
@@ -105,6 +109,21 @@ export default function CVReady() {
         <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>Loading…</div>
       </div>
     )
+  }
+
+  const sendCV = async (channel: 'email' | 'whatsapp') => {
+    const setState = channel === 'email' ? setSendEmailState : setSendWAState
+    setState('sending')
+    try {
+      const res = await fetch('/api/cv/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ channel, showNative, nativeLabel }),
+      })
+      setState(res.ok ? 'sent' : 'error')
+    } catch {
+      setState('error')
+    }
   }
 
   const firstName = profile?.full_name?.split(' ')[0] || 'there'
@@ -330,6 +349,36 @@ export default function CVReady() {
               <span className="text-white/30 text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
             </a>
           )}
+        </div>
+
+        {/* Send to yourself */}
+        <div className="gradient-border-card rounded-2xl p-5 mb-6">
+          <p className="text-white/35 text-xs font-bold uppercase tracking-wider mb-1">Send to yourself</p>
+          <p className="text-white/25 text-xs mb-4">Open on your phone or inbox — then print to PDF from there.</p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => sendCV('whatsapp')}
+              disabled={sendWAState === 'sending' || sendWAState === 'sent'}
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all disabled:opacity-50"
+              style={{ background: sendWAState === 'sent' ? 'rgba(52,211,153,0.12)' : 'rgba(37,211,102,0.1)', border: `1px solid ${sendWAState === 'sent' ? 'rgba(52,211,153,0.4)' : 'rgba(37,211,102,0.25)'}`, color: sendWAState === 'sent' ? '#34D399' : '#25D366' }}
+            >
+              <span>{sendWAState === 'sent' ? '✓' : sendWAState === 'sending' ? '…' : '💬'}</span>
+              {sendWAState === 'sent' ? 'Sent to WhatsApp' : sendWAState === 'sending' ? 'Sending…' : 'Send via WhatsApp'}
+            </button>
+            <button
+              onClick={() => sendCV('email')}
+              disabled={sendEmailState === 'sending' || sendEmailState === 'sent'}
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all disabled:opacity-50"
+              style={{ background: sendEmailState === 'sent' ? 'rgba(52,211,153,0.12)' : 'rgba(34,211,238,0.08)', border: `1px solid ${sendEmailState === 'sent' ? 'rgba(52,211,153,0.4)' : 'rgba(34,211,238,0.2)'}`, color: sendEmailState === 'sent' ? '#34D399' : '#22D3EE' }}
+            >
+              <span>{sendEmailState === 'sent' ? '✓' : sendEmailState === 'sending' ? '…' : '✉️'}</span>
+              {sendEmailState === 'sent' ? 'Sent to email' : sendEmailState === 'sending' ? 'Sending…' : 'Send via email'}
+            </button>
+          </div>
+          {(sendEmailState === 'error' || sendWAState === 'error') && (
+            <p className="text-[#FB7185] text-xs mt-3 text-center">Something went wrong — try again or download directly above.</p>
+          )}
+          <p className="text-white/15 text-[10px] mt-3 text-center">Links open the CV in your browser — use Ctrl+P / Cmd+P → Save as PDF</p>
         </div>
 
         {/* Shareable link */}
