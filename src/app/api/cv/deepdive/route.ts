@@ -5,6 +5,9 @@ import { sendWhatsApp } from '@/lib/whatsapp'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
+// Extend Vercel function timeout — Claude question generation needs time
+export const maxDuration = 60
+
 // Industry-specific focus areas to prompt Claude with
 const INDUSTRY_FOCUS: Record<string, string> = {
   finance: 'P&L responsibility, budgets managed, cost savings, revenue generated, financial controls, compliance, reporting',

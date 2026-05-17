@@ -184,18 +184,27 @@ export default function CVReady() {
     sales: { label: 'Sales', emoji: '🤝' },
   }
 
+  const [deepDiveError, setDeepDiveError] = useState('')
   const sendDeepDive = async () => {
     if (selectedIndustries.length === 0) return
     setDeepDiveState('sending')
+    setDeepDiveError('')
     try {
       const res = await fetch('/api/cv/deepdive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ industries: selectedIndustries }),
       })
-      setDeepDiveState(res.ok ? 'sent' : 'error')
+      const data = await res.json()
+      if (res.ok) {
+        setDeepDiveState('sent')
+      } else {
+        setDeepDiveState('error')
+        setDeepDiveError(data.error || 'Something went wrong')
+      }
     } catch {
       setDeepDiveState('error')
+      setDeepDiveError('Network error — please try again')
     }
   }
 
@@ -556,7 +565,7 @@ export default function CVReady() {
               </button>
             )}
             {deepDiveState === 'error' && (
-              <p className="text-[#FB7185] text-xs mt-2 text-center">Something went wrong — check your WhatsApp number in your profile.</p>
+              <p className="text-[#FB7185] text-xs mt-2 text-center">{deepDiveError || 'Something went wrong — try again.'}</p>
             )}
           </div>
         )}
