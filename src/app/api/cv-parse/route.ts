@@ -99,7 +99,6 @@ Return only the JSON. No explanation, no markdown fences.`,
   // Upsert profile
   const { error: upsertError } = await supabase.from('profiles').upsert({
     id: user.id,
-    email: user.email,
     cv_storage_path: storagePath,
     cv_parsed: true,
     full_name: parsed.full_name || null,
