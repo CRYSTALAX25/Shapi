@@ -515,8 +515,22 @@ export async function POST(request: Request) {
 - "I don't know" / "I don't have a number" → reassure, ask for their best estimate or a story example instead. Don't insist on precision.
 - Voice notes in any language work — the transcript is what you read`
 
+  // Languages the candidate has on their CV — Claude uses this to know which languages are "expected"
+  const languagesOnCV = Array.isArray(profile.languages_spoken)
+    ? (profile.languages_spoken as Array<{ language?: string; level?: string }>)
+        .map(l => l.language ? `${l.language}${l.level ? ` (${l.level})` : ''}` : null)
+        .filter(Boolean)
+        .join(', ')
+    : ''
+
   const SHARED_WHATSAPP_RULES = `WHATSAPP RULES (non-negotiable):
-- LANGUAGE: Detect what language they write in and respond in that SAME language always. Arabic → Arabic. Hindi → Hindi. French → French.
+
+LANGUAGE BEHAVIOUR — 3 rules:
+1. KNOWN LANGUAGES FROM CV: ${languagesOnCV || '(none listed yet — accept what they write in)'}
+2. If they write/voice-note in a language already on their CV → respond in that SAME language. They can switch between any CV languages mid-conversation — follow them every time.
+3. If they switch to a language NOT on their CV → ONE quick confirmation: "I notice you're writing in [X]. I see [list CV languages] on your CV — should I add [X] to your spoken languages too?" Wait for their answer. If yes → add it mentally, continue in [X]. If no (typo / spell-check confused) → switch back to the previous language they were using.
+
+OTHER RULES:
 - Maximum 3 sentences per message. Short. Punchy. Human.
 - Never use bullet points or numbered lists in your reply.
 - Always acknowledge what they said before asking the next thing.
