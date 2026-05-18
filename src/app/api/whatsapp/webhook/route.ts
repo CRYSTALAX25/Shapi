@@ -142,66 +142,107 @@ function isValidLangPref(value: string | null | undefined): boolean {
   return KNOWN_LANGUAGES.some(lang => cleaned === lang || cleaned.split(' ').includes(lang))
 }
 
+// Find ALL known languages mentioned in a free-text reply.
+// "english croatian and italian please" → ['english', 'croatian', 'italian']
+function extractLanguagesFromReply(reply: string): string[] {
+  const lower = reply.toLowerCase()
+  const tokens = lower.replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(t => t.length >= 2)
+  const found: string[] = []
+  for (const lang of KNOWN_LANGUAGES) {
+    if (tokens.includes(lang) && !found.includes(lang)) found.push(lang)
+  }
+  return found
+}
+
+function formatLanguageList(langs: string[]): string {
+  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+  if (langs.length === 1) return cap(langs[0])
+  return langs.map(cap).join(' + ')
+}
+
 function parseLanguageReply(
   reply: string,
-  detectedNative: string | null,
+  offeredLangs: string[],         // languages we listed in the picker (in order, lowercase)
   mode: 'choice' | 'custom',
 ): { preference?: string; askCustom?: boolean; clarify?: boolean } {
   const r = reply.trim()
   const lower = r.toLowerCase()
 
   if (mode === 'custom') {
-    // They picked "Other" and are typing the language — accept if it looks like a language name
+    // Whatever they typed IS the language(s) — multi-language ok
+    const matches = extractLanguagesFromReply(r)
+    if (matches.length > 0) return { preference: formatLanguageList(matches) }
     const cleaned = lower.replace(/[^a-z\s]/g, '').trim()
-    if (cleaned.length < 2 || cleaned.length > 30) return { clarify: true }
-    if (KNOWN_LANGUAGES.includes(cleaned)) return { preference: cleaned.charAt(0).toUpperCase() + cleaned.slice(1) }
-    // Allow unknown language but require single word or two-word language name
-    if (/^[a-z]+( [a-z]+)?$/.test(cleaned)) return { preference: r.charAt(0).toUpperCase() + r.slice(1) }
+    if (cleaned.length >= 2 && cleaned.length <= 30 && /^[a-z]+( [a-z]+)?$/.test(cleaned)) {
+      return { preference: r.charAt(0).toUpperCase() + r.slice(1) }
+    }
     return { clarify: true }
   }
 
-  // Mode: choice
-  // Numeric replies
-  if (r === '1' || lower === 'english only' || (lower === 'english' && !lower.includes('+'))) {
-    return { preference: 'English' }
+  // Mode: choice — numeric pick from the offered list, OR free-text language names
+  const num = parseInt(r, 10)
+  if (!Number.isNaN(num)) {
+    if (num >= 1 && num <= offeredLangs.length) {
+      return { preference: formatLanguageList([offeredLangs[num - 1]]) }
+    }
+    if (num === offeredLangs.length + 1) {
+      return { askCustom: true }
+    }
   }
-  if (r === '2' && detectedNative) {
-    return { preference: detectedNative }
-  }
-  if (r === '3' || lower === 'both' || lower.startsWith('both ')) {
-    return { preference: detectedNative ? `Both — English and ${detectedNative}` : 'Both — English and native language' }
-  }
-  if (r === '4' || lower === 'other' || lower.includes('different language')) {
+
+  if (lower === 'other' || lower.includes('different language')) {
     return { askCustom: true }
   }
-
-  // Language name typed directly
-  const cleaned = lower.replace(/[^a-z\s]/g, '').trim()
-  if (KNOWN_LANGUAGES.includes(cleaned)) {
-    return { preference: cleaned.charAt(0).toUpperCase() + cleaned.slice(1) }
+  // "Both" / "all" / "every" → all offered languages
+  if (lower === 'both' || lower.startsWith('both ') || lower === 'all' || lower.startsWith('all of') || lower === 'every' || lower === 'everything') {
+    return { preference: formatLanguageList(offeredLangs) }
   }
 
-  // Anything else — ask them to clarify
+  // Free-text — match against KNOWN_LANGUAGES (supports multi-language replies)
+  const matches = extractLanguagesFromReply(r)
+  if (matches.length >= 1) return { preference: formatLanguageList(matches) }
+
   return { clarify: true }
 }
 
-const buildLangPrompt = (detectedNative: string | null): string => {
-  if (detectedNative) {
-    return `One last thing before we build your CV 🎨
-
-Which language do you want it in?
-
-1️⃣ English
-2️⃣ ${detectedNative}
-3️⃣ Both — English + ${detectedNative}
-4️⃣ Other — just type the language you need`
+// Build the picker dynamically from ALL languages on their CV — English first,
+// then native, then any other languages they speak. So a Croatian who also
+// speaks Italian + French sees ALL of them as options.
+function getOfferedLanguagesForPicker(
+  profile: { native_language?: string | null; languages_spoken?: unknown } | null,
+): string[] {
+  const offered: string[] = ['english']
+  const native = (profile?.native_language as string | null)?.toLowerCase().trim()
+  if (native && KNOWN_LANGUAGES.includes(native) && native !== 'english') offered.push(native)
+  const spoken = Array.isArray(profile?.languages_spoken)
+    ? (profile.languages_spoken as Array<{ language?: string }>)
+    : []
+  for (const l of spoken) {
+    const lang = l.language?.toLowerCase().trim()
+    if (lang && KNOWN_LANGUAGES.includes(lang) && !offered.includes(lang)) offered.push(lang)
   }
-  return `One last thing before we build your CV 🎨
+  return offered
+}
 
-Which language do you want it in?
+const NUM_EMOJI = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣']
 
-1️⃣ English
-2️⃣ Other — just type the language you need`
+const buildLangPrompt = (offeredLangs: string[]): string => {
+  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+  const lines: string[] = [
+    'One last thing before we build your CV 🎨',
+    '',
+    'Which language(s) do you want it in? Reply with the number — or type the languages.',
+    '',
+  ]
+  offeredLangs.forEach((l, i) => {
+    lines.push(`${NUM_EMOJI[i] || (i + 1) + '.'} ${cap(l)}`)
+  })
+  const otherIdx = offeredLangs.length
+  lines.push(`${NUM_EMOJI[otherIdx] || (otherIdx + 1) + '.'} Other — type the language you need`)
+  if (offeredLangs.length >= 2) {
+    lines.push('', `Or say "all" to get all ${offeredLangs.length} of your languages.`)
+  }
+  return lines.join('\n')
 }
 
 export async function POST(request: Request) {
@@ -221,19 +262,16 @@ export async function POST(request: Request) {
 
   // Look up candidate profile FIRST — needed for precedence decisions below.
   //
-  // CRITICAL: when multiple profiles share the same phone (test mode using
-  // Gmail +addressing tricks, or accidental dup accounts), prefer:
-  //   1. The one with an active interview (conversation_active=true) — that's
-  //      the candidate who's currently engaged
-  //   2. Then most recently updated (most recent signup wins for dups)
-  //   3. Then cv_parsed=true as final tiebreaker (real profile beats empty one)
+  // CRITICAL: when multiple profiles share the same phone (Gmail +addressing
+  // test accounts, etc.), the NEWEST signup ALWAYS wins. Simple, predictable,
+  // no state-dependent flip-flops. The previous "prefer active interview"
+  // ordering caused +test2 messages to land on the main account whenever main
+  // had conversation_active flipped one way or another — chaos.
   const { data: profiles } = await admin
     .from('profiles')
-    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, cv_tier, industry_chats, whatsapp_conversation_active, updated_at')
+    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, languages_spoken, cv_tier, industry_chats, whatsapp_conversation_active, created_at')
     .eq('whatsapp_number', phone)
-    .order('whatsapp_conversation_active', { ascending: false, nullsFirst: false })
-    .order('updated_at', { ascending: false })
-    .order('cv_parsed', { ascending: false })
+    .order('created_at', { ascending: false })
     .limit(1)
 
   const profile = profiles?.[0] ?? null
@@ -381,7 +419,8 @@ export async function POST(request: Request) {
 
   // ── Priority 2: Language preference reply ────────────────────────────────
   if (awaitingLang === 'choice' || awaitingLang === 'custom') {
-    const parsed = parseLanguageReply(userMessage, detectedNative, awaitingLang)
+    const offeredLangs = getOfferedLanguagesForPicker(profile)
+    const parsed = parseLanguageReply(userMessage, offeredLangs, awaitingLang)
 
     if (parsed.clarify) {
       // Don't accept ambiguous replies like "yes / ok / go ahead" as a language
@@ -435,7 +474,7 @@ export async function POST(request: Request) {
 
       await sendWhatsApp(
         phone,
-        `Hey ${firstName} 👋 Your profile is ready — one last thing before we finalise your CV:\n\n${buildLangPrompt(detectedNative)}`,
+        `Hey ${firstName} 👋 Your profile is ready — one last thing before we finalise your CV:\n\n${buildLangPrompt(getOfferedLanguagesForPicker(profile))}`,
       )
       console.log('[webhook] Re-asking language picker for:', phone)
       return new NextResponse('', { status: 200 })
@@ -723,7 +762,7 @@ Return ONLY valid JSON:
 
   // ── Language picker after [DONE] — only if not already set or asked ──────
   if (isDone && !hasLangPref && !awaitingLang) {
-    await sendWhatsApp(phone, buildLangPrompt(detectedNative))
+    await sendWhatsApp(phone, buildLangPrompt(getOfferedLanguagesForPicker(profile)))
     await admin.from('profiles').update({ awaiting_cv_language: 'choice' }).eq('id', profile.id)
   }
 
