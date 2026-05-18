@@ -65,6 +65,14 @@ function PrintContent() {
   const [availableLangs, setAvailableLangs] = useState<string[]>([])
   const fetched = useRef(false)
 
+  // Also load skill_quadrant + AI tier + profile ID for the PDF footer
+  // line (single-line teaser that drives recruiters back to the live profile)
+  const [footerData, setFooterData] = useState<{
+    skill_quadrant?: { hands: number; heart: number; head: number; spark: number } | null
+    ai_tier?: string | null
+    profile_id?: string | null
+  }>({})
+
   // Load the candidate's spoken languages so we can render one toolbar
   // button per language (Italian, French, etc. — not just Native/Universal)
   useEffect(() => {
@@ -85,6 +93,11 @@ function PrintContent() {
           if (!seen.has(k)) { seen.add(k); unique.push(l) }
         }
         setAvailableLangs(unique)
+        setFooterData({
+          skill_quadrant: profile.skill_quadrant as { hands: number; heart: number; head: number; spark: number } | null,
+          ai_tier: profile.ai_tier,
+          profile_id: profile.id,
+        })
       })
       .catch(() => {})
   }, [])
@@ -490,6 +503,20 @@ function PrintContent() {
           )
         })()}
 
+        {/* Compact Skill Fingerprint teaser — drives recruiters to the live
+            profile where they see the full radar + AI cross-check report.
+            Single line, neutral on print. Full visualization stays platform-only. */}
+        {footerData.skill_quadrant && (
+          <div className="footer" style={{ marginTop: 24, paddingTop: 12, fontSize: 10, color: '#999' }}>
+            🎯 Skill Fingerprint:
+            {' Heart '}{Math.round(footerData.skill_quadrant.heart)} ·
+            {' Spark '}{Math.round(footerData.skill_quadrant.spark)} ·
+            {' Head '}{Math.round(footerData.skill_quadrant.head)} ·
+            {' Hands '}{Math.round(footerData.skill_quadrant.hands)}
+            {footerData.ai_tier ? ` · 🤖 AI ${footerData.ai_tier.charAt(0).toUpperCase() + footerData.ai_tier.slice(1)}` : ''}
+            {footerData.profile_id ? ` — full verified profile at shapi.io/p/${footerData.profile_id.slice(0, 8)}` : ''}
+          </div>
+        )}
         <div className="footer">{labels.verifiedBy}</div>
       </div>
     </>

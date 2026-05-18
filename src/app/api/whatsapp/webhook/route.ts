@@ -6,6 +6,7 @@ import { sendProfileLiveEmail, sendCompanyMatchEmail, sendNominatedReferenceEmai
 import { runReferenceTurn, parseManagerResponses, parseNomineeResponses } from '@/lib/reference-qa'
 import { recomputeProfileLive, resolveOutreachContact, updateVerificationTier, runVerificationCrossCheck } from '@/lib/references'
 import { extractProfileFromChat, saveExtractedProfile } from '@/lib/chat-to-profile'
+import { INDUSTRY_BRIEFS, type Industry } from '@/lib/industry-briefs'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
@@ -375,45 +376,123 @@ export async function POST(request: Request) {
 
   // ── State (single source of truth, computed once) ───────────────────────
   const isPro = profile.cv_tier === 'pro'
-  const industryChats = (profile.industry_chats as Record<string, { status?: string; answers?: string[]; questions?: string; sent_at?: string }> | null) || {}
-  const activeDeepDiveInds = Object.entries(industryChats)
-    .filter(([, v]) => v.status === 'questions_sent')
-    .map(([k]) => k)
-  const isInDeepDive = isPro && activeDeepDiveInds.length > 0
+  type IndustryChatEntry = {
+    status?: string
+    answers?: string[]
+    questions?: string
+    sent_at?: string
+    missing_areas?: string[]
+    thin_roles?: string[]
+    coverage_level?: string
+    whatsapp_chat?: Array<{ role: 'user' | 'assistant'; content: string }>
+    delivered?: boolean
+  }
+  const industryChats = (profile.industry_chats as Record<string, IndustryChatEntry> | null) || {}
+  // New conversational deep-dive uses status='in_progress'; legacy batched
+  // flow used status='questions_sent'. Treat both as active.
+  const activeDeepDiveEntries = Object.entries(industryChats)
+    .filter(([, v]) => v.status === 'in_progress' || v.status === 'questions_sent')
+  const isInDeepDive = isPro && activeDeepDiveEntries.length > 0
   const awaitingLang = profile.awaiting_cv_language as 'choice' | 'custom' | null
   const hasLangPref = isValidLangPref(profile.cv_language_preference as string | null)
   const interviewDone = profile.whatsapp_conversation_active === false
   const detectedNative = (profile.native_language as string | null) || null
   const firstName = (profile.full_name as string || 'there').split(' ')[0]
 
-  // ── Priority 1: Pro deep-dive answer routing ─────────────────────────────
-  // If a Pro user has active deep-dive questions out, their replies are answers
-  // — not language picks, not main interview. This wins over everything.
+  // ── Priority 1: Pro deep-dive — conversational per-industry interview ────
+  // Each industry gets its own 5-8 turn Q&A driven by Claude. The webhook
+  // generates the next question based on the industry brief + prior turns +
+  // the residual gaps Claude identified at start. Wraps with [DEEP_DIVE_DONE]
+  // when the candidate has covered enough.
   if (isInDeepDive) {
-    const updatedChats = { ...industryChats }
-    let totalAnswersSoFar = 0
-    for (const ind of activeDeepDiveInds) {
-      const prev = updatedChats[ind]
-      const answers = [...(prev.answers || []), userMessage]
-      updatedChats[ind] = { ...prev, answers }
-      totalAnswersSoFar = Math.max(totalAnswersSoFar, answers.length)
+    // Pick the most recently started industry as the active one
+    const [activeIndustry, activeEntry] = activeDeepDiveEntries[0]
+    const chat: Array<{ role: 'user' | 'assistant'; content: string }> =
+      Array.isArray(activeEntry.whatsapp_chat) ? [...activeEntry.whatsapp_chat] : []
+    chat.push({ role: 'user', content: userMessage })
+
+    // Build industry-scoped Claude prompt
+    const workHistory = Array.isArray(profile.work_history)
+      ? (profile.work_history as Array<{ title?: string; company?: string; start?: string; end?: string; achievements?: string }>)
+      : []
+    const userTurns = chat.filter(m => m.role === 'user').length
+    const industryBrief = INDUSTRY_BRIEFS[activeIndustry as Industry] || `Focus on quantified impact, scope, named achievements for ${activeIndustry}.`
+
+    const deepDivePrompt = `You're running a focused WhatsApp deep-dive interview for a CV writer, helping ${profile.full_name || 'this candidate'} surface the SPECIFIC details that will make their ${activeIndustry.toUpperCase()} CV exceptional.
+
+═══ CANDIDATE CONTEXT ═══
+Headline: ${profile.headline || 'not provided'}
+Work history (full): ${JSON.stringify(workHistory)}
+
+═══ WHAT AN EXCEPTIONAL CV IN ${activeIndustry.toUpperCase()} LOOKS LIKE ═══
+${industryBrief}
+
+═══ COVERAGE GAPS YOU IDENTIFIED AT START (priority to close) ═══
+Thin roles needing detail: ${JSON.stringify(activeEntry.thin_roles || [])}
+Missing brief areas: ${JSON.stringify(activeEntry.missing_areas || [])}
+
+═══ YOUR JOB ═══
+Read the conversation history. Ask the NEXT single question that closes the biggest remaining gap from above. Drill specifically into thin roles or missing brief areas — don't ask generic questions when there's a specific thin role or missing area to target.
+
+RULES:
+- One question per message, never stack
+- Max 3 sentences per message
+- Reference SPECIFICS from their CV when you can (role names, companies, dates) to show you're paying attention
+- For thin roles in their history, ask about that specific role by name (e.g. "Tell me about your time at European Times 2011-2012 — what did sales coordination across Brussels and Mongolia actually involve?")
+- Acknowledge their previous answer briefly before asking the next
+- Use industry-appropriate vocabulary from the brief
+- Sound like a sharp recruiter who actually knows ${activeIndustry}, not HR
+
+LANGUAGE — detect what they wrote in and respond in the SAME language always.
+
+WRAP-UP RULE — end your message with EXACTLY: [DEEP_DIVE_DONE]
+- After 7 of their replies, OR
+- When you've covered all thin_roles + missing_areas from above
+- When ending, thank them warmly + tell them the ${activeIndustry} CV is being built
+
+This is exchange ${userTurns + 1}. ${userTurns >= 8 ? 'WRAP UP NOW with [DEEP_DIVE_DONE].' : userTurns >= 6 ? 'You can wrap up with [DEEP_DIVE_DONE] if you have covered the major gaps, or ask one more if a critical gap remains.' : 'Keep digging — there are still gaps to close.'}`
+
+    let aiReply = ''
+    let isDeepDiveDone = false
+    try {
+      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+      const response = await anthropic.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 400,
+        system: deepDivePrompt,
+        messages: chat,
+      })
+      aiReply = response.content[0].type === 'text' ? response.content[0].text : ''
+      isDeepDiveDone = aiReply.includes('[DEEP_DIVE_DONE]')
+      aiReply = aiReply.replace('[DEEP_DIVE_DONE]', '').trim()
+    } catch (err) {
+      console.error('[webhook] Deep-dive Claude error:', err)
+      await sendWhatsApp(phone, "Thanks for sharing that — I'll pick this up with you shortly.")
+      return new NextResponse('', { status: 200 })
     }
 
-    const mainChat = Array.isArray(profile.whatsapp_chat) ? profile.whatsapp_chat : []
-    mainChat.push({ role: 'user', content: userMessage })
+    chat.push({ role: 'assistant', content: aiReply })
+    const newAnswers = [...(activeEntry.answers || []), userMessage]
+
+    const updatedChats: Record<string, IndustryChatEntry> = {
+      ...industryChats,
+      [activeIndustry]: {
+        ...activeEntry,
+        answers: newAnswers,
+        whatsapp_chat: chat,
+        status: isDeepDiveDone ? 'completed' : 'in_progress',
+        ...(isDeepDiveDone ? { completed_at: new Date().toISOString() } : {}),
+      },
+    }
 
     await admin.from('profiles').update({
       industry_chats: updatedChats,
-      whatsapp_chat: mainChat,
       updated_at: new Date().toISOString(),
     }).eq('id', profile.id)
 
-    if (totalAnswersSoFar === 1) {
-      const indLabels = activeDeepDiveInds.map(i => i.charAt(0).toUpperCase() + i.slice(1)).join(', ')
-      await sendWhatsApp(phone, `Got it 👍 Answer each question when you're ready — no rush. Once you're done, head to the app and your ${indLabels} CV${activeDeepDiveInds.length > 1 ? 's' : ''} will be ready to download.`)
-    }
+    await sendWhatsApp(phone, aiReply)
 
-    console.log('[webhook] Deep-dive answer captured for:', activeDeepDiveInds, '| answer #', totalAnswersSoFar)
+    console.log('[webhook] Deep-dive turn for', activeIndustry, '| user turn:', userTurns, '| done:', isDeepDiveDone)
     return new NextResponse('', { status: 200 })
   }
 

@@ -188,6 +188,47 @@ export default function CVReady() {
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([])
   const [deepDiveError, setDeepDiveError] = useState('')
   const [deepDiveQuestions, setDeepDiveQuestions] = useState('')
+  // Per-industry "Start interview" loading state — tracks which industry button is currently spinning
+  const [deepDiveStartingFor, setDeepDiveStartingFor] = useState<string | null>(null)
+
+  // Kick off a conversational deep-dive for ONE industry. Backend does coverage
+  // check + sends calibrated opening WhatsApp message. Webhook handles follow-ups.
+  const startIndustryDeepDive = async (industry: string) => {
+    setDeepDiveStartingFor(industry)
+    setDeepDiveError('')
+    try {
+      const res = await fetch('/api/cv/deepdive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ industry }),
+      })
+      const d = await res.json().catch(() => ({}))
+      if (d.success) {
+        // Optimistic local state update — refresh profile to get the new industry_chats state
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { data: p } = await supabase
+            .from('profiles')
+            .select('industry_chats')
+            .eq('id', user.id)
+            .single()
+          setProfile(prev => prev ? {
+            ...prev,
+            industry_chats: (p?.industry_chats as Record<string, { status?: string; answers?: string[] }>) ?? prev.industry_chats,
+          } : prev)
+        }
+      } else if (d.whatsapp_failed) {
+        setDeepDiveError(d.error || 'WhatsApp delivery failed — try again in a moment.')
+      } else {
+        setDeepDiveError(d.error || 'Could not start the interview — try again.')
+      }
+    } catch {
+      setDeepDiveError('Network error — try again.')
+    } finally {
+      setDeepDiveStartingFor(null)
+    }
+  }
 
   useEffect(() => {
     const supabase = createClient()
@@ -615,76 +656,90 @@ export default function CVReady() {
         {isPro && matchedIndustries.length > 0 && (
           <div className="gradient-border-card rounded-2xl p-5 mb-6" style={{ borderColor: 'rgba(167,139,250,0.25)' }}>
             <div className="flex items-start justify-between mb-1">
-              <p className="text-[#A78BFA] text-xs font-bold uppercase tracking-wider">Pro deep-dive</p>
+              <p className="text-[#A78BFA] text-xs font-bold uppercase tracking-wider">Pro deep-dive — per industry</p>
               <span className="text-[10px] font-bold bg-[#A78BFA]/10 text-[#A78BFA] px-2 py-0.5 rounded-full">Pro ✓</span>
             </div>
-            <p className="text-white/60 text-sm font-bold mb-1">Pick up to 3 industries for a targeted WhatsApp interview</p>
-            <p className="text-white/30 text-xs mb-4">Claude will ask you 6–8 targeted questions to surface the stories that make your CV exceptional for each sector.</p>
-            <div className="flex flex-wrap gap-2 mb-4">
+            <p className="text-white/60 text-sm font-bold mb-1">One conversational WhatsApp interview per target industry</p>
+            <p className="text-white/30 text-xs mb-4">Claude reads your CV against each industry&apos;s rubric, scores how much coverage you already have, and asks targeted follow-ups for the thin spots. 5-8 turns per industry, voice notes welcome.</p>
+
+            <div className="space-y-2.5">
               {matchedIndustries.map((ind) => {
                 const meta = INDUSTRY_META[ind] || { label: ind, emoji: '📄' }
-                const isSelected = selectedIndustries.includes(ind)
-                // Lock only when industry deep-dive is actually delivered AND has real answers.
-                // Status='questions_sent' alone doesn't lock — Twilio drops sometimes, so allow re-send.
-                const ic = industryChats[ind] as { status?: string; answers?: string[]; delivered?: boolean } | undefined
-                const hasRealAnswers = (ic?.answers?.length ?? 0) > 0 && ic?.delivered === true
-                const isPending = ic?.status === 'questions_sent' && !hasRealAnswers
-                const isDone = hasRealAnswers
+                const ic = industryChats[ind] as {
+                  status?: string
+                  answers?: string[]
+                  coverage_level?: string
+                  coverage_score?: number
+                  missing_areas?: string[]
+                } | undefined
+                const status = ic?.status || 'pending'
+                const isInProgress = status === 'in_progress'
+                const isComplete = status === 'completed'
+                const isThisStarting = deepDiveStartingFor === ind
+
+                const coverage = ic?.coverage_level
+                const coverageBadge =
+                  coverage === 'thin' ? { icon: '🔴', label: 'Thin — recommend deep-dive', color: '#FB7185' }
+                  : coverage === 'medium' ? { icon: '🟡', label: 'Medium — fill key gaps', color: '#FBBF24' }
+                  : coverage === 'rich' ? { icon: '💚', label: 'Rich — short refresh', color: '#34D399' }
+                  : null
+
+                const buttonLabel = isComplete ? '✓ Interview complete'
+                  : isInProgress ? 'Continue on WhatsApp →'
+                  : isThisStarting ? 'Starting…'
+                  : coverage ? 'Restart interview →'
+                  : 'Start interview →'
+
                 return (
-                  <button key={ind}
-                    disabled={isDone || deepDiveState === 'sent'}
-                    onClick={() => {
-                      if (isDone) return
-                      setSelectedIndustries(prev =>
-                        prev.includes(ind)
-                          ? prev.filter(i => i !== ind)
-                          : prev.length < 3 ? [...prev, ind] : prev
-                      )
-                    }}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all"
+                  <div key={ind}
+                    className="rounded-xl p-3.5"
                     style={{
-                      background: isDone ? 'rgba(52,211,153,0.08)' : isPending ? 'rgba(251,191,36,0.08)' : isSelected ? 'rgba(167,139,250,0.2)' : 'rgba(255,255,255,0.05)',
-                      border: isDone ? '1px solid rgba(52,211,153,0.3)' : isPending ? '1px solid rgba(251,191,36,0.3)' : isSelected ? '1px solid rgba(167,139,250,0.5)' : '1px solid rgba(255,255,255,0.08)',
-                      color: isDone ? '#34D399' : isPending ? '#FBBF24' : isSelected ? '#A78BFA' : 'rgba(255,255,255,0.5)',
-                      cursor: isDone ? 'default' : 'pointer',
-                    }}>
-                    <span>{meta.emoji}</span>
-                    {meta.label}
-                    {isDone && <span>✓</span>}
-                    {isPending && <span className="ml-1 text-[10px]">↻ resend</span>}
-                  </button>
+                      background: isComplete ? 'rgba(52,211,153,0.06)'
+                        : isInProgress ? 'rgba(251,191,36,0.06)'
+                        : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${isComplete ? 'rgba(52,211,153,0.18)' : isInProgress ? 'rgba(251,191,36,0.18)' : 'rgba(255,255,255,0.06)'}`,
+                    }}
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{meta.emoji}</span>
+                        <p className="text-white text-sm font-bold">{meta.label}</p>
+                      </div>
+                      {coverageBadge && !isComplete && (
+                        <span className="text-[10px] font-bold flex-shrink-0" style={{ color: coverageBadge.color }}>
+                          {coverageBadge.icon} {coverageBadge.label}
+                        </span>
+                      )}
+                      {isComplete && (
+                        <span className="text-[10px] font-bold text-[#34D399] flex-shrink-0">
+                          {(ic?.answers?.length ?? 0)} answers captured
+                        </span>
+                      )}
+                    </div>
+                    {ic?.missing_areas && ic.missing_areas.length > 0 && !isComplete && (
+                      <p className="text-white/35 text-xs mb-2">
+                        Gaps to fill: {ic.missing_areas.slice(0, 3).join(', ')}
+                      </p>
+                    )}
+                    <button
+                      onClick={() => startIndustryDeepDive(ind)}
+                      disabled={isComplete || isThisStarting}
+                      className="w-full py-2 rounded-lg font-black text-xs transition-all disabled:opacity-50"
+                      style={{
+                        background: isComplete ? 'rgba(52,211,153,0.12)'
+                          : isInProgress ? 'rgba(251,191,36,0.12)'
+                          : 'linear-gradient(135deg, #A78BFA, #22D3EE)',
+                        color: isComplete ? '#34D399' : isInProgress ? '#FBBF24' : '#060609',
+                      }}
+                    >
+                      {buttonLabel}
+                    </button>
+                  </div>
                 )
               })}
             </div>
-            {deepDiveState === 'sent' ? (
-              <p className="text-[#34D399] text-sm font-bold text-center py-2">✓ Questions sent to WhatsApp — answer them and your CVs will be ready</p>
-            ) : deepDiveState === 'fallback' ? (
-              <div className="space-y-3">
-                <div className="bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl p-3">
-                  <p className="text-[#FB7185] text-xs font-bold mb-1">⚠️ WhatsApp delivery failed</p>
-                  <p className="text-white/40 text-xs">Your questions are below — copy them or answer right here. We&apos;ll use your answers for your CVs.</p>
-                </div>
-                <div className="bg-white/[0.04] rounded-xl p-4 border border-white/[0.08]">
-                  <p className="text-white/50 text-xs font-bold uppercase tracking-wider mb-3">Your deep-dive questions</p>
-                  <pre className="text-white/70 text-xs leading-relaxed whitespace-pre-wrap font-sans">{deepDiveQuestions}</pre>
-                </div>
-                <p className="text-white/25 text-[10px] text-center">To fix WhatsApp delivery: open WhatsApp and send us any message first, then try again.</p>
-              </div>
-            ) : (
-              <button
-                onClick={sendDeepDive}
-                disabled={selectedIndustries.length === 0 || deepDiveState === 'sending'}
-                className="w-full py-3 rounded-xl font-black text-sm transition-all disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, #A78BFA, #22D3EE)', color: '#060609' }}>
-                {deepDiveState === 'sending'
-                  ? 'Sending questions…'
-                  : selectedIndustries.length === 0
-                  ? 'Select industries above'
-                  : `Send ${selectedIndustries.length} industry deep-dive to WhatsApp →`}
-              </button>
-            )}
-            {deepDiveState === 'error' && (
-              <p className="text-[#FB7185] text-xs mt-2 text-center">{deepDiveError || 'Something went wrong — try again.'}</p>
+            {deepDiveError && (
+              <p className="text-[#FB7185] text-xs mt-3 text-center">{deepDiveError}</p>
             )}
           </div>
         )}
