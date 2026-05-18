@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import CVDownloadButton from '@/components/CVDownloadButton'
 import ShapiCharacter from '@/components/ShapiCharacter'
+import SkillRadar from '@/components/SkillRadar'
 import { computeJobCompletionScore } from '@/lib/references'
 
 type WorkEntry = {
@@ -20,7 +21,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning')
     .eq('id', user.id)
     .single()
 
@@ -178,6 +179,27 @@ export default async function ProfilePage() {
             <p className="text-white/60 text-sm leading-relaxed">{profile.summary}</p>
           )}
         </div>
+
+        {/* Skill fingerprint — Hands/Heart/Head/Spark radar with AI Tier badge */}
+        {profile.skill_quadrant && (
+          <div className="gradient-border-card rounded-2xl p-6 mb-4">
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div>
+                <h2 className="text-white font-black text-sm uppercase tracking-widest opacity-50">Skill fingerprint</h2>
+                <p className="text-white/40 text-xs mt-1">How you work, scored 0–10 on 4 axes</p>
+              </div>
+              {profile.ai_tier && (
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0"
+                  style={{ background: 'rgba(167,139,250,0.10)', color: '#A78BFA', border: '1px solid rgba(167,139,250,0.2)' }}>
+                  🤖 AI {(profile.ai_tier as string).charAt(0).toUpperCase() + (profile.ai_tier as string).slice(1)}
+                </span>
+              )}
+            </div>
+            <div className="flex justify-center">
+              <SkillRadar data={profile.skill_quadrant as { hands: number; heart: number; head: number; spark: number; reasoning?: string }} />
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Left column */}
