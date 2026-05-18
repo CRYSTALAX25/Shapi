@@ -89,7 +89,9 @@ export async function POST(request: Request) {
     .single()
 
   if (!profile || profileError) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
-  if (!profile.cv_kit_purchased) return NextResponse.json({ error: 'CV kit not purchased' }, { status: 403 })
+  // Gate: Kit OR Pro purchase grants access (Pro is the upgraded Kit)
+  const hasAccess = !!profile.cv_kit_purchased || profile.cv_tier === 'pro'
+  if (!hasAccess) return NextResponse.json({ error: 'CV kit not purchased' }, { status: 403 })
 
   // ── Cache check (separate query — cv_cache column may not exist yet) ─────────
   let existingCache: Record<string, unknown> = {}

@@ -15,11 +15,13 @@ export async function POST(request: Request) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, whatsapp_number, cv_kit_purchased')
+    .select('full_name, whatsapp_number, cv_kit_purchased, cv_tier')
     .eq('id', user.id)
     .single()
 
-  if (!profile?.cv_kit_purchased) {
+  // Gate: Kit OR Pro
+  const hasAccess = !!profile?.cv_kit_purchased || profile?.cv_tier === 'pro'
+  if (!hasAccess) {
     return NextResponse.json({ error: 'CV kit not purchased' }, { status: 403 })
   }
 

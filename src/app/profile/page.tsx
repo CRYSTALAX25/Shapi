@@ -20,7 +20,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, whatsapp_number, completion_pct, type')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type')
     .eq('id', user.id)
     .single()
 
@@ -234,7 +234,31 @@ export default async function ProfilePage() {
             </div>
 
             {/* CV Download CTA */}
-            <CVDownloadButton cvParsed={!!profile.cv_parsed} cvKitPurchased={cvKitPurchased} />
+            <CVDownloadButton cvParsed={!!profile.cv_parsed} cvKitPurchased={cvKitPurchased} cvTier={profile.cv_tier as string | null} />
+
+            {/* References CTA / status — tiered completion */}
+            <Link href="/profile/references" className="block gradient-border-card rounded-2xl p-5 hover:bg-white/[0.02] transition-colors">
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <p className="text-white font-bold text-sm">References</p>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                  style={{
+                    background: refScore.jobsComplete === 2 ? 'rgba(52,211,153,0.15)' : refScore.jobsComplete === 1 ? 'rgba(251,191,36,0.15)' : 'rgba(251,113,133,0.15)',
+                    color: refScore.jobsComplete === 2 ? '#34D399' : refScore.jobsComplete === 1 ? '#FBBF24' : '#FB7185',
+                  }}>
+                  {refScore.jobsComplete} of 2 jobs verified
+                </span>
+              </div>
+              <p className="text-white/35 text-xs leading-relaxed">
+                {refScore.jobsComplete === 2
+                  ? 'Both jobs fully verified — profile live ✓'
+                  : refScore.jobsComplete === 1
+                  ? 'One more job to verify (85% → 100%). Add your second manager.'
+                  : 'Add the line manager from your 2 latest jobs. We contact them, they nominate a colleague + stakeholder, you get verified — and 100% complete.'}
+              </p>
+              <p className="text-[#22D3EE] text-xs font-semibold mt-3">
+                {refScore.jobsComplete === 2 ? 'View references →' : 'Add references →'}
+              </p>
+            </Link>
 
             {/* Evidence CTA / status */}
             <Link href="/evidence" className="block gradient-border-card rounded-2xl p-5 hover:bg-white/[0.02] transition-colors">

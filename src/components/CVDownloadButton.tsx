@@ -3,8 +3,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
-export default function CVDownloadButton({ cvParsed, cvKitPurchased }: { cvParsed: boolean; cvKitPurchased?: boolean }) {
+export default function CVDownloadButton({ cvParsed, cvKitPurchased, cvTier }: { cvParsed: boolean; cvKitPurchased?: boolean; cvTier?: string | null }) {
   const [loading, setLoading] = useState(false)
+
+  // Pro purchases also unlock Kit access (Pro is the upgraded Kit)
+  const hasAccess = !!cvKitPurchased || cvTier === 'pro'
 
   const handleBuy = async () => {
     if (!cvParsed) return
@@ -20,10 +23,10 @@ export default function CVDownloadButton({ cvParsed, cvKitPurchased }: { cvParse
       style={{ background: 'linear-gradient(#0d0d14, #0d0d14) padding-box, linear-gradient(135deg, rgba(34,211,238,0.2), rgba(167,139,250,0.2)) border-box', border: '1px solid transparent' }}>
       <div className="flex items-center gap-2 mb-2">
         <span className="text-lg">📄</span>
-        <p className="text-white font-bold text-sm">Your CV Kit</p>
+        <p className="text-white font-bold text-sm">Your CV Kit{cvTier === 'pro' ? ' Pro' : ''}</p>
       </div>
 
-      {cvKitPurchased ? (
+      {hasAccess ? (
         <>
           <p className="text-white/35 text-xs mb-4 leading-relaxed">
             English, native language, and industry-targeted versions — all ready.

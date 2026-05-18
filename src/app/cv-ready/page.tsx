@@ -200,8 +200,9 @@ export default function CVReady() {
         .eq('id', user.id)
         .single()
 
-      // Gate: must have purchased the kit to access this page
-      if (!p?.cv_kit_purchased) {
+      // Gate: must have purchased Kit OR Pro (Pro implies Kit — they bought an upgrade)
+      const hasAccess = !!p?.cv_kit_purchased || p?.cv_tier === 'pro'
+      if (!hasAccess) {
         router.replace('/profile')
         return
       }
