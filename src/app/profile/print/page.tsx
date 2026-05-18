@@ -210,19 +210,35 @@ function PrintContent() {
         html, body { background: #f8f8f8 !important; color: #1a1a2e !important; }
 
         .no-print {
-          position: fixed; top: 12px; left: 12px; right: 12px; z-index: 9999;
-          display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+          position: fixed; top: 12px; right: 12px; z-index: 9999;
+          display: flex; gap: 6px; align-items: center;
           background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
-          padding: 8px 12px; border-radius: 12px;
+          padding: 6px 8px; border-radius: 999px;
           box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+          max-width: calc(100vw - 24px);
         }
         .btn { padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; font-family: system-ui, sans-serif; white-space: nowrap; }
-        .btn-primary { background: linear-gradient(135deg,#22D3EE,#A78BFA); color: #060609; margin-left: auto; }
+        .btn-primary { background: linear-gradient(135deg,#22D3EE,#A78BFA); color: #060609; }
         .btn-secondary { background: #e8e8e8; color: #333; }
         .btn-secondary.btn-active { background: #1a1a2e; color: white; }
+        .lang-picker {
+          padding: 8px 12px; border-radius: 999px; font-size: 12px;
+          font-weight: 700; border: none; font-family: system-ui, sans-serif;
+          background: #e8e8e8; color: #333; cursor: pointer;
+          appearance: none; -webkit-appearance: none;
+          padding-right: 28px;
+          background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><polygon points="0,2 10,2 5,8" fill="%23333"/></svg>');
+          background-repeat: no-repeat;
+          background-position: right 10px center;
+        }
+        .lang-picker:focus { outline: 2px solid #22D3EE; outline-offset: 2px; }
+        @media (max-width: 640px) {
+          .no-print { top: 8px; right: 8px; padding: 4px 6px; }
+          .btn, .lang-picker { padding: 6px 10px; font-size: 11px; }
+        }
 
         .page {
-          max-width: 800px; margin: 96px auto 32px; padding: 56px 64px;
+          max-width: 800px; margin: 72px auto 32px; padding: 56px 64px;
           background: white; box-shadow: 0 6px 48px rgba(0,0,0,0.15);
           font-family: ${isRTL ? "'Noto Sans Arabic','Arial',sans-serif" : "'Georgia',serif"};
           color: #1a1a2e; direction: ${isRTL ? 'rtl' : 'ltr'};
@@ -269,44 +285,35 @@ function PrintContent() {
         }
       `}</style>
 
-      {/* Toolbar — hidden on print. One button per language the candidate
-          speaks, plus Universal / Regenerate / Save as PDF. Wraps on narrow
-          viewports so buttons don't get clipped behind the page. */}
+      {/* Toolbar — hidden on print. Compact, single-row layout: Back +
+          language dropdown + Regenerate + Save as PDF. Dropdown scales
+          cleanly however many languages the candidate has. */}
       <div className="no-print">
         <button className="btn btn-secondary" onClick={() => router.back()}>← Back</button>
 
-        {/* English — always available */}
-        <button
-          className={`btn btn-secondary ${isEnglish && !targetIndustry ? 'btn-active' : ''}`}
-          onClick={() => router.push('/profile/print')}
-          disabled={isEnglish && !targetIndustry}
+        {/* Language picker — single dropdown lists English + every CV
+            language + Universal. Selecting jumps to that version. */}
+        <select
+          className="lang-picker"
+          value={(() => {
+            if (isUniversal) return '__universal'
+            if (targetLanguage) return `lang:${targetLanguage}`
+            if (isNative && cv?.language) return `lang:${cv.language}`
+            return '__english'
+          })()}
+          onChange={e => {
+            const v = e.target.value
+            if (v === '__english') router.push('/profile/print')
+            else if (v === '__universal') router.push('/profile/print?lang=universal')
+            else if (v.startsWith('lang:')) router.push(`/profile/print?lang=${encodeURIComponent(v.slice(5))}`)
+          }}
         >
-          🇬🇧 English
-        </button>
-
-        {/* One button per spoken language (Italian, Croatian, etc.) */}
-        {availableLangs.map(l => {
-          const isThisLang = (targetLanguage || '').toLowerCase() === l.toLowerCase() || (isNative && cv?.language?.toLowerCase() === l.toLowerCase())
-          return (
-            <button
-              key={l}
-              className={`btn btn-secondary ${isThisLang ? 'btn-active' : ''}`}
-              onClick={() => router.push(`/profile/print?lang=${encodeURIComponent(l)}`)}
-              disabled={isThisLang}
-            >
-              🌐 {l}
-            </button>
-          )
-        })}
-
-        {/* Universal (industry-agnostic) version */}
-        <button
-          className={`btn btn-secondary ${isUniversal ? 'btn-active' : ''}`}
-          onClick={() => router.push('/profile/print?lang=universal')}
-          disabled={isUniversal}
-        >
-          📋 Universal
-        </button>
+          <option value="__english">🇬🇧 English</option>
+          {availableLangs.map(l => (
+            <option key={l} value={`lang:${l}`}>🌐 {l}</option>
+          ))}
+          <option value="__universal">📋 Universal (industry-agnostic)</option>
+        </select>
 
         <button className="btn btn-secondary" onClick={() => { fetched.current = false; loadCV(true) }}
           title="Regenerate with latest data">
