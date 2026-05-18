@@ -295,7 +295,32 @@ ${mode === 'universal'
   ? `UNIVERSAL CV MODE: This CV must work for candidates switching industries or applying for cross-sector roles. Avoid all industry-specific jargon. Lead with: leadership, communication, problem-solving, project management, budgets, team size, % improvements, time saved, revenue impact. Every achievement must be understood by a hiring manager in ANY sector.`
   : mode === 'native'
   ? `INDUSTRY STYLE ANCHOR — ${industry.toUpperCase()}:\n${industryGuide}\n\nWrite the CV in ${resolvedNativeLang || 'the target language'} using this industry's voice. Keep numbers, brands and proper nouns intact.`
-  : `INDUSTRY STYLE ANCHOR — ${industry.toUpperCase()}:\n${industryGuide}\n\n═══ WHAT AN EXCEPTIONAL CV IN ${industry.toUpperCase()} LOOKS LIKE (write to this bar) ═══\n${industryFullBrief}\n\nWrite this candidate's CV against that bar. Use the industry's "Vocabulary of expertise" naturally in their achievements. If their work history mentions something that maps to a "Hidden goldmine" from the brief, surface it prominently. Match the "Exemplary achievement" tone and specificity wherever the candidate's actual experience supports it.`
+  : `═══ THIS IS A ${(targetIndustry || industry).toUpperCase()}-TARGETED CV ═══
+
+This CV must be VISIBLY, MATERIALLY DIFFERENT from a generic CV — a hiring manager in ${(targetIndustry || industry).toUpperCase()} should immediately see this candidate as a ${(targetIndustry || industry).toUpperCase()} specialist, not a generalist.
+
+═══ WHAT AN EXCEPTIONAL CV IN ${(targetIndustry || industry).toUpperCase()} LOOKS LIKE ═══
+${industryFullBrief}
+
+═══ INDUSTRY-FIRST RE-FRAMING — APPLY ALL FIVE ═══
+
+1. **HEADLINE** — Rewrite to position them as a ${(targetIndustry || industry).toUpperCase()} specialist. Use industry-standard role nomenclature (not whatever was on the original CV).
+
+2. **SUMMARY** — Re-write the entire summary through a ${(targetIndustry || industry).toUpperCase()} lens. Use the industry's vocabulary from the brief above (especially the "Vocabulary of expertise" list). Lead with the SCALE and METRICS that recruiters in this industry pattern-match on.
+
+3. **WORK HISTORY ORDERING + EMPHASIS** — Re-order so the MOST ${(targetIndustry || industry).toUpperCase()}-relevant roles come FIRST (don't auto-default to chronological). For each role, re-write achievements to:
+   - Use industry vocabulary (replace generic verbs with industry power verbs)
+   - Surface ${(targetIndustry || industry).toUpperCase()} HIDDEN GOLDMINES from the brief above wherever the source mentions anything close (this is where you find differentiation — don't skip this step)
+   - Lead each bullet with the metric the industry cares about most
+   - For roles in OTHER industries, briefly reframe responsibilities through transferable-skills lens — don't drop them, but don't dwell on irrelevant detail
+   - Match the "Exemplary achievement" tone and specificity from the brief
+
+4. **SKILLS** — Re-order so industry-specific tech/tools come first (e.g. Opera Cloud + IDeaS first for hospitality, SAP + lean methodologies first for operations, Salesforce + MEDDIC first for sales). Drop or move down skills that aren't relevant to this industry.
+
+5. **SECTION LABELS** — Use industry-conventional labels where they differ (e.g. "Properties Operated" instead of "Experience" for hospitality, "Deals Closed" sub-section for sales, "Cases / Practice Areas" for legal, "Clinical Experience" for healthcare).
+
+═══ ACID TEST ═══
+If you generated this CV side-by-side with a generic English CV for the same candidate, a recruiter must IMMEDIATELY know which one is the ${(targetIndustry || industry).toUpperCase()} version — different headline, different summary, different role order, different vocabulary, different bullet emphasis. If you can't see the difference, you haven't done the job.`
 }
 
 LANGUAGE: ${languageInstruction}
