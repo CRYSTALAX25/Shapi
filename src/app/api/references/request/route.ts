@@ -81,11 +81,16 @@ export async function POST(request: Request) {
 
   let ref: { id: string; token: string }
 
+  // Resolve outreach contact NOW so we can store the actual phone we'll use
+  // for routing (in test mode, this is the candidate's own phone — so the
+  // webhook can match incoming replies back to this reference row).
+  const outreach = await resolveOutreachContact(user.id, referee_phone || null, referee_email || null, !!is_test_outreach)
+
   if (existing) {
     await admin.from('candidate_references').update({
       referee_name,
-      referee_phone: referee_phone || null,
-      referee_email: referee_email || null,
+      referee_phone: outreach.phone || null,
+      referee_email: outreach.email || null,
       referee_title: referee_title || null,
       candidate_job_title: candidate_job_title || null,
       candidate_company,
@@ -103,8 +108,8 @@ export async function POST(request: Request) {
       ref_type: refType,
       job_slot,
       referee_name,
-      referee_phone: referee_phone || null,
-      referee_email: referee_email || null,
+      referee_phone: outreach.phone || null,
+      referee_email: outreach.email || null,
       referee_title: referee_title || null,
       referee_relationship: refType === 'peer' ? 'peer_colleague' : 'direct_manager',
       candidate_job_title: candidate_job_title || null,
@@ -126,9 +131,7 @@ export async function POST(request: Request) {
   const referenceUrl = `${SITE}/reference/${ref.token}`
   const candidateFirst = candidateName.split(' ')[0]
 
-  // Resolve where the outreach actually goes — for test mode, redirect everything
-  // to the candidate's own WhatsApp + email so they can play all 3 roles
-  const outreach = await resolveOutreachContact(user.id, referee_phone || null, referee_email || null, !!is_test_outreach)
+  // outreach already resolved above (so we could store the routing phone on the row).
   const testBanner = outreach.testMode ? '🧪 *TEST MODE* — this would normally go to the actual manager.\n\n' : ''
 
   let channels: string[] = []

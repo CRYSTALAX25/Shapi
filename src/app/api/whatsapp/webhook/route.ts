@@ -970,6 +970,10 @@ async function handleReferenceReply(
           if (!nom?.name || (!nom.phone && !nom.email)) continue
 
           try {
+            // Resolve outreach contact FIRST so the row stores the routing phone
+            // (test mode = candidate's phone, so webhook can match replies)
+            const outreach = await resolveOutreachContact(ref.candidate_id, nom.phone, nom.email, isTest)
+
             const { data: inserted } = await admin.from('candidate_references').insert({
               candidate_id: ref.candidate_id,
               ref_type: nomineeKey,
@@ -977,8 +981,8 @@ async function handleReferenceReply(
               nominated_by: ref.id,
               nominator_name: ref.referee_name,
               referee_name: nom.name,
-              referee_phone: nom.phone,
-              referee_email: nom.email,
+              referee_phone: outreach.phone || null,
+              referee_email: outreach.email || null,
               referee_relationship: nomineeKey,
               candidate_job_title: ref.candidate_job_title,
               candidate_company: ref.candidate_company,
@@ -990,7 +994,6 @@ async function handleReferenceReply(
             if (!inserted) continue
             const row = inserted as { id: string; token: string }
             const refUrl = `${SITE}/reference/${row.token}`
-            const outreach = await resolveOutreachContact(ref.candidate_id, nom.phone, nom.email, isTest)
             const testBanner = outreach.testMode ? '🧪 *TEST MODE*\n\n' : ''
             const channels: string[] = []
 

@@ -93,6 +93,12 @@ export async function POST(request: Request) {
 
     for (const nominee of nominees) {
       try {
+        // Resolve outreach contact FIRST so the row stores the actual routing
+        // phone (in test mode = candidate's own phone, so webhook can match
+        // their replies back to this row).
+        const isTest = !!ref.is_test_outreach
+        const outreach = await resolveOutreachContact(ref.candidate_id as string, nominee.phone, nominee.email, isTest)
+
         const { data: inserted } = await admin.from('candidate_references').insert({
           candidate_id: ref.candidate_id,
           ref_type: nominee.ref_type,
@@ -100,23 +106,20 @@ export async function POST(request: Request) {
           nominated_by: ref.id,
           nominator_name: ref.referee_name,
           referee_name: nominee.name,
-          referee_phone: nominee.phone,
-          referee_email: nominee.email,
+          referee_phone: outreach.phone || null,
+          referee_email: outreach.email || null,
           referee_title: nominee.extra,
           referee_relationship: nominee.ref_type,
           candidate_job_title: ref.candidate_job_title,
           candidate_company: ref.candidate_company,
           candidate_dates: ref.candidate_dates,
+          is_test_outreach: isTest,
           status: 'pending',
         }).select('id, token').single()
 
         if (inserted) {
           const row = inserted as { id: string; token: string }
           const referenceUrl = `${SITE}/reference/${row.token}`
-
-          // Cascade test mode from the manager row down to the nominees
-          const isTest = !!ref.is_test_outreach
-          const outreach = await resolveOutreachContact(ref.candidate_id as string, nominee.phone, nominee.email, isTest)
           const testBanner = outreach.testMode ? '🧪 *TEST MODE* — this would normally go to the actual ' + nominee.ref_type + '.\n\n' : ''
           const channels: string[] = []
 

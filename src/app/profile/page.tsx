@@ -22,7 +22,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score, languages_spoken, language_proficiency, english_level, native_language')
     .eq('id', user.id)
     .single()
 
@@ -252,6 +252,82 @@ export default async function ProfilePage() {
 
           {/* Right column */}
           <div className="space-y-4">
+            {/* Languages — spoken + proficiency scores */}
+            {(() => {
+              const langs = Array.isArray(profile.languages_spoken)
+                ? (profile.languages_spoken as Array<{ language?: string; level?: string }>)
+                : []
+              const proficiency = profile.language_proficiency as {
+                conversation_language?: string
+                cefr_level?: string
+                ielts_equivalent?: string
+                english_level?: string
+                proficiency_notes?: string
+              } | null
+              if (langs.length === 0 && !proficiency) return null
+
+              const cefrInfo: Record<string, string> = {
+                A1: 'Beginner', A2: 'Elementary', B1: 'Intermediate',
+                B2: 'Upper-intermediate (fluent professional)',
+                C1: 'Advanced', C2: 'Mastery / near-native',
+              }
+
+              return (
+                <div className="gradient-border-card rounded-2xl p-6">
+                  <h2 className="text-white font-black text-sm uppercase tracking-widest mb-4 opacity-50">Languages</h2>
+
+                  {langs.length > 0 && (
+                    <div className="space-y-2 mb-4">
+                      {langs.map((l, i) => (
+                        <div key={i} className="flex items-center justify-between gap-2">
+                          <span className="text-white/80 text-sm">{l.language}</span>
+                          <span className="text-white/35 text-xs">{l.level}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {proficiency && (proficiency.cefr_level || proficiency.english_level || proficiency.ielts_equivalent) && (
+                    <div className="pt-3 border-t border-white/[0.06]">
+                      <p className="text-white/35 text-[10px] font-bold uppercase tracking-wider mb-2">Verified via WhatsApp</p>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {proficiency.cefr_level && (
+                          <span
+                            title={`CEFR ${proficiency.cefr_level} — ${cefrInfo[proficiency.cefr_level] || 'language proficiency standard'}`}
+                            className="text-xs font-bold px-2 py-1 rounded-full cursor-help"
+                            style={{ background: 'rgba(34,211,238,0.08)', color: '#22D3EE' }}
+                          >
+                            {proficiency.cefr_level} CEFR ⓘ
+                          </span>
+                        )}
+                        {proficiency.ielts_equivalent && (
+                          <span
+                            title={`IELTS ${proficiency.ielts_equivalent} band — international English testing scale (0-9)`}
+                            className="text-xs font-bold px-2 py-1 rounded-full cursor-help"
+                            style={{ background: 'rgba(167,139,250,0.08)', color: '#A78BFA' }}
+                          >
+                            IELTS {proficiency.ielts_equivalent} ⓘ
+                          </span>
+                        )}
+                        {proficiency.english_level && proficiency.english_level !== 'unassessed' && (
+                          <span
+                            title={`English CEFR ${proficiency.english_level} — ${cefrInfo[proficiency.english_level] || 'English proficiency'}`}
+                            className="text-xs font-bold px-2 py-1 rounded-full cursor-help"
+                            style={{ background: 'rgba(251,113,133,0.08)', color: '#FB7185' }}
+                          >
+                            {proficiency.english_level} English ⓘ
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-white/25 text-[10px] leading-relaxed">
+                        A1/A2 beginner · B1/B2 intermediate (B2 = fluent professional) · C1/C2 advanced
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
+
             {/* Skills */}
             {skills.length > 0 && (
               <div className="gradient-border-card rounded-2xl p-6">
