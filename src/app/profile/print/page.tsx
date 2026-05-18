@@ -24,12 +24,19 @@ type CV = {
     inTheirOwnWords: string
     experience: string
     skills: string
+    languages?: string
+    certifications?: string
     present: string
     verifiedBy: string
   }
   workHistory: WorkEntry[]
   chatAnswers: string[]
   skills: string[]
+  languages_spoken?: Array<{ language: string; level: string }>
+  certifications?: Array<{ name?: string; issuer?: string; year?: string }>
+  courses?: Array<{ name?: string; platform?: string; year?: string }>
+  events?: Array<{ name?: string; year?: string; role?: string }>
+  talks?: Array<{ venue?: string; year?: string; title?: string }>
 }
 
 type Meta = {
@@ -410,6 +417,78 @@ function PrintContent() {
             </div>
           </div>
         )}
+
+        {/* Languages */}
+        {cv.languages_spoken && cv.languages_spoken.length > 0 && (
+          <div className="section">
+            <div className="section-title">{labels.languages || 'Languages'}</div>
+            <div className="skills">
+              {cv.languages_spoken.map((l, i) => (
+                <span key={i} className="skill">
+                  {l.language}{l.level ? ` · ${l.level}` : ''}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Certifications & continuous learning */}
+        {(() => {
+          const hasCerts = (cv.certifications?.length ?? 0) > 0
+          const hasCourses = (cv.courses?.length ?? 0) > 0
+          const hasEvents = (cv.events?.length ?? 0) > 0
+          const hasTalks = (cv.talks?.length ?? 0) > 0
+          if (!hasCerts && !hasCourses && !hasEvents && !hasTalks) return null
+          return (
+            <div className="section">
+              <div className="section-title">{labels.certifications || 'Certifications & Learning'}</div>
+              {hasCerts && (
+                <p style={{ fontSize: 13, marginBottom: 6, color: '#444' }}>
+                  <strong>Certifications:</strong>{' '}
+                  {cv.certifications!.map((c, i) => (
+                    <span key={i}>
+                      {c.name}{c.issuer ? ` (${c.issuer})` : ''}{c.year ? ` ${c.year}` : ''}
+                      {i < cv.certifications!.length - 1 ? ' · ' : ''}
+                    </span>
+                  ))}
+                </p>
+              )}
+              {hasCourses && (
+                <p style={{ fontSize: 13, marginBottom: 6, color: '#444' }}>
+                  <strong>Courses:</strong>{' '}
+                  {cv.courses!.map((c, i) => (
+                    <span key={i}>
+                      {c.name}{c.platform ? ` · ${c.platform}` : ''}{c.year ? ` ${c.year}` : ''}
+                      {i < cv.courses!.length - 1 ? ' · ' : ''}
+                    </span>
+                  ))}
+                </p>
+              )}
+              {hasEvents && (
+                <p style={{ fontSize: 13, marginBottom: 6, color: '#444' }}>
+                  <strong>Events:</strong>{' '}
+                  {cv.events!.map((e, i) => (
+                    <span key={i}>
+                      {e.name}{e.year ? ` ${e.year}` : ''}{e.role && e.role !== 'attendee' ? ` (${e.role})` : ''}
+                      {i < cv.events!.length - 1 ? ' · ' : ''}
+                    </span>
+                  ))}
+                </p>
+              )}
+              {hasTalks && (
+                <p style={{ fontSize: 13, marginBottom: 6, color: '#444' }}>
+                  <strong>Talks:</strong>{' '}
+                  {cv.talks!.map((t, i) => (
+                    <span key={i}>
+                      {t.title}{t.venue ? ` · ${t.venue}` : ''}{t.year ? ` ${t.year}` : ''}
+                      {i < cv.talks!.length - 1 ? ' · ' : ''}
+                    </span>
+                  ))}
+                </p>
+              )}
+            </div>
+          )
+        })()}
 
         <div className="footer">{labels.verifiedBy}</div>
       </div>

@@ -84,7 +84,7 @@ export async function POST(request: Request) {
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, industry, whatsapp_number, ai_tier, industry_chats, native_language, cv_language_preference, cv_kit_purchased, cv_tier')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, industry, whatsapp_number, ai_tier, industry_chats, native_language, cv_language_preference, cv_kit_purchased, cv_tier, continuous_learning')
     .eq('id', user.id)
     .single()
 
@@ -132,13 +132,20 @@ export async function POST(request: Request) {
     extraFields = data
   } catch { extraFields = null }
 
-  const workHistory: WorkEntry[] = Array.isArray(profile.work_history) ? profile.work_history as WorkEntry[] : []
+  const workHistoryFull: WorkEntry[] = Array.isArray(profile.work_history) ? profile.work_history as WorkEntry[] : []
+  // Trim to most recent 7 roles + truncate per-role achievements at 400 chars
+  // — keeps the prompt small enough for fresh-language generation to fit
+  // under Vercel Hobby plan's 60s function timeout.
+  const workHistory: WorkEntry[] = workHistoryFull.slice(0, 7).map(w => ({
+    ...w,
+    achievements: typeof w.achievements === 'string' ? w.achievements.slice(0, 400) : w.achievements,
+  }))
   const skills: string[] = Array.isArray(profile.skills) ? profile.skills as string[] : []
   const allChat: Array<{ role: string; content: string }> = Array.isArray(profile.whatsapp_chat) ? profile.whatsapp_chat as Array<{ role: string; content: string }> : []
   const userMessages = allChat.filter(m => m.role === 'user').map(m => m.content)
-  // Cap at 10 messages to keep prompt size manageable and avoid truncated JSON
-  const cappedMessages = userMessages.slice(0, 10)
-  const sampleText = cappedMessages.slice(0, 5).join(' | ')
+  // Cap at 6 messages (was 10) to keep input small for non-English generation
+  const cappedMessages = userMessages.slice(0, 6)
+  const sampleText = cappedMessages.slice(0, 4).join(' | ')
 
   // ── Pro deep-dive answers for this specific industry ─────────────────────────
   const industryChats = (profile.industry_chats as Record<string, { answers?: string[] }> | null) || {}
@@ -220,10 +227,14 @@ CANDIDATE INFO:
 - Summary: ${(profile.summary as string || '').replace(/"/g, "'")}
 - Work history: ${JSON.stringify(workHistory)}
 - Skills: ${JSON.stringify(skills)}
+- Languages spoken: ${JSON.stringify(extraFields?.languages_spoken || [])}
+- Continuous learning (certifications / events / talks / OSS / courses): ${JSON.stringify((profile as { continuous_learning?: unknown }).continuous_learning || {})}
 - WhatsApp conversation (use these stories and insights to ENRICH achievements and summary — this is gold): ${JSON.stringify(cappedMessages)}${deepDiveAnswers.length > 0 ? `\n- INDUSTRY DEEP-DIVE ANSWERS (${targetIndustry} specific — these are the most valuable, prioritise them heavily): ${JSON.stringify(deepDiveAnswers)}` : ''}
 
 ${mode === 'universal'
   ? `UNIVERSAL CV MODE: This CV must work for candidates switching industries or applying for cross-sector roles. Avoid all industry-specific jargon. Lead with: leadership, communication, problem-solving, project management, budgets, team size, % improvements, time saved, revenue impact. Every achievement must be understood by a hiring manager in ANY sector.`
+  : mode === 'native'
+  ? `INDUSTRY STYLE ANCHOR — ${industry.toUpperCase()}:\n${industryGuide}\n\nWrite the CV in ${resolvedNativeLang || 'the target language'} using this industry's voice. Keep numbers, brands and proper nouns intact.`
   : `INDUSTRY STYLE ANCHOR — ${industry.toUpperCase()}:\n${industryGuide}\n\n═══ WHAT AN EXCEPTIONAL CV IN ${industry.toUpperCase()} LOOKS LIKE (write to this bar) ═══\n${industryFullBrief}\n\nWrite this candidate's CV against that bar. Use the industry's "Vocabulary of expertise" naturally in their achievements. If their work history mentions something that maps to a "Hidden goldmine" from the brief, surface it prominently. Match the "Exemplary achievement" tone and specificity wherever the candidate's actual experience supports it.`
 }
 
@@ -240,17 +251,28 @@ Return ONLY valid JSON:
   "location": "...",
   "summary": "3-4 sentence enriched professional summary",
   "sectionLabels": {
-    "profile": "...",
-    "inTheirOwnWords": "...",
-    "experience": "...",
-    "skills": "...",
-    "present": "...",
-    "verifiedBy": "..."
+    "profile": "Profile (or equivalent in target language)",
+    "inTheirOwnWords": "In Their Own Words",
+    "experience": "Experience",
+    "skills": "Skills",
+    "languages": "Languages",
+    "certifications": "Certifications & Learning",
+    "present": "Present",
+    "verifiedBy": "Verified by Shapi"
   },
   "workHistory": [{"title":"...","company":"...","start":"...","end":"...","achievements":"2-3 bullet points with metrics"}],
   "chatAnswers": ["best quote 1 from whatsapp", "best quote 2", "best quote 3"],
-  "skills": ["skill1","skill2"]
-}`
+  "skills": ["skill1","skill2"],
+  "languages_spoken": [{"language": "English", "level": "Fluent"}, {"language": "Croatian", "level": "Native"}],
+  "certifications": [{"name": "PMP", "issuer": "PMI", "year": "2023"}],
+  "courses": [{"name": "AWS Solutions Architect", "platform": "Coursera", "year": "2024"}],
+  "events": [{"name": "Money 20/20", "year": "2024", "role": "attendee"}],
+  "talks": [{"venue": "Conference name", "year": "2023", "title": "Talk title"}]
+}
+
+For languages_spoken: copy from the input "Languages spoken" field. If empty, return [].
+For certifications/courses/events/talks: copy from input "Continuous learning". Empty arrays if none. These appear on the CV under a "Certifications & Learning" section.
+For sectionLabels: localise to the target language if not English (e.g. "Esperienza" for Italian Experience).`
 
   try {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
