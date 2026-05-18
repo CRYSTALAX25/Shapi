@@ -5,6 +5,7 @@ import { sendWhatsApp, sendReferenceOutreach } from '@/lib/whatsapp'
 import { sendProfileLiveEmail, sendCompanyMatchEmail, sendNominatedReferenceEmail, sendReferencesVerifiedEmail } from '@/lib/email'
 import { runReferenceTurn, parseManagerResponses, parseNomineeResponses } from '@/lib/reference-qa'
 import { recomputeProfileLive, resolveOutreachContact, updateVerificationTier, runVerificationCrossCheck } from '@/lib/references'
+import { extractProfileFromChat, saveExtractedProfile } from '@/lib/chat-to-profile'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
@@ -232,15 +233,16 @@ export async function POST(request: Request) {
   // If this phone matches a candidate_references row in 'contacted' or 'opened'
   // state, route the message to the reference Q&A flow.
   //
-  // CRITICAL PRECEDENCE FIX: do NOT route to reference if this phone owner
-  // ALSO has an active candidate interview in progress. Otherwise a candidate
-  // who later becomes a referee (or uses test mode with their own phone) gets
-  // their main interview hijacked by stale reference rows.
+  // CRITICAL PRECEDENCE: candidate flow wins UNLESS the candidate has
+  // EXPLICITLY finished their own interview (whatsapp_conversation_active set
+  // to false by [DONE]). null / undefined / true all mean "candidate flow is
+  // the right path" — this covers fresh signups whose conversation_active
+  // hasn't been flipped yet.
   //
-  // Rule: candidate flow wins when whatsapp_conversation_active=true. Reference
-  // flow only takes over when the candidate has finished their own interview.
-  const candidateInterviewActive = profile?.whatsapp_conversation_active === true
-  if (!candidateInterviewActive) {
+  // Only after [DONE] (which sets active=false) can stale or test-mode
+  // reference rows take precedence.
+  const interviewExplicitlyDone = profile?.whatsapp_conversation_active === false
+  if (interviewExplicitlyDone || !profile) {
     const { data: refRows } = await admin
       .from('candidate_references')
       .select('id, candidate_id, ref_type, job_slot, status, referee_name, candidate_company, candidate_job_title, candidate_dates, whatsapp_chat, is_test_outreach, nominator_name, response_channel, first_responded_at, token')
@@ -265,7 +267,7 @@ export async function POST(request: Request) {
       }
     }
   } else {
-    console.log('[webhook] Candidate interview active for', phone, '— skipping reference routing')
+    console.log('[webhook] Candidate interview active/pending for', phone, '— skipping reference routing (conversation_active:', profile?.whatsapp_conversation_active, ')')
   }
   // ═══════════════════════════════════════════════════════════════════════
 
@@ -489,9 +491,33 @@ export async function POST(request: Request) {
   const industry = detectIndustry(profile.headline || '', workHistory)
   const industryGuide = getIndustryWritingGuide(industry)
 
-  console.log('[webhook] Detected industry:', industry)
+  console.log('[webhook] Detected industry:', industry, '| cv_parsed:', profile.cv_parsed)
 
-  const systemPrompt = `You are Shapi — an expert career coach and headhunter building a world-class profile for ${profile.full_name || 'this candidate'} through WhatsApp.
+  // ── Two interview modes depending on whether a CV was uploaded ─────────────
+  // WITH CV (cv_parsed=true): 6 quality signals interview, ~9 exchanges.
+  // WITHOUT CV (cv_parsed=false): deeper, longer interview — first builds work
+  // history role-by-role, THEN goes into the 6 signals. ~13-17 exchanges total.
+  // At [DONE], if !cv_parsed, an extraction Claude call populates the profile.
+
+  const SHARED_INTENT_HANDLING = `CANDIDATE INTENT HANDLING — recognise these from natural language (any phrasing):
+- "skip" / "next" / "move on" / "pass" → acknowledge briefly + move on. Don't push them.
+- "repeat that" / "what was the question" / "say it again" → re-ask your previous question, slightly rephrased
+- "done" / "I'm finished" / "that's all" / "let's wrap up" → wrap up with [DONE] if you have enough context; otherwise say "a couple more quick questions" and continue
+- "I don't know" / "I don't have a number" → reassure, ask for their best estimate or a story example instead. Don't insist on precision.
+- Voice notes in any language work — the transcript is what you read`
+
+  const SHARED_WHATSAPP_RULES = `WHATSAPP RULES (non-negotiable):
+- LANGUAGE: Detect what language they write in and respond in that SAME language always. Arabic → Arabic. Hindi → Hindi. French → French.
+- Maximum 3 sentences per message. Short. Punchy. Human.
+- Never use bullet points or numbered lists in your reply.
+- Always acknowledge what they said before asking the next thing.
+- One question per message — never stack two questions.
+- Sound like a sharp, warm human — not HR, not a chatbot, not a form.
+- If they give a vague answer (e.g. "I improved things"), gently push for the number or specific outcome before moving on.`
+
+  const systemPrompt = profile.cv_parsed
+    ? // ─────────────── WITH CV: 6-signal interview ───────────────
+`You are Shapi — an expert career coach and headhunter building a world-class profile for ${profile.full_name || 'this candidate'} through WhatsApp.
 
 WHAT WE KNOW FROM THEIR CV:
 - Headline: ${profile.headline || 'not provided'}
@@ -515,27 +541,63 @@ CONVERSATION FLOW:
 - Exchanges 1–3: Warm opening — best achievement, working style, what they want next. These naturally surface signals 1–3.
 - Exchanges 4+: Target whichever signals are still missing from the history. One at a time. Naturally.
 - When 5 signals are covered: Ask the Hidden Gem question (signal 6).
-- After signal 6 is answered, OR after 9 exchanges total: Wrap up warmly. Tell them their profile is being built and they'll hear from us. End your message with exactly: [DONE]
+- After signal 6 is answered, OR after 9 exchanges total: Wrap up warmly. Tell them their profile is being built. End your message with exactly: [DONE]
 
 ${industryGuide}
 
-CANDIDATE INTENT HANDLING — recognise these from natural language (any phrasing):
-- "skip" / "next" / "move on" / "pass" → acknowledge briefly + move to the next signal you haven't covered. Don't push them on the skipped one.
-- "repeat that" / "what was the question" / "say it again" → re-ask your previous question, slightly rephrased
-- "done" / "I'm finished" / "that's all" / "let's wrap up" → if at least 3 of the 6 signals have been covered, wrap up with [DONE]. If fewer than 3, gently say "couple more quick questions" and continue.
-- "I don't know" / "I don't have a number" → reassure, ask for their best estimate or a story example instead. Don't insist on precision.
-- Voice notes in any language work — the transcript is what you read
+${SHARED_INTENT_HANDLING}
 
-WHATSAPP RULES (non-negotiable):
-- LANGUAGE: Detect what language they write in and respond in that SAME language always. Arabic → Arabic. Hindi → Hindi. French → French.
-- Maximum 3 sentences per message. Short. Punchy. Human.
-- Never use bullet points or numbered lists in your reply.
-- Always acknowledge what they said before asking the next thing.
-- One question per message — never stack two questions.
-- Sound like a sharp, warm human — not HR, not a chatbot, not a form.
-- If they give a vague answer (e.g. "I improved things"), gently push for the number or specific outcome before moving on.
+${SHARED_WHATSAPP_RULES}
 
-This is exchange ${userTurns + 1}. ${userTurns >= 9 ? 'You have enough. Wrap up now with [DONE].' : 'Do NOT end the conversation yet unless all 6 signals are clearly covered.'}`
+This is exchange ${userTurns + 1}. ${userTurns >= 9 ? 'You have enough. Wrap up now with [DONE].' : 'Do NOT end yet unless all 6 signals are clearly covered.'}`
+    : // ─────────────── WITHOUT CV: deep two-phase interview ───────────────
+`You are Shapi — building this candidate's profile entirely through WhatsApp because they have NO CV uploaded. You must extract EVERYTHING a great CV would have through conversation: work history, education, skills, languages, achievements, certifications.
+
+WHAT WE KNOW SO FAR:
+- Name: ${profile.full_name || 'not yet provided — ask early'}
+- Industry detected from chat: ${industry === 'general' ? 'not yet' : industry}
+
+YOUR MISSION — TWO PHASES, much longer than the CV-backed interview:
+
+═══ PHASE 1: WORK HISTORY (exchanges 1–9) ═══
+Walk through their career role by role, current first, then back. For EACH role capture:
+  • Job title + company name + location + dates (start → end / present)
+  • What they were responsible for day-to-day (2-3 main responsibilities)
+  • One concrete achievement from that role (with a number where possible)
+  • Then ask: "Before [that role], what were you doing?"
+
+Cover at least 2 past roles + their current/most-recent role = 3 roles minimum. 4 if they have a richer history.
+
+ALSO cover during Phase 1:
+  • Highest qualification / degree (institution + year)
+  • Industry certifications (PMP, CFA, AWS, etc.)
+  • Languages spoken + level
+
+═══ PHASE 2: QUALITY SIGNALS (exchanges 10–16) ═══
+Now go DEEPER on the 6 signals across the roles you've captured:
+  1. QUANTIFIED IMPACT — numbers from any of their roles
+  2. SCOPE — biggest team / budget / accounts they've owned
+  3. CHALLENGE — hardest thing they handled
+  4. PROGRESSION LOGIC — why they moved roles
+  5. EVIDENCED SKILLS — skills shown through stories, not claims
+  6. HIDDEN GEM — anything they haven't mentioned that's noteworthy
+
+═══ WRAP-UP ═══
+After Phase 2 is complete (or after 16 exchanges total), wrap up warmly with: "Brilliant — that's everything I needed. Building your profile now. Check your dashboard in a minute." End your message with exactly: [DONE]
+
+${industryGuide}
+
+${SHARED_INTENT_HANDLING}
+
+${SHARED_WHATSAPP_RULES}
+
+CURRENT PHASE: ${userTurns < 9 ? 'PHASE 1 (work history)' : 'PHASE 2 (quality signals)'}
+This is exchange ${userTurns + 1}.
+${userTurns >= 16
+  ? 'You have enough. Wrap up now with [DONE].'
+  : userTurns < 9
+    ? 'Keep building work history — do NOT skip to signals yet unless you already have 3 roles + education + certs + languages.'
+    : 'Move into Phase 2 signals. Reference specific roles they mentioned. Do NOT end until you have enough.'}`
 
   let aiReply = ''
   try {
@@ -566,6 +628,27 @@ This is exchange ${userTurns + 1}. ${userTurns >= 9 ? 'You have enough. Wrap up 
   if (isDone) {
     updates.completion_pct = Math.max((profile.completion_pct as number) || 0, 65)
     updates.whatsapp_conversation_active = false
+
+    // ─── Chat-to-profile extraction ──────────────────────────────────────
+    // When the candidate had no CV, the deeper Phase-1+2 interview just
+    // captured everything a CV would have. Extract it into structured fields
+    // (work_history, skills, education, languages, skill_quadrant, etc.) so
+    // downstream features (cv/generate, matching, references picker) work
+    // identically to the CV-uploaded path.
+    if (!profile.cv_parsed) {
+      try {
+        console.log('[webhook] No-CV path complete — extracting profile from chat')
+        const extracted = await extractProfileFromChat(chatHistory)
+        if (extracted) {
+          await saveExtractedProfile(profile.id as string, extracted)
+          console.log('[webhook] Chat-to-profile extracted + saved for:', profile.id)
+        } else {
+          console.error('[webhook] Chat-to-profile returned null — leaving profile partial')
+        }
+      } catch (err) {
+        console.error('[webhook] Chat-to-profile extraction failed:', err)
+      }
+    }
 
     // Language proficiency assessment from the conversation
     const userMessages = chatHistory.filter(m => m.role === 'user').map(m => m.content)
