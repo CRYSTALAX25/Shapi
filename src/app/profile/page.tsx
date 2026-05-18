@@ -4,6 +4,7 @@ import Link from 'next/link'
 import CVDownloadButton from '@/components/CVDownloadButton'
 import ShapiCharacter from '@/components/ShapiCharacter'
 import SkillRadar from '@/components/SkillRadar'
+import ContinuousLearning from '@/components/ContinuousLearning'
 import { computeJobCompletionScore } from '@/lib/references'
 
 type WorkEntry = {
@@ -21,7 +22,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score')
     .eq('id', user.id)
     .single()
 
@@ -236,6 +237,14 @@ export default async function ProfilePage() {
                 <p className="text-white/30 text-sm">Work history will appear here once your CV is processed</p>
               </div>
             )}
+
+            {/* Continuous Learning + Career Roadmap */}
+            <ContinuousLearning
+              data={(profile.continuous_learning as Parameters<typeof ContinuousLearning>[0]['data']) ?? null}
+              roadmap={(profile.career_recommendations as Parameters<typeof ContinuousLearning>[0]['roadmap']) ?? null}
+              isPro={profile.cv_tier === 'pro'}
+              resilienceScore={(profile.ai_resilience_score as number | null) ?? null}
+            />
           </div>
 
           {/* Right column */}
