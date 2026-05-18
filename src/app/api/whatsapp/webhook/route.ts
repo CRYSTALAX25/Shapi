@@ -744,12 +744,21 @@ async function handleReferenceReply(
         await admin.from('candidate_references').update({
           status: 'completed',
           completed_at: new Date().toISOString(),
+          // Store both source-language answers AND English translations in one jsonb.
+          // The *_en fields equal source if conversation was already in English.
           responses: {
+            language: parsed.language,
+            language_code: parsed.language_code,
             quality: parsed.quality,
+            quality_en: parsed.quality_en,
             achievement: parsed.achievement,
+            achievement_en: parsed.achievement_en,
             skills: parsed.skills,
+            skills_en: parsed.skills_en,
             would_rehire: parsed.would_rehire,
+            would_rehire_en: parsed.would_rehire_en,
             anything_else: parsed.anything_else,
+            anything_else_en: parsed.anything_else_en,
           },
           nominees: parsed.nominees,
         }).eq('id', ref.id)

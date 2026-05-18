@@ -9,11 +9,21 @@ import Anthropic from '@anthropic-ai/sdk'
 type ChatTurn = { role: 'user' | 'assistant'; content: string }
 
 export type ParsedManagerResponse = {
+  // Original language (what the manager actually wrote)
   quality: string
   achievement: string
   skills: string
   would_rehire: string
   anything_else: string | null
+  // English translations (always present — equal to original if conversation was in English)
+  quality_en: string
+  achievement_en: string
+  skills_en: string
+  would_rehire_en: string
+  anything_else_en: string | null
+  // Detected source language for the whole conversation
+  language: string         // human-readable, e.g. "Arabic"
+  language_code: string    // 2-letter ISO, e.g. "ar"
   nominees: {
     colleague: { name: string | null; phone: string | null; email: string | null }
     stakeholder: { name: string | null; phone: string | null; email: string | null }
@@ -24,6 +34,11 @@ export type ParsedNomineeResponse = {
   how_worked: string
   biggest_strength: string
   extra: string | null
+  how_worked_en: string
+  biggest_strength_en: string
+  extra_en: string | null
+  language: string
+  language_code: string
 }
 
 const TEST_DISCLAIMER = `\n\n_[Test mode active — these answers will be saved to your test profile.]_`
@@ -173,27 +188,40 @@ export async function runReferenceTurn(opts: {
 
 // After [REF_DONE] is signalled, extract structured answers from the conversation
 // for storage in candidate_references.responses (and nominees jsonb for managers).
+//
+// Each field returns in TWO languages: the source language the referee actually
+// spoke/wrote in, plus an English translation. Lets us serve the right view to
+// the right reader (candidate / company / Shapi team) without re-translating.
 export async function parseManagerResponses(history: ChatTurn[]): Promise<ParsedManagerResponse> {
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
   const transcript = history.map(m => `${m.role === 'user' ? 'REFEREE' : 'SHAPI'}: ${m.content}`).join('\n')
 
   const res = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
-    max_tokens: 800,
+    max_tokens: 1500,
     messages: [{
       role: 'user',
-      content: `Extract structured reference answers from this manager reference check conversation. The referee was the candidate's manager.
+      content: `Extract structured reference answers from this MANAGER reference check.
+
+The referee was the candidate's direct manager. They may have spoken in any language (Arabic, Tagalog, Spanish, French, Hindi, etc.) — detect it and return BOTH the original-language answer AND a faithful English translation for each field.
 
 TRANSCRIPT:
 ${transcript}
 
 Return ONLY valid JSON in this exact shape:
 {
-  "quality": "1-3 sentence summary of what the manager said about quality of work",
-  "achievement": "the biggest achievement they described, verbatim or close to it",
-  "skills": "specific skills/tools/methodologies they mentioned",
-  "would_rehire": "yes / no / conditional — followed by a 1-sentence explanation",
-  "anything_else": "any additional context they shared, OR null if none",
+  "language": "the human-readable language name (e.g. \\"Arabic\\", \\"Tagalog\\", \\"English\\")",
+  "language_code": "2-letter ISO code (e.g. \\"ar\\", \\"tl\\", \\"en\\")",
+  "quality": "<in source language> 1-3 sentence summary of what the manager said about quality of work",
+  "quality_en": "<English translation of the same — keep the manager's voice and specifics>",
+  "achievement": "<source language> the biggest achievement they described",
+  "achievement_en": "<English translation>",
+  "skills": "<source language> specific skills/tools/methodologies mentioned",
+  "skills_en": "<English translation>",
+  "would_rehire": "<source language> yes / no / conditional + 1-sentence explanation",
+  "would_rehire_en": "<English translation, normalised to start with Yes / No / Conditional>",
+  "anything_else": "<source language> additional context, or null if none",
+  "anything_else_en": "<English translation, or null>",
   "nominees": {
     "colleague": { "name": "...", "phone": "+xxx... or null", "email": "x@y.com or null" },
     "stakeholder": { "name": "...", "phone": "+xxx... or null", "email": "x@y.com or null" }
@@ -201,9 +229,11 @@ Return ONLY valid JSON in this exact shape:
 }
 
 Rules:
-- If the manager didn't provide a phone or email for a nominee, use null for that field
+- If the conversation was already in English, the *_en fields equal the source fields verbatim
+- Names, companies, technical terms in the English translation should stay as-is (don't translate "Marriott")
 - If a nominee was not provided at all, set name to null
-- Use the candidate's actual words wherever possible — don't paraphrase aggressively`,
+- If a nominee's phone or email is missing, use null for that field
+- Preserve the referee's voice — don't sanitise or paraphrase aggressively`,
     }],
   })
 
@@ -219,20 +249,28 @@ export async function parseNomineeResponses(history: ChatTurn[]): Promise<Parsed
 
   const res = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
-    max_tokens: 600,
+    max_tokens: 1000,
     messages: [{
       role: 'user',
-      content: `Extract structured reference answers from this colleague/stakeholder reference check conversation.
+      content: `Extract structured reference answers from this colleague/stakeholder reference check. The referee may have spoken in any language — detect it and return BOTH original and English.
 
 TRANSCRIPT:
 ${transcript}
 
 Return ONLY valid JSON:
 {
-  "how_worked": "1-2 sentence summary of the working relationship",
-  "biggest_strength": "the strength they highlighted",
-  "extra": "additional context — strengths OR growth areas — or null"
-}`,
+  "language": "<language name>",
+  "language_code": "<2-letter ISO>",
+  "how_worked": "<source language> 1-2 sentence summary of the working relationship",
+  "how_worked_en": "<English translation>",
+  "biggest_strength": "<source language> the strength they highlighted",
+  "biggest_strength_en": "<English translation>",
+  "extra": "<source language> additional context or null",
+  "extra_en": "<English translation or null>"
+}
+
+If the conversation was in English, the *_en fields equal the source fields verbatim.
+Preserve the referee's voice. Don't translate names of companies, people, or technical terms.`,
     }],
   })
 
