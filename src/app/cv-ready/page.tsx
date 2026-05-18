@@ -312,16 +312,60 @@ export default function CVReady() {
     )
   }
 
-  const sendCV = async (channel: 'email' | 'whatsapp') => {
+  // Send picker modal — open before invoking actual send so the candidate
+  // chooses which CV versions to bundle.
+  type SendSelection = { type: 'language' | 'industry' | 'universal'; value: string; label: string }
+  const [pickerOpen, setPickerOpen] = useState<null | 'email' | 'whatsapp'>(null)
+  const [pickerChosen, setPickerChosen] = useState<Set<string>>(new Set(['lang:english']))
+
+  // Build the list of CV versions available to pick: English always; every
+  // language on the profile; every matched industry; Universal.
+  const availablePickerOptions = (): SendSelection[] => {
+    const langs = profile ? buildLanguageList(profile) : []
+    const opts: SendSelection[] = []
+    for (const l of langs) {
+      opts.push({ type: 'language', value: l.language, label: `${langFlag(l.language)} ${l.language} CV` })
+    }
+    for (const ind of matchedIndustries) {
+      const meta = INDUSTRY_META[ind] || { label: ind, emoji: '📄' }
+      opts.push({ type: 'industry', value: ind, label: `${meta.emoji} ${meta.label} CV (industry-targeted)` })
+    }
+    opts.push({ type: 'universal', value: 'universal', label: '📋 Universal CV' })
+    return opts
+  }
+  const keyOf = (s: SendSelection) => `${s.type}:${s.value.toLowerCase()}`
+
+  const openSendPicker = (channel: 'email' | 'whatsapp') => {
+    // Reset selection to English-only default each time the picker opens
+    setPickerChosen(new Set(['language:english']))
+    setPickerOpen(channel)
+  }
+
+  const sendSelectedCVs = async () => {
+    const channel = pickerOpen
+    if (!channel) return
     const setState = channel === 'email' ? setSendEmailState : setSendWAState
     setState('sending')
+    setPickerOpen(null)
+
+    // Translate the chosen Set into the API's CVSelection shape
+    const all = availablePickerOptions()
+    const selections = all.filter(s => pickerChosen.has(keyOf(s))).map(s => ({ type: s.type, value: s.value }))
+    if (selections.length === 0) selections.push({ type: 'language', value: 'English' })
+
     try {
       const res = await fetch('/api/cv/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ channel, showNative, nativeLabel }),
+        body: JSON.stringify({ channel, selections }),
       })
-      setState(res.ok ? 'sent' : 'error')
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && data.success) {
+        setState('sent')
+      } else {
+        setState('error')
+        console.error('[cv-ready] send failed:', data.error)
+      }
     } catch {
       setState('error')
     }
@@ -750,7 +794,7 @@ export default function CVReady() {
           <p className="text-white/25 text-xs mb-4">Open on your phone or inbox — then print to PDF from there.</p>
           <div className="flex gap-3">
             <button
-              onClick={() => sendCV('whatsapp')}
+              onClick={() => openSendPicker('whatsapp')}
               disabled={sendWAState === 'sending' || sendWAState === 'sent'}
               className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all disabled:opacity-50"
               style={{ background: sendWAState === 'sent' ? 'rgba(52,211,153,0.12)' : 'rgba(37,211,102,0.1)', border: `1px solid ${sendWAState === 'sent' ? 'rgba(52,211,153,0.4)' : 'rgba(37,211,102,0.25)'}`, color: sendWAState === 'sent' ? '#34D399' : '#25D366' }}
@@ -759,7 +803,7 @@ export default function CVReady() {
               {sendWAState === 'sent' ? 'Sent to WhatsApp' : sendWAState === 'sending' ? 'Sending…' : 'Send via WhatsApp'}
             </button>
             <button
-              onClick={() => sendCV('email')}
+              onClick={() => openSendPicker('email')}
               disabled={sendEmailState === 'sending' || sendEmailState === 'sent'}
               className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all disabled:opacity-50"
               style={{ background: sendEmailState === 'sent' ? 'rgba(52,211,153,0.12)' : 'rgba(34,211,238,0.08)', border: `1px solid ${sendEmailState === 'sent' ? 'rgba(52,211,153,0.4)' : 'rgba(34,211,238,0.2)'}`, color: sendEmailState === 'sent' ? '#34D399' : '#22D3EE' }}
@@ -803,6 +847,70 @@ export default function CVReady() {
         </div>
 
       </div>
+
+      {/* ─── Send picker modal ─── */}
+      {pickerOpen && profile && (
+        <div
+          onClick={() => setPickerOpen(null)}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)',
+            zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: '#0d0d14', border: '1px solid rgba(34,211,238,0.2)', borderRadius: 20,
+              padding: 24, maxWidth: 440, width: '100%', maxHeight: '85vh', overflow: 'auto',
+            }}
+          >
+            <p className="text-white/40 text-xs font-bold uppercase tracking-wider mb-1">
+              {pickerOpen === 'whatsapp' ? '💬 WhatsApp' : '✉️ Email'}
+            </p>
+            <h3 className="text-white font-black text-lg mb-1">Which CVs to send?</h3>
+            <p className="text-white/35 text-xs mb-5">English is selected by default. Tick others to send multiple in one bundle.</p>
+
+            <div className="space-y-1 mb-5">
+              {availablePickerOptions().map(opt => {
+                const k = keyOf(opt)
+                const checked = pickerChosen.has(k)
+                return (
+                  <label key={k}
+                    onClick={() => {
+                      const next = new Set(pickerChosen)
+                      if (next.has(k)) next.delete(k)
+                      else next.add(k)
+                      setPickerChosen(next)
+                    }}
+                    className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors"
+                    style={{
+                      background: checked ? 'rgba(34,211,238,0.08)' : 'rgba(255,255,255,0.02)',
+                      border: `1px solid ${checked ? 'rgba(34,211,238,0.3)' : 'rgba(255,255,255,0.05)'}`,
+                    }}>
+                    <input type="checkbox" checked={checked} readOnly className="w-4 h-4 accent-[#22D3EE] pointer-events-none" />
+                    <span className={`text-sm ${checked ? 'text-white' : 'text-white/55'} font-${checked ? 'bold' : 'normal'}`}>
+                      {opt.label}
+                    </span>
+                  </label>
+                )
+              })}
+            </div>
+
+            <div className="flex gap-2">
+              <button onClick={() => setPickerOpen(null)}
+                className="flex-1 py-3 rounded-xl text-sm font-bold transition-colors"
+                style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.6)' }}>
+                Cancel
+              </button>
+              <button onClick={sendSelectedCVs} disabled={pickerChosen.size === 0}
+                className="flex-1 py-3 rounded-xl font-black text-sm transition-opacity disabled:opacity-40"
+                style={{ background: 'linear-gradient(135deg,#22D3EE,#A78BFA)', color: '#060609' }}>
+                Send {pickerChosen.size} {pickerChosen.size === 1 ? 'CV' : 'CVs'} →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

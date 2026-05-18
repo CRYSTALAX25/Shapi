@@ -44,6 +44,45 @@ export async function sendWhatsApp(to: string, message: string): Promise<{ succe
   return { success: false, error: result.error }
 }
 
+// ── WhatsApp with media attachment (PDF, image, etc.) ────────────────────────
+// Twilio fetches the MediaUrl and delivers as an attachment in the WhatsApp
+// message. Max 16MB per file, one MediaUrl per message.
+export async function sendWhatsAppMedia(to: string, caption: string, mediaUrl: string): Promise<{ success: boolean; sid?: string; error?: string }> {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID
+  const authToken = process.env.TWILIO_AUTH_TOKEN
+  const from = process.env.TWILIO_WHATSAPP_FROM
+  if (!accountSid || !authToken || !from) {
+    return { success: false, error: 'Twilio env vars not configured' }
+  }
+
+  const cleaned = to.replace(/\s/g, '')
+  const recipient = cleaned.startsWith('whatsapp:') ? cleaned : `whatsapp:${cleaned}`
+  console.log('[WhatsApp media] Sending to:', recipient, '| media:', mediaUrl)
+
+  try {
+    const res = await fetch(
+      `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: 'Basic ' + Buffer.from(`${accountSid}:${authToken}`).toString('base64'),
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({ From: from, To: recipient, Body: caption, MediaUrl: mediaUrl }).toString(),
+      }
+    )
+    const data = await res.json()
+    if (!res.ok) {
+      console.error('[WhatsApp media] Twilio error:', data.message, '| code:', data.code)
+      return { success: false, error: data.message }
+    }
+    console.log('[WhatsApp media] Sent OK, SID:', data.sid)
+    return { success: true, sid: data.sid }
+  } catch (err) {
+    return { success: false, error: String(err) }
+  }
+}
+
 // ── SMS — falls back through TWILIO_SMS_FROM → TWILIO_FROM → TWILIO_WHATSAPP_FROM (stripped) ───
 export async function sendSMS(to: string, message: string): Promise<{ success: boolean; error?: string }> {
   const raw = process.env.TWILIO_SMS_FROM || process.env.TWILIO_FROM || process.env.TWILIO_WHATSAPP_FROM
