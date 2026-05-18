@@ -91,11 +91,15 @@ Return ONLY the numbered questions, nothing else.`
 
   const questionsText = response.content[0].type === 'text' ? response.content[0].text.trim() : ''
 
-  // Send via WhatsApp — split into two messages to stay within Twilio's 1600 char limit
+  // Send via WhatsApp — ONE combined message (Twilio sandbox drops rapid second sends)
   const firstName = (profile.full_name as string || 'there').split(' ')[0]
   const industryList = targetIndustries.map(i => i.charAt(0).toUpperCase() + i.slice(1)).join(', ')
 
-  const intro = `Hi ${firstName} 👋 To write your best ${industryList} CV${targetIndustries.length > 1 ? 's' : ''}, I have a few targeted questions — these surface the stories that make the real difference.\n\nTakes about 5 minutes. Just reply to each one 👇`
+  const combinedMessage = `Hi ${firstName} 👋 To write your best ${industryList} CV${targetIndustries.length > 1 ? 's' : ''}, I have a few targeted questions — these surface the stories that make the real difference.
+
+Takes about 5 minutes. Just reply to each one 👇
+
+${questionsText}`
 
   // Always save questions to industry_chats so we have them regardless of WhatsApp outcome
   const existingIndustryChats = (profile.industry_chats as Record<string, unknown>) || {}
@@ -105,31 +109,19 @@ Return ONLY the numbered questions, nothing else.`
   }
   await supabase.from('profiles').update({ industry_chats: updatedIndustryChats }).eq('id', user.id)
 
-  // Send intro first, then questions as a second message
-  const wa1 = await sendWhatsApp(profile.whatsapp_number as string, intro)
-  if (!wa1.success) {
-    console.error('[deepdive] WhatsApp intro failed:', wa1.error, '| phone:', profile.whatsapp_number)
-    // Return questions anyway so they show in the UI — user can answer in-app or retry later
+  console.log('[deepdive] Sending combined message, length:', combinedMessage.length, 'to:', profile.whatsapp_number)
+
+  const wa = await sendWhatsApp(profile.whatsapp_number as string, combinedMessage)
+  if (!wa.success) {
+    console.error('[deepdive] WhatsApp send failed:', wa.error, '| phone:', profile.whatsapp_number, '| length:', combinedMessage.length)
     return NextResponse.json({
       success: false,
       whatsapp_failed: true,
       questions: questionsText,
-      error: `WhatsApp couldn't reach you right now (${wa1.error || 'unknown'}). Your questions are shown below instead.`,
+      error: `WhatsApp delivery failed (${wa.error || 'unknown'}). Your questions are shown below — answer them in WhatsApp by replying to the chat, or use the app.`,
     }, { status: 200 })
   }
 
-  // Small delay so messages arrive in order
-  await new Promise(r => setTimeout(r, 800))
-
-  const wa2 = await sendWhatsApp(profile.whatsapp_number as string, questionsText)
-  if (!wa2.success) {
-    console.error('[deepdive] WhatsApp questions failed:', wa2.error, '| phone:', profile.whatsapp_number)
-    return NextResponse.json({
-      success: false,
-      whatsapp_failed: true,
-      questions: questionsText,
-      error: `WhatsApp intro sent but questions failed (${wa2.error || 'unknown'}). Questions are shown below.`,
-    }, { status: 200 })
-  }
+  console.log('[deepdive] Combined message delivered to:', profile.whatsapp_number)
   return NextResponse.json({ success: true, industries: targetIndustries })
 }
