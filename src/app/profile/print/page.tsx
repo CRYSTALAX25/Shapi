@@ -113,7 +113,20 @@ function PrintContent() {
         ...(forceRefresh ? { forceRefresh: true } : {}),
       }),
     })
-      .then(r => r.json())
+      .then(async r => {
+        // Defensive: cv/generate sometimes returns HTML (Vercel timeout page,
+        // gateway error, etc.) instead of JSON. r.json() would throw cryptically.
+        // Read as text first, try to parse, surface a clean error message if not JSON.
+        const txt = await r.text()
+        try {
+          return JSON.parse(txt)
+        } catch {
+          if (!r.ok) {
+            throw new Error(`Server returned ${r.status} — ${txt.slice(0, 200)}`)
+          }
+          throw new Error(`Could not parse server response: ${txt.slice(0, 200)}`)
+        }
+      })
       .then(d => {
         if (d.error) { setError(d.error); return }
         setCv(d.cv)
