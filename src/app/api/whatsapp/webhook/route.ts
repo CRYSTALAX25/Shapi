@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { sendWhatsApp } from '@/lib/whatsapp'
-import { sendProfileLiveEmail, sendCompanyMatchEmail } from '@/lib/email'
+import { sendWhatsApp, sendReferenceOutreach } from '@/lib/whatsapp'
+import { sendProfileLiveEmail, sendCompanyMatchEmail, sendNominatedReferenceEmail, sendReferencesVerifiedEmail } from '@/lib/email'
+import { runReferenceTurn, parseManagerResponses, parseNomineeResponses } from '@/lib/reference-qa'
+import { recomputeProfileLive, resolveOutreachContact } from '@/lib/references'
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
 // ── Industry detection ───────────────────────────────────────────────────────
 function detectIndustry(headline: string, workHistory: Array<{ title?: string; company?: string }>): string {
@@ -214,7 +218,24 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient()
 
-  // Look up profile — limit(1) survives duplicate rows
+  // ═══ PRIORITY 0: Reference reply routing ═══════════════════════════════
+  // If this phone matches a candidate_references row in 'contacted' or 'opened'
+  // state, route the message to the reference Q&A flow (not the candidate flow).
+  // In test mode multiple rows can share the phone — pick the oldest active.
+  const { data: refRows } = await admin
+    .from('candidate_references')
+    .select('id, candidate_id, ref_type, job_slot, status, referee_name, candidate_company, candidate_job_title, candidate_dates, whatsapp_chat, is_test_outreach, nominator_name, response_channel, first_responded_at, token')
+    .eq('referee_phone', phone)
+    .in('status', ['contacted', 'opened'])
+    .order('contacted_at', { ascending: true })
+    .limit(1)
+
+  if (refRows && refRows.length > 0) {
+    return handleReferenceReply(refRows[0], body || '', formData, numMedia, mediaType, phone)
+  }
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // Look up candidate profile — limit(1) survives duplicate rows
   const { data: profiles } = await admin
     .from('profiles')
     .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, cv_tier, industry_chats, whatsapp_conversation_active')
@@ -225,7 +246,7 @@ export async function POST(request: Request) {
   const profile = profiles?.[0] ?? null
 
   if (!profile) {
-    console.log('[webhook] No profile found for:', phone)
+    console.log('[webhook] No profile or reference found for:', phone)
     return new NextResponse('', { status: 200 })
   }
 
@@ -585,5 +606,265 @@ Return ONLY valid JSON:
   }
 
   console.log('[webhook] Replied to:', phone, '| exchange:', userTurns + 1, '| industry:', industry, '| done:', isDone)
+  return new NextResponse('', { status: 200 })
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Reference reply handler — runs the Claude reference Q&A flow
+// ═══════════════════════════════════════════════════════════════════════════
+
+type RefRow = {
+  id: string
+  candidate_id: string
+  ref_type: 'manager' | 'colleague' | 'stakeholder'
+  job_slot: number
+  status: string
+  referee_name: string
+  candidate_company: string | null
+  candidate_job_title: string | null
+  candidate_dates: string | null
+  whatsapp_chat: Array<{ role: 'user' | 'assistant'; content: string }> | null
+  is_test_outreach: boolean | null
+  nominator_name: string | null
+  response_channel: string | null
+  first_responded_at: string | null
+  token: string
+}
+
+async function handleReferenceReply(
+  ref: RefRow,
+  bodyText: string,
+  formData: FormData,
+  numMedia: number,
+  mediaType: string,
+  phone: string,
+): Promise<NextResponse> {
+  const admin = createAdminClient()
+
+  // Voice note transcription (same as candidate flow) — graceful fallback
+  let userMessage = bodyText.trim()
+  if (numMedia > 0 && mediaType.startsWith('audio/')) {
+    const mediaUrl = formData.get('MediaUrl0') as string
+    try {
+      const accountSid = process.env.TWILIO_ACCOUNT_SID!
+      const authToken = process.env.TWILIO_AUTH_TOKEN!
+      const twilioAuth = Buffer.from(`${accountSid}:${authToken}`).toString('base64')
+      const audioRes = await fetch(mediaUrl, { headers: { Authorization: `Basic ${twilioAuth}` } })
+      if (!audioRes.ok) throw new Error(`fetch audio ${audioRes.status}`)
+      const audioBuffer = await audioRes.arrayBuffer()
+      const deepgramRes = await fetch(
+        'https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&detect_language=true',
+        {
+          method: 'POST',
+          headers: { Authorization: `Token ${process.env.DEEPGRAM_API_KEY}`, 'Content-Type': mediaType },
+          body: audioBuffer,
+        }
+      )
+      if (!deepgramRes.ok) throw new Error(`deepgram ${deepgramRes.status}`)
+      const dg = await deepgramRes.json()
+      const transcript = dg?.results?.channels?.[0]?.alternatives?.[0]?.transcript?.trim()
+      if (transcript) userMessage = transcript
+      else {
+        await sendWhatsApp(phone, "I couldn't catch that voice note clearly — could you try again or type it?")
+        return new NextResponse('', { status: 200 })
+      }
+    } catch (err) {
+      console.error('[ref-webhook] voice transcription failed:', err)
+      await sendWhatsApp(phone, "I got your voice note 🎙️ but hit a snag transcribing — could you type your answer instead?")
+      return new NextResponse('', { status: 200 })
+    }
+  }
+
+  if (!userMessage) return new NextResponse('', { status: 200 })
+
+  console.log('[ref-webhook] Reference reply from', phone, '| ref:', ref.id, 'type:', ref.ref_type, 'job:', ref.job_slot)
+
+  // Fetch the candidate's name for Claude context
+  const { data: cProfile } = await admin
+    .from('profiles')
+    .select('full_name')
+    .eq('id', ref.candidate_id)
+    .single()
+  const candidateName = (cProfile?.full_name as string) || 'the candidate'
+
+  // Build conversation history
+  const history = Array.isArray(ref.whatsapp_chat) ? ref.whatsapp_chat : []
+  history.push({ role: 'user', content: userMessage })
+
+  // Run Claude
+  let reply = ''
+  let isDone = false
+  try {
+    const result = await runReferenceTurn({
+      refType: ref.ref_type,
+      history,
+      refereeName: ref.referee_name,
+      candidateName,
+      candidateJobTitle: ref.candidate_job_title || '',
+      candidateCompany: ref.candidate_company || '',
+      candidateDates: ref.candidate_dates || '',
+      nominatorName: ref.nominator_name,
+      nominatorCompany: ref.candidate_company,
+      isTest: !!ref.is_test_outreach,
+    })
+    reply = result.reply
+    isDone = result.isDone
+  } catch (err) {
+    console.error('[ref-webhook] Claude error:', err)
+    await sendWhatsApp(phone, "Thanks for sharing that — I'll pick this up with you shortly.")
+    return new NextResponse('', { status: 200 })
+  }
+
+  history.push({ role: 'assistant', content: reply })
+
+  // Stamp first-response metadata on the very first inbound message
+  const firstReplyUpdates: Record<string, unknown> = {}
+  if (!ref.first_responded_at) {
+    firstReplyUpdates.response_channel = 'whatsapp'
+    firstReplyUpdates.first_responded_at = new Date().toISOString()
+  }
+  if (ref.status === 'contacted') {
+    firstReplyUpdates.status = 'opened'
+  }
+
+  await admin.from('candidate_references').update({
+    whatsapp_chat: history,
+    updated_at: new Date().toISOString(),
+    ...firstReplyUpdates,
+  }).eq('id', ref.id)
+
+  await sendWhatsApp(phone, reply)
+
+  // ── On [REF_DONE]: extract structured responses + cascade ───────────────
+  if (isDone) {
+    try {
+      if (ref.ref_type === 'manager') {
+        const parsed = await parseManagerResponses(history)
+
+        await admin.from('candidate_references').update({
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          responses: {
+            quality: parsed.quality,
+            achievement: parsed.achievement,
+            skills: parsed.skills,
+            would_rehire: parsed.would_rehire,
+            anything_else: parsed.anything_else,
+          },
+          nominees: parsed.nominees,
+        }).eq('id', ref.id)
+
+        // Cascade — create + reach out to the colleague and stakeholder
+        const isTest = !!ref.is_test_outreach
+        const candidateFirst = candidateName.split(' ')[0]
+
+        for (const nomineeKey of ['colleague', 'stakeholder'] as const) {
+          const nom = parsed.nominees[nomineeKey]
+          if (!nom?.name || (!nom.phone && !nom.email)) continue
+
+          try {
+            const { data: inserted } = await admin.from('candidate_references').insert({
+              candidate_id: ref.candidate_id,
+              ref_type: nomineeKey,
+              job_slot: ref.job_slot,
+              nominated_by: ref.id,
+              nominator_name: ref.referee_name,
+              referee_name: nom.name,
+              referee_phone: nom.phone,
+              referee_email: nom.email,
+              referee_relationship: nomineeKey,
+              candidate_job_title: ref.candidate_job_title,
+              candidate_company: ref.candidate_company,
+              candidate_dates: ref.candidate_dates,
+              is_test_outreach: isTest,
+              status: 'pending',
+            }).select('id, token').single()
+
+            if (!inserted) continue
+            const row = inserted as { id: string; token: string }
+            const refUrl = `${SITE}/reference/${row.token}`
+            const outreach = await resolveOutreachContact(ref.candidate_id, nom.phone, nom.email, isTest)
+            const testBanner = outreach.testMode ? '🧪 *TEST MODE*\n\n' : ''
+            const channels: string[] = []
+
+            if (outreach.phone) {
+              const waMsg =
+                `${testBanner}Hi ${nom.name.split(' ')[0]} 👋 ${ref.referee_name} at ${ref.candidate_company} suggested you worked with ${candidateName}.\n\n` +
+                `${candidateFirst} doesn't know we've reached out — you can be completely candid.\n\n` +
+                `Just reply to this message and we'll chat through a few quick questions (2 mins), or use the web form: ${refUrl}`
+              const { whatsapp, sms } = await sendReferenceOutreach({
+                phone: outreach.phone,
+                message: waMsg,
+                label: `${nomineeKey} ref for ${candidateName}${isTest ? ' [TEST]' : ''}`,
+              })
+              if (whatsapp) channels.push('whatsapp')
+              else if (sms) channels.push('sms')
+            }
+
+            if (outreach.email) {
+              try {
+                await sendNominatedReferenceEmail({
+                  to: outreach.email,
+                  refereeName: isTest ? `${nom.name} [TEST]` : nom.name,
+                  candidateName,
+                  nominatorName: ref.referee_name,
+                  nominatorCompany: ref.candidate_company || '',
+                  nomineeRole: nomineeKey,
+                  referenceUrl: refUrl,
+                })
+                channels.push('email')
+              } catch (err) {
+                console.error('[ref-webhook] nominee email failed:', err)
+              }
+            }
+
+            if (channels.length > 0) {
+              await admin.from('candidate_references').update({
+                status: 'contacted',
+                contacted_at: new Date().toISOString(),
+                last_contacted_at: new Date().toISOString(),
+                outreach_channel: channels.length > 1 ? channels.join('+') : channels[0],
+              }).eq('id', row.id)
+            }
+          } catch (err) {
+            console.error(`[ref-webhook] ${nomineeKey} cascade failed:`, err)
+          }
+        }
+      } else {
+        // Colleague or stakeholder — parse 3-topic response
+        const parsed = await parseNomineeResponses(history)
+        await admin.from('candidate_references').update({
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          responses: parsed,
+        }).eq('id', ref.id)
+      }
+
+      // After any ref completes, recompute profile_live for the candidate
+      await recomputeProfileLive(ref.candidate_id)
+
+      // Notify candidate when a job's chain hits 3 refs
+      try {
+        const { data: completedThisJob } = await admin
+          .from('candidate_references')
+          .select('id')
+          .eq('candidate_id', ref.candidate_id)
+          .eq('job_slot', ref.job_slot)
+          .eq('status', 'completed')
+        if ((completedThisJob?.length || 0) === 3) {
+          const { data: authUser } = await admin.auth.admin.getUserById(ref.candidate_id)
+          const { data: profile } = await admin.from('profiles').select('full_name').eq('id', ref.candidate_id).single()
+          if (authUser?.user?.email) {
+            await sendReferencesVerifiedEmail(authUser.user.email, (profile?.full_name as string) || '', 3)
+          }
+        }
+      } catch (err) {
+        console.error('[ref-webhook] candidate notification failed:', err)
+      }
+    } catch (err) {
+      console.error('[ref-webhook] [REF_DONE] processing failed:', err)
+    }
+  }
+
   return new NextResponse('', { status: 200 })
 }

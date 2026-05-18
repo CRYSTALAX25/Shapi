@@ -67,6 +67,12 @@ alter table candidate_references add column if not exists nominees jsonb;
 -- candidate's own phone/email so Ana can test the full chain end-to-end
 alter table candidate_references add column if not exists is_test_outreach boolean default false;
 
+-- 9a. Response channel + timing — data signal on referee preference (WhatsApp vs
+-- web form vs email click-through). Stamped on the FIRST reply we receive.
+alter table candidate_references add column if not exists response_channel text
+  check (response_channel in ('whatsapp','web_form','email_reply'));
+alter table candidate_references add column if not exists first_responded_at timestamptz;
+
 -- 10. Indexes to support the webhook routing (referee_phone lookup) and the
 -- profile completion query (per-candidate, per-job, per-ref-type)
 create index if not exists idx_candidate_references_phone
