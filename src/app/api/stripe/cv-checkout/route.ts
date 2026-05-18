@@ -1,8 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import Stripe from 'stripe'
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+import { getStripe, stripeMode } from '@/lib/stripe'
 
 const TIERS = {
   kit: {
@@ -23,6 +21,9 @@ export async function POST(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const stripe = getStripe()
+  console.log('[stripe/cv-checkout] mode:', stripeMode)
 
   const body = await request.json().catch(() => ({}))
   const tierKey = (body.tier === 'pro' ? 'pro' : 'kit') as 'kit' | 'pro'

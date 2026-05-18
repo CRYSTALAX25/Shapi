@@ -1,9 +1,9 @@
-import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { getStripe } from '@/lib/stripe'
 
 export async function POST(request: Request) {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+  const stripe = getStripe()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
