@@ -243,6 +243,32 @@ export default async function Dashboard() {
               </div>
             </div>
 
+            {/* WhatsApp tips — surfaces hidden intent commands so candidates know what to say */}
+            {profile?.whatsapp_number && (
+              <details className="gradient-border-card rounded-2xl p-4 mb-5">
+                <summary className="cursor-pointer flex items-center gap-2 text-white/70 text-sm font-bold list-none">
+                  <span>💡</span>
+                  <span>Things you can say in WhatsApp anytime</span>
+                  <span className="ml-auto text-white/30 text-xs">tap to view</span>
+                </summary>
+                <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-2">
+                  <p className="text-white/55 text-xs leading-relaxed">
+                    During the interview or reference Q&amp;A, type or send a voice note saying any of:
+                  </p>
+                  <ul className="text-white/55 text-xs leading-relaxed space-y-1.5 pl-1">
+                    <li><span className="font-bold text-[#22D3EE]">&quot;skip&quot;</span> or <span className="font-bold text-[#22D3EE]">&quot;next&quot;</span> — move to the next question</li>
+                    <li><span className="font-bold text-[#22D3EE]">&quot;repeat that&quot;</span> — re-ask the previous question</li>
+                    <li><span className="font-bold text-[#22D3EE]">&quot;start over&quot;</span> or <span className="font-bold text-[#22D3EE]">&quot;restart&quot;</span> — wipe + begin the interview fresh</li>
+                    <li><span className="font-bold text-[#22D3EE]">&quot;I&apos;m done&quot;</span> — wrap up the current interview</li>
+                    <li><span className="font-bold text-[#22D3EE]">&quot;I don&apos;t know&quot;</span> — totally fine, we&apos;ll move on</li>
+                  </ul>
+                  <p className="text-white/40 text-xs leading-relaxed pt-2">
+                    🎙 <strong>Voice notes work in any language</strong> — Arabic, Tagalog, Spanish, Hindi, whatever&apos;s easier. We transcribe + respond in the same language.
+                  </p>
+                </div>
+              </details>
+            )}
+
             {/* ── Tier label ── */}
             <div className="mb-3 flex items-center gap-2">
               <span className="text-white/20 text-xs font-bold uppercase tracking-wider">Your plan:</span>

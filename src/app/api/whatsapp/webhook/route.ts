@@ -443,6 +443,28 @@ export async function POST(request: Request) {
     return new NextResponse('', { status: 200 })
   }
 
+  // ── Priority 3.5: "Start over" intent — clear chat, restart interview ────
+  // Server-side detection (faster + more reliable than asking Claude to do it).
+  // Matches natural variations: "start over", "restart", "begin again", "reset",
+  // "from scratch", "let's start again", "let me restart".
+  const startOverIntent = /^\s*(start over|restart|reset|begin again|let'?s\s+(start|begin)\s+again|let me (start|begin)( over| again)?|from (the )?start|from scratch|start again|begin from( the)? start)\b/i.test(userMessage)
+  if (startOverIntent) {
+    console.log('[webhook] Start-over intent from:', phone)
+    // Wipe chat history + reset interview state so Claude treats this as a fresh start
+    const firstName = (profile.full_name as string || 'there').split(' ')[0]
+    const fresh: Array<{ role: 'user' | 'assistant'; content: string }> = []
+    await admin.from('profiles').update({
+      whatsapp_chat: fresh,
+      whatsapp_conversation_active: true,
+      awaiting_cv_language: null,  // also clear any pending language picker
+      updated_at: new Date().toISOString(),
+    }).eq('id', profile.id)
+
+    const restartMsg = `Got it ${firstName} 👋 Starting over — clean slate.\n\nLet's begin: what's the achievement from your work you're most proud of in the last 3 years? Something that made you think "I actually did that."\n\nText back or send a voice note — whatever's easier.`
+    await sendWhatsApp(phone, restartMsg)
+    return new NextResponse('', { status: 200 })
+  }
+
   // ── Priority 4: Main Claude interview ────────────────────────────────────
   const chatHistory: Array<{ role: 'user' | 'assistant'; content: string }> =
     Array.isArray(profile.whatsapp_chat) ? profile.whatsapp_chat : []
@@ -496,6 +518,13 @@ CONVERSATION FLOW:
 - After signal 6 is answered, OR after 9 exchanges total: Wrap up warmly. Tell them their profile is being built and they'll hear from us. End your message with exactly: [DONE]
 
 ${industryGuide}
+
+CANDIDATE INTENT HANDLING — recognise these from natural language (any phrasing):
+- "skip" / "next" / "move on" / "pass" → acknowledge briefly + move to the next signal you haven't covered. Don't push them on the skipped one.
+- "repeat that" / "what was the question" / "say it again" → re-ask your previous question, slightly rephrased
+- "done" / "I'm finished" / "that's all" / "let's wrap up" → if at least 3 of the 6 signals have been covered, wrap up with [DONE]. If fewer than 3, gently say "couple more quick questions" and continue.
+- "I don't know" / "I don't have a number" → reassure, ask for their best estimate or a story example instead. Don't insist on precision.
+- Voice notes in any language work — the transcript is what you read
 
 WHATSAPP RULES (non-negotiable):
 - LANGUAGE: Detect what language they write in and respond in that SAME language always. Arabic → Arabic. Hindi → Hindi. French → French.
