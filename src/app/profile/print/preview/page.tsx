@@ -142,10 +142,34 @@ function ToolBar({ variant }: { variant: 'a' | 'b' | 'c' }) {
   )
 }
 
+// Pick the 1-2 strongest WhatsApp quotes for the sidebar. We want short,
+// punchy lines that show personality — skip ultra-short or rambling ones.
+function pickSidebarQuotes(answers: string[] | undefined, max = 2): string[] {
+  if (!answers || answers.length === 0) return []
+  const cleaned = answers
+    .map(a => (a || '').trim().replace(/\s+/g, ' '))
+    .filter(a => a.length >= 40 && a.length <= 180)   // sweet spot: ~1-2 short sentences
+  // Score by mid-length preference: too short = thin, too long = won't fit
+  const scored = cleaned
+    .map(a => ({ a, score: Math.abs(110 - a.length) }))   // 110 chars ≈ perfect
+    .sort((x, y) => x.score - y.score)
+    .slice(0, max)
+    .map(s => s.a)
+  // Fallback: if filter killed everything, just take first N and truncate
+  if (scored.length === 0 && answers.length > 0) {
+    return answers.slice(0, max).map(a => {
+      const t = (a || '').trim().replace(/\s+/g, ' ')
+      return t.length > 180 ? t.slice(0, 177) + '…' : t
+    })
+  }
+  return scored
+}
+
 // ═══ VARIANT A — Verified Profile (two-column, sidebar with fingerprint + tier) ═══
 function VariantA({ cv, profile }: { cv: CV; profile: Profile | null }) {
   const q = profile?.skill_quadrant
   const tier = profile?.verification_tier
+  const sidebarQuotes = pickSidebarQuotes(cv.chatAnswers, 2)
   const tierMeta: Record<string, { label: string; color: string }> = {
     basic: { label: 'Basic Verified', color: '#22D3EE' },
     strong: { label: 'Strongly Verified', color: '#34D399' },
@@ -183,6 +207,9 @@ function VariantA({ cv, profile }: { cv: CV; profile: Profile | null }) {
         .bar-fill { display: flex; align-items: center; gap: 2px; }
         .bar-seg { width: 8px; height: 6px; border-radius: 1px; }
         .side-chip { display: inline-block; font-size: 10px; padding: 3px 8px; border-radius: 999px; background: white; color: #374151; border: 1px solid #E5E7EB; margin: 2px 3px 2px 0; }
+        .side-quote { position: relative; font-size: 11px; line-height: 1.55; color: #374151; font-style: italic; padding: 4px 0 4px 12px; border-left: 2px solid #A78BFA; margin-bottom: 10px; break-inside: avoid; }
+        .side-quote::before { content: '“'; position: absolute; left: 2px; top: -4px; font-size: 18px; color: #A78BFA; font-family: Georgia, serif; line-height: 1; font-style: normal; }
+        .side-quote .attr { display: block; font-size: 9px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: #9CA3AF; font-style: normal; margin-top: 4px; }
         .footer-a { grid-column: 1 / -1; padding: 14px 32px 24px; font-size: 9.5px; color: #9CA3AF; border-top: 1px solid #E5E7EB; text-align: center; }
         @media print {
           html, body { background: white; }
@@ -254,6 +281,20 @@ function VariantA({ cv, profile }: { cv: CV; profile: Profile | null }) {
               {profile?.ai_tier && (
                 <p style={{ fontSize: 10, color: '#6B7280', marginTop: 8 }}>🤖 AI {profile.ai_tier.charAt(0).toUpperCase() + profile.ai_tier.slice(1)}</p>
               )}
+            </div>
+          )}
+
+          {sidebarQuotes.length > 0 && (
+            <div className="side-block">
+              <p className="side-label">In Their Own Words</p>
+              {sidebarQuotes.map((q, i) => (
+                <div key={i} className="side-quote">
+                  {q}
+                  {i === sidebarQuotes.length - 1 && (
+                    <span className="attr">— {cv.full_name.split(' ')[0]}, Shapi interview</span>
+                  )}
+                </div>
+              ))}
             </div>
           )}
 

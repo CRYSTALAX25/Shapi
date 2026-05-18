@@ -81,8 +81,31 @@ const styles = StyleSheet.create({
   langLevel: { color: COLORS.textSubtle },
   skillChip: { fontSize: 8.5, padding: '2 7', backgroundColor: COLORS.white, color: COLORS.textMuted, marginRight: 3, marginBottom: 3, borderRadius: 99, borderWidth: 0.5, borderColor: COLORS.divider },
   skillRow: { flexDirection: 'row', flexWrap: 'wrap' },
+  quoteBox: { borderLeftWidth: 1.5, borderLeftColor: COLORS.brandPurple, paddingLeft: 9, paddingTop: 2, paddingBottom: 2, marginBottom: 9 },
+  quoteText: { fontSize: 9, lineHeight: 1.45, color: COLORS.textMuted, fontStyle: 'italic' },
+  quoteAttr: { fontSize: 7.5, fontWeight: 'bold', letterSpacing: 0.5, color: COLORS.textSubtle, marginTop: 3, textTransform: 'uppercase' },
   footer: { position: 'absolute', bottom: 16, left: 32, right: 32, fontSize: 8, color: COLORS.textSubtle, textAlign: 'center', borderTopWidth: 0.5, borderTopColor: COLORS.divider, paddingTop: 8 },
 })
+
+// Pick the 1-2 strongest WhatsApp quotes for the sidebar.
+function pickQuotes(answers: string[] | undefined, max = 2): string[] {
+  if (!answers || answers.length === 0) return []
+  const cleaned = answers
+    .map(a => (a || '').trim().replace(/\s+/g, ' '))
+    .filter(a => a.length >= 40 && a.length <= 160)
+  const scored = cleaned
+    .map(a => ({ a, score: Math.abs(100 - a.length) }))
+    .sort((x, y) => x.score - y.score)
+    .slice(0, max)
+    .map(s => s.a)
+  if (scored.length === 0 && answers.length > 0) {
+    return answers.slice(0, max).map(a => {
+      const t = (a || '').trim().replace(/\s+/g, ' ')
+      return t.length > 160 ? t.slice(0, 157) + '…' : t
+    })
+  }
+  return scored
+}
 
 const tierMeta = (t?: string | null): { label: string; bg: string; color: string } | null => {
   if (!t || t === 'unverified') return null
@@ -124,6 +147,8 @@ function CVDocument({ cv, profile }: { cv: CVData; profile: CVProfile }) {
     ? cv.courses.map(c => `${c.name}${c.platform ? ` · ${c.platform}` : ''}${c.year ? ` ${c.year}` : ''}`).join(' · ')
     : null
   const profileShortId = profile.id ? profile.id.slice(0, 8) : null
+  const sidebarQuotes = pickQuotes(cv.chatAnswers, 2)
+  const firstName = (cv.full_name || '').split(' ')[0] || 'them'
 
   return (
     <Document>
@@ -186,6 +211,20 @@ function CVDocument({ cv, profile }: { cv: CVData; profile: CVProfile }) {
               {profile.ai_tier && (
                 <Text style={styles.aiTier}>AI {profile.ai_tier.charAt(0).toUpperCase() + profile.ai_tier.slice(1)}</Text>
               )}
+            </View>
+          )}
+
+          {sidebarQuotes.length > 0 && (
+            <View style={styles.sideBlock}>
+              <Text style={styles.sideLabel}>In Their Own Words</Text>
+              {sidebarQuotes.map((quote, i) => (
+                <View key={i} style={styles.quoteBox} wrap={false}>
+                  <Text style={styles.quoteText}>&ldquo;{quote}&rdquo;</Text>
+                  {i === sidebarQuotes.length - 1 && (
+                    <Text style={styles.quoteAttr}>— {firstName}, Shapi interview</Text>
+                  )}
+                </View>
+              ))}
             </View>
           )}
 
