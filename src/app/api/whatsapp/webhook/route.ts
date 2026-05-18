@@ -218,24 +218,7 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient()
 
-  // ═══ PRIORITY 0: Reference reply routing ═══════════════════════════════
-  // If this phone matches a candidate_references row in 'contacted' or 'opened'
-  // state, route the message to the reference Q&A flow (not the candidate flow).
-  // In test mode multiple rows can share the phone — pick the oldest active.
-  const { data: refRows } = await admin
-    .from('candidate_references')
-    .select('id, candidate_id, ref_type, job_slot, status, referee_name, candidate_company, candidate_job_title, candidate_dates, whatsapp_chat, is_test_outreach, nominator_name, response_channel, first_responded_at, token')
-    .eq('referee_phone', phone)
-    .in('status', ['contacted', 'opened'])
-    .order('contacted_at', { ascending: true })
-    .limit(1)
-
-  if (refRows && refRows.length > 0) {
-    return handleReferenceReply(refRows[0], body || '', formData, numMedia, mediaType, phone)
-  }
-  // ═══════════════════════════════════════════════════════════════════════
-
-  // Look up candidate profile — limit(1) survives duplicate rows
+  // Look up candidate profile FIRST — needed for precedence decisions below.
   const { data: profiles } = await admin
     .from('profiles')
     .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, cv_tier, industry_chats, whatsapp_conversation_active')
@@ -244,6 +227,47 @@ export async function POST(request: Request) {
     .limit(1)
 
   const profile = profiles?.[0] ?? null
+
+  // ═══ PRIORITY 0: Reference reply routing ═══════════════════════════════
+  // If this phone matches a candidate_references row in 'contacted' or 'opened'
+  // state, route the message to the reference Q&A flow.
+  //
+  // CRITICAL PRECEDENCE FIX: do NOT route to reference if this phone owner
+  // ALSO has an active candidate interview in progress. Otherwise a candidate
+  // who later becomes a referee (or uses test mode with their own phone) gets
+  // their main interview hijacked by stale reference rows.
+  //
+  // Rule: candidate flow wins when whatsapp_conversation_active=true. Reference
+  // flow only takes over when the candidate has finished their own interview.
+  const candidateInterviewActive = profile?.whatsapp_conversation_active === true
+  if (!candidateInterviewActive) {
+    const { data: refRows } = await admin
+      .from('candidate_references')
+      .select('id, candidate_id, ref_type, job_slot, status, referee_name, candidate_company, candidate_job_title, candidate_dates, whatsapp_chat, is_test_outreach, nominator_name, response_channel, first_responded_at, token')
+      .eq('referee_phone', phone)
+      .in('status', ['contacted', 'opened'])
+      .order('contacted_at', { ascending: true })
+      .limit(1)
+
+    if (refRows && refRows.length > 0) {
+      // Extra guard: in test mode, the reference row's candidate_id is the
+      // SAME as the current sender's profile. Don't let stale rows from OLD
+      // accounts hijack a NEW account's interview. Match candidate_id.
+      const ref = refRows[0]
+      const refBelongsToCurrentCandidate = profile && ref.candidate_id === profile.id
+      const refIsTestModeFromAnyAccount = ref.is_test_outreach === true
+      if (refBelongsToCurrentCandidate || (!profile && refIsTestModeFromAnyAccount)) {
+        return handleReferenceReply(ref, body || '', formData, numMedia, mediaType, phone)
+      } else if (!refBelongsToCurrentCandidate && profile) {
+        console.log('[webhook] Skipping reference routing — ref belongs to another candidate:', ref.candidate_id, 'vs current:', profile.id)
+      } else {
+        return handleReferenceReply(ref, body || '', formData, numMedia, mediaType, phone)
+      }
+    }
+  } else {
+    console.log('[webhook] Candidate interview active for', phone, '— skipping reference routing')
+  }
+  // ═══════════════════════════════════════════════════════════════════════
 
   if (!profile) {
     console.log('[webhook] No profile or reference found for:', phone)

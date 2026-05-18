@@ -174,11 +174,16 @@ export default async function Dashboard() {
             {/* Header */}
             <div className="mb-8">
               <h1 className="text-3xl font-black text-white mb-1">
-                Welcome back{firstName ? `, ${firstName}` : ''}.
+                {completion === 0
+                  ? `Welcome${firstName ? `, ${firstName}` : ''} — let's start.`
+                  : `Welcome back${firstName ? `, ${firstName}` : ''}.`}
               </h1>
-              <p className="text-white/35 text-sm">
-                {profile?.headline || 'Your verified profile is being built.'}
-              </p>
+              {/* Sub-headline only when there's a real headline to show; otherwise the
+                  progress card below carries the "what's next" message. Avoids duplicate
+                  "your profile is being built" text. */}
+              {profile?.headline && (
+                <p className="text-white/35 text-sm">{profile.headline}</p>
+              )}
             </div>
 
             {/* Progress card */}
@@ -206,9 +211,8 @@ export default async function Dashboard() {
                   </div>
                 </div>
 
-                {/* Text */}
+                {/* Text — heading carries the % context; no separate "Profile completion" label */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-white/35 text-xs font-bold uppercase tracking-wider mb-1">Profile completion</p>
                   <h2 className="text-xl font-black text-white mb-1">
                     {completion === 0 && "Let's get started"}
                     {completion > 0 && completion < 50 && 'Good start — keep going'}
@@ -523,7 +527,9 @@ export default async function Dashboard() {
           <>
             <div className="mb-8">
               <h1 className="text-3xl font-black text-white mb-1">
-                Welcome back{firstName ? `, ${firstName}` : ''}.
+                {completion === 0
+                  ? `Welcome${firstName ? `, ${firstName}` : ''} — let's start.`
+                  : `Welcome back${firstName ? `, ${firstName}` : ''}.`}
               </h1>
               <p className="text-white/35 text-sm">Post jobs, review verified candidates, manage your pipeline.</p>
             </div>
