@@ -120,11 +120,13 @@ export async function POST(request: Request) {
           const testBanner = outreach.testMode ? '🧪 *TEST MODE* — this would normally go to the actual ' + nominee.ref_type + '.\n\n' : ''
           const channels: string[] = []
 
-          // 1. WhatsApp / SMS first
+          // 1. WhatsApp / SMS first — invite chat, web form as fallback
           if (outreach.phone) {
             const waMsg =
-              `${testBanner}Hi ${nominee.name.split(' ')[0]} 👋 ${ref.referee_name} at ${ref.candidate_company} suggested you worked with ${candidateName} and might share a perspective.\n\n` +
-              `${candidateName.split(' ')[0]} doesn't know we've reached out — you can be completely candid. Takes 2 minutes:\n\n${referenceUrl}`
+              `${testBanner}Hi ${nominee.name.split(' ')[0]} 👋 I'm Shapi.\n\n` +
+              `${ref.referee_name} at ${ref.candidate_company} suggested you worked with ${candidateName} and might share a perspective. ${candidateName.split(' ')[0]} doesn't know we've reached out — completely candid is welcome.\n\n` +
+              `*Just reply to this message* — 3 short questions, voice notes or text, any language. Takes 2 minutes.\n\n` +
+              `(Prefer a web form? ${referenceUrl})`
 
             const { whatsapp, sms } = await sendReferenceOutreach({
               phone: outreach.phone,

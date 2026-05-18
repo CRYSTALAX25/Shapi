@@ -996,9 +996,10 @@ async function handleReferenceReply(
 
             if (outreach.phone) {
               const waMsg =
-                `${testBanner}Hi ${nom.name.split(' ')[0]} 👋 ${ref.referee_name} at ${ref.candidate_company} suggested you worked with ${candidateName}.\n\n` +
-                `${candidateFirst} doesn't know we've reached out — you can be completely candid.\n\n` +
-                `Just reply to this message and we'll chat through a few quick questions (2 mins), or use the web form: ${refUrl}`
+                `${testBanner}Hi ${nom.name.split(' ')[0]} 👋 I'm Shapi.\n\n` +
+                `${ref.referee_name} at ${ref.candidate_company} suggested you worked with ${candidateName} and might share a perspective. ${candidateFirst} doesn't know we've reached out — completely candid is welcome.\n\n` +
+                `*Just reply to this message* — 3 short questions, voice notes or text, any language. Takes 2 minutes.\n\n` +
+                `(Prefer a web form? ${refUrl})`
               const { whatsapp, sms } = await sendReferenceOutreach({
                 phone: outreach.phone,
                 message: waMsg,

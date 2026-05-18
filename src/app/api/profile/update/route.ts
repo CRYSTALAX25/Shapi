@@ -32,15 +32,22 @@ export async function POST(request: Request) {
 
   console.log('[profile/update] Saved for user:', user.id, 'fields:', Object.keys(body).join(','))
 
-  // Send opening WhatsApp message when a number is saved for the first time
+  // Send opening WhatsApp message when a number is saved for the FIRST TIME ever.
+  // Gate: only send when whatsapp_chat is empty. Once any conversation exists
+  // (active OR completed), the candidate has already seen the opening — never
+  // re-send. Previous check used conversation_active which was false after
+  // [DONE], causing the opening to re-fire on any subsequent profile edit.
   if (body.whatsapp_number) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('full_name, whatsapp_conversation_active, cv_parsed')
+      .select('full_name, whatsapp_conversation_active, cv_parsed, whatsapp_chat')
       .eq('id', user.id)
       .single()
 
-    if (!profile?.whatsapp_conversation_active) {
+    const chatLength = Array.isArray(profile?.whatsapp_chat) ? profile.whatsapp_chat.length : 0
+    const neverChatted = chatLength === 0
+
+    if (neverChatted) {
       const firstName = profile?.full_name?.split(' ')[0] || 'there'
       const message = profile?.cv_parsed
         ? OPENING_MESSAGE(firstName)

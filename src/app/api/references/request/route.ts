@@ -133,12 +133,12 @@ export async function POST(request: Request) {
 
   let channels: string[] = []
 
-  // 1. WhatsApp / SMS first (if phone provided)
+  // 1. WhatsApp / SMS first (if phone provided) — INVITE chat as primary path,
+  // web form link as fallback for referees who prefer typing on a desktop.
   if (outreach.phone) {
-    const relationLabel = refType === 'peer' ? 'a colleague they currently work with' : 'their manager'
     const waMsg = refType === 'peer'
-      ? `${testBanner}Hi ${referee_name.split(' ')[0]} 👋 ${candidateName} listed you as a colleague at ${candidate_company}.\n\nWe're building their verified profile on Shapi — your perspective as someone who works with them helps a lot. 3 short questions, takes 2 minutes:\n\n${referenceUrl}\n\n${candidateFirst} can't edit your responses — they appear exactly as you write them.`
-      : `${testBanner}Hi ${referee_name.split(' ')[0]} 👋 ${candidateName} listed you as ${relationLabel} at ${candidate_company}.\n\nWe're building their verified profile on Shapi. Takes 5 minutes — your honest answers help them stand out to the right employers.\n\nFill in here: ${referenceUrl}\n\n${candidateFirst} can't edit your responses — they appear exactly as you write them.`
+      ? `${testBanner}Hi ${referee_name.split(' ')[0]} 👋 I'm Shapi.\n\n${candidateName} listed you as a colleague at ${candidate_company}. Your perspective as someone who works with them helps a lot — and it's confidential, ${candidateFirst} can't see your replies.\n\n*Just reply to this message* — 3 quick questions, takes 2 minutes. Voice notes or text, any language.\n\n(Prefer a web form? ${referenceUrl})`
+      : `${testBanner}Hi ${referee_name.split(' ')[0]} 👋 I'm Shapi.\n\n${candidateName} listed you as their manager at ${candidate_company}. I'd love your honest take — 5 minutes max, completely confidential. ${candidateFirst} can't see what you say.\n\n*Just reply to this message* — I'll ask you a few questions one at a time. Voice notes or text, any language is fine.\n\n(Prefer a web form? ${referenceUrl})`
 
     const { whatsapp, sms } = await sendReferenceOutreach({
       phone: outreach.phone,
