@@ -2,25 +2,12 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { sendWhatsApp } from '@/lib/whatsapp'
+import { INDUSTRY_BRIEFS, type Industry } from '@/lib/industry-briefs'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
 // Extend Vercel function timeout — Claude question generation needs time
 export const maxDuration = 60
-
-// Industry-specific focus areas to prompt Claude with
-const INDUSTRY_FOCUS: Record<string, string> = {
-  finance: 'P&L responsibility, budgets managed, cost savings, revenue generated, financial controls, compliance, reporting',
-  tech: 'tech stack, systems built or managed, scale (users/uptime/latency), automation, technical leadership',
-  creative: 'campaigns, brands worked with, creative direction, audience reach, content production, platform experience',
-  healthcare: 'clinical settings, patient volumes, certifications, care standards, protocols followed',
-  legal: 'practice areas, deal/case types, jurisdictions, contracts negotiated, legal frameworks',
-  marketing: 'campaigns run, channels owned, ROAS/conversion/CAC metrics, tools used, team size',
-  operations: 'processes built, team sizes managed, cost reductions, efficiency gains, vendor management, compliance',
-  hospitality: 'property types, F&B operations, guest experience metrics, team size, revenue managed, openings/launches',
-  education: 'student outcomes, curriculum, cohort sizes, programmes designed, research',
-  sales: 'quota attainment, deal sizes, revenue generated, sales methodology, markets covered, team leadership',
-}
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -55,33 +42,57 @@ export async function POST(request: Request) {
   // Generate targeted questions with Claude
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-  const focusAreas = targetIndustries
-    .map(ind => `${ind.toUpperCase()}: ${INDUSTRY_FOCUS[ind] || 'key achievements and experience'}`)
-    .join('\n')
+  // Stitch the rich briefs for each target industry into the prompt
+  const briefsForTargets = targetIndustries
+    .map(ind => INDUSTRY_BRIEFS[ind as Industry] || `${ind.toUpperCase()}: focus on quantified impact, scope, and named achievements.`)
+    .join('\n\n═══════════════════════════════════════════════════════\n\n')
 
-  const prompt = `You are writing WhatsApp interview questions for a CV writer.
+  const industryList = targetIndustries.map(i => i.charAt(0).toUpperCase() + i.slice(1)).join(', ')
 
-CANDIDATE: ${profile.full_name || 'Candidate'}
-HEADLINE: ${profile.headline || ''}
-WORK HISTORY: ${JSON.stringify(profile.work_history || [])}
-EXISTING WHATSAPP ANSWERS: ${existingChat || 'None yet'}
+  const skillsList = Array.isArray(profile.skills)
+    ? (profile.skills as string[]).join(', ')
+    : ''
 
-TARGET INDUSTRIES FOR DEEP-DIVE:
-${focusAreas}
+  const prompt = `You are a senior recruiter and CV writer at a top executive search firm. You're running a WhatsApp interview with a candidate to surface the SPECIFIC details missing from their CV that would put them in the top 10% of applicants for ${industryList} roles.
 
-Your job: Write 6-8 WhatsApp messages that will extract the specific stories, numbers and context needed to write compelling CVs for these industries.
+═══ CANDIDATE PROFILE (read carefully) ═══
+Name: ${profile.full_name || 'Candidate'}
+Headline: ${profile.headline || 'not provided'}
+Skills listed: ${skillsList || 'none listed'}
+Work history (full JSON): ${JSON.stringify(profile.work_history || [])}
+Prior WhatsApp answers (from the main interview): ${existingChat || 'None yet — this is the first interview'}
 
-Rules:
-- Each question on its own line starting with a number and dot (1. 2. etc.)
-- Conversational WhatsApp tone — warm, direct, not formal
-- Ask about GAPS — things missing from their CV that are critical for these industries
-- Reference their actual experience to show you've read their profile
-- For hospitality: ask about F&B operations, team sizes, guest metrics, any venue openings/launches
-- For operations: ask about process improvements, cost savings, systems they built
-- Never ask what's already clearly in their CV
-- End with: "Once you've answered these, I'll write your [industry list] CVs straight away 🚀"
+═══ WHAT AN EXCEPTIONAL CV LOOKS LIKE IN ${industryList.toUpperCase()} ═══
 
-Return ONLY the numbered questions, nothing else.`
+${briefsForTargets}
+
+═══ YOUR TASK (two steps) ═══
+
+STEP 1 — Internal gap analysis (do NOT output this part):
+Read the candidate's profile against the brief(s) above. Identify the TOP 6-8 SPECIFIC GAPS — things missing from their CV that, if added, would materially improve their chances. Focus on:
+  • Missing numbers/metrics specific to this industry (RevPAR, quota %, deal sizes, patient volumes, etc.)
+  • Missing sub-segment context (e.g. property type + brand for hospitality, sub-specialty for healthcare, vertical for sales)
+  • HIDDEN GOLDMINES from the brief — things candidates in this industry ALWAYS forget but recruiters always look for
+  • Industry-specific vocabulary that signals deep expertise (use the "Vocabulary of expertise" section)
+  • Career story rationale where role transitions need explaining
+
+STEP 2 — Output the questions:
+Write 6-8 WhatsApp questions that surface those exact gaps. Each must:
+  • Reference something specific from the candidate's actual CV/profile (proves you read it carefully)
+  • Target ONE specific gap from your Step 1 analysis
+  • Be answerable in 1-2 sentences or a voice note — no essays
+  • Use natural, warm WhatsApp tone — like a sharp recruiter texting, not formal HR
+  • Be numbered on its own line: "1. ", "2. ", etc.
+  • Where helpful, give context for WHY you're asking (e.g. "Hiring managers in luxury hospitality always ask about pre-opening experience...")
+
+═══ NON-NEGOTIABLE RULES ═══
+- NEVER ask about something already clearly in their CV or prior WhatsApp answers (wastes their time, breaks trust)
+- For ${industryList}, prioritize gaps from the brief(s) above — those are the ones that decide interviews
+- Distribute questions across all target industries proportionally if multiple are picked
+- Use industry vocabulary in the questions themselves — shows we know the field
+- End the message with EXACTLY: "Once you've answered these, I'll write your ${industryList} CV${targetIndustries.length > 1 ? 's' : ''} straight away 🚀"
+
+Return ONLY the numbered questions and the closing line. Nothing else.`
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',

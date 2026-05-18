@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { INDUSTRY_BRIEFS, INDUSTRY_FOCUS_SHORT, type Industry } from '@/lib/industry-briefs'
 
 // Countries where English is the primary native language — hide native CV option for these
 const NATIVE_ENGLISH_COUNTRIES = [
@@ -49,18 +50,12 @@ type WorkEntry = {
   achievements?: string
 }
 
+// One-liner industry styling guidance, used as a quick anchor in the CV-writing prompt.
+// The full rich brief is also included below (FULL_BRIEF) so Claude knows what an
+// exceptional CV in this industry looks like and writes to that bar.
 const INDUSTRY_GUIDES: Record<string, string> = {
-  finance: 'Lead achievements with numbers. Formal tone. Highlight P&L, AUM, risk, compliance outcomes.',
-  tech: 'Name specific stack in context. Quantify scale (users, uptime, latency). Show ownership.',
-  creative: 'Evocative language. Name brands and campaigns. Include reach/engagement metrics.',
-  healthcare: 'Certifications and licenses prominent. Clinical hours and patient volumes. Formal and precise.',
-  legal: 'Practice areas clear. Deal/case experience named. Academic credentials weighted.',
-  marketing: 'Every campaign gets a metric: ROAS, conversion, CAC, reach. Channel ownership clear.',
-  operations: 'Certifications and licences first. Volume, scale, safety record. Direct and factual.',
-  hospitality: 'Property name and star rating upfront. RevPAR, covers, guest scores. Languages listed.',
-  education: 'Student outcomes and cohort size. Research and publications. Safeguarding noted.',
-  sales: 'Quota attainment % in every role. Deal size, revenue generated. Methodology named.',
-  general: 'Lead with impact. Quantify wherever possible. Clear upward progression.',
+  ...INDUSTRY_FOCUS_SHORT,
+  general: 'Lead with impact. Quantify wherever possible. Clear upward progression. No industry jargon.',
 }
 
 export async function POST(request: Request) {
@@ -139,6 +134,9 @@ export async function POST(request: Request) {
     : []
   const industry = targetIndustry || (profile.industry as string) || 'general'
   const industryGuide = INDUSTRY_GUIDES[industry] || INDUSTRY_GUIDES.general
+  // Full rich brief — handed to Claude so the CV writer aligns with the same rubric
+  // the deep-dive questions were generated against.
+  const industryFullBrief = INDUSTRY_BRIEFS[industry as Industry] || ''
 
   // ── Native language resolution — nationality-first, never guess from WhatsApp ──
   // Priority order:
@@ -212,7 +210,7 @@ CANDIDATE INFO:
 
 ${mode === 'universal'
   ? `UNIVERSAL CV MODE: This CV must work for candidates switching industries or applying for cross-sector roles. Avoid all industry-specific jargon. Lead with: leadership, communication, problem-solving, project management, budgets, team size, % improvements, time saved, revenue impact. Every achievement must be understood by a hiring manager in ANY sector.`
-  : `INDUSTRY WRITING GUIDE — ${industry.toUpperCase()}:\n${industryGuide}`
+  : `INDUSTRY STYLE ANCHOR — ${industry.toUpperCase()}:\n${industryGuide}\n\n═══ WHAT AN EXCEPTIONAL CV IN ${industry.toUpperCase()} LOOKS LIKE (write to this bar) ═══\n${industryFullBrief}\n\nWrite this candidate's CV against that bar. Use the industry's "Vocabulary of expertise" naturally in their achievements. If their work history mentions something that maps to a "Hidden goldmine" from the brief, surface it prominently. Match the "Exemplary achievement" tone and specificity wherever the candidate's actual experience supports it.`
 }
 
 LANGUAGE: ${languageInstruction}
