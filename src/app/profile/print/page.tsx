@@ -55,7 +55,32 @@ function PrintContent() {
   const [meta, setMeta] = useState<Meta | null>(null)
   const [error, setError] = useState('')
   const [fromCache, setFromCache] = useState(false)
+  const [availableLangs, setAvailableLangs] = useState<string[]>([])
   const fetched = useRef(false)
+
+  // Load the candidate's spoken languages so we can render one toolbar
+  // button per language (Italian, French, etc. — not just Native/Universal)
+  useEffect(() => {
+    fetch('/api/profile/get')
+      .then(r => r.json())
+      .then(({ profile }) => {
+        if (!profile) return
+        const spoken = Array.isArray(profile.languages_spoken)
+          ? (profile.languages_spoken as Array<{ language?: string }>)
+          : []
+        const native = profile.native_language ? [profile.native_language as string] : []
+        const all = [...native, ...spoken.map(s => s.language || '').filter(Boolean)]
+        // Dedupe + exclude English (which has its own button), keep order
+        const seen = new Set(['english'])
+        const unique: string[] = []
+        for (const l of all) {
+          const k = l.toLowerCase().trim()
+          if (!seen.has(k)) { seen.add(k); unique.push(l) }
+        }
+        setAvailableLangs(unique)
+      })
+      .catch(() => {})
+  }, [])
 
   const loadCV = (forceRefresh = false) => {
     setCv(null)
@@ -172,21 +197,23 @@ function PrintContent() {
         html, body { background: #f8f8f8 !important; color: #1a1a2e !important; }
 
         .no-print {
-          position: fixed; top: 12px; right: 12px; z-index: 9999;
-          display: flex; gap: 8px; align-items: center;
+          position: fixed; top: 12px; left: 12px; right: 12px; z-index: 9999;
+          display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
           background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
-          padding: 8px 12px; border-radius: 999px;
+          padding: 8px 12px; border-radius: 12px;
           box-shadow: 0 2px 12px rgba(0,0,0,0.12);
         }
-        .btn { padding: 10px 20px; border-radius: 999px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; font-family: system-ui, sans-serif; }
-        .btn-primary { background: linear-gradient(135deg,#22D3EE,#A78BFA); color: #060609; }
+        .btn { padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; font-family: system-ui, sans-serif; white-space: nowrap; }
+        .btn-primary { background: linear-gradient(135deg,#22D3EE,#A78BFA); color: #060609; margin-left: auto; }
         .btn-secondary { background: #e8e8e8; color: #333; }
+        .btn-secondary.btn-active { background: #1a1a2e; color: white; }
 
         .page {
-          max-width: 800px; margin: 72px auto 32px; padding: 56px 64px;
-          background: white; box-shadow: 0 4px 40px rgba(0,0,0,0.08);
+          max-width: 800px; margin: 96px auto 32px; padding: 56px 64px;
+          background: white; box-shadow: 0 6px 48px rgba(0,0,0,0.15);
           font-family: ${isRTL ? "'Noto Sans Arabic','Arial',sans-serif" : "'Georgia',serif"};
           color: #1a1a2e; direction: ${isRTL ? 'rtl' : 'ltr'};
+          border-radius: 4px;
         }
 
         .translation-notice {
@@ -229,18 +256,51 @@ function PrintContent() {
         }
       `}</style>
 
-      {/* Toolbar — hidden on print */}
+      {/* Toolbar — hidden on print. One button per language the candidate
+          speaks, plus Universal / Regenerate / Save as PDF. Wraps on narrow
+          viewports so buttons don't get clipped behind the page. */}
       <div className="no-print">
         <button className="btn btn-secondary" onClick={() => router.back()}>← Back</button>
-        {!isNative && <button className="btn btn-secondary" onClick={() => router.push('/profile/print?lang=native')}>🌐 Native version</button>}
-        {!isUniversal && <button className="btn btn-secondary" onClick={() => router.push('/profile/print?lang=universal')}>📋 Universal version</button>}
-        {(isNative || isUniversal) && <button className="btn btn-secondary" onClick={() => router.push('/profile/print')}>🇬🇧 English version</button>}
+
+        {/* English — always available */}
+        <button
+          className={`btn btn-secondary ${isEnglish && !targetIndustry ? 'btn-active' : ''}`}
+          onClick={() => router.push('/profile/print')}
+          disabled={isEnglish && !targetIndustry}
+        >
+          🇬🇧 English
+        </button>
+
+        {/* One button per spoken language (Italian, Croatian, etc.) */}
+        {availableLangs.map(l => {
+          const isThisLang = (targetLanguage || '').toLowerCase() === l.toLowerCase() || (isNative && cv?.language?.toLowerCase() === l.toLowerCase())
+          return (
+            <button
+              key={l}
+              className={`btn btn-secondary ${isThisLang ? 'btn-active' : ''}`}
+              onClick={() => router.push(`/profile/print?lang=${encodeURIComponent(l)}`)}
+              disabled={isThisLang}
+            >
+              🌐 {l}
+            </button>
+          )
+        })}
+
+        {/* Universal (industry-agnostic) version */}
+        <button
+          className={`btn btn-secondary ${isUniversal ? 'btn-active' : ''}`}
+          onClick={() => router.push('/profile/print?lang=universal')}
+          disabled={isUniversal}
+        >
+          📋 Universal
+        </button>
+
         <button className="btn btn-secondary" onClick={() => { fetched.current = false; loadCV(true) }}
           title="Regenerate with latest data">
           ↺ Regenerate
         </button>
+
         <button className="btn btn-primary" onClick={() => {
-          // Give browser a tick to finish rendering before print dialog opens
           setTimeout(() => window.print(), 100)
         }}>
           ↓ Save as PDF
