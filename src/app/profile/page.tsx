@@ -26,7 +26,10 @@ export default async function ProfilePage() {
     .eq('id', user.id)
     .single()
 
-  if (!profile || profile.type !== 'candidate') redirect('/dashboard')
+  // Redirect ONLY if profile explicitly belongs to a company.
+  // Null/undefined/'candidate' all render the candidate view.
+  if (!profile) redirect('/dashboard')
+  if (profile.type === 'company') redirect('/company/dashboard')
 
   // Fetch evidence count
   const { count: evidenceCount } = await supabase
