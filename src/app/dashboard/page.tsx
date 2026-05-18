@@ -211,20 +211,11 @@ export default async function Dashboard() {
                   </div>
                 </div>
 
-                {/* Text — heading carries the % context; no separate "Profile completion" label */}
+                {/* % only — status copy lives in the Shapi-says card above */}
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-xl font-black text-white mb-1">
-                    {completion === 0 && "Let's get started"}
-                    {completion > 0 && completion < 50 && 'Good start — keep going'}
-                    {completion >= 50 && completion < 90 && 'Almost there'}
-                    {completion >= 90 && 'Profile complete'}
+                  <h2 className="text-xl font-black text-white mb-0">
+                    {completion}% complete
                   </h2>
-                  <p className="text-white/35 text-sm">
-                    {completion === 0 && 'Upload your CV — takes 3 minutes. No forms.'}
-                    {completion > 0 && completion < 30 && 'Complete the WhatsApp conversation to go deeper.'}
-                    {completion >= 30 && completion < 90 && "Verification in progress. We'll notify you when live."}
-                    {completion >= 90 && "You're being matched with companies now."}
-                  </p>
                 </div>
 
                 {!profile?.cv_parsed && (

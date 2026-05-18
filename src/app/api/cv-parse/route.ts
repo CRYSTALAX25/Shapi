@@ -46,7 +46,7 @@ export async function POST(request: Request) {
   try {
     response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
+      max_tokens: 4000,
       messages: [
         {
           role: 'user',
@@ -136,11 +136,32 @@ Return only the JSON. No explanation, no markdown fences.`,
 
   const raw = response.content[0].type === 'text' ? response.content[0].text : '{}'
 
+  // Defensive JSON extraction — Claude occasionally wraps in ```json ... ``` despite the prompt
+  // saying not to, or returns prose around the JSON. Strip fences first, then find the JSON object.
   let parsed: Record<string, unknown>
   try {
     parsed = JSON.parse(raw)
   } catch {
-    return NextResponse.json({ error: 'Could not parse CV response' }, { status: 500 })
+    // Strip markdown fences if present
+    const cleaned = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim()
+    try {
+      parsed = JSON.parse(cleaned)
+    } catch {
+      // Last resort: find first { ... last } and parse that span
+      const first = cleaned.indexOf('{')
+      const last = cleaned.lastIndexOf('}')
+      if (first !== -1 && last !== -1 && last > first) {
+        try {
+          parsed = JSON.parse(cleaned.slice(first, last + 1))
+        } catch (err) {
+          console.error('[cv-parse] All JSON parse attempts failed. Raw response (first 500 chars):', raw.slice(0, 500), '| error:', err)
+          return NextResponse.json({ error: 'Could not parse CV response — please try uploading again' }, { status: 500 })
+        }
+      } else {
+        console.error('[cv-parse] No JSON object found in response. Raw (first 500):', raw.slice(0, 500))
+        return NextResponse.json({ error: 'Could not parse CV response — please try uploading again' }, { status: 500 })
+      }
+    }
   }
 
   // Upsert profile — including nationality and languages extracted from the actual CV document
