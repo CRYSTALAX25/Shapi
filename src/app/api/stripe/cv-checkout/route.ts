@@ -72,7 +72,7 @@ export async function POST(request: Request) {
         quantity: 1,
       },
     ],
-    success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/cv-ready?session_id={CHECKOUT_SESSION_ID}`,
+    success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/pay-success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/profile`,
     metadata: { user_id: user.id, product: tier.product, cv_tier: tierKey },
   })

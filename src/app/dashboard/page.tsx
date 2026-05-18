@@ -13,7 +13,7 @@ export default async function Dashboard() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased, profile_live')
+    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased, cv_tier, profile_live')
     .eq('id', user.id)
     .single()
 
@@ -38,8 +38,8 @@ export default async function Dashboard() {
     completedRefsCount = refsRes.count ?? 0
   }
 
-  // Tier detection
-  const cvKitPurchased = !!profile?.cv_kit_purchased
+  // Tier detection — Pro purchase ALSO grants CV Kit access (Pro is the upgraded Kit)
+  const cvKitPurchased = !!profile?.cv_kit_purchased || profile?.cv_tier === 'pro'
   const isRolesBoard = !!profile?.paid || !!profile?.subscription_tier
   const isActive = profile?.subscription_status === 'active'
 
@@ -349,7 +349,7 @@ export default async function Dashboard() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-bold text-white text-sm">Get your enhanced CV</h3>
-                        <span className="text-[10px] font-bold bg-[#A78BFA]/15 text-[#A78BFA] px-2 py-0.5 rounded-full">$29 one-time</span>
+                        <span className="text-[10px] font-bold bg-[#A78BFA]/15 text-[#A78BFA] px-2 py-0.5 rounded-full">From $25 one-time</span>
                       </div>
                       <p className="text-white/35 text-xs">English + native language version, industry-optimised, send to WhatsApp or email.</p>
                     </div>

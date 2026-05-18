@@ -39,7 +39,7 @@ export default function CVDownloadButton({ cvParsed, cvKitPurchased, cvTier }: {
       ) : cvParsed ? (
         <>
           <p className="text-white/35 text-xs mb-4 leading-relaxed">
-            3 CVs: English, native language, and industry-targeted. $29 one-time — yours to keep.
+            Multi-language CVs + industry-targeted versions. $25 Kit or $59 Pro (with deep-dive interview) — yours to keep.
           </p>
           <div className="space-y-2">
             <Link href="/profile/print" target="_blank"
@@ -50,7 +50,7 @@ export default function CVDownloadButton({ cvParsed, cvKitPurchased, cvTier }: {
               onClick={handleBuy}
               disabled={loading}
               className="w-full bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#060609] text-xs font-black py-2.5 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50">
-              {loading ? 'Redirecting...' : 'Get CV Kit — $29 →'}
+              {loading ? 'Redirecting...' : 'Get CV Kit — $25 →'}
             </button>
           </div>
         </>

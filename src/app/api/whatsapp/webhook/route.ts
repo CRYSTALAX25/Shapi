@@ -220,10 +220,19 @@ export async function POST(request: Request) {
   const admin = createAdminClient()
 
   // Look up candidate profile FIRST — needed for precedence decisions below.
+  //
+  // CRITICAL: when multiple profiles share the same phone (test mode using
+  // Gmail +addressing tricks, or accidental dup accounts), prefer:
+  //   1. The one with an active interview (conversation_active=true) — that's
+  //      the candidate who's currently engaged
+  //   2. Then most recently updated (most recent signup wins for dups)
+  //   3. Then cv_parsed=true as final tiebreaker (real profile beats empty one)
   const { data: profiles } = await admin
     .from('profiles')
-    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, cv_tier, industry_chats, whatsapp_conversation_active')
+    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, cv_tier, industry_chats, whatsapp_conversation_active, updated_at')
     .eq('whatsapp_number', phone)
+    .order('whatsapp_conversation_active', { ascending: false, nullsFirst: false })
+    .order('updated_at', { ascending: false })
     .order('cv_parsed', { ascending: false })
     .limit(1)
 

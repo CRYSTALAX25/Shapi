@@ -166,7 +166,7 @@ export default function Pay() {
               <p className="text-white/35 text-sm mt-1">Download instantly · yours to keep</p>
             </div>
             <div className="text-right">
-              <p className="text-3xl font-black text-white">$29</p>
+              <p className="text-3xl font-black text-white">$25</p>
               <p className="text-white/30 text-xs">one-time · no subscription</p>
             </div>
           </div>
@@ -195,7 +195,7 @@ export default function Pay() {
             className="w-full py-4 rounded-full font-black text-sm transition-opacity disabled:opacity-40"
             style={{ background: 'linear-gradient(135deg, #22D3EE, #A78BFA)', color: '#060609' }}
           >
-            {loading ? 'Redirecting to payment…' : 'Unlock my enhanced CV — $29 →'}
+            {loading ? 'Redirecting to payment…' : 'Unlock my enhanced CV — $25 →'}
           </button>
 
           <p className="text-center text-xs text-white/20 mt-4">
