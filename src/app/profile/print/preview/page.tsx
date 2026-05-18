@@ -67,12 +67,25 @@ function PreviewContent() {
     fetch('/api/profile/get')
       .then(r => r.json())
       .then(({ profile }) => {
-        if (profile) setProfile({
+        if (!profile) return
+        setProfile({
           skill_quadrant: profile.skill_quadrant,
           ai_tier: profile.ai_tier,
           verification_tier: profile.verification_tier,
           id: profile.id,
         })
+        // Auto-compute skill_quadrant if it's missing — common for accounts
+        // whose CV was parsed before the quadrant extractor was added.
+        if (!profile.skill_quadrant) {
+          fetch('/api/profile/refresh-quadrant', { method: 'POST' })
+            .then(r => r.json())
+            .then(d => {
+              if (d.success && d.skill_quadrant) {
+                setProfile(prev => prev ? { ...prev, skill_quadrant: d.skill_quadrant } : prev)
+              }
+            })
+            .catch(() => {})
+        }
       })
       .catch(() => {})
   }, [])
@@ -138,7 +151,9 @@ function VariantA({ cv, profile }: { cv: CV; profile: Profile | null }) {
     strong: { label: 'Strongly Verified', color: '#34D399' },
     premium: { label: 'Premium Verified', color: '#FBBF24' },
   }
-  const tierInfo = tier && tier !== 'unverified' ? tierMeta[tier] : null
+  const tierInfo = tier && tier !== 'unverified'
+    ? tierMeta[tier]
+    : { label: 'Shapi Verified Profile', color: '#A78BFA' }  // fallback for Kit users — generic "verified" badge
 
   return (
     <>
@@ -316,15 +331,13 @@ function VariantB({ cv, profile }: { cv: CV; profile: Profile | null }) {
             <p className="head-b">{cv.headline}</p>
             <p className="loc-b">📍 {cv.location}</p>
           </div>
-          {tier && tier !== 'unverified' && (
-            <span className="verified-b" style={{
-              background: tier === 'premium' ? '#FEF3C7' : tier === 'strong' ? '#D1FAE5' : '#DBEAFE',
-              color: tier === 'premium' ? '#92400E' : tier === 'strong' ? '#065F46' : '#1E40AF',
-              border: `1px solid ${tier === 'premium' ? '#FBBF24' : tier === 'strong' ? '#34D399' : '#3B82F6'}`,
-            }}>
-              ✓ {tier === 'premium' ? 'Premium' : tier === 'strong' ? 'Strongly' : 'Basic'} Verified
-            </span>
-          )}
+          <span className="verified-b" style={{
+            background: tier === 'premium' ? '#FEF3C7' : tier === 'strong' ? '#D1FAE5' : tier === 'basic' ? '#DBEAFE' : '#EDE9FE',
+            color: tier === 'premium' ? '#92400E' : tier === 'strong' ? '#065F46' : tier === 'basic' ? '#1E40AF' : '#5B21B6',
+            border: `1px solid ${tier === 'premium' ? '#FBBF24' : tier === 'strong' ? '#34D399' : tier === 'basic' ? '#3B82F6' : '#A78BFA'}`,
+          }}>
+            ✓ {tier === 'premium' ? 'Premium Verified' : tier === 'strong' ? 'Strongly Verified' : tier === 'basic' ? 'Basic Verified' : 'Shapi Verified'}
+          </span>
         </div>
 
         <p className="label-b">In Their Own Words</p>
@@ -479,14 +492,12 @@ function VariantC({ cv, profile }: { cv: CV; profile: Profile | null }) {
         </div>
 
         <div className="stats-c">
-          {tier && tier !== 'unverified' && (
-            <span className="chip-c" style={{
-              background: tier === 'premium' ? '#FEF3C7' : tier === 'strong' ? '#D1FAE5' : '#DBEAFE',
-              color: tier === 'premium' ? '#92400E' : tier === 'strong' ? '#065F46' : '#1E40AF',
-            }}>
-              ✓ {tier === 'premium' ? 'Premium' : tier === 'strong' ? 'Strongly' : 'Basic'} Verified
-            </span>
-          )}
+          <span className="chip-c" style={{
+            background: tier === 'premium' ? '#FEF3C7' : tier === 'strong' ? '#D1FAE5' : tier === 'basic' ? '#DBEAFE' : '#EDE9FE',
+            color: tier === 'premium' ? '#92400E' : tier === 'strong' ? '#065F46' : tier === 'basic' ? '#1E40AF' : '#5B21B6',
+          }}>
+            ✓ {tier === 'premium' ? 'Premium Verified' : tier === 'strong' ? 'Strongly Verified' : tier === 'basic' ? 'Basic Verified' : 'Shapi Verified'}
+          </span>
           {profile?.ai_tier && (
             <span className="chip-c" style={{ background: '#EDE9FE', color: '#5B21B6' }}>
               🤖 AI {profile.ai_tier.charAt(0).toUpperCase() + profile.ai_tier.slice(1)}
