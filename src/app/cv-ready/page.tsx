@@ -194,15 +194,25 @@ export default function CVReady() {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) { router.replace('/login'); return }
 
-      const { data: p } = await supabase
+      const { data: p, error: profileErr } = await supabase
         .from('profiles')
         .select('full_name, cv_kit_purchased, cv_tier, location, native_language, cv_language_preference, languages_spoken, matched_industries, industry_chats')
         .eq('id', user.id)
         .single()
 
+      // Diagnostic — visible in the browser console (F12 → Console tab)
+      console.log('[cv-ready] gate check', { profileErr, p_exists: !!p, cv_kit_purchased: p?.cv_kit_purchased, cv_tier: p?.cv_tier })
+
       // Gate: must have purchased Kit OR Pro (Pro implies Kit — they bought an upgrade)
+      // If profile query errored entirely, don't redirect — show an error so we can see why
+      if (profileErr) {
+        console.error('[cv-ready] profile query failed:', profileErr.message)
+        alert(`Couldn't load your profile: ${profileErr.message}. Open browser console for details.`)
+        return
+      }
       const hasAccess = !!p?.cv_kit_purchased || p?.cv_tier === 'pro'
       if (!hasAccess) {
+        console.warn('[cv-ready] redirecting to /profile — neither cv_kit_purchased nor cv_tier=pro is set')
         router.replace('/profile')
         return
       }
