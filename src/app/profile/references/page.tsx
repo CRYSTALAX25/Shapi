@@ -17,7 +17,16 @@ type RefRow = {
   nominator_name: string | null
 }
 
+type WorkEntry = {
+  title?: string
+  company?: string
+  start?: string
+  end?: string
+  achievements?: string
+}
+
 type JobForm = {
+  workIndex: number | null  // index into work_history; null = none selected
   myTitle: string
   company: string
   dates: string
@@ -27,7 +36,14 @@ type JobForm = {
   managerTitle: string
 }
 
-const EMPTY_JOB: JobForm = { myTitle: '', company: '', dates: '', managerName: '', managerPhone: '', managerEmail: '', managerTitle: '' }
+const EMPTY_JOB: JobForm = { workIndex: null, myTitle: '', company: '', dates: '', managerName: '', managerPhone: '', managerEmail: '', managerTitle: '' }
+
+function workEntryLabel(w: WorkEntry, i: number): string {
+  const title = w.title || `Role ${i + 1}`
+  const company = w.company || 'unknown company'
+  const dates = w.start || w.end ? ` · ${w.start || '?'} – ${w.end || 'present'}` : ''
+  return `${title} at ${company}${dates}`
+}
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   pending:   { label: 'Not sent',   color: 'rgba(255,255,255,0.3)',  bg: 'rgba(255,255,255,0.04)' },
@@ -78,6 +94,7 @@ function FieldStyle({ children, label, placeholder, value, onChange, type = 'tex
 export default function References() {
   const [refs, setRefs] = useState<RefRow[]>([])
   const [loadingRefs, setLoadingRefs] = useState(true)
+  const [workHistory, setWorkHistory] = useState<WorkEntry[]>([])
   const [job1, setJob1] = useState<JobForm>(EMPTY_JOB)
   const [job2, setJob2] = useState<JobForm>(EMPTY_JOB)
   const [sending1, setSending1] = useState(false)
@@ -97,7 +114,36 @@ export default function References() {
       .catch(() => setLoadingRefs(false))
   }
 
-  useEffect(() => { loadRefs() }, [])
+  const loadWorkHistory = () => {
+    fetch('/api/profile/get')
+      .then(r => r.json())
+      .then(({ profile }) => {
+        const wh = Array.isArray(profile?.work_history) ? (profile.work_history as WorkEntry[]) : []
+        setWorkHistory(wh)
+      })
+      .catch(() => {})
+  }
+
+  useEffect(() => { loadRefs(); loadWorkHistory() }, [])
+
+  // When a candidate picks a work-history entry from the dropdown, auto-populate the role context fields
+  const pickWorkEntry = (slot: 1 | 2, idxStr: string) => {
+    const idx = idxStr === '' ? null : parseInt(idxStr, 10)
+    const setForm = slot === 1 ? setJob1 : setJob2
+    if (idx === null || Number.isNaN(idx) || idx < 0 || idx >= workHistory.length) {
+      setForm(f => ({ ...f, workIndex: null, myTitle: '', company: '', dates: '' }))
+      return
+    }
+    const w = workHistory[idx]
+    const dates = w.start || w.end ? `${w.start || ''} – ${w.end || 'present'}` : ''
+    setForm(f => ({
+      ...f,
+      workIndex: idx,
+      myTitle: w.title || '',
+      company: w.company || '',
+      dates,
+    }))
+  }
 
   const sendRequest = async (slot: 1 | 2) => {
     const form = slot === 1 ? job1 : job2
@@ -251,7 +297,7 @@ export default function References() {
             }}>
               <div className="flex items-center justify-between mb-5">
                 <p className="text-white/50 text-xs font-bold uppercase tracking-wider">
-                  {slot === 1 ? 'Most recent job' : 'Previous job'}
+                  Reference {slot} of 2
                 </p>
                 {alreadySent && <span className="text-[#22D3EE] text-xs font-bold">✓ Sent</span>}
               </div>
@@ -260,6 +306,41 @@ export default function References() {
                 <p className="text-white/30 text-sm">Reference request sent. You can re-send with updated details if needed.</p>
               ) : (
                 <div className="space-y-4">
+                  {/* Role picker — pick which job from work_history this reference is for.
+                      Lets candidates aligned to a target sector pick the relevant roles
+                      (not just the chronologically latest 2). */}
+                  {workHistory.length > 0 && (
+                    <div>
+                      <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'rgba(255,255,255,0.3)', marginBottom: 6 }}>
+                        Which role is this reference for?
+                      </p>
+                      <select
+                        value={form.workIndex === null ? '' : form.workIndex.toString()}
+                        onChange={e => pickWorkEntry(slot as 1 | 2, e.target.value)}
+                        style={{
+                          width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)',
+                          borderRadius: 10, padding: '11px 14px', fontSize: 14, color: 'white', outline: 'none',
+                          fontFamily: 'inherit', cursor: 'pointer',
+                        }}
+                      >
+                        <option value="" style={{ background: '#0d0d14' }}>— Pick a role from your CV —</option>
+                        {workHistory.map((w, i) => {
+                          // Disable in this dropdown if the OTHER form already picked this role
+                          const otherForm = slot === 1 ? job2 : job1
+                          const isUsedByOther = otherForm.workIndex === i
+                          return (
+                            <option key={i} value={i} disabled={isUsedByOther} style={{ background: '#0d0d14' }}>
+                              {workEntryLabel(w, i)}{isUsedByOther ? '  (used for the other reference)' : ''}
+                            </option>
+                          )
+                        })}
+                      </select>
+                      <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 6, lineHeight: 1.5 }}>
+                        💡 Pick the role most <strong>relevant to where you&apos;re applying</strong> — not necessarily your latest. If you&apos;re moving into sales, pick a sales role even if your last job was operations.
+                      </p>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FieldStyle label="Your job title" placeholder="Head of Operations" value={form.myTitle} onChange={v => setForm(f => ({ ...f, myTitle: v }))} />
                     <FieldStyle label="Company" placeholder="NEOM" value={form.company} onChange={v => setForm(f => ({ ...f, company: v }))} />
