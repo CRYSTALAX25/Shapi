@@ -63,9 +63,9 @@ export async function POST(request: Request) {
   "headline": "their current or most recent job title, string or null",
   "location": "city, country if present, string or null",
   "summary": "their profile summary or objective if present, string or null",
-  "nationality": "nationality as explicitly stated on CV e.g. 'Croatian', 'British', 'Saudi Arabian'. null if not mentioned.",
-  "country_of_origin": "country of birth or origin if mentioned anywhere on the CV. null if not found.",
-  "native_language": "infer from nationality only — e.g. Croatian nationality = Croatian, Saudi = Arabic, French = French. If dual nationality or unclear, return the non-English one. null if truly cannot determine.",
+  "nationality": "ONLY use what's EXPLICITLY written on the CV (e.g. 'Nationality: Croatian', 'Croatian citizen', 'Croatian passport', 'Born in Zagreb'). Do NOT infer from: surname, work history locations, languages spoken, education country, or family hints. If not explicitly stated, return null.",
+  "country_of_origin": "country of birth or origin ONLY if mentioned explicitly. null if not found.",
+  "native_language": "STRICT mapping from explicit nationality ONLY: Croatian→Croatian, Saudi→Arabic, Egyptian→Arabic, French→French, Italian→Italian, Filipino→Tagalog, Indian→Hindi, British→English, etc. Do NOT infer native language from: what language(s) the CV is written in, languages_spoken list, work history, surname, education country. ONLY from explicit nationality. If nationality is null, native_language is null.",
   "languages_spoken": [
     {"language": "English", "level": "fluent/native/professional/basic — as stated on CV or inferred"},
     {"language": "Arabic", "level": "native"}
