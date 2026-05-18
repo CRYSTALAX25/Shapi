@@ -305,6 +305,107 @@ All idempotent (`ADD COLUMN IF NOT EXISTS`).
 
 ---
 
+## 17. Unit economics — cost per candidate vs revenue
+
+### Variable cost per candidate (one-time, at signup + CV generation)
+
+| Item | Cost | Notes |
+|---|---|---|
+| Stripe fee on $25 Kit | $1.03 | 2.9% + $0.30 |
+| Stripe fee on $59 Pro | $2.01 | 2.9% + $0.30 |
+| Anthropic Claude — CV parse (Vision) | ~$0.02 | One-time on upload |
+| Anthropic Claude — WhatsApp interview (9 exchanges, Sonnet) | ~$0.10 | All 6 signals |
+| Anthropic Claude — Skill Quadrant + Continuous Learning extraction | ~$0.02 | Bundled in CV parse |
+| Anthropic Claude — Language proficiency assessment | ~$0.005 | Triggered at [DONE] |
+| Anthropic Claude — generate English CV (Sonnet, 4000 max tokens) | ~$0.06 | One-time, cached |
+| Anthropic Claude — translate to native language (Haiku, 4000 max tokens) | ~$0.005 | Per language |
+| Anthropic Claude — generate industry-targeted CV | ~$0.06 | Per industry |
+| Deepgram voice transcription | ~$0.15 | ~3 min total voice notes at $0.05/min |
+| Twilio WhatsApp outbound | ~$0.10 | ~20 messages at $0.005 each |
+| Twilio WhatsApp inbound | $0 | Free for received messages on Twilio plans |
+| Supabase storage / DB | <$0.01 | Negligible at MVP scale |
+| **Total cost per Kit candidate** | **~$1.55** | margin ~$23.45 (94%) |
+| **Total cost per Pro candidate** | **~$2.10** | margin ~$56.90 (96%) — adds deep-dive + AI cross-check |
+
+### Pro tier add-on: ongoing cost
+
+After Pro purchase + references chain:
+- AI cross-check (Sonnet, post-references): ~$0.10 per candidate one-time
+- Career Roadmap (Sonnet, on-demand generation): ~$0.05 per generation
+
+### Company-side recurring cost per company per month
+
+| Item | Cost |
+|---|---|
+| Stripe fees on $299 Starter | $8.97 |
+| Stripe fees on $799 Growth | $23.51 |
+| Match scoring (Sonnet, on new candidate match) | ~$0.02 per match × ~20 matches/mo = $0.40 |
+| AI cross-check report view (gated to Growth+) | $0 (already generated at candidate side) |
+| Company match notifications (Resend email) | <$0.01 |
+| **Net margin Starter** | **~$290/mo per company** |
+| **Net margin Growth** | **~$775/mo per company** |
+
+### Revenue projection — modest scale (Year 1, end of UAE pilot)
+
+Assuming 100 new candidates/mo + 30% upgrade to monthly add-ons + 16 paying companies (mix of tiers):
+
+| Stream | Monthly | Annual |
+|---|---|---|
+| 70 Kit candidates ($25 one-time) | $1,750 | $21,000 |
+| 30 Pro candidates ($59 one-time) | $1,770 | $21,240 |
+| 30 candidate subscriptions (Open Roles avg $19/mo + Active avg $29/mo, blended ~$24) | $720 | $8,640 |
+| 10 Starter companies @ $299/mo | $2,990 | $35,880 |
+| 5 Growth companies @ $799/mo | $3,995 | $47,940 |
+| 1 Enterprise @ ~$5,000/mo | $5,000 | $60,000 |
+| 3 placement fees @ $500 (post 30-day) | $1,500 | $18,000 |
+| **TOTAL revenue** | **$17,725/mo** | **$212,700/yr** |
+| **TOTAL variable cost** | **~$500/mo** | **~$6,000/yr** |
+| **Gross margin** | **~97%** | |
+
+### Revenue projection — Year 2 scale (UAE + KSA)
+
+Assuming 500 new candidates/mo + 60 paying companies (mix of tiers):
+
+| Stream | Monthly | Annual |
+|---|---|---|
+| 350 Kit + 150 Pro (one-time) | $17,600 | $211,200 |
+| 150 candidate subscriptions @ ~$24 blended | $3,600 | $43,200 |
+| 40 Starter + 18 Growth + 2 Enterprise companies | $36,332 | $435,984 |
+| 15 placement fees @ $500/mo | $7,500 | $90,000 |
+| **TOTAL revenue** | **$65,032/mo** | **$780,384/yr** |
+| **TOTAL variable cost** | **~$2,500/mo** | **~$30,000/yr** |
+| **Gross margin** | **~96%** | |
+
+### Fixed costs (independent of volume)
+
+| Item | Monthly |
+|---|---|
+| Vercel Pro (when needed for 300s timeout / higher traffic) | $20 |
+| Supabase Pro (when DB > 500MB or > 50k MAU) | $25 |
+| Resend (transactional email, scales with volume) | ~$20 at MVP |
+| Twilio WhatsApp Business approval / templates (when out of sandbox) | $50-100 setup |
+| Domain (shapi.io) | $15/yr |
+| **Total fixed** | **~$70-100/mo** at MVP |
+
+### Why margins stay high at scale
+
+1. **No per-seat cost** — Claude pricing is per-token, predictable, doesn't scale 1:1 with users
+2. **Caching** — once a candidate's CV is generated in a language, re-downloads are free
+3. **No human-in-the-loop** — reference outreach is fully automated; humans only needed for edge cases
+4. **Tier-gated AI features** — Growth-tier company AI cross-check report = work already done at candidate-side, no incremental cost
+5. **Asymmetric value-to-cost** — saving a hiring company 20 hours of vetting at $50/hr = $1,000 of value, costs us $0.10 to generate
+
+### Customer LTV vs CAC sensitivity
+
+- Candidate Kit LTV: ~$23 net (one-time)
+- Candidate Pro LTV: ~$57 + recurring add-ons if upgraded (~$24/mo × avg 6-month retention = $144) → **~$200**
+- Company Starter LTV: $299/mo × avg 10-month retention = **$2,990**
+- Company Growth LTV: $799/mo × 12-month retention = **$9,588**
+
+If CAC stays under $20 for candidates and $200 for companies (organic + referral + warm intros at UAE-launch scale), payback periods are < 2 months.
+
+---
+
 ## 16. Contact
 
 - Email: ana.vbarber@gmail.com

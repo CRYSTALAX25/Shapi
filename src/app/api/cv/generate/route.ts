@@ -141,8 +141,11 @@ ${JSON.stringify(englishCached.cv)}
 
 Return ONLY valid JSON, no prose.`
 
+        // Haiku for translation — 3-4x faster than Sonnet, quality plenty good
+        // for value-only translation (no reasoning needed). Comfortably fits
+        // under Vercel Hobby plan's 60s timeout.
         const tRes = await anthropicForTranslate.messages.create({
-          model: 'claude-sonnet-4-6',
+          model: 'claude-haiku-4-5-20251001',
           max_tokens: 4000,
           messages: [{ role: 'user', content: translatePrompt }],
         })
@@ -186,18 +189,22 @@ Return ONLY valid JSON, no prose.`
   } catch { extraFields = null }
 
   const workHistoryFull: WorkEntry[] = Array.isArray(profile.work_history) ? profile.work_history as WorkEntry[] : []
-  // Trim to most recent 7 roles + truncate per-role achievements at 400 chars
-  // — keeps the prompt small enough for fresh-language generation to fit
-  // under Vercel Hobby plan's 60s function timeout.
-  const workHistory: WorkEntry[] = workHistoryFull.slice(0, 7).map(w => ({
+  // Aggressive trims so fresh-language generation reliably fits under
+  // Vercel Hobby plan's 60s function timeout for rich profiles (10+ roles).
+  // For native-language fresh generation we trim even harder — translation
+  // doesn't need full work-history reasoning.
+  const isNativeMode = mode === 'native'
+  const maxRoles = isNativeMode ? 5 : 7
+  const maxAchievementChars = isNativeMode ? 250 : 400
+  const workHistory: WorkEntry[] = workHistoryFull.slice(0, maxRoles).map(w => ({
     ...w,
-    achievements: typeof w.achievements === 'string' ? w.achievements.slice(0, 400) : w.achievements,
+    achievements: typeof w.achievements === 'string' ? w.achievements.slice(0, maxAchievementChars) : w.achievements,
   }))
   const skills: string[] = Array.isArray(profile.skills) ? profile.skills as string[] : []
   const allChat: Array<{ role: string; content: string }> = Array.isArray(profile.whatsapp_chat) ? profile.whatsapp_chat as Array<{ role: string; content: string }> : []
   const userMessages = allChat.filter(m => m.role === 'user').map(m => m.content)
-  // Cap at 6 messages (was 10) to keep input small for non-English generation
-  const cappedMessages = userMessages.slice(0, 6)
+  // Cap messages further for native — translation doesn't need rich source
+  const cappedMessages = userMessages.slice(0, isNativeMode ? 4 : 6)
   const sampleText = cappedMessages.slice(0, 4).join(' | ')
 
   // ── Pro deep-dive answers for this specific industry ─────────────────────────
