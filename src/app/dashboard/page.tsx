@@ -174,9 +174,7 @@ export default async function Dashboard() {
             {/* Header */}
             <div className="mb-8">
               <h1 className="text-3xl font-black text-white mb-1">
-                {completion === 0
-                  ? `Welcome${firstName ? `, ${firstName}` : ''} — let's start.`
-                  : `Welcome back${firstName ? `, ${firstName}` : ''}.`}
+                Welcome{completion > 0 ? ' back' : ''}{firstName ? `, ${firstName}` : ''}.
               </h1>
               {/* Sub-headline only when there's a real headline to show; otherwise the
                   progress card below carries the "what's next" message. Avoids duplicate
@@ -211,19 +209,12 @@ export default async function Dashboard() {
                   </div>
                 </div>
 
-                {/* % only — status copy lives in the Shapi-says card above */}
+                {/* % only — Start CTA lives in the Shapi-says card above, not duplicated here */}
                 <div className="flex-1 min-w-0">
                   <h2 className="text-xl font-black text-white mb-0">
                     {completion}% complete
                   </h2>
                 </div>
-
-                {!profile?.cv_parsed && (
-                  <Link href="/upload-cv"
-                    className="flex-shrink-0 bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] px-5 py-2.5 rounded-full text-sm font-black text-[#060609] hover:opacity-90 transition-opacity">
-                    Start →
-                  </Link>
-                )}
               </div>
 
               <div className="mt-5 h-1 bg-white/[0.06] rounded-full overflow-hidden">
@@ -544,9 +535,7 @@ export default async function Dashboard() {
           <>
             <div className="mb-8">
               <h1 className="text-3xl font-black text-white mb-1">
-                {completion === 0
-                  ? `Welcome${firstName ? `, ${firstName}` : ''} — let's start.`
-                  : `Welcome back${firstName ? `, ${firstName}` : ''}.`}
+                Welcome{completion > 0 ? ' back' : ''}{firstName ? `, ${firstName}` : ''}.
               </h1>
               <p className="text-white/35 text-sm">Post jobs, review verified candidates, manage your pipeline.</p>
             </div>
