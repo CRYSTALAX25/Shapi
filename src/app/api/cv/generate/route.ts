@@ -116,6 +116,59 @@ export async function POST(request: Request) {
     }
   }
 
+  // ─── FAST PATH: translate cached English CV instead of regenerating ────────
+  // Fresh-language generation from scratch (full work_history reasoning +
+  // industry brief + WhatsApp messages) was hitting Vercel's 60s timeout for
+  // rich profiles. If the English CV is already cached, send JUST that JSON
+  // to Claude with a translation-only prompt — much smaller, much faster
+  // (typically 10-15s vs 50-70s).
+  if (targetLanguage && targetLanguage.toLowerCase() !== 'english' && !forceRefresh) {
+    const englishCached = existingCache['english'] as { cv: Record<string, unknown> } | undefined
+    if (englishCached?.cv) {
+      try {
+        const anthropicForTranslate = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+        const translatePrompt = `Translate this CV JSON's TEXT VALUES to ${targetLanguage}.
+
+RULES:
+- Keep ALL JSON keys in English exactly as-is — do NOT translate keys
+- Translate ALL text values (full_name stays as-is; everything else translates: headline, location names if standard, summary, sectionLabels values, achievements, language proficiency level names, certification names if they're descriptions not brand names, etc.)
+- DO NOT translate: brand names (Marriott, NEOM, KFC), software/tools (Claude, AWS, HubSpot), certifications with standard global names (PMP, CFA, ACCA), URLs, numbers, currency
+- Set language to "${targetLanguage}" and languageCode to the correct 2-letter ISO code (Croatian=hr, Italian=it, Spanish=es, French=fr, German=de, Portuguese=pt, Arabic=ar, etc.)
+- Return the SAME JSON structure with translated values
+
+INPUT (English CV):
+${JSON.stringify(englishCached.cv)}
+
+Return ONLY valid JSON, no prose.`
+
+        const tRes = await anthropicForTranslate.messages.create({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 4000,
+          messages: [{ role: 'user', content: translatePrompt }],
+        })
+        const tText = tRes.content[0].type === 'text' ? tRes.content[0].text.trim() : ''
+        const tMatch = tText.match(/\{[\s\S]*\}/)
+        if (tMatch) {
+          const translatedCV = JSON.parse(tMatch[0])
+          const meta = {
+            whatsapp_number: profile.whatsapp_number,
+            ai_tier: profile.ai_tier,
+            has_whatsapp: Array.isArray(profile.whatsapp_chat) && (profile.whatsapp_chat as unknown[]).length > 0,
+          }
+          // Cache the translation
+          try {
+            const updatedCache = { ...existingCache, [cacheKey]: { cv: translatedCV, meta, generated_at: new Date().toISOString() } }
+            await supabase.from('profiles').update({ cv_cache: updatedCache }).eq('id', user.id)
+          } catch { /* non-fatal */ }
+          return NextResponse.json({ cv: translatedCV, meta, translated: true })
+        }
+      } catch (err) {
+        console.error('[cv/generate] translation fast-path failed, falling back to fresh generation:', err)
+      }
+    }
+  }
+  // ──────────────────────────────────────────────────────────────────────────
+
   // Fetch supplementary language fields — graceful if columns don't exist yet
   // NOTE: native_language and cv_language_preference are already in the main profile query above
   let extraFields: {
