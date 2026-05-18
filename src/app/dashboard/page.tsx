@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import ShapiCharacter from '@/components/ShapiCharacter'
+import { computeJobCompletionScore } from '@/lib/references'
 
 export default async function Dashboard() {
   const supabase = await createClient()
@@ -45,23 +46,25 @@ export default async function Dashboard() {
   const isProfileLive = !!profile?.profile_live
 
   // Dynamic completion — calculated from real data, tier-aware
-  // 100% ONLY when profile is fully live (references verified by Shapi team)
+  // 100% ONLY when both jobs have all 3 references verified (profile_live=true)
+  // Tiered: 0 jobs = 75% floor, 1 of 2 = 85%, 2 of 2 = 100%
+  const refScore = type === 'candidate' ? await computeJobCompletionScore(user.id) : { bonusPct: 0 }
   let completion: number
   if (isRolesBoard) {
-    // Roles Board tier: CV + WhatsApp + Evidence + References (25% each)
+    // Roles Board tier: CV + WhatsApp + Evidence + References tiered bonus
     let score = 0
     if (profile?.cv_parsed) score += 25
     if (profile?.whatsapp_number) score += 25
     if (evidenceCount > 0) score += 25
-    if (completedRefsCount >= 2) score += 25
+    score += refScore.bonusPct
     completion = score
   } else {
-    // CV Kit tier: CV parsed + WhatsApp + Purchased + Profile live (25% each)
+    // CV Kit tier: CV parsed + WhatsApp + Purchased + Reference bonus
     let score = 0
     if (profile?.cv_parsed) score += 25
     if (profile?.whatsapp_number) score += 25
     if (cvKitPurchased) score += 25
-    if (isProfileLive) score += 25
+    score += refScore.bonusPct
     completion = score
   }
   const firstName = profile?.full_name?.split(' ')[0] || null

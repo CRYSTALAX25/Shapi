@@ -86,6 +86,9 @@ export default function References() {
   const [sent2, setSent2] = useState(false)
   const [error1, setError1] = useState('')
   const [error2, setError2] = useState('')
+  // Test mode — when on, all reference outreach (manager + nominees) routes to
+  // the candidate's own WhatsApp + email. Lets the founder/QA play all 3 roles.
+  const [testMode, setTestMode] = useState(false)
 
   const loadRefs = () => {
     fetch('/api/references/request')
@@ -120,6 +123,7 @@ export default function References() {
         candidate_job_title: form.myTitle || undefined,
         candidate_company: form.company,
         candidate_dates: form.dates || undefined,
+        is_test_outreach: testMode,
       }),
     })
     setSending(false)
@@ -212,6 +216,24 @@ export default function References() {
             })}
           </div>
         )}
+
+        {/* Test mode toggle — routes ALL outreach (manager + nominees) to the candidate */}
+        <label className="flex items-center gap-3 mb-6 p-4 rounded-xl cursor-pointer transition-colors"
+          style={{
+            background: testMode ? 'rgba(251,191,36,0.08)' : 'rgba(255,255,255,0.03)',
+            border: `1px solid ${testMode ? 'rgba(251,191,36,0.3)' : 'rgba(255,255,255,0.06)'}`,
+          }}>
+          <input type="checkbox" checked={testMode} onChange={e => setTestMode(e.target.checked)}
+            className="w-4 h-4 accent-[#FBBF24]" />
+          <div>
+            <p className={`text-sm font-bold ${testMode ? 'text-[#FBBF24]' : 'text-white/60'}`}>
+              🧪 Test mode — send all outreach to me
+            </p>
+            <p className="text-white/30 text-xs mt-0.5">
+              Everything that would go to the manager, colleague, and stakeholder routes to your own WhatsApp + email. Use this to validate the full chain end-to-end without involving real contacts.
+            </p>
+          </div>
+        </label>
 
         {/* Job forms */}
         {[1, 2].map(slot => {

@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendNominatedReferenceEmail, sendReferencesVerifiedEmail } from '@/lib/email'
 import { sendReferenceOutreach } from '@/lib/whatsapp'
+import { recomputeProfileLive, resolveOutreachContact, computeJobCompletionScore } from '@/lib/references'
 import { NextResponse } from 'next/server'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
 
   const { data: ref, error } = await admin
     .from('candidate_references')
-    .select('id, status, candidate_id, ref_type, job_slot, referee_name, candidate_company, candidate_job_title, candidate_dates')
+    .select('id, status, candidate_id, ref_type, job_slot, referee_name, candidate_company, candidate_job_title, candidate_dates, is_test_outreach')
     .eq('token', token)
     .single()
 
@@ -108,41 +109,54 @@ export async function POST(request: Request) {
         if (inserted) {
           const row = inserted as { id: string; token: string }
           const referenceUrl = `${SITE}/reference/${row.token}`
-          let contacted = false
+
+          // Cascade test mode from the manager row down to the nominees
+          const isTest = !!ref.is_test_outreach
+          const outreach = await resolveOutreachContact(ref.candidate_id as string, nominee.phone, nominee.email, isTest)
+          const testBanner = outreach.testMode ? '🧪 *TEST MODE* — this would normally go to the actual ' + nominee.ref_type + '.\n\n' : ''
+          const channels: string[] = []
 
           // 1. WhatsApp / SMS first
-          if (nominee.phone) {
+          if (outreach.phone) {
             const waMsg =
-              `Hi ${nominee.name.split(' ')[0]} 👋 ${ref.referee_name} at ${ref.candidate_company} suggested you worked with ${candidateName} and might share a perspective.\n\n` +
+              `${testBanner}Hi ${nominee.name.split(' ')[0]} 👋 ${ref.referee_name} at ${ref.candidate_company} suggested you worked with ${candidateName} and might share a perspective.\n\n` +
               `${candidateName.split(' ')[0]} doesn't know we've reached out — you can be completely candid. Takes 2 minutes:\n\n${referenceUrl}`
 
             const { whatsapp, sms } = await sendReferenceOutreach({
-              phone: nominee.phone,
+              phone: outreach.phone,
               message: waMsg,
-              label: `${nominee.ref_type} ref for ${candidateName}`,
+              label: `${nominee.ref_type} ref for ${candidateName}${outreach.testMode ? ' [TEST]' : ''}`,
             })
-            if (whatsapp || sms) contacted = true
+            if (whatsapp) channels.push('whatsapp')
+            else if (sms) channels.push('sms')
           }
 
           // 2. Email — always send if provided
-          if (nominee.email) {
+          if (outreach.email) {
             await sendNominatedReferenceEmail({
-              to: nominee.email,
-              refereeName: nominee.name,
+              to: outreach.email,
+              refereeName: outreach.testMode ? `${nominee.name} [TEST]` : nominee.name,
               candidateName,
               nominatorName: ref.referee_name as string,
               nominatorCompany: ref.candidate_company as string,
               nomineeRole: nominee.ref_type,
               referenceUrl,
             })
-            contacted = true
+            channels.push('email')
           }
 
-          if (contacted) {
-            await admin.from('candidate_references')
-              .update({ status: 'contacted', contacted_at: new Date().toISOString() })
-              .eq('id', row.id)
-          }
+          // Persist the test flag + outreach channel on the nominee row
+          await admin.from('candidate_references')
+            .update({
+              is_test_outreach: isTest,
+              ...(channels.length > 0 ? {
+                status: 'contacted',
+                contacted_at: new Date().toISOString(),
+                last_contacted_at: new Date().toISOString(),
+                outreach_channel: channels.length > 1 ? channels.join('+') : channels[0],
+              } : {}),
+            })
+            .eq('id', row.id)
         }
       } catch (err) {
         console.error(`[references/submit] ${nominee.ref_type} outreach failed:`, err)
@@ -150,25 +164,37 @@ export async function POST(request: Request) {
     }
   }
 
-  // Update profile completion & maybe notify candidate
-  const { data: allRefs } = await admin.from('candidate_references').select('status').eq('candidate_id', ref.candidate_id)
-  const completedCount = (allRefs || []).filter(r => r.status === 'completed').length
-
+  // Tiered profile completion per Ana's spec:
+  //   0 of 2 jobs complete → 75% floor (CV + WA + Purchased)
+  //   1 of 2 jobs complete → 85% (+10)
+  //   2 of 2 jobs complete → 100% AND profile_live=true
+  const score = await computeJobCompletionScore(ref.candidate_id as string)
+  const completionPct = 75 + score.bonusPct
   await admin.from('profiles').update({
-    completion_pct: Math.min(100, 70 + completedCount * 5),
+    completion_pct: completionPct,
     updated_at: new Date().toISOString(),
   }).eq('id', ref.candidate_id)
 
-  // Notify candidate at 3+ completed
-  if (completedCount >= 3) {
+  // Auto-flip profile_live when both jobs are fully verified
+  const { profileLive } = await recomputeProfileLive(ref.candidate_id as string)
+
+  // Notify the candidate the FIRST time a job's chain (3 refs) completes
+  if (score.jobsComplete >= 1 && score.jobsComplete <= 2) {
     try {
       const { data: authUser } = await admin.auth.admin.getUserById(ref.candidate_id as string)
       const { data: cProfile } = await admin.from('profiles').select('full_name').eq('id', ref.candidate_id).single()
       if (authUser?.user?.email) {
+        // Count completed refs for display
+        const { data: completedRefs } = await admin
+          .from('candidate_references')
+          .select('id')
+          .eq('candidate_id', ref.candidate_id)
+          .eq('status', 'completed')
+        const completedCount = completedRefs?.length || 0
         await sendReferencesVerifiedEmail(authUser.user.email, (cProfile?.full_name as string) || '', completedCount)
       }
     } catch { /* non-fatal */ }
   }
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ success: true, completionPct, profileLive, jobsComplete: score.jobsComplete })
 }

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import CVDownloadButton from '@/components/CVDownloadButton'
 import ShapiCharacter from '@/components/ShapiCharacter'
+import { computeJobCompletionScore } from '@/lib/references'
 
 type WorkEntry = {
   title?: string
@@ -37,13 +38,15 @@ export default async function ProfilePage() {
   const isLive = profile.profile_live
   const cvKitPurchased = !!profile.cv_kit_purchased
 
-  // Calculate completion dynamically from real data — 4 steps of 25% each
-  // 100% only when profile is fully live and references are verified
+  // Tiered completion per Ana's spec:
+  //   CV parsed (25) + WhatsApp (25) + CV Kit purchased (25) + references bonus
+  //   References bonus: 0 jobs done = 0, 1 of 2 = +10 (→85%), 2 of 2 = +25 (→100% + profile_live=true)
+  const refScore = await computeJobCompletionScore(user.id)
   let completion = 0
   if (profile.cv_parsed) completion += 25
   if (profile.whatsapp_number) completion += 25
   if (cvKitPurchased) completion += 25
-  if (isLive) completion += 25
+  completion += refScore.bonusPct
 
   const aiTierLabel: Record<string, string> = {
     user: 'AI User',
