@@ -102,10 +102,18 @@ Takes about 5 minutes. Just reply to each one 👇
 ${questionsText}`
 
   // Always save questions to industry_chats so we have them regardless of WhatsApp outcome
-  const existingIndustryChats = (profile.industry_chats as Record<string, unknown>) || {}
+  // On re-trigger, RESET answers — any prior "answers" before questions actually
+  // arrived are garbage (e.g. the user typing "give me the questions" before they had them).
+  const existingIndustryChats = (profile.industry_chats as Record<string, { answers?: string[]; delivered?: boolean }>) || {}
   const updatedIndustryChats = { ...existingIndustryChats }
   for (const ind of targetIndustries) {
-    updatedIndustryChats[ind] = { status: 'questions_sent', questions: questionsText, sent_at: new Date().toISOString() }
+    updatedIndustryChats[ind] = {
+      status: 'questions_sent',
+      questions: questionsText,
+      sent_at: new Date().toISOString(),
+      answers: [],          // wipe prior garbage answers
+      delivered: false,      // flipped to true only on successful WhatsApp delivery
+    }
   }
   await supabase.from('profiles').update({ industry_chats: updatedIndustryChats }).eq('id', user.id)
 
@@ -121,6 +129,13 @@ ${questionsText}`
       error: `WhatsApp delivery failed (${wa.error || 'unknown'}). Your questions are shown below — answer them in WhatsApp by replying to the chat, or use the app.`,
     }, { status: 200 })
   }
+
+  // Mark as delivered so the webhook knows the questions actually reached the user
+  const deliveredChats = { ...updatedIndustryChats }
+  for (const ind of targetIndustries) {
+    deliveredChats[ind] = { ...deliveredChats[ind], delivered: true }
+  }
+  await supabase.from('profiles').update({ industry_chats: deliveredChats }).eq('id', user.id)
 
   console.log('[deepdive] Combined message delivered to:', profile.whatsapp_number)
   return NextResponse.json({ success: true, industries: targetIndustries })

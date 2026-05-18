@@ -561,7 +561,12 @@ export default function CVReady() {
               {matchedIndustries.map((ind) => {
                 const meta = INDUSTRY_META[ind] || { label: ind, emoji: '📄' }
                 const isSelected = selectedIndustries.includes(ind)
-                const isDone = industryChats[ind]?.status === 'questions_sent' || (industryChats[ind]?.answers?.length ?? 0) > 0
+                // Lock only when industry deep-dive is actually delivered AND has real answers.
+                // Status='questions_sent' alone doesn't lock — Twilio drops sometimes, so allow re-send.
+                const ic = industryChats[ind] as { status?: string; answers?: string[]; delivered?: boolean } | undefined
+                const hasRealAnswers = (ic?.answers?.length ?? 0) > 0 && ic?.delivered === true
+                const isPending = ic?.status === 'questions_sent' && !hasRealAnswers
+                const isDone = hasRealAnswers
                 return (
                   <button key={ind}
                     disabled={isDone || deepDiveState === 'sent'}
@@ -575,14 +580,15 @@ export default function CVReady() {
                     }}
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all"
                     style={{
-                      background: isDone ? 'rgba(52,211,153,0.08)' : isSelected ? 'rgba(167,139,250,0.2)' : 'rgba(255,255,255,0.05)',
-                      border: isDone ? '1px solid rgba(52,211,153,0.3)' : isSelected ? '1px solid rgba(167,139,250,0.5)' : '1px solid rgba(255,255,255,0.08)',
-                      color: isDone ? '#34D399' : isSelected ? '#A78BFA' : 'rgba(255,255,255,0.5)',
+                      background: isDone ? 'rgba(52,211,153,0.08)' : isPending ? 'rgba(251,191,36,0.08)' : isSelected ? 'rgba(167,139,250,0.2)' : 'rgba(255,255,255,0.05)',
+                      border: isDone ? '1px solid rgba(52,211,153,0.3)' : isPending ? '1px solid rgba(251,191,36,0.3)' : isSelected ? '1px solid rgba(167,139,250,0.5)' : '1px solid rgba(255,255,255,0.08)',
+                      color: isDone ? '#34D399' : isPending ? '#FBBF24' : isSelected ? '#A78BFA' : 'rgba(255,255,255,0.5)',
                       cursor: isDone ? 'default' : 'pointer',
                     }}>
                     <span>{meta.emoji}</span>
                     {meta.label}
                     {isDone && <span>✓</span>}
+                    {isPending && <span className="ml-1 text-[10px]">↻ resend</span>}
                   </button>
                 )
               })}
