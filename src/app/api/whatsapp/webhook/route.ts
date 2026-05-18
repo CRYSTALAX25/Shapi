@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { sendWhatsApp, sendReferenceOutreach } from '@/lib/whatsapp'
 import { sendProfileLiveEmail, sendCompanyMatchEmail, sendNominatedReferenceEmail, sendReferencesVerifiedEmail } from '@/lib/email'
 import { runReferenceTurn, parseManagerResponses, parseNomineeResponses } from '@/lib/reference-qa'
-import { recomputeProfileLive, resolveOutreachContact } from '@/lib/references'
+import { recomputeProfileLive, resolveOutreachContact, updateVerificationTier, runVerificationCrossCheck } from '@/lib/references'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
@@ -851,6 +851,22 @@ async function handleReferenceReply(
 
       // After any ref completes, recompute profile_live for the candidate
       await recomputeProfileLive(ref.candidate_id)
+
+      // Verification tier + AI cross-check — only triggers cross-check when
+      // enough refs are in to give Claude something to analyse (≥3 completed)
+      try {
+        const { data: completed } = await admin
+          .from('candidate_references')
+          .select('id')
+          .eq('candidate_id', ref.candidate_id)
+          .eq('status', 'completed')
+        if ((completed?.length || 0) >= 3) {
+          await runVerificationCrossCheck(ref.candidate_id)
+        }
+        await updateVerificationTier(ref.candidate_id)
+      } catch (err) {
+        console.error('[ref-webhook] verification pipeline failed:', err)
+      }
 
       // Notify candidate when a job's chain hits 3 refs
       try {

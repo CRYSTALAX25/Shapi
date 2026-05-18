@@ -20,7 +20,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report')
     .eq('id', user.id)
     .single()
 
@@ -115,6 +115,28 @@ export default async function ProfilePage() {
             </p>
           </div>
         )}
+
+        {/* Verification tier badge */}
+        {(() => {
+          const tier = (profile.verification_tier as string) || 'unverified'
+          if (tier === 'unverified') return null
+          const tierMeta: Record<string, { label: string; color: string; bg: string; emoji: string; description: string }> = {
+            basic: { label: 'Basic Verified', color: '#22D3EE', bg: 'rgba(34,211,238,0.10)', emoji: '🔵', description: '1 of 2 reference chains complete' },
+            strong: { label: 'Strongly Verified', color: '#34D399', bg: 'rgba(52,211,153,0.10)', emoji: '🟢', description: 'Both reference chains + peer reference complete' },
+            premium: { label: 'Premium Verified', color: '#FBBF24', bg: 'rgba(251,191,36,0.10)', emoji: '🟡', description: 'Strong + AI cross-check passed with no conflicts' },
+          }
+          const m = tierMeta[tier]
+          if (!m) return null
+          return (
+            <div className="gradient-border-card rounded-2xl px-5 py-4 mb-6 flex items-center gap-4" style={{ background: m.bg, border: `1px solid ${m.color}33` }}>
+              <span className="text-3xl flex-shrink-0">{m.emoji}</span>
+              <div>
+                <p className="font-bold text-sm" style={{ color: m.color }}>{m.label}</p>
+                <p className="text-white/45 text-xs mt-0.5">{m.description}</p>
+              </div>
+            </div>
+          )
+        })()}
 
         {/* Header */}
         <div className="gradient-border-card rounded-3xl p-8 mb-4">

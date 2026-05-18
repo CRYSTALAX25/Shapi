@@ -15,15 +15,20 @@ export async function POST(request: Request) {
   const body = await request.json()
   const {
     job_slot,
+    ref_type: rawRefType,         // 'manager' (default for past roles) | 'peer' (for current role)
+    is_current_role,              // true when this is the candidate's current job (gates peer ref + skips nominee cascade)
+    suggested_reason,             // Claude's reasoning from /api/references/suggest (shown to candidate)
     referee_name,
-    referee_phone,       // WhatsApp / phone — primary outreach channel
-    referee_email,       // secondary / always sent alongside
+    referee_phone,                // WhatsApp / phone — primary outreach channel
+    referee_email,                // secondary / always sent alongside
     referee_title,
     candidate_job_title,
     candidate_company,
     candidate_dates,
-    is_test_outreach,    // when true, all outreach for this row + its nominees routes to the candidate
+    is_test_outreach,             // when true, all outreach for this row + its nominees routes to the candidate
   } = body
+
+  const refType: 'manager' | 'peer' = rawRefType === 'peer' ? 'peer' : 'manager'
 
   if (!referee_name || !job_slot || !candidate_company || (!referee_phone && !referee_email)) {
     return NextResponse.json({ error: 'Name, company, and at least one contact method required.' }, { status: 400 })
@@ -64,13 +69,14 @@ export async function POST(request: Request) {
   const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single()
   const candidateName = (profile?.full_name as string) || 'the candidate'
 
-  // Upsert — one manager per job_slot per candidate
+  // Upsert — one ref per (job_slot, ref_type) per candidate. Manager and peer
+  // live on different ref_types so they don't collide on the same slot.
   const { data: existing } = await admin
     .from('candidate_references')
     .select('id, token')
     .eq('candidate_id', user.id)
     .eq('job_slot', job_slot)
-    .eq('ref_type', 'manager')
+    .eq('ref_type', refType)
     .maybeSingle()
 
   let ref: { id: string; token: string }
@@ -85,6 +91,8 @@ export async function POST(request: Request) {
       candidate_company,
       candidate_dates: candidate_dates || null,
       is_test_outreach: !!is_test_outreach,
+      is_current_role: !!is_current_role,
+      suggested_reason: suggested_reason || null,
       status: 'pending',
       updated_at: new Date().toISOString(),
     }).eq('id', existing.id)
@@ -92,17 +100,19 @@ export async function POST(request: Request) {
   } else {
     const { data: inserted, error } = await admin.from('candidate_references').insert({
       candidate_id: user.id,
-      ref_type: 'manager',
+      ref_type: refType,
       job_slot,
       referee_name,
       referee_phone: referee_phone || null,
       referee_email: referee_email || null,
       referee_title: referee_title || null,
-      referee_relationship: 'direct_manager',
+      referee_relationship: refType === 'peer' ? 'peer_colleague' : 'direct_manager',
       candidate_job_title: candidate_job_title || null,
       candidate_company,
       candidate_dates: candidate_dates || null,
       is_test_outreach: !!is_test_outreach,
+      is_current_role: !!is_current_role,
+      suggested_reason: suggested_reason || null,
       status: 'pending',
     }).select('id, token').single()
 
@@ -125,16 +135,15 @@ export async function POST(request: Request) {
 
   // 1. WhatsApp / SMS first (if phone provided)
   if (outreach.phone) {
-    const waMsg =
-      `${testBanner}Hi ${referee_name.split(' ')[0]} 👋 ${candidateName} listed you as their manager at ${candidate_company}.\n\n` +
-      `We're building their verified profile on Shapi. Takes 5 minutes — your honest answers help them stand out to the right employers.\n\n` +
-      `Fill in here: ${referenceUrl}\n\n` +
-      `${candidateFirst} can't edit your responses — they appear exactly as you write them.`
+    const relationLabel = refType === 'peer' ? 'a colleague they currently work with' : 'their manager'
+    const waMsg = refType === 'peer'
+      ? `${testBanner}Hi ${referee_name.split(' ')[0]} 👋 ${candidateName} listed you as a colleague at ${candidate_company}.\n\nWe're building their verified profile on Shapi — your perspective as someone who works with them helps a lot. 3 short questions, takes 2 minutes:\n\n${referenceUrl}\n\n${candidateFirst} can't edit your responses — they appear exactly as you write them.`
+      : `${testBanner}Hi ${referee_name.split(' ')[0]} 👋 ${candidateName} listed you as ${relationLabel} at ${candidate_company}.\n\nWe're building their verified profile on Shapi. Takes 5 minutes — your honest answers help them stand out to the right employers.\n\nFill in here: ${referenceUrl}\n\n${candidateFirst} can't edit your responses — they appear exactly as you write them.`
 
     const { whatsapp, sms } = await sendReferenceOutreach({
       phone: outreach.phone,
       message: waMsg,
-      label: `manager ref slot ${job_slot} for ${candidateName}${outreach.testMode ? ' [TEST]' : ''}`,
+      label: `${refType} ref slot ${job_slot} for ${candidateName}${outreach.testMode ? ' [TEST]' : ''}`,
     })
     if (whatsapp) channels.push('whatsapp')
     else if (sms) channels.push('sms')

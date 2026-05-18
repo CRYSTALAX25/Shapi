@@ -97,15 +97,28 @@ export default function References() {
   const [workHistory, setWorkHistory] = useState<WorkEntry[]>([])
   const [job1, setJob1] = useState<JobForm>(EMPTY_JOB)
   const [job2, setJob2] = useState<JobForm>(EMPTY_JOB)
+  const [peerJob, setPeerJob] = useState<JobForm>(EMPTY_JOB)
   const [sending1, setSending1] = useState(false)
   const [sending2, setSending2] = useState(false)
+  const [sendingPeer, setSendingPeer] = useState(false)
   const [sent1, setSent1] = useState(false)
   const [sent2, setSent2] = useState(false)
+  const [sentPeer, setSentPeer] = useState(false)
   const [error1, setError1] = useState('')
   const [error2, setError2] = useState('')
+  const [errorPeer, setErrorPeer] = useState('')
   // Test mode — when on, all reference outreach (manager + nominees) routes to
   // the candidate's own WhatsApp + email. Lets the founder/QA play all 3 roles.
   const [testMode, setTestMode] = useState(false)
+  // Smart-picker suggestion from /api/references/suggest — Claude analyses
+  // work_history + target industries and proposes the best 3 references
+  type Suggestion = {
+    currentRole: { index: number; reason: string }
+    pastManagers: Array<{ index: number; reason: string }>
+    reasoning: string
+  } | null
+  const [suggestion, setSuggestion] = useState<Suggestion>(null)
+  const [loadingSuggestion, setLoadingSuggestion] = useState(true)
 
   const loadRefs = () => {
     fetch('/api/references/request')
@@ -124,12 +137,35 @@ export default function References() {
       .catch(() => {})
   }
 
-  useEffect(() => { loadRefs(); loadWorkHistory() }, [])
+  const loadSuggestion = () => {
+    setLoadingSuggestion(true)
+    fetch('/api/references/suggest', { method: 'POST' })
+      .then(r => r.json())
+      .then((s: Suggestion) => { if (s && 'currentRole' in s) setSuggestion(s) })
+      .catch(() => {})
+      .finally(() => setLoadingSuggestion(false))
+  }
+
+  useEffect(() => { loadRefs(); loadWorkHistory(); loadSuggestion() }, [])
+
+  // Pre-fill all 3 forms from Shapi's smart picker — only fires once workHistory + suggestion both loaded
+  useEffect(() => {
+    if (!suggestion || workHistory.length === 0) return
+    const setFormFromIndex = (idx: number, setForm: (fn: (f: JobForm) => JobForm) => void) => {
+      if (idx < 0 || idx >= workHistory.length) return
+      const w = workHistory[idx]
+      const dates = w.start || w.end ? `${w.start || ''} – ${w.end || 'present'}` : ''
+      setForm(f => f.workIndex !== null ? f : ({ ...f, workIndex: idx, myTitle: w.title || '', company: w.company || '', dates }))
+    }
+    setFormFromIndex(suggestion.currentRole.index, setPeerJob)
+    if (suggestion.pastManagers[0]) setFormFromIndex(suggestion.pastManagers[0].index, setJob1)
+    if (suggestion.pastManagers[1]) setFormFromIndex(suggestion.pastManagers[1].index, setJob2)
+  }, [suggestion, workHistory])
 
   // When a candidate picks a work-history entry from the dropdown, auto-populate the role context fields
-  const pickWorkEntry = (slot: 1 | 2, idxStr: string) => {
+  const pickWorkEntry = (slot: 1 | 2 | 'peer', idxStr: string) => {
     const idx = idxStr === '' ? null : parseInt(idxStr, 10)
-    const setForm = slot === 1 ? setJob1 : setJob2
+    const setForm = slot === 1 ? setJob1 : slot === 2 ? setJob2 : setPeerJob
     if (idx === null || Number.isNaN(idx) || idx < 0 || idx >= workHistory.length) {
       setForm(f => ({ ...f, workIndex: null, myTitle: '', company: '', dates: '' }))
       return
@@ -145,6 +181,44 @@ export default function References() {
     }))
   }
 
+  // Peer reference for current role — uses the same form shape but writes ref_type='peer' + is_current_role=true
+  const sendPeerRequest = async () => {
+    const form = peerJob
+    if (!form.managerName || !form.company || (!form.managerPhone && !form.managerEmail)) {
+      setErrorPeer('Colleague name, company, and at least a phone number or email are required.')
+      return
+    }
+    setSendingPeer(true)
+    setErrorPeer('')
+    const reason = suggestion?.currentRole.reason || ''
+    const res = await fetch('/api/references/request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        job_slot: 1,                       // peer always lives on slot 1 for simplicity (one peer per candidate)
+        ref_type: 'peer',
+        is_current_role: true,
+        suggested_reason: reason,
+        referee_name: form.managerName,
+        referee_phone: form.managerPhone || undefined,
+        referee_email: form.managerEmail || undefined,
+        referee_title: form.managerTitle || undefined,
+        candidate_job_title: form.myTitle || undefined,
+        candidate_company: form.company,
+        candidate_dates: form.dates || undefined,
+        is_test_outreach: testMode,
+      }),
+    })
+    setSendingPeer(false)
+    if (res.ok) {
+      setSentPeer(true)
+      loadRefs()
+    } else {
+      const d = await res.json().catch(() => ({}))
+      setErrorPeer(d.error || 'Something went wrong — try again.')
+    }
+  }
+
   const sendRequest = async (slot: 1 | 2) => {
     const form = slot === 1 ? job1 : job2
     const setSending = slot === 1 ? setSending1 : setSending2
@@ -157,11 +231,15 @@ export default function References() {
     }
     setSending(true)
     setError('')
+    const reason = suggestion?.pastManagers?.[slot - 1]?.reason || ''
     const res = await fetch('/api/references/request', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         job_slot: slot,
+        ref_type: 'manager',
+        is_current_role: false,
+        suggested_reason: reason,
         referee_name: form.managerName,
         referee_phone: form.managerPhone || undefined,
         referee_email: form.managerEmail || undefined,
@@ -281,6 +359,107 @@ export default function References() {
           </div>
         </label>
 
+        {/* Shapi's smart-picker recommendation banner */}
+        {suggestion && (
+          <div className="mb-6 p-4 rounded-2xl" style={{
+            background: 'rgba(167,139,250,0.06)',
+            border: '1px solid rgba(167,139,250,0.18)',
+          }}>
+            <p className="text-[#A78BFA] text-xs font-bold uppercase tracking-wider mb-2">💡 Shapi recommends</p>
+            <p className="text-white/70 text-sm leading-relaxed mb-2">{suggestion.reasoning}</p>
+            <p className="text-white/35 text-xs">You can change any of the picks below if you prefer different roles.</p>
+          </div>
+        )}
+        {loadingSuggestion && (
+          <div className="mb-6 p-4 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <p className="text-white/35 text-xs">✨ Shapi is picking the best references for your CV…</p>
+          </div>
+        )}
+
+        {/* ─── Peer reference for CURRENT role (discretion-protected) ─── */}
+        <div className="mb-6 rounded-2xl p-6" style={{
+          background: 'linear-gradient(#0d0d14,#0d0d14) padding-box,linear-gradient(135deg,rgba(52,211,153,0.15),rgba(34,211,238,0.10)) border-box',
+          border: '1px solid transparent',
+        }}>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-[#34D399] text-xs font-bold uppercase tracking-wider">Current role · peer reference</p>
+            {sentPeer && <span className="text-[#22D3EE] text-xs font-bold">✓ Sent</span>}
+          </div>
+          <p className="text-white/35 text-xs mb-5">A <strong>colleague</strong> (not your manager) from your current job. Keeps your job-hunt discreet — we never contact your current boss.</p>
+
+          {sentPeer ? (
+            <p className="text-white/40 text-sm">Peer reference request sent to {peerJob.managerName}. They&apos;ll have 3 quick questions to answer.</p>
+          ) : (
+            <div className="space-y-4">
+              {workHistory.length > 0 && (
+                <div>
+                  <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'rgba(255,255,255,0.3)', marginBottom: 6 }}>
+                    Which is your current role?
+                  </p>
+                  <select
+                    value={peerJob.workIndex === null ? '' : peerJob.workIndex.toString()}
+                    onChange={e => pickWorkEntry('peer', e.target.value)}
+                    style={{
+                      width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)',
+                      borderRadius: 10, padding: '11px 14px', fontSize: 14, color: 'white', outline: 'none',
+                      fontFamily: 'inherit', cursor: 'pointer',
+                    }}
+                  >
+                    <option value="" style={{ background: '#0d0d14' }}>— Pick your current role —</option>
+                    {workHistory.map((w, i) => (
+                      <option key={i} value={i} style={{ background: '#0d0d14' }}>
+                        {workEntryLabel(w, i)}
+                      </option>
+                    ))}
+                  </select>
+                  {suggestion?.currentRole && peerJob.workIndex === suggestion.currentRole.index && (
+                    <p style={{ fontSize: 11, color: 'rgba(52,211,153,0.7)', marginTop: 6 }}>
+                      💡 Shapi&apos;s pick: {suggestion.currentRole.reason}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FieldStyle label="Your job title" placeholder="Head of Operations" value={peerJob.myTitle} onChange={v => setPeerJob(f => ({ ...f, myTitle: v }))} />
+                <FieldStyle label="Company" placeholder="NEOM" value={peerJob.company} onChange={v => setPeerJob(f => ({ ...f, company: v }))} />
+              </div>
+              <FieldStyle label="Dates" placeholder="2024 – present" value={peerJob.dates} onChange={v => setPeerJob(f => ({ ...f, dates: v }))} />
+
+              <div className="border-t border-white/[0.06] pt-4">
+                <div className="flex items-start justify-between mb-4">
+                  <p className="text-white/35 text-xs font-bold uppercase tracking-wider">Colleague (not manager)</p>
+                  <p className="text-white/20 text-xs">At least one contact method required</p>
+                </div>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <FieldStyle label="Colleague's full name *" placeholder="Lara Hassan" value={peerJob.managerName} onChange={v => setPeerJob(f => ({ ...f, managerName: v }))} />
+                    <FieldStyle label="Their role" placeholder="Head of Marketing" value={peerJob.managerTitle} onChange={v => setPeerJob(f => ({ ...f, managerTitle: v }))} />
+                  </div>
+                  <FieldStyle label="WhatsApp / Phone number" placeholder="+971 50 123 4567" value={peerJob.managerPhone} onChange={v => setPeerJob(f => ({ ...f, managerPhone: v }))} type="tel" />
+                  <FieldStyle label="Work email" placeholder="lara@company.com" value={peerJob.managerEmail} onChange={v => setPeerJob(f => ({ ...f, managerEmail: v }))} type="email" />
+                </div>
+              </div>
+
+              {errorPeer && <p className="text-[#FB7185] text-xs bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3">{errorPeer}</p>}
+
+              <button
+                onClick={sendPeerRequest}
+                disabled={sendingPeer || sentPeer}
+                className="w-full py-3.5 rounded-full font-black text-sm transition-opacity disabled:opacity-40"
+                style={{ background: 'linear-gradient(135deg,#34D399,#22D3EE)', color: '#060609' }}>
+                {sentPeer ? '✓ Peer reference sent' : sendingPeer ? 'Sending…' : 'Send peer reference →'}
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* ─── Past role manager references (2 of them) ─── */}
+        <div className="mb-3 mt-8">
+          <p className="text-white/40 text-xs font-bold uppercase tracking-wider">Past role manager references</p>
+          <p className="text-white/25 text-xs mt-1">2 line managers from past roles. They&apos;ll each nominate a colleague + stakeholder — those nominees get contacted independently.</p>
+        </div>
+
         {/* Job forms */}
         {[1, 2].map(slot => {
           const form = slot === 1 ? job1 : job2
@@ -338,6 +517,11 @@ export default function References() {
                       <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 6, lineHeight: 1.5 }}>
                         💡 Pick the role most <strong>relevant to where you&apos;re applying</strong> — not necessarily your latest. If you&apos;re moving into sales, pick a sales role even if your last job was operations.
                       </p>
+                      {suggestion?.pastManagers?.[slot - 1] && form.workIndex === suggestion.pastManagers[slot - 1].index && (
+                        <p style={{ fontSize: 11, color: 'rgba(167,139,250,0.7)', marginTop: 6 }}>
+                          💡 Shapi&apos;s pick: {suggestion.pastManagers[slot - 1].reason}
+                        </p>
+                      )}
                     </div>
                   )}
 

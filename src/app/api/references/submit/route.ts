@@ -2,7 +2,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendNominatedReferenceEmail, sendReferencesVerifiedEmail } from '@/lib/email'
 import { sendReferenceOutreach } from '@/lib/whatsapp'
-import { recomputeProfileLive, resolveOutreachContact, computeJobCompletionScore } from '@/lib/references'
+import { recomputeProfileLive, resolveOutreachContact, computeJobCompletionScore, updateVerificationTier, runVerificationCrossCheck } from '@/lib/references'
 import { NextResponse } from 'next/server'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
   const { data: ref, error } = await admin
     .from('candidate_references')
-    .select('id, status, candidate_id, ref_type, job_slot, referee_name, candidate_company, candidate_job_title, candidate_dates, is_test_outreach')
+    .select('id, status, candidate_id, ref_type, job_slot, referee_name, candidate_company, candidate_job_title, candidate_dates, is_test_outreach, is_current_role')
     .eq('token', token)
     .single()
 
@@ -35,11 +35,15 @@ export async function POST(request: Request) {
 
   const refType = (ref.ref_type as string) || 'manager'
   const isManager = refType === 'manager'
+  const isPeer = refType === 'peer'
+  // Peer and nominees (colleague/stakeholder) use the same 3-question form.
+  // Only managers cascade to nominees.
+  const usesNomineeForm = !isManager
 
   if (isManager && (!quality || !achievement || !skills || !would_rehire)) {
     return NextResponse.json({ error: 'Missing required manager fields' }, { status: 400 })
   }
-  if (!isManager && (!how_worked || !biggest_strength)) {
+  if (usesNomineeForm && (!how_worked || !biggest_strength)) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
@@ -178,6 +182,25 @@ export async function POST(request: Request) {
   // Auto-flip profile_live when both jobs are fully verified
   const { profileLive } = await recomputeProfileLive(ref.candidate_id as string)
 
+  // Verification tier + AI cross-check — runs whenever a reference completes.
+  // Cross-check only runs after we have enough completed refs (≥3) so the
+  // analysis has substance. Tier always recomputed.
+  let tier
+  try {
+    const { data: completedRefs } = await admin
+      .from('candidate_references')
+      .select('id')
+      .eq('candidate_id', ref.candidate_id)
+      .eq('status', 'completed')
+    const completedCount = completedRefs?.length || 0
+    if (completedCount >= 3) {
+      await runVerificationCrossCheck(ref.candidate_id as string)
+    }
+    tier = await updateVerificationTier(ref.candidate_id as string)
+  } catch (err) {
+    console.error('[references/submit] verification pipeline failed:', err)
+  }
+
   // Notify the candidate the FIRST time a job's chain (3 refs) completes
   if (score.jobsComplete >= 1 && score.jobsComplete <= 2) {
     try {
@@ -196,5 +219,5 @@ export async function POST(request: Request) {
     } catch { /* non-fatal */ }
   }
 
-  return NextResponse.json({ success: true, completionPct, profileLive, jobsComplete: score.jobsComplete })
+  return NextResponse.json({ success: true, completionPct, profileLive, jobsComplete: score.jobsComplete, tier })
 }
