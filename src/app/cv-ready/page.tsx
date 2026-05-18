@@ -81,6 +81,7 @@ export default function CVReady() {
   // Pro deep-dive state
   const [deepDiveState, setDeepDiveState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([])
+  const [deepDiveError, setDeepDiveError] = useState('')
 
   useEffect(() => {
     const supabase = createClient()
@@ -184,7 +185,6 @@ export default function CVReady() {
     sales: { label: 'Sales', emoji: '🤝' },
   }
 
-  const [deepDiveError, setDeepDiveError] = useState('')
   const sendDeepDive = async () => {
     if (selectedIndustries.length === 0) return
     setDeepDiveState('sending')
