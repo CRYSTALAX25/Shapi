@@ -52,9 +52,31 @@ export async function POST(request: Request) {
     if (!phone) {
       results.whatsapp = false
     } else {
-      const msg = `Hi ${firstName} 👋 Your Shapi CV Kit is ready.\n\n📄 Open your CV Kit:\n${englishUrl}\n\nOpen the link in your browser → download English${showNative ? `, ${nativeLabel},` : ''} and industry-targeted versions.`
+      // Direct print-page links for each language — opens straight to the PDF-ready view
+      const englishPrintUrl = `${SITE}/profile/print`
+      const nativePrintUrl = `${SITE}/profile/print?lang=native`
 
+      const lines: string[] = [
+        `Hi ${firstName} 👋 Your Shapi CV is ready.`,
+        ``,
+        `📄 *English CV*`,
+        englishPrintUrl,
+      ]
+      if (showNative) {
+        lines.push(``, `🌐 *${nativeLabel} CV*`, nativePrintUrl)
+      }
+      lines.push(
+        ``,
+        `Open in your browser → Save as PDF (Ctrl+P / Cmd+P → Save as PDF).`,
+        ``,
+        `Full kit (incl. industry-targeted versions): ${englishUrl}`,
+      )
+
+      const msg = lines.join('\n')
       const wa = await sendWhatsApp(phone, msg)
+      if (!wa.success) {
+        console.error('[cv/send] WhatsApp send failed:', wa.error, '| phone:', phone, '| length:', msg.length)
+      }
       results.whatsapp = wa.success
     }
   }
