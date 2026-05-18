@@ -27,10 +27,34 @@ type Profile = {
   industry_chats?: Record<string, { status?: string; answers?: string[] }>
 }
 
+// Known language whitelist — reject garbage stored values (e.g. "Sure go ahead")
+const KNOWN_LANGS = [
+  'english','arabic','french','spanish','german','italian','portuguese','russian',
+  'chinese','mandarin','japanese','korean','hindi','urdu','turkish','dutch','polish',
+  'greek','hebrew','persian','farsi','pashto','thai','vietnamese','indonesian','malay',
+  'filipino','tagalog','swahili','amharic','yoruba','zulu','afrikaans','romanian',
+  'czech','hungarian','finnish','swedish','norwegian','danish','ukrainian','bulgarian',
+  'croatian','serbian','slovak','slovenian','bengali','punjabi','tamil','telugu',
+  'marathi','gujarati','malayalam','kannada','sinhala','nepali','burmese','khmer',
+  'lao','mongolian','kazakh','uzbek','georgian','armenian','azerbaijani','kurdish',
+  'somali','hausa','igbo','catalan','basque','galician','welsh','irish','icelandic',
+]
+function isValidLangPref(value: string | null | undefined): boolean {
+  if (!value) return false
+  const v = value.toLowerCase().trim()
+  if (v === 'english') return true
+  if (v.startsWith('both')) return true
+  const cleaned = v.replace(/[^a-z\s]/g, '').trim()
+  if (cleaned.length < 2 || cleaned.length > 30) return false
+  return KNOWN_LANGS.some(l => cleaned === l || cleaned.split(' ').includes(l))
+}
+
 // Resolve what to show from the candidate's WhatsApp language selection
 // Returns: { showEnglish, showNative, nativeLabel }
 function resolveCVLanguages(profile: Profile): { showEnglish: boolean; showNative: boolean; nativeLabel: string } {
-  const pref = (profile.cv_language_preference || '').toLowerCase().trim()
+  // Treat invalid/garbage preferences as "no preference" so we fall through to detection
+  const rawPref = isValidLangPref(profile.cv_language_preference) ? profile.cv_language_preference : null
+  const pref = (rawPref || '').toLowerCase().trim()
   const nativeFallback = profile.native_language || 'Native language'
 
   // They explicitly chose English only
@@ -53,7 +77,7 @@ function resolveCVLanguages(profile: Profile): { showEnglish: boolean; showNativ
   }
 
   // No preference set yet — fall back to location/native_language detection
-  if (!profile.cv_language_preference) {
+  if (!rawPref) {
     const NATIVE_ENGLISH = ['uk', 'united kingdom', 'england', 'scotland', 'wales', 'northern ireland',
       'usa', 'united states', 'australia', 'canada', 'ireland', 'new zealand']
     const isEngNative = profile.native_language?.toLowerCase() === 'english'
@@ -63,7 +87,7 @@ function resolveCVLanguages(profile: Profile): { showEnglish: boolean; showNativ
 
   // They chose a specific language (e.g., "Croatian", "Tagalog", "French")
   // Treat their chosen language as primary — show it first, offer English as optional
-  const chosenLabel = profile.cv_language_preference.charAt(0).toUpperCase() + profile.cv_language_preference.slice(1)
+  const chosenLabel = rawPref.charAt(0).toUpperCase() + rawPref.slice(1)
   const isEnglishChosen = pref === 'english'
   return { showEnglish: !isEnglishChosen, showNative: true, nativeLabel: chosenLabel }
 }

@@ -9,6 +9,30 @@ const NATIVE_ENGLISH_COUNTRIES = [
   'australia', 'canada', 'ireland', 'new zealand', 'nz',
 ]
 
+// Known language whitelist — reject garbage stored values like "Sure go ahead"
+const KNOWN_LANGUAGES = [
+  'english', 'arabic', 'french', 'spanish', 'german', 'italian', 'portuguese',
+  'russian', 'chinese', 'mandarin', 'japanese', 'korean', 'hindi', 'urdu',
+  'turkish', 'dutch', 'polish', 'greek', 'hebrew', 'persian', 'farsi', 'pashto',
+  'thai', 'vietnamese', 'indonesian', 'malay', 'filipino', 'tagalog',
+  'swahili', 'amharic', 'yoruba', 'zulu', 'afrikaans', 'romanian', 'czech',
+  'hungarian', 'finnish', 'swedish', 'norwegian', 'danish', 'ukrainian',
+  'bulgarian', 'croatian', 'serbian', 'slovak', 'slovenian', 'bengali', 'punjabi',
+  'tamil', 'telugu', 'marathi', 'gujarati', 'malayalam', 'kannada', 'sinhala',
+  'nepali', 'burmese', 'khmer', 'lao', 'mongolian', 'kazakh', 'uzbek',
+  'georgian', 'armenian', 'azerbaijani', 'kurdish', 'somali', 'hausa', 'igbo',
+  'catalan', 'basque', 'galician', 'welsh', 'irish', 'icelandic',
+]
+function isKnownLanguageValue(value: string | null | undefined): boolean {
+  if (!value) return false
+  const v = value.toLowerCase().trim()
+  if (v === 'english') return true
+  if (v.startsWith('both')) return true
+  const cleaned = v.replace(/[^a-z\s]/g, '').trim()
+  if (cleaned.length < 2 || cleaned.length > 30) return false
+  return KNOWN_LANGUAGES.some(l => cleaned === l || cleaned.split(' ').includes(l))
+}
+
 export function isNativeEnglishLocation(location: string): boolean {
   const loc = (location || '').toLowerCase()
   return NATIVE_ENGLISH_COUNTRIES.some(c => loc.includes(c))
@@ -126,7 +150,10 @@ export async function POST(request: Request) {
   // cv_language_preference is the most explicit signal — candidate chose it directly
   // Strip "Both — English and " or "Both — " prefix if present; extract the non-English language
   // Use profile directly for critical language fields (always loaded), extraFields as supplement
-  const rawLangPref = (profile.cv_language_preference as string | null) || null
+  // Only trust the saved preference if it's actually a language (not "Sure go ahead", etc.)
+  const rawLangPref = isKnownLanguageValue(profile.cv_language_preference as string | null)
+    ? (profile.cv_language_preference as string)
+    : null
   let prefLang: string | null = null
   if (rawLangPref) {
     const pref = rawLangPref.toLowerCase().trim()

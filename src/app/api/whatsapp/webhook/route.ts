@@ -108,6 +108,97 @@ function getIndustryWritingGuide(industry: string): string {
   return guides[industry] || guides.general
 }
 
+// ── Language picker validation ───────────────────────────────────────────────
+// Only accept: numeric choice (1-4), explicit language name from a known list,
+// or "both" / "other". Reject conversational filler like "yes/ok/go ahead".
+const KNOWN_LANGUAGES = [
+  'english', 'arabic', 'french', 'spanish', 'german', 'italian', 'portuguese',
+  'russian', 'chinese', 'mandarin', 'japanese', 'korean', 'hindi', 'urdu',
+  'turkish', 'dutch', 'polish', 'greek', 'hebrew', 'persian', 'farsi', 'pashto',
+  'thai', 'vietnamese', 'indonesian', 'malay', 'filipino', 'tagalog',
+  'swahili', 'amharic', 'yoruba', 'zulu', 'afrikaans', 'romanian', 'czech',
+  'hungarian', 'finnish', 'swedish', 'norwegian', 'danish', 'ukrainian',
+  'bulgarian', 'croatian', 'serbian', 'slovak', 'slovenian', 'bengali', 'punjabi',
+  'tamil', 'telugu', 'marathi', 'gujarati', 'malayalam', 'kannada', 'sinhala',
+  'nepali', 'burmese', 'khmer', 'lao', 'mongolian', 'kazakh', 'uzbek',
+  'georgian', 'armenian', 'azerbaijani', 'kurdish', 'somali', 'hausa', 'igbo',
+  'catalan', 'basque', 'galician', 'welsh', 'irish', 'scottish gaelic', 'icelandic',
+]
+
+// Reject saved language preferences that aren't actual languages
+// (catches garbage like "Sure go ahead" that pre-validation code accepted)
+function isValidLangPref(value: string | null | undefined): boolean {
+  if (!value) return false
+  const v = value.toLowerCase().trim()
+  if (v === 'english') return true
+  if (v.startsWith('both')) return true
+  const cleaned = v.replace(/[^a-z\s]/g, '').trim()
+  if (cleaned.length < 2 || cleaned.length > 30) return false
+  return KNOWN_LANGUAGES.some(lang => cleaned === lang || cleaned.split(' ').includes(lang))
+}
+
+function parseLanguageReply(
+  reply: string,
+  detectedNative: string | null,
+  mode: 'choice' | 'custom',
+): { preference?: string; askCustom?: boolean; clarify?: boolean } {
+  const r = reply.trim()
+  const lower = r.toLowerCase()
+
+  if (mode === 'custom') {
+    // They picked "Other" and are typing the language — accept if it looks like a language name
+    const cleaned = lower.replace(/[^a-z\s]/g, '').trim()
+    if (cleaned.length < 2 || cleaned.length > 30) return { clarify: true }
+    if (KNOWN_LANGUAGES.includes(cleaned)) return { preference: cleaned.charAt(0).toUpperCase() + cleaned.slice(1) }
+    // Allow unknown language but require single word or two-word language name
+    if (/^[a-z]+( [a-z]+)?$/.test(cleaned)) return { preference: r.charAt(0).toUpperCase() + r.slice(1) }
+    return { clarify: true }
+  }
+
+  // Mode: choice
+  // Numeric replies
+  if (r === '1' || lower === 'english only' || (lower === 'english' && !lower.includes('+'))) {
+    return { preference: 'English' }
+  }
+  if (r === '2' && detectedNative) {
+    return { preference: detectedNative }
+  }
+  if (r === '3' || lower === 'both' || lower.startsWith('both ')) {
+    return { preference: detectedNative ? `Both — English and ${detectedNative}` : 'Both — English and native language' }
+  }
+  if (r === '4' || lower === 'other' || lower.includes('different language')) {
+    return { askCustom: true }
+  }
+
+  // Language name typed directly
+  const cleaned = lower.replace(/[^a-z\s]/g, '').trim()
+  if (KNOWN_LANGUAGES.includes(cleaned)) {
+    return { preference: cleaned.charAt(0).toUpperCase() + cleaned.slice(1) }
+  }
+
+  // Anything else — ask them to clarify
+  return { clarify: true }
+}
+
+const buildLangPrompt = (detectedNative: string | null): string => {
+  if (detectedNative) {
+    return `One last thing before we build your CV 🎨
+
+Which language do you want it in?
+
+1️⃣ English
+2️⃣ ${detectedNative}
+3️⃣ Both — English + ${detectedNative}
+4️⃣ Other — just type the language you need`
+  }
+  return `One last thing before we build your CV 🎨
+
+Which language do you want it in?
+
+1️⃣ English
+2️⃣ Other — just type the language you need`
+}
+
 export async function POST(request: Request) {
   const formData = await request.formData()
   const from = formData.get('From') as string
@@ -126,7 +217,7 @@ export async function POST(request: Request) {
   // Look up profile — limit(1) survives duplicate rows
   const { data: profiles } = await admin
     .from('profiles')
-    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_tier, industry_chats, whatsapp_conversation_active')
+    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, cv_tier, industry_chats, whatsapp_conversation_active')
     .eq('whatsapp_number', phone)
     .order('cv_parsed', { ascending: false })
     .limit(1)
@@ -138,63 +229,7 @@ export async function POST(request: Request) {
     return new NextResponse('', { status: 200 })
   }
 
-  // ── CV language preference capture ───────────────────────────────────────
-  // awaiting_cv_language: null | 'choice' | 'custom'
-  // 'choice'  = we sent the numbered menu, waiting for 1/2/3/4 or direct language name
-  // 'custom'  = they picked Other (4), waiting for them to type the language name
-  const awaitingLang = profile.awaiting_cv_language as string | null
-
-  if (awaitingLang === 'choice' || awaitingLang === 'custom') {
-    const reply = body?.trim() || ''
-    const replyLower = reply.toLowerCase()
-    const detectedNative = (profile.native_language as string | null) || null
-
-    let preference: string | null = null
-    let nextStep: string | null = null
-    let responseMsg = ''
-
-    if (awaitingLang === 'custom') {
-      // Whatever they typed IS the language — store it directly
-      preference = reply
-      responseMsg = `Perfect — we'll build your CV in *${reply}*. Head back to the app to generate and download it 🎉`
-    } else {
-      // Parse their choice from the menu
-      if (reply === '1' || replyLower.includes('english only') || (replyLower === 'english' && !replyLower.includes('+'))) {
-        preference = 'English'
-        responseMsg = `Got it — English CV it is. Head to the app to generate and download yours 🎉`
-      } else if (reply === '2' && detectedNative) {
-        preference = detectedNative
-        responseMsg = `Perfect — ${detectedNative} CV coming up. Head to the app to generate and download it 🎉`
-      } else if (reply === '3') {
-        preference = detectedNative ? `Both — English and ${detectedNative}` : 'Both — English and native language'
-        responseMsg = `Both versions — love it. Head to the app to generate and download them 🎉`
-      } else if (reply === '4' || replyLower.includes('other')) {
-        // Ask them to type the language
-        nextStep = 'custom'
-        responseMsg = `No problem — just type the language you want your CV in and we'll handle it.`
-      } else {
-        // They typed a language name directly instead of a number — treat it as their answer
-        preference = reply
-        responseMsg = `Got it — *${reply}* CV it is. Head to the app to generate and download it 🎉`
-      }
-    }
-
-    const langUpdates: Record<string, unknown> = { updated_at: new Date().toISOString() }
-    if (preference) {
-      langUpdates.cv_language_preference = preference
-      langUpdates.awaiting_cv_language = null
-    }
-    if (nextStep) {
-      langUpdates.awaiting_cv_language = nextStep
-    }
-
-    await admin.from('profiles').update(langUpdates).eq('id', profile.id)
-    await sendWhatsApp(phone, responseMsg)
-    console.log('[webhook] CV language captured:', preference || 'awaiting custom', '| phone:', phone)
-    return new NextResponse('', { status: 200 })
-  }
-
-  // ── Voice note — Deepgram transcription ─────────────────────────────────
+  // ── Voice note transcription — always first, sets userMessage ───────────
   let userMessage = body?.trim() || ''
 
   if (numMedia > 0 && mediaType.startsWith('audio/')) {
@@ -244,16 +279,23 @@ export async function POST(request: Request) {
 
   if (!userMessage) return new NextResponse('', { status: 200 })
 
-  // ── Pro deep-dive answer capture ─────────────────────────────────────────
-  // If this is a Pro user with active deep-dive questions sent, route their
-  // replies as industry-specific answers rather than continuing the main interview.
+  // ── State (single source of truth, computed once) ───────────────────────
+  const isPro = profile.cv_tier === 'pro'
   const industryChats = (profile.industry_chats as Record<string, { status?: string; answers?: string[]; questions?: string; sent_at?: string }> | null) || {}
   const activeDeepDiveInds = Object.entries(industryChats)
     .filter(([, v]) => v.status === 'questions_sent')
     .map(([k]) => k)
+  const isInDeepDive = isPro && activeDeepDiveInds.length > 0
+  const awaitingLang = profile.awaiting_cv_language as 'choice' | 'custom' | null
+  const hasLangPref = isValidLangPref(profile.cv_language_preference as string | null)
+  const interviewDone = profile.whatsapp_conversation_active === false
+  const detectedNative = (profile.native_language as string | null) || null
+  const firstName = (profile.full_name as string || 'there').split(' ')[0]
 
-  if (profile.cv_tier === 'pro' && activeDeepDiveInds.length > 0) {
-    // Append this message to answers for every industry that has questions pending
+  // ── Priority 1: Pro deep-dive answer routing ─────────────────────────────
+  // If a Pro user has active deep-dive questions out, their replies are answers
+  // — not language picks, not main interview. This wins over everything.
+  if (isInDeepDive) {
     const updatedChats = { ...industryChats }
     let totalAnswersSoFar = 0
     for (const ind of activeDeepDiveInds) {
@@ -263,7 +305,6 @@ export async function POST(request: Request) {
       totalAnswersSoFar = Math.max(totalAnswersSoFar, answers.length)
     }
 
-    // Also keep main whatsapp_chat updated (for CV generation context)
     const mainChat = Array.isArray(profile.whatsapp_chat) ? profile.whatsapp_chat : []
     mainChat.push({ role: 'user', content: userMessage })
 
@@ -273,7 +314,6 @@ export async function POST(request: Request) {
       updated_at: new Date().toISOString(),
     }).eq('id', profile.id)
 
-    // Only send one acknowledgment on first answer — don't reply to every message
     if (totalAnswersSoFar === 1) {
       const indLabels = activeDeepDiveInds.map(i => i.charAt(0).toUpperCase() + i.slice(1)).join(', ')
       await sendWhatsApp(phone, `Got it 👍 Answer each question when you're ready — no rush. Once you're done, head to the app and your ${indLabels} CV${activeDeepDiveInds.length > 1 ? 's' : ''} will be ready to download.`)
@@ -283,14 +323,88 @@ export async function POST(request: Request) {
     return new NextResponse('', { status: 200 })
   }
 
-  // ── Conversation history ─────────────────────────────────────────────────
+  // ── Priority 2: Language preference reply ────────────────────────────────
+  if (awaitingLang === 'choice' || awaitingLang === 'custom') {
+    const parsed = parseLanguageReply(userMessage, detectedNative, awaitingLang)
+
+    if (parsed.clarify) {
+      // Don't accept ambiguous replies like "yes / ok / go ahead" as a language
+      await sendWhatsApp(
+        phone,
+        awaitingLang === 'custom'
+          ? `Sorry — I need the language name itself (e.g. "Italian" or "Tagalog"). Just type the language you want your CV in.`
+          : `Hmm, didn't quite catch that. Reply with the *number* (1, 2, 3, or 4) — or type the language name directly (e.g. "English" or "Spanish").`,
+      )
+      return new NextResponse('', { status: 200 })
+    }
+
+    const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
+    let responseMsg: string
+
+    if (parsed.askCustom) {
+      updates.awaiting_cv_language = 'custom'
+      responseMsg = `No problem — just type the language you want your CV in and we'll handle it.`
+    } else if (parsed.preference) {
+      updates.cv_language_preference = parsed.preference
+      updates.awaiting_cv_language = null
+      responseMsg = `Got it — *${parsed.preference}* CV it is. Head to the app to generate and download it 🎉`
+    } else {
+      // Shouldn't reach here, but safe fallback
+      await sendWhatsApp(phone, `Hmm, didn't quite catch that. Reply with 1, 2, 3, or 4.`)
+      return new NextResponse('', { status: 200 })
+    }
+
+    await admin.from('profiles').update(updates).eq('id', profile.id)
+    await sendWhatsApp(phone, responseMsg)
+    console.log('[webhook] CV language captured:', parsed.preference || 'awaiting custom', '| phone:', phone)
+    return new NextResponse('', { status: 200 })
+  }
+
+  // ── Priority 3: Interview already done — friendly ack, no Claude re-run ──
+  // Once whatsapp_conversation_active=false, the main interview is over. Don't
+  // re-run Claude (which would awkwardly re-send the wrap-up + language picker).
+  if (interviewDone) {
+    const mainChat = Array.isArray(profile.whatsapp_chat) ? profile.whatsapp_chat : []
+    mainChat.push({ role: 'user', content: userMessage })
+
+    // If language preference is missing or invalid (e.g. someone typed "yes" earlier
+    // and it was saved as their "language"), re-ask the picker.
+    if (!hasLangPref && !awaitingLang) {
+      await admin.from('profiles').update({
+        whatsapp_chat: mainChat,
+        awaiting_cv_language: 'choice',
+        cv_language_preference: null,
+        updated_at: new Date().toISOString(),
+      }).eq('id', profile.id)
+
+      await sendWhatsApp(
+        phone,
+        `Hey ${firstName} 👋 Your profile is ready — one last thing before we finalise your CV:\n\n${buildLangPrompt(detectedNative)}`,
+      )
+      console.log('[webhook] Re-asking language picker for:', phone)
+      return new NextResponse('', { status: 200 })
+    }
+
+    await admin.from('profiles').update({
+      whatsapp_chat: mainChat,
+      updated_at: new Date().toISOString(),
+    }).eq('id', profile.id)
+
+    await sendWhatsApp(
+      phone,
+      `Hey ${firstName} 👋 Got your message — noted. Your profile is being prepared. Head to shapi.io to download your CV. If you want to update something specific, just let me know.`,
+    )
+    console.log('[webhook] Post-interview ack sent to:', phone)
+    return new NextResponse('', { status: 200 })
+  }
+
+  // ── Priority 4: Main Claude interview ────────────────────────────────────
   const chatHistory: Array<{ role: 'user' | 'assistant'; content: string }> =
     Array.isArray(profile.whatsapp_chat) ? profile.whatsapp_chat : []
 
   const userTurns = chatHistory.filter(m => m.role === 'user').length
   chatHistory.push({ role: 'user', content: userMessage })
 
-  // ── Build context from CV ────────────────────────────────────────────────
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
   const workHistory = Array.isArray(profile.work_history)
@@ -310,7 +424,6 @@ export async function POST(request: Request) {
 
   console.log('[webhook] Detected industry:', industry)
 
-  // ── The 6 quality signals Claude must hunt for ───────────────────────────
   const systemPrompt = `You are Shapi — an expert career coach and headhunter building a world-class profile for ${profile.full_name || 'this candidate'} through WhatsApp.
 
 WHAT WE KNOW FROM THEIR CV:
@@ -350,7 +463,6 @@ WHATSAPP RULES (non-negotiable):
 
 This is exchange ${userTurns + 1}. ${userTurns >= 9 ? 'You have enough. Wrap up now with [DONE].' : 'Do NOT end the conversation yet unless all 6 signals are clearly covered.'}`
 
-  // ── Claude call ──────────────────────────────────────────────────────────
   let aiReply = ''
   try {
     const response = await anthropic.messages.create({
@@ -371,7 +483,6 @@ This is exchange ${userTurns + 1}. ${userTurns >= 9 ? 'You have enough. Wrap up 
 
   chatHistory.push({ role: 'assistant', content: cleanReply })
 
-  // ── Save to profile ──────────────────────────────────────────────────────
   const updates: Record<string, unknown> = {
     whatsapp_chat: chatHistory,
     industry,
@@ -382,8 +493,7 @@ This is exchange ${userTurns + 1}. ${userTurns >= 9 ? 'You have enough. Wrap up 
     updates.completion_pct = Math.max((profile.completion_pct as number) || 0, 65)
     updates.whatsapp_conversation_active = false
 
-    // ── Language proficiency assessment from the conversation ────────────────
-    // Analyse the candidate's actual writing quality — don't guess from location
+    // Language proficiency assessment from the conversation
     const userMessages = chatHistory.filter(m => m.role === 'user').map(m => m.content)
     if (userMessages.length >= 3) {
       try {
@@ -417,15 +527,12 @@ Return ONLY valid JSON:
           if (langData.english_level && langData.english_level !== 'unassessed') {
             updates.english_level = langData.english_level
           }
-          // If they wrote in a non-English language and we don't have a native_language set yet,
-          // use the conversation language as a signal (but don't override CV-detected nationality)
           if (langData.conversation_language_code !== 'en') {
             updates.whatsapp_language = langData.conversation_language
           }
         }
       } catch (err) {
         console.error('[webhook] Language assessment failed:', err)
-        // Non-fatal — continue
       }
     }
   }
@@ -434,53 +541,27 @@ Return ONLY valid JSON:
 
   await sendWhatsApp(phone, cleanReply)
 
-  // ── CV language preference question — sent immediately after [DONE] ──────
-  if (isDone) {
-    const detectedNative = (profile.native_language as string | null) || null
-
-    // Build the options dynamically based on what we know about them
-    let langQuestion: string
-    if (detectedNative) {
-      langQuestion = `One last thing before we build your CV 🎨
-
-Which language do you want it in?
-
-1️⃣ English
-2️⃣ ${detectedNative}
-3️⃣ Both — English + ${detectedNative}
-4️⃣ Other — just type the language you need`
-    } else {
-      langQuestion = `One last thing before we build your CV 🎨
-
-Which language do you want it in?
-
-1️⃣ English
-2️⃣ Other — just type the language you need`
-    }
-
-    await sendWhatsApp(phone, langQuestion)
+  // ── Language picker after [DONE] — only if not already set or asked ──────
+  if (isDone && !hasLangPref && !awaitingLang) {
+    await sendWhatsApp(phone, buildLangPrompt(detectedNative))
     await admin.from('profiles').update({ awaiting_cv_language: 'choice' }).eq('id', profile.id)
   }
 
   // ── Post-completion emails (non-blocking) ────────────────────────────────
   if (isDone) {
-    // Fetch email for the candidate
     const { data: authUser } = await admin.auth.admin.getUserById(profile.id as string)
     const candidateEmail = authUser?.user?.email
 
     if (candidateEmail) {
-      // 1. Tell candidate their profile is live
       sendProfileLiveEmail(candidateEmail, profile.full_name as string || '', profile.id as string)
         .catch(err => console.error('[email] profile-live failed:', err))
 
-      // 2. Find companies with active roles that match this candidate well
       const { data: activeRoles } = await admin
         .from('roles')
         .select('id, title, company_id')
         .eq('status', 'active')
 
       if (activeRoles && activeRoles.length > 0) {
-        // Simple scoring: count how many candidate skills appear in role title (fast, no Claude)
         const candidateSkillsLower = ((profile.skills as string[]) || []).map((s: string) => s.toLowerCase())
         const headlineLower = ((profile.headline as string) || '').toLowerCase()
 
@@ -488,10 +569,9 @@ Which language do you want it in?
           const roleText = role.title.toLowerCase()
           const skillHits = candidateSkillsLower.filter(s => roleText.includes(s)).length
           const headlineHit = roleText.split(/\s+/).some((w: string) => w.length > 3 && headlineLower.includes(w))
-          const quickScore = Math.min(100, skillHits * 20 + (headlineHit ? 30 : 0) + 20) // baseline 20
+          const quickScore = Math.min(100, skillHits * 20 + (headlineHit ? 30 : 0) + 20)
 
           if (quickScore >= 40) {
-            // Get company email
             const { data: companyAuth } = await admin.auth.admin.getUserById(role.company_id)
             const companyEmail = companyAuth?.user?.email
             if (companyEmail) {
