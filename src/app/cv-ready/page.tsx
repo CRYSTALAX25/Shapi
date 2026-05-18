@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
-type SendState = 'idle' | 'sending' | 'sent' | 'error'
+type SendState = 'idle' | 'sending' | 'sent' | 'error' | 'fallback'
 
 type Preview = {
   before: string | null
@@ -79,9 +79,10 @@ export default function CVReady() {
   // English CV pre-generation state
   const [englishCvStatus, setEnglishCvStatus] = useState<'generating' | 'ready'>('generating')
   // Pro deep-dive state
-  const [deepDiveState, setDeepDiveState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [deepDiveState, setDeepDiveState] = useState<'idle' | 'sending' | 'sent' | 'error' | 'fallback'>('idle')
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([])
   const [deepDiveError, setDeepDiveError] = useState('')
+  const [deepDiveQuestions, setDeepDiveQuestions] = useState('')
 
   useEffect(() => {
     const supabase = createClient()
@@ -93,6 +94,12 @@ export default function CVReady() {
         .select('full_name, cv_kit_purchased, cv_tier, location, native_language, cv_language_preference, matched_industries, industry_chats')
         .eq('id', user.id)
         .single()
+
+      // Gate: must have purchased the kit to access this page
+      if (!p?.cv_kit_purchased) {
+        router.replace('/profile')
+        return
+      }
 
       setProfile({
         cv_kit_purchased: p?.cv_kit_purchased ?? false,
@@ -196,11 +203,18 @@ export default function CVReady() {
         body: JSON.stringify({ industries: selectedIndustries }),
       })
       const data = await res.json()
-      if (res.ok) {
+      if (data.success) {
         setDeepDiveState('sent')
-      } else {
+      } else if (data.whatsapp_failed && data.questions) {
+        // WhatsApp send failed but we still have the questions — show them in-app
+        setDeepDiveState('fallback')
+        setDeepDiveQuestions(data.questions)
+        setDeepDiveError(data.error || '')
+      } else if (!res.ok) {
         setDeepDiveState('error')
-        setDeepDiveError(data.error || 'Something went wrong')
+        setDeepDiveError(data.error || 'Something went wrong — please try again')
+      } else {
+        setDeepDiveState('sent')
       }
     } catch {
       setDeepDiveState('error')
@@ -551,6 +565,18 @@ export default function CVReady() {
             </div>
             {deepDiveState === 'sent' ? (
               <p className="text-[#34D399] text-sm font-bold text-center py-2">✓ Questions sent to WhatsApp — answer them and your CVs will be ready</p>
+            ) : deepDiveState === 'fallback' ? (
+              <div className="space-y-3">
+                <div className="bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl p-3">
+                  <p className="text-[#FB7185] text-xs font-bold mb-1">⚠️ WhatsApp delivery failed</p>
+                  <p className="text-white/40 text-xs">Your questions are below — copy them or answer right here. We&apos;ll use your answers for your CVs.</p>
+                </div>
+                <div className="bg-white/[0.04] rounded-xl p-4 border border-white/[0.08]">
+                  <p className="text-white/50 text-xs font-bold uppercase tracking-wider mb-3">Your deep-dive questions</p>
+                  <pre className="text-white/70 text-xs leading-relaxed whitespace-pre-wrap font-sans">{deepDiveQuestions}</pre>
+                </div>
+                <p className="text-white/25 text-[10px] text-center">To fix WhatsApp delivery: open WhatsApp and send us any message first, then try again.</p>
+              </div>
             ) : (
               <button
                 onClick={sendDeepDive}

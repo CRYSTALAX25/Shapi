@@ -126,7 +126,7 @@ export async function POST(request: Request) {
   // Look up profile — limit(1) survives duplicate rows
   const { data: profiles } = await admin
     .from('profiles')
-    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language')
+    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_tier, industry_chats, whatsapp_conversation_active')
     .eq('whatsapp_number', phone)
     .order('cv_parsed', { ascending: false })
     .limit(1)
@@ -243,6 +243,45 @@ export async function POST(request: Request) {
   }
 
   if (!userMessage) return new NextResponse('', { status: 200 })
+
+  // ── Pro deep-dive answer capture ─────────────────────────────────────────
+  // If this is a Pro user with active deep-dive questions sent, route their
+  // replies as industry-specific answers rather than continuing the main interview.
+  const industryChats = (profile.industry_chats as Record<string, { status?: string; answers?: string[]; questions?: string; sent_at?: string }> | null) || {}
+  const activeDeepDiveInds = Object.entries(industryChats)
+    .filter(([, v]) => v.status === 'questions_sent')
+    .map(([k]) => k)
+
+  if (profile.cv_tier === 'pro' && activeDeepDiveInds.length > 0) {
+    // Append this message to answers for every industry that has questions pending
+    const updatedChats = { ...industryChats }
+    let totalAnswersSoFar = 0
+    for (const ind of activeDeepDiveInds) {
+      const prev = updatedChats[ind]
+      const answers = [...(prev.answers || []), userMessage]
+      updatedChats[ind] = { ...prev, answers }
+      totalAnswersSoFar = Math.max(totalAnswersSoFar, answers.length)
+    }
+
+    // Also keep main whatsapp_chat updated (for CV generation context)
+    const mainChat = Array.isArray(profile.whatsapp_chat) ? profile.whatsapp_chat : []
+    mainChat.push({ role: 'user', content: userMessage })
+
+    await admin.from('profiles').update({
+      industry_chats: updatedChats,
+      whatsapp_chat: mainChat,
+      updated_at: new Date().toISOString(),
+    }).eq('id', profile.id)
+
+    // Only send one acknowledgment on first answer — don't reply to every message
+    if (totalAnswersSoFar === 1) {
+      const indLabels = activeDeepDiveInds.map(i => i.charAt(0).toUpperCase() + i.slice(1)).join(', ')
+      await sendWhatsApp(phone, `Got it 👍 Answer each question when you're ready — no rush. Once you're done, head to the app and your ${indLabels} CV${activeDeepDiveInds.length > 1 ? 's' : ''} will be ready to download.`)
+    }
+
+    console.log('[webhook] Deep-dive answer captured for:', activeDeepDiveInds, '| answer #', totalAnswersSoFar)
+    return new NextResponse('', { status: 200 })
+  }
 
   // ── Conversation history ─────────────────────────────────────────────────
   const chatHistory: Array<{ role: 'user' | 'assistant'; content: string }> =

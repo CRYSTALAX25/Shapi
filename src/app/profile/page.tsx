@@ -37,11 +37,13 @@ export default async function ProfilePage() {
   const isLive = profile.profile_live
   const cvKitPurchased = !!profile.cv_kit_purchased
 
-  // Calculate completion dynamically from real data
+  // Calculate completion dynamically from real data — 4 steps of 25% each
+  // 100% only when profile is fully live and references are verified
   let completion = 0
-  if (profile.cv_parsed) completion += 34
-  if (profile.whatsapp_number) completion += 33
-  if (cvKitPurchased) completion += 33
+  if (profile.cv_parsed) completion += 25
+  if (profile.whatsapp_number) completion += 25
+  if (cvKitPurchased) completion += 25
+  if (isLive) completion += 25
 
   const aiTierLabel: Record<string, string> = {
     user: 'AI User',

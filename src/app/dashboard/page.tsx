@@ -12,7 +12,7 @@ export default async function Dashboard() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased')
+    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased, profile_live')
     .eq('id', user.id)
     .single()
 
@@ -42,22 +42,26 @@ export default async function Dashboard() {
   const isRolesBoard = !!profile?.paid || !!profile?.subscription_tier
   const isActive = profile?.subscription_status === 'active'
 
+  const isProfileLive = !!profile?.profile_live
+
   // Dynamic completion — calculated from real data, tier-aware
+  // 100% ONLY when profile is fully live (references verified by Shapi team)
   let completion: number
   if (isRolesBoard) {
-    // Roles Board tier: CV + WhatsApp + Evidence + References (5% each, max 25%)
+    // Roles Board tier: CV + WhatsApp + Evidence + References (25% each)
     let score = 0
     if (profile?.cv_parsed) score += 25
     if (profile?.whatsapp_number) score += 25
     if (evidenceCount > 0) score += 25
-    score += Math.min(25, completedRefsCount * 5)
+    if (completedRefsCount >= 2) score += 25
     completion = score
   } else {
-    // CV Kit tier: CV + WhatsApp + Purchased (each ~33%)
+    // CV Kit tier: CV parsed + WhatsApp + Purchased + Profile live (25% each)
     let score = 0
-    if (profile?.cv_parsed) score += 34
-    if (profile?.whatsapp_number) score += 33
-    if (cvKitPurchased) score += 33
+    if (profile?.cv_parsed) score += 25
+    if (profile?.whatsapp_number) score += 25
+    if (cvKitPurchased) score += 25
+    if (isProfileLive) score += 25
     completion = score
   }
   const firstName = profile?.full_name?.split(' ')[0] || null
