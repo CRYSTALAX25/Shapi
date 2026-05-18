@@ -45,7 +45,11 @@ function PrintContent() {
   const targetIndustry = searchParams.get('industry') // e.g. 'media', 'tech', 'hospitality'
   const isNative = lang === 'native'
   const isUniversal = lang === 'universal'
-  const mode = isNative ? 'native' : isUniversal ? 'universal' : 'english'
+  const isEnglish = !lang || lang === 'english'
+  // Anything other than the three keywords is treated as a specific language name
+  // (e.g. ?lang=Italian, ?lang=Croatian, ?lang=Tagalog)
+  const targetLanguage = lang && !isNative && !isUniversal && !isEnglish ? lang : null
+  const mode = targetLanguage ? 'native' : isNative ? 'native' : isUniversal ? 'universal' : 'english'
 
   const [cv, setCv] = useState<CV | null>(null)
   const [meta, setMeta] = useState<Meta | null>(null)
@@ -77,7 +81,12 @@ function PrintContent() {
     fetch('/api/cv/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mode, ...(targetIndustry ? { targetIndustry } : {}), ...(forceRefresh ? { forceRefresh: true } : {}) }),
+      body: JSON.stringify({
+        mode,
+        ...(targetIndustry ? { targetIndustry } : {}),
+        ...(targetLanguage ? { targetLanguage } : {}),
+        ...(forceRefresh ? { forceRefresh: true } : {}),
+      }),
     })
       .then(r => r.json())
       .then(d => {

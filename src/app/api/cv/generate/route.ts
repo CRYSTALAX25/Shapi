@@ -64,12 +64,23 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
-  const mode: string = body.mode // 'english' | 'native' | 'universal'
+  let mode: string = body.mode // 'english' | 'native' | 'universal'
   const targetIndustry: string | null = body.targetIndustry || null // override profile industry
+  const targetLanguage: string | null = body.targetLanguage || null // specific language override (e.g. "Italian", "Croatian")
   const forceRefresh: boolean = body.forceRefresh || false // bypass cache
 
-  // Cache key: "english", "native", "universal", "english_tech", etc.
-  const cacheKey = targetIndustry ? `english_${targetIndustry}` : mode
+  // When a specific target language is requested, route through the native-language code path
+  // but lock the resolved language to whatever was asked for.
+  if (targetLanguage && targetLanguage.toLowerCase() !== 'english') {
+    mode = 'native'
+  }
+
+  // Cache key: "english", "native", "universal", "english_tech", "lang_italian", etc.
+  const cacheKey = targetLanguage
+    ? `lang_${targetLanguage.toLowerCase().replace(/\s+/g, '_')}`
+    : targetIndustry
+      ? `english_${targetIndustry}`
+      : mode
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
@@ -176,7 +187,8 @@ export async function POST(request: Request) {
   const whatsappLang = extraFields?.whatsapp_language || null
 
   const resolvedNativeLang =
-    prefLang ||                        // Explicit candidate choice (most authoritative)
+    targetLanguage ||                  // Explicit per-request override (most authoritative — UI button click)
+    prefLang ||                        // Explicit candidate choice from WhatsApp picker
     storedNativeLang ||                // From CV nationality field
     nativeOnCV?.language ||            // Native-level language listed on CV
     nonEnglishOnCV?.language ||        // Any non-English language on CV

@@ -15,6 +15,8 @@ type Preview = {
   industry?: string
 }
 
+type LanguageSpoken = { language: string; level: string }
+
 type Profile = {
   cv_kit_purchased?: boolean
   cv_tier?: string | null
@@ -23,8 +25,87 @@ type Profile = {
   location: string | null
   native_language: string | null
   cv_language_preference: string | null
+  languages_spoken?: LanguageSpoken[]
   matched_industries?: string[]
   industry_chats?: Record<string, { status?: string; answers?: string[] }>
+}
+
+// Language → flag emoji + ISO code mapping for display
+const LANG_META: Record<string, { flag: string; code: string }> = {
+  english: { flag: '🇬🇧', code: 'en' },
+  arabic: { flag: '🇸🇦', code: 'ar' },
+  french: { flag: '🇫🇷', code: 'fr' },
+  spanish: { flag: '🇪🇸', code: 'es' },
+  german: { flag: '🇩🇪', code: 'de' },
+  italian: { flag: '🇮🇹', code: 'it' },
+  portuguese: { flag: '🇵🇹', code: 'pt' },
+  russian: { flag: '🇷🇺', code: 'ru' },
+  chinese: { flag: '🇨🇳', code: 'zh' },
+  mandarin: { flag: '🇨🇳', code: 'zh' },
+  japanese: { flag: '🇯🇵', code: 'ja' },
+  korean: { flag: '🇰🇷', code: 'ko' },
+  hindi: { flag: '🇮🇳', code: 'hi' },
+  urdu: { flag: '🇵🇰', code: 'ur' },
+  turkish: { flag: '🇹🇷', code: 'tr' },
+  croatian: { flag: '🇭🇷', code: 'hr' },
+  tagalog: { flag: '🇵🇭', code: 'tl' },
+  filipino: { flag: '🇵🇭', code: 'tl' },
+  swahili: { flag: '🇰🇪', code: 'sw' },
+  dutch: { flag: '🇳🇱', code: 'nl' },
+  greek: { flag: '🇬🇷', code: 'el' },
+  hebrew: { flag: '🇮🇱', code: 'he' },
+  polish: { flag: '🇵🇱', code: 'pl' },
+  romanian: { flag: '🇷🇴', code: 'ro' },
+  ukrainian: { flag: '🇺🇦', code: 'uk' },
+  serbian: { flag: '🇷🇸', code: 'sr' },
+  hungarian: { flag: '🇭🇺', code: 'hu' },
+  czech: { flag: '🇨🇿', code: 'cs' },
+  swedish: { flag: '🇸🇪', code: 'sv' },
+  norwegian: { flag: '🇳🇴', code: 'no' },
+  danish: { flag: '🇩🇰', code: 'da' },
+  finnish: { flag: '🇫🇮', code: 'fi' },
+  thai: { flag: '🇹🇭', code: 'th' },
+  vietnamese: { flag: '🇻🇳', code: 'vi' },
+  indonesian: { flag: '🇮🇩', code: 'id' },
+  malay: { flag: '🇲🇾', code: 'ms' },
+  bengali: { flag: '🇧🇩', code: 'bn' },
+}
+function langFlag(name: string): string {
+  return LANG_META[name.toLowerCase().trim()]?.flag || '🌐'
+}
+
+// Build the list of languages to offer for CV download — always include English first,
+// then every language on the CV (excluding English-as-listed since it's already covered).
+// Sort by proficiency: Native > Fluent > Professional > Conversational.
+function buildLanguageList(profile: Profile): LanguageSpoken[] {
+  const list: LanguageSpoken[] = [{ language: 'English', level: 'Fluent' }]
+  const onCV = Array.isArray(profile.languages_spoken) ? profile.languages_spoken : []
+  const native = profile.native_language?.trim()
+
+  // Add native_language if not already in the spoken list
+  if (native && native.toLowerCase() !== 'english' && !onCV.some(l => l.language?.toLowerCase() === native.toLowerCase())) {
+    onCV.push({ language: native, level: 'Native' })
+  }
+
+  // Filter out duplicates and English (already at the top)
+  const seen = new Set(['english'])
+  for (const l of onCV) {
+    if (!l.language) continue
+    const key = l.language.toLowerCase().trim()
+    if (seen.has(key)) continue
+    seen.add(key)
+    list.push(l)
+  }
+
+  // Sort: keep English first, then by proficiency
+  const order: Record<string, number> = { native: 0, fluent: 1, professional: 2, intermediate: 3, conversational: 4, basic: 5 }
+  const [first, ...rest] = list
+  rest.sort((a, b) => {
+    const aLvl = order[(a.level || '').toLowerCase()] ?? 9
+    const bLvl = order[(b.level || '').toLowerCase()] ?? 9
+    return aLvl - bLvl
+  })
+  return [first, ...rest]
 }
 
 // Known language whitelist — reject garbage stored values (e.g. "Sure go ahead")
@@ -115,7 +196,7 @@ export default function CVReady() {
 
       const { data: p } = await supabase
         .from('profiles')
-        .select('full_name, cv_kit_purchased, cv_tier, location, native_language, cv_language_preference, matched_industries, industry_chats')
+        .select('full_name, cv_kit_purchased, cv_tier, location, native_language, cv_language_preference, languages_spoken, matched_industries, industry_chats')
         .eq('id', user.id)
         .single()
 
@@ -133,6 +214,7 @@ export default function CVReady() {
         location: p?.location ?? null,
         native_language: p?.native_language ?? null,
         cv_language_preference: p?.cv_language_preference ?? null,
+        languages_spoken: (p?.languages_spoken as LanguageSpoken[]) ?? [],
         matched_industries: (p?.matched_industries as string[]) ?? [],
         industry_chats: (p?.industry_chats as Record<string, { status?: string; answers?: string[] }>) ?? {},
       })
@@ -325,10 +407,8 @@ export default function CVReady() {
           </div>
           <h1 className="text-3xl font-black text-white mb-2">{firstName}, your CV Kit is ready.</h1>
           <p className="text-white/40 text-sm leading-relaxed max-w-sm mx-auto">
-            {showEnglish && showNative
-              ? `English and ${nativeLabel} versions ready — plus generate for any target industry below.`
-              : showNative && !showEnglish
-              ? `Your ${nativeLabel} CV is ready — enriched with your WhatsApp conversation.`
+            {profile && buildLanguageList(profile).length > 1
+              ? `One CV per language you speak (${buildLanguageList(profile).map(l => l.language).join(', ')}) — plus generate for any target industry below.`
               : 'Your CV is ready — generate a version for any industry you\'re targeting.'}
           </p>
         </div>
@@ -414,86 +494,58 @@ export default function CVReady() {
           </div>
         )}
 
-        {/* Downloads */}
+        {/* Downloads — one button per language the candidate speaks */}
         <div className="gradient-border-card rounded-2xl p-5 mb-6 space-y-3">
           <p className="text-white/35 text-xs font-bold uppercase tracking-wider mb-1">Download your CVs</p>
+          <p className="text-white/25 text-xs mb-3">
+            One CV per language you speak. Generated on first click, then saved forever — re-download anytime.
+          </p>
 
-          {showEnglish && (
-            <a
-              href={englishCvStatus === 'ready' ? '/profile/print' : undefined}
-              onClick={englishCvStatus !== 'ready' ? e => e.preventDefault() : undefined}
-              target="_blank"
-              className="flex items-center justify-between p-4 rounded-xl transition-colors group"
-              style={{
-                background: englishCvStatus === 'ready' ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)',
-                cursor: englishCvStatus === 'ready' ? 'pointer' : 'default',
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#22D3EE]/10 flex items-center justify-center text-lg">🇬🇧</div>
-                <div>
-                  <p className="text-white font-bold text-sm">English CV</p>
-                  {englishCvStatus === 'generating' ? (
-                    <p className="text-[#22D3EE]/60 text-xs flex items-center gap-1">
-                      <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#22D3EE', opacity: 0.7, animation: 'pulse 1.2s ease-in-out infinite' }} />
-                      Writing your CV… ready in ~20 seconds
-                    </p>
-                  ) : (
-                    <p className="text-white/35 text-xs">Industry-optimised · ATS-friendly · print to PDF</p>
-                  )}
+          {profile && buildLanguageList(profile).map((lang, idx) => {
+            const isEnglish = lang.language.toLowerCase() === 'english'
+            const isPrimary = idx === 0
+            const href = isEnglish
+              ? '/profile/print'
+              : `/profile/print?lang=${encodeURIComponent(lang.language)}`
+            // English uses the same pre-gen status indicator; others generate on click (~15-20s) and cache
+            const showSpinner = isEnglish && englishCvStatus !== 'ready'
+            return (
+              <a
+                key={lang.language + idx}
+                href={showSpinner ? undefined : href}
+                onClick={showSpinner ? e => e.preventDefault() : undefined}
+                target="_blank"
+                className="flex items-center justify-between p-4 rounded-xl transition-colors group"
+                style={{
+                  background: isPrimary ? 'rgba(34,211,238,0.06)' : 'rgba(255,255,255,0.04)',
+                  border: isPrimary ? '1px solid rgba(34,211,238,0.15)' : '1px solid rgba(255,255,255,0.05)',
+                  cursor: showSpinner ? 'default' : 'pointer',
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-white/[0.06] flex items-center justify-center text-lg">{langFlag(lang.language)}</div>
+                  <div>
+                    <p className="text-white font-bold text-sm">{lang.language} CV</p>
+                    {showSpinner ? (
+                      <p className="text-[#22D3EE]/60 text-xs flex items-center gap-1">
+                        <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#22D3EE', opacity: 0.7, animation: 'pulse 1.2s ease-in-out infinite' }} />
+                        Writing your CV… ready in ~20 seconds
+                      </p>
+                    ) : (
+                      <p className="text-white/35 text-xs">
+                        {isEnglish ? 'Industry-optimised · ATS-friendly · print to PDF' : `${lang.level || 'Fluent'} · auto-translated · review before sending`}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-              {englishCvStatus === 'generating' ? (
-                <div style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(34,211,238,0.2)', borderTopColor: '#22D3EE', animation: 'spin 0.9s linear infinite' }} />
-              ) : (
-                <span className="text-[#22D3EE] text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
-              )}
-            </a>
-          )}
-
-          {showNative && (
-            <a href="/profile/print?lang=native" target="_blank"
-              className="flex items-center justify-between p-4 bg-white/[0.04] rounded-xl hover:bg-white/[0.07] transition-colors group">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#A78BFA]/10 flex items-center justify-center text-lg">🌐</div>
-                <div>
-                  <p className="text-white font-bold text-sm">{nativeLabel} CV</p>
-                  <p className="text-white/35 text-xs">
-                    {showEnglish ? 'Auto-translated · same format · review before sending' : 'Industry-optimised · print to PDF'}
-                  </p>
-                </div>
-              </div>
-              <span className="text-[#A78BFA] text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
-            </a>
-          )}
-
-          {/* Always offer the other language as an optional extra — no extra charge */}
-          {showNative && !showEnglish && (
-            <a href="/profile/print" target="_blank"
-              className="flex items-center justify-between p-4 bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-colors group border border-white/[0.05]">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-white/[0.05] flex items-center justify-center text-lg">🇬🇧</div>
-                <div>
-                  <p className="text-white/50 font-bold text-sm">English CV</p>
-                  <p className="text-white/25 text-xs">Also available — useful for international roles</p>
-                </div>
-              </div>
-              <span className="text-white/30 text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
-            </a>
-          )}
-          {showEnglish && !showNative && (profile?.native_language && profile.native_language.toLowerCase() !== 'english') && (
-            <a href="/profile/print?lang=native" target="_blank"
-              className="flex items-center justify-between p-4 bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-colors group border border-white/[0.05]">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-white/[0.05] flex items-center justify-center text-lg">🌐</div>
-                <div>
-                  <p className="text-white/50 font-bold text-sm">{profile.native_language} CV</p>
-                  <p className="text-white/25 text-xs">Also available — applying locally? Grab this too</p>
-                </div>
-              </div>
-              <span className="text-white/30 text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
-            </a>
-          )}
+                {showSpinner ? (
+                  <div style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(34,211,238,0.2)', borderTopColor: '#22D3EE', animation: 'spin 0.9s linear infinite' }} />
+                ) : (
+                  <span className="text-[#22D3EE] text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
+                )}
+              </a>
+            )
+          })}
         </div>
 
         {/* Industry CVs — matched to their background */}
