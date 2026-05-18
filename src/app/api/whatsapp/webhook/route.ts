@@ -6,6 +6,7 @@ import { sendProfileLiveEmail, sendCompanyMatchEmail, sendNominatedReferenceEmai
 import { runReferenceTurn, parseManagerResponses, parseNomineeResponses } from '@/lib/reference-qa'
 import { recomputeProfileLive, resolveOutreachContact, updateVerificationTier, runVerificationCrossCheck } from '@/lib/references'
 import { extractProfileFromChat, saveExtractedProfile } from '@/lib/chat-to-profile'
+import { interpretAndApplyEdit } from '@/lib/cv-edits'
 import { INDUSTRY_BRIEFS, type Industry } from '@/lib/industry-briefs'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
@@ -559,16 +560,26 @@ This is exchange ${userTurns + 1}. ${userTurns >= 8 ? 'WRAP UP NOW with [DEEP_DI
       return new NextResponse('', { status: 200 })
     }
 
+    // Post-interview + has lang pref → run the conversational CV editor.
+    // Claude reads the message, figures out edit / question / chat, applies
+    // changes to the master profile if it's an edit, clears cv_cache so the
+    // updated content flows into the next CV view.
     await admin.from('profiles').update({
       whatsapp_chat: mainChat,
       updated_at: new Date().toISOString(),
     }).eq('id', profile.id)
 
-    await sendWhatsApp(
-      phone,
-      `Hey ${firstName} 👋 Got your message — noted. Your profile is being prepared. Head to shapi.io to download your CV. If you want to update something specific, just let me know.`,
-    )
-    console.log('[webhook] Post-interview ack sent to:', phone)
+    try {
+      const editResult = await interpretAndApplyEdit(profile.id as string, userMessage)
+      await sendWhatsApp(phone, editResult.reply)
+      console.log('[webhook] Post-interview edit/chat for', phone, '| intent:', editResult.intent, '| cv_cache cleared:', editResult.affected_cv_caches === 'all')
+    } catch (err) {
+      console.error('[webhook] CV edit interpreter failed:', err)
+      await sendWhatsApp(
+        phone,
+        `Hey ${firstName} 👋 Got your message. If you want to change something on your CV, tell me exactly what (e.g. "change my headline to Director of Operations" or "add Spanish to my languages").`,
+      )
+    }
     return new NextResponse('', { status: 200 })
   }
 
