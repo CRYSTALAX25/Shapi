@@ -104,7 +104,6 @@ Return ONLY the numbered questions and the closing line. Nothing else.`
 
   // Send via WhatsApp — ONE combined message (Twilio sandbox drops rapid second sends)
   const firstName = (profile.full_name as string || 'there').split(' ')[0]
-  const industryList = targetIndustries.map(i => i.charAt(0).toUpperCase() + i.slice(1)).join(', ')
 
   const combinedMessage = `Hi ${firstName} 👋 To write your best ${industryList} CV${targetIndustries.length > 1 ? 's' : ''}, I have a few targeted questions — these surface the stories that make the real difference.
 
@@ -115,8 +114,15 @@ ${questionsText}`
   // Always save questions to industry_chats so we have them regardless of WhatsApp outcome
   // On re-trigger, RESET answers — any prior "answers" before questions actually
   // arrived are garbage (e.g. the user typing "give me the questions" before they had them).
-  const existingIndustryChats = (profile.industry_chats as Record<string, { answers?: string[]; delivered?: boolean }>) || {}
-  const updatedIndustryChats = { ...existingIndustryChats }
+  type IndustryChatEntry = {
+    status?: string
+    questions?: string
+    sent_at?: string
+    answers?: string[]
+    delivered?: boolean
+  }
+  const existingIndustryChats = (profile.industry_chats as Record<string, IndustryChatEntry>) || {}
+  const updatedIndustryChats: Record<string, IndustryChatEntry> = { ...existingIndustryChats }
   for (const ind of targetIndustries) {
     updatedIndustryChats[ind] = {
       status: 'questions_sent',
