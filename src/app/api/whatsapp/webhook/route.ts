@@ -303,13 +303,14 @@ export async function POST(request: Request) {
   // First try: TEST-MODE SELF REFS — most permissive, always fires.
   //
   // CRITICAL: stickiness. When a user is mid-conversation with one referee,
-  // every reply must land on THAT referee until it's completed — otherwise
-  // each turn ping-pongs to a different ref. So:
-  //   1) prefer status='opened' (already in conversation) — there should be
-  //      at most one
-  //   2) else: prefer the ref with the most recent assistant message —
-  //      i.e. the one we LAST spoke to (whatsapp_chat is non-empty)
-  //   3) else: pick the oldest 'pending'/'contacted' to KICK OFF
+  // every reply must land on THAT referee until it's completed. Priority:
+  //   1) NAME PICKER — user texted a single first name matching a pending
+  //      ref → route there and mark it opened (lets the user explicitly
+  //      pick which of several pending refs to talk to next)
+  //   2) status='opened' (already in conversation)
+  //   3) ref we last spoke to (has any chat history)
+  //   4) only one fresh pending/contacted ref → auto-start it
+  //   5) multiple fresh refs → send picker, don't auto-route
   if (profile) {
     const { data: selfRefs } = await admin
       .from('candidate_references')
@@ -320,22 +321,58 @@ export async function POST(request: Request) {
       .in('status', ['pending', 'contacted', 'opened'])
 
     if (selfRefs && selfRefs.length > 0) {
-      // (1) ref currently in conversation
-      const opened = selfRefs.find(r => r.status === 'opened')
-      // (2) ref we last spoke to (has any chat history)
       type RefRowLite = typeof selfRefs[number] & { whatsapp_chat?: Array<unknown> | null; updated_at?: string }
+
+      // (1) NAME PICKER — single-word message that exactly matches a pending ref's first name
+      const trimmed = (body || '').trim()
+      const isSingleNameInput = /^[A-Za-zÀ-ſ]{2,30}$/.test(trimmed)
+      if (isSingleNameInput) {
+        const namedRef = (selfRefs as RefRowLite[]).find(r =>
+          (r.referee_name as string)?.split(' ')[0].toLowerCase() === trimmed.toLowerCase()
+        )
+        if (namedRef) {
+          await admin.from('candidate_references').update({ status: 'opened' }).eq('id', namedRef.id)
+          await sendWhatsApp(phone, `🧪 Switching to *${(namedRef.referee_name as string).split(' ')[0]}*'s conversation. Send anything to start (or just say hi).`)
+          console.log('[webhook] Name picker matched ref:', namedRef.id, 'name:', namedRef.referee_name)
+          return new NextResponse('', { status: 200 })
+        }
+      }
+
+      // "pause" command — stop the chain
+      if (/^pause$/i.test(trimmed)) {
+        await sendWhatsApp(phone, `🧪 Paused. Text *references* anytime to see what's pending, or text a name to resume.`)
+        return new NextResponse('', { status: 200 })
+      }
+
+      // (2) ref currently in conversation
+      const opened = selfRefs.find(r => r.status === 'opened')
+      // (3) ref we last spoke to (has any chat history)
       const withChat = (selfRefs as RefRowLite[])
         .filter(r => Array.isArray(r.whatsapp_chat) && r.whatsapp_chat.length > 0)
         .sort((a, b) => (new Date(b.updated_at || 0).getTime()) - (new Date(a.updated_at || 0).getTime()))
-      // (3) start the next pending/contacted, oldest first (created_at proxy via updated_at)
+      // Fresh refs (never opened a chat)
       const fresh = (selfRefs as RefRowLite[])
         .filter(r => !Array.isArray(r.whatsapp_chat) || r.whatsapp_chat.length === 0)
         .sort((a, b) => (new Date(a.updated_at || 0).getTime()) - (new Date(b.updated_at || 0).getTime()))
 
-      const chosen = opened || withChat[0] || fresh[0]
-      if (chosen) {
-        console.log('[webhook] Routing to TEST-MODE self ref:', chosen.id, '| name:', chosen.referee_name, '| status:', chosen.status, '| chat turns:', Array.isArray(chosen.whatsapp_chat) ? chosen.whatsapp_chat.length : 0)
-        return handleReferenceReply(chosen, body || '', formData, numMedia, mediaType, phone)
+      // (2) and (3) — stick with active/in-progress
+      const sticky = opened || withChat[0]
+      if (sticky) {
+        console.log('[webhook] Sticky route to test ref:', sticky.id, 'name:', sticky.referee_name, 'status:', sticky.status, 'chat:', Array.isArray(sticky.whatsapp_chat) ? sticky.whatsapp_chat.length : 0)
+        return handleReferenceReply(sticky, body || '', formData, numMedia, mediaType, phone)
+      }
+
+      // (4) exactly one fresh — auto-start it
+      if (fresh.length === 1) {
+        console.log('[webhook] Auto-starting only fresh test ref:', fresh[0].id, 'name:', fresh[0].referee_name)
+        return handleReferenceReply(fresh[0], body || '', formData, numMedia, mediaType, phone)
+      }
+
+      // (5) multiple fresh — show picker, DON'T auto-route
+      if (fresh.length > 1) {
+        const lines = fresh.map(r => `• *${(r.referee_name as string).split(' ')[0]}* — ${r.ref_type} at ${r.candidate_company}`).join('\n')
+        await sendWhatsApp(phone, `🧪 You have ${fresh.length} pending refs to start:\n\n${lines}\n\n*Reply with a first name* to begin that conversation (e.g. "${(fresh[0].referee_name as string).split(' ')[0]}").`)
+        return new NextResponse('', { status: 200 })
       }
     }
   }
@@ -1249,9 +1286,17 @@ async function handleReferenceReply(
           nominees: parsed.nominees,
         }).eq('id', ref.id)
 
-        // Cascade — create + reach out to the colleague and stakeholder
+        // Cascade — create + reach out to the colleague and stakeholder.
+        //
+        // TEST MODE behaviour: all outreach routes to the candidate's own
+        // phone. Sending 2 separate "Hi Kelly" / "Hi Keith" messages floods
+        // their inbox. Instead we just create the rows + bump status to
+        // 'contacted' (so the webhook can route replies), then send ONE
+        // consolidated summary after the loop telling them how to pick the
+        // next conversation.
         const isTest = !!ref.is_test_outreach
         const candidateFirst = candidateName.split(' ')[0]
+        const cascadedRefs: Array<{ name: string; role: 'colleague' | 'stakeholder' }> = []
 
         for (const nomineeKey of ['colleague', 'stakeholder'] as const) {
           const nom = parsed.nominees[nomineeKey]
@@ -1285,7 +1330,9 @@ async function handleReferenceReply(
             const testBanner = outreach.testMode ? '🧪 *TEST MODE*\n\n' : ''
             const channels: string[] = []
 
-            if (outreach.phone) {
+            // TEST MODE: skip individual WhatsApp outreach (would flood the candidate's phone).
+            // Still send email (different inbox) if provided.
+            if (outreach.phone && !isTest) {
               const waMsg =
                 `${testBanner}Hi ${nom.name.split(' ')[0]} 👋 I'm Shapi.\n\n` +
                 `${ref.referee_name} at ${ref.candidate_company} suggested you worked with ${candidateName} and might share a perspective. ${candidateFirst} doesn't know we've reached out — completely candid is welcome.\n\n` +
@@ -1294,10 +1341,13 @@ async function handleReferenceReply(
               const { whatsapp, sms } = await sendReferenceOutreach({
                 phone: outreach.phone,
                 message: waMsg,
-                label: `${nomineeKey} ref for ${candidateName}${isTest ? ' [TEST]' : ''}`,
+                label: `${nomineeKey} ref for ${candidateName}`,
               })
               if (whatsapp) channels.push('whatsapp')
               else if (sms) channels.push('sms')
+            } else if (isTest && outreach.phone) {
+              // Test mode — pretend WhatsApp succeeded (since the phone is the candidate's own)
+              channels.push('whatsapp')
             }
 
             if (outreach.email) {
@@ -1324,10 +1374,51 @@ async function handleReferenceReply(
                 last_contacted_at: new Date().toISOString(),
                 outreach_channel: channels.length > 1 ? channels.join('+') : channels[0],
               }).eq('id', row.id)
+              cascadedRefs.push({ name: nom.name, role: nomineeKey })
             }
           } catch (err) {
             console.error(`[ref-webhook] ${nomineeKey} cascade failed:`, err)
           }
+        }
+
+        // TEST MODE: send one consolidated summary instead of 2 separate intros.
+        // Lists newly-cascaded nominees PLUS any other pending refs for this candidate
+        // so the candidate knows what they can start next, and gives them a clear
+        // "type the name" path to pick the next conversation.
+        if (isTest) {
+          const { data: otherPending } = await admin
+            .from('candidate_references')
+            .select('referee_name, ref_type, candidate_company')
+            .eq('candidate_id', ref.candidate_id)
+            .in('status', ['pending', 'contacted'])
+            .neq('id', ref.id)
+            .order('updated_at', { ascending: true })
+
+          const cascadeLines = cascadedRefs.map(c => `• *${c.name.split(' ')[0]}* — ${c.role}`).join('\n')
+          // De-dupe cascaded names from the "other pending" list
+          const cascadedFirstNames = new Set(cascadedRefs.map(c => c.name.split(' ')[0].toLowerCase()))
+          const pendingLines = (otherPending || [])
+            .filter(r => !cascadedFirstNames.has((r.referee_name as string).split(' ')[0].toLowerCase()))
+            .map(r => `• *${(r.referee_name as string).split(' ')[0]}* — ${r.ref_type} at ${r.candidate_company}`)
+            .join('\n')
+
+          const sections: string[] = [
+            `🧪 *Test cascade fired*`,
+            ``,
+            `${ref.referee_name.split(' ')[0]}'s reference is complete ✓`,
+          ]
+          if (cascadeLines) {
+            sections.push(``, `Newly contacted nominees (routing here in test mode):`, cascadeLines)
+          }
+          if (pendingLines) {
+            sections.push(``, `Other pending refs ready to start:`, pendingLines)
+          }
+          sections.push(``, `*Reply with a first name to start that conversation* (e.g. "${cascadedRefs[0]?.name.split(' ')[0] || (otherPending?.[0]?.referee_name as string)?.split(' ')[0] || 'name'}"). Or text "pause" to stop here.`)
+
+          // Brief pause so this message lands AFTER the [REF_DONE] wrap-up that's
+          // already been queued in the existing code path.
+          await new Promise(r => setTimeout(r, 800))
+          await sendWhatsApp(phone, sections.join('\n'))
         }
       } else {
         // Colleague or stakeholder — parse 3-topic response

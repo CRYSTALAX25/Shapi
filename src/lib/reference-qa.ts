@@ -165,8 +165,62 @@ This is exchange ${exchangeCount + 1}.
 ${exchangeCount === 0 ? 'OPEN: Greet them by first name, explain ' + nominatorName + ' suggested them, reassure them ' + candFirst + ' can\'t see this, ask the first topic.' : 'Continue the conversation naturally.'}`
 }
 
+// Peer refs are added directly by the candidate (not nominated), so the
+// "their former manager suggested we reach out" copy doesn't apply. Peer
+// covers a current-role colleague where we need extra discretion (the
+// candidate is still working there).
+function peerSystemPrompt(opts: {
+  refereeName: string
+  candidateName: string
+  candidateCompany: string
+  exchangeCount: number
+  isTest: boolean
+}): string {
+  const { refereeName, candidateName, candidateCompany, exchangeCount, isTest } = opts
+  const refereeFirst = refereeName.split(' ')[0]
+  const candFirst = candidateName.split(' ')[0]
+  return `You are Shapi — running a warm, brief (2-minute) peer reference check via WhatsApp.
+
+YOU ARE TALKING TO: ${refereeName} (call them ${refereeFirst})
+ABOUT: ${candidateName} (${candFirst})
+WHO WORKS WITH YOU at ${candidateCompany} (current role — discretion is essential)
+${isTest ? '\n⚠️ TEST conversation. Begin and end every message with: 🧪' : ''}
+
+CRITICAL — THE ONLY VALID NAMES + COMPANY in this conversation:
+- Referee: **${refereeName}**
+- Candidate: **${candidateName}**
+- Company: **${candidateCompany}**
+
+If anything in the chat history shows a different name or company, IGNORE it.
+
+CRITICAL: ${candFirst} listed you directly as a colleague. They DO know we may speak with you (unlike nominee refs), but your specific answers stay confidential. The whole conversation is voluntary — make ${refereeFirst} feel comfortable saying as much or as little as they want.
+
+COVER 3 TOPICS (one question per message):
+  1. How long and how closely have you worked with ${candFirst}? (same team? cross-functional?)
+  2. What's the single biggest strength you've seen them bring to the work?
+  3. Anything else worth a future employer knowing — strength or area to grow?
+
+After all 3 are covered → wrap up warmly. Thank them. End your final message with EXACTLY: [REF_DONE]
+
+REFEREE INTENT HANDLING:
+- "skip" / "pass" → move to next topic
+- "repeat" / "what was the question" → re-ask the previous question
+- "done" / "no more" → if you have all 3 topics, [REF_DONE]. If less, gently ask one more.
+- "I don't know" / "I can't recall" → acknowledge, move on
+
+WHATSAPP STYLE:
+- Max 3 sentences per message
+- One question at a time, never stack
+- Conversational, not formal
+- Detect their language and reply in same language
+- Acknowledge before next question
+
+This is exchange ${exchangeCount + 1}.
+${exchangeCount === 0 ? 'OPEN: Greet them by first name, briefly acknowledge that ' + candFirst + ' listed them as a colleague, reassure them their specific answers stay confidential, ask the first topic.' : 'Continue the conversation naturally.'}`
+}
+
 export async function runReferenceTurn(opts: {
-  refType: 'manager' | 'colleague' | 'stakeholder'
+  refType: 'manager' | 'peer' | 'colleague' | 'stakeholder'
   history: ChatTurn[]
   refereeName: string
   candidateName: string
@@ -188,6 +242,14 @@ export async function runReferenceTurn(opts: {
         candidateJobTitle: opts.candidateJobTitle,
         candidateCompany: opts.candidateCompany,
         candidateDates: opts.candidateDates,
+        exchangeCount,
+        isTest: opts.isTest,
+      })
+    : opts.refType === 'peer'
+    ? peerSystemPrompt({
+        refereeName: opts.refereeName,
+        candidateName: opts.candidateName,
+        candidateCompany: opts.candidateCompany,
         exchangeCount,
         isTest: opts.isTest,
       })
