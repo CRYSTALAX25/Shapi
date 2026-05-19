@@ -281,18 +281,44 @@ export async function POST(request: Request) {
   const profile = profiles?.[0] ?? null
 
   // ═══ PRIORITY 0: Reference reply routing ═══════════════════════════════
-  // If this phone matches a candidate_references row in 'contacted' or 'opened'
-  // state, route the message to the reference Q&A flow.
+  // Two distinct rules:
   //
-  // CRITICAL PRECEDENCE: candidate flow wins UNLESS the candidate has
-  // EXPLICITLY finished their own interview (whatsapp_conversation_active set
-  // to false by [DONE]). null / undefined / true all mean "candidate flow is
-  // the right path" — this covers fresh signups whose conversation_active
-  // hasn't been flipped yet.
+  // RULE A — TEST-MODE SELF REFS (candidate's own phone = referee phone):
+  //   When the candidate uses test mode to send themselves a reference
+  //   request, the same phone gets BOTH the candidate interview prompt AND
+  //   the reference prompt. The candidate is acting as both sides. We give
+  //   the ref the right of way as long as the ref is theirs AND it hasn't
+  //   completed yet — regardless of whatsapp_conversation_active or whether
+  //   outreach succeeded (status='pending' counts).
   //
-  // Only after [DONE] (which sets active=false) can stale or test-mode
-  // reference rows take precedence.
+  // RULE B — REAL REFS (someone else's phone):
+  //   The candidate flow wins UNLESS the candidate has EXPLICITLY finished
+  //   their own interview (whatsapp_conversation_active === false). null /
+  //   undefined / true all mean "candidate flow is the right path" — this
+  //   covers fresh signups whose conversation_active hasn't been flipped.
+  //   For real refs we require status='contacted' or 'opened' — pending
+  //   means outreach hasn't gone out, so any reply would be unsolicited.
   const interviewExplicitlyDone = profile?.whatsapp_conversation_active === false
+
+  // First try: TEST-MODE SELF REFS — most permissive, always fires
+  if (profile) {
+    const { data: selfRefs } = await admin
+      .from('candidate_references')
+      .select('id, candidate_id, ref_type, job_slot, status, referee_name, candidate_company, candidate_job_title, candidate_dates, whatsapp_chat, is_test_outreach, nominator_name, response_channel, first_responded_at, token')
+      .eq('referee_phone', phone)
+      .eq('candidate_id', profile.id)
+      .eq('is_test_outreach', true)
+      .in('status', ['pending', 'contacted', 'opened'])
+      .order('updated_at', { ascending: true })
+      .limit(1)
+
+    if (selfRefs && selfRefs.length > 0) {
+      console.log('[webhook] Routing to TEST-MODE self ref:', selfRefs[0].id, 'status:', selfRefs[0].status)
+      return handleReferenceReply(selfRefs[0], body || '', formData, numMedia, mediaType, phone)
+    }
+  }
+
+  // Second try: REAL REFS — only after candidate's own interview is done
   if (interviewExplicitlyDone || !profile) {
     const { data: refRows } = await admin
       .from('candidate_references')
@@ -303,9 +329,6 @@ export async function POST(request: Request) {
       .limit(1)
 
     if (refRows && refRows.length > 0) {
-      // Extra guard: in test mode, the reference row's candidate_id is the
-      // SAME as the current sender's profile. Don't let stale rows from OLD
-      // accounts hijack a NEW account's interview. Match candidate_id.
       const ref = refRows[0]
       const refBelongsToCurrentCandidate = profile && ref.candidate_id === profile.id
       const refIsTestModeFromAnyAccount = ref.is_test_outreach === true
@@ -318,7 +341,7 @@ export async function POST(request: Request) {
       }
     }
   } else {
-    console.log('[webhook] Candidate interview active/pending for', phone, '— skipping reference routing (conversation_active:', profile?.whatsapp_conversation_active, ')')
+    console.log('[webhook] Candidate interview active/pending for', phone, '— skipping non-test reference routing (conversation_active:', profile?.whatsapp_conversation_active, ')')
   }
   // ═══════════════════════════════════════════════════════════════════════
 
@@ -415,6 +438,37 @@ export async function POST(request: Request) {
   }
 
   if (!userMessage) return new NextResponse('', { status: 200 })
+
+  // ═══ Manual "references" command — safety hatch if routing missed ═════
+  // If the candidate types "references" / "refs" / "ref status" we list
+  // their reference rows directly so they can see what state things are in.
+  // Works even if status is 'pending' or whatsapp_conversation_active is true.
+  const lowerMsg = userMessage.toLowerCase().trim()
+  if (/^(references?|refs|ref status|my refs?)$/.test(lowerMsg)) {
+    const { data: myRefs } = await admin
+      .from('candidate_references')
+      .select('referee_name, ref_type, job_slot, status, candidate_company, referee_phone, is_test_outreach, contacted_at')
+      .eq('candidate_id', profile.id)
+      .order('job_slot', { ascending: true })
+      .order('ref_type', { ascending: true })
+
+    if (!myRefs || myRefs.length === 0) {
+      await sendWhatsApp(phone, `You don't have any reference requests yet. Add them at ${SITE}/profile/references and I'll start the chain.`)
+      return new NextResponse('', { status: 200 })
+    }
+
+    const statusEmoji: Record<string, string> = {
+      pending: '⏳', contacted: '📤', opened: '💬', completed: '✅', failed: '❌',
+    }
+    const lines = myRefs.map(r => {
+      const emoji = statusEmoji[r.status as string] || '•'
+      const test = r.is_test_outreach ? ' 🧪' : ''
+      return `${emoji} ${r.referee_name} — ${r.ref_type}, job ${r.job_slot}${test}\n   status: *${r.status}* · at ${r.candidate_company}`
+    }).join('\n\n')
+
+    await sendWhatsApp(phone, `📋 *Your reference requests:*\n\n${lines}\n\n*Legend:* ⏳ pending (not yet sent) · 📤 contacted (awaiting reply) · 💬 opened (in conversation) · ✅ completed · 🧪 test mode\n\nIf a test-mode ref is stuck, just text me anything from this number — I'll route it to that ref.`)
+    return new NextResponse('', { status: 200 })
+  }
 
   // ═══ PRIORITY 0.5: Company JD-via-WhatsApp intake ════════════════════════
   // If the matched profile is a company user, this conversation isn't a
