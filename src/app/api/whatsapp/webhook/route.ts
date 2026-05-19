@@ -1421,13 +1421,39 @@ async function handleReferenceReply(
           await sendWhatsApp(phone, sections.join('\n'))
         }
       } else {
-        // Colleague or stakeholder — parse 3-topic response
+        // Colleague or stakeholder (or peer) — parse 3-topic response
         const parsed = await parseNomineeResponses(history)
         await admin.from('candidate_references').update({
           status: 'completed',
           completed_at: new Date().toISOString(),
           responses: parsed,
         }).eq('id', ref.id)
+
+        // TEST MODE: nominee/peer just completed — show the "what's next"
+        // picker so the candidate knows the chain isn't over. Without this,
+        // it falls silent after the wrap-up and the candidate is left
+        // wondering "is that it?"
+        if (ref.is_test_outreach) {
+          const { data: stillPending } = await admin
+            .from('candidate_references')
+            .select('referee_name, ref_type, candidate_company')
+            .eq('candidate_id', ref.candidate_id)
+            .eq('is_test_outreach', true)
+            .in('status', ['pending', 'contacted', 'opened'])
+            .neq('id', ref.id)
+            .order('updated_at', { ascending: true })
+
+          await new Promise(r => setTimeout(r, 800))
+          if (stillPending && stillPending.length > 0) {
+            const lines = stillPending.map(r =>
+              `• *${(r.referee_name as string).split(' ')[0]}* — ${r.ref_type} at ${r.candidate_company}`
+            ).join('\n')
+            const firstName = (stillPending[0].referee_name as string).split(' ')[0]
+            await sendWhatsApp(phone, `🧪 ${ref.referee_name.split(' ')[0]}'s reference is complete ✓\n\nStill pending:\n${lines}\n\n*Reply with a first name to start* (e.g. "${firstName}"). Or text "pause" to stop here.`)
+          } else {
+            await sendWhatsApp(phone, `🧪 ${ref.referee_name.split(' ')[0]}'s reference is complete ✓\n\nThat was your last pending ref — chain complete! Check your profile at ${SITE}/profile to see the verification tier update.`)
+          }
+        }
       }
 
       // After any ref completes, recompute profile_live for the candidate
