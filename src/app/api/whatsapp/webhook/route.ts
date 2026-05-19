@@ -9,6 +9,7 @@ import { extractProfileFromChat, saveExtractedProfile } from '@/lib/chat-to-prof
 import { interpretAndApplyEdit } from '@/lib/cv-edits'
 import { INDUSTRY_BRIEFS, type Industry } from '@/lib/industry-briefs'
 import { saveVoiceSample, pickNextLanguageToCapture, type VoiceSamplesMap } from '@/lib/voice-samples'
+import { buildJDPrompt, extractRoleFromChat, saveDraftRole } from '@/lib/jd-extract'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
@@ -272,7 +273,7 @@ export async function POST(request: Request) {
   // had conversation_active flipped one way or another — chaos.
   const { data: profiles } = await admin
     .from('profiles')
-    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, languages_spoken, cv_tier, industry_chats, whatsapp_conversation_active, created_at, voice_samples, awaiting_voice_sample_lang')
+    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, languages_spoken, cv_tier, industry_chats, whatsapp_conversation_active, created_at, voice_samples, awaiting_voice_sample_lang, type, company_name, jd_chat')
     .eq('whatsapp_number', phone)
     .order('created_at', { ascending: false })
     .limit(1)
@@ -414,6 +415,73 @@ export async function POST(request: Request) {
   }
 
   if (!userMessage) return new NextResponse('', { status: 200 })
+
+  // ═══ PRIORITY 0.5: Company JD-via-WhatsApp intake ════════════════════════
+  // If the matched profile is a company user, this conversation isn't a
+  // candidate interview — it's a hiring manager describing a role they want
+  // to fill. We run an analogous chat loop and on [JD_DONE] we extract a
+  // structured role into a draft `roles` row.
+  if (profile.type === 'company') {
+    const jdChat = Array.isArray(profile.jd_chat)
+      ? (profile.jd_chat as Array<{ role: 'user' | 'assistant'; content: string }>)
+      : []
+    const userTurns = jdChat.filter(m => m.role === 'user').length
+    jdChat.push({ role: 'user', content: userMessage })
+
+    try {
+      const completion = await anthropic.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 600,
+        system: buildJDPrompt(userTurns),
+        messages: jdChat.map(m => ({ role: m.role, content: m.content })),
+      })
+      let aiReply = completion.content[0].type === 'text' ? completion.content[0].text : ''
+      const isJdDone = aiReply.includes('[JD_DONE]')
+      aiReply = aiReply.replace('[JD_DONE]', '').trim()
+      jdChat.push({ role: 'assistant', content: aiReply })
+
+      const updates: Record<string, unknown> = {
+        jd_chat: jdChat,
+        jd_conversation_active: !isJdDone,
+        updated_at: new Date().toISOString(),
+      }
+
+      // On wrap-up: extract structured role + save as draft, hand off to dashboard
+      if (isJdDone) {
+        try {
+          const extracted = await extractRoleFromChat(jdChat, (profile.company_name as string) || 'Company')
+          if (extracted) {
+            const roleId = await saveDraftRole(
+              profile.id as string,
+              extracted,
+              (profile.jd_active_role_id as string) || undefined,
+            )
+            if (roleId) {
+              updates.jd_active_role_id = roleId
+              await admin.from('profiles').update(updates).eq('id', profile.id)
+              await sendWhatsApp(phone, aiReply)
+              await sendWhatsApp(phone, `📝 Your draft role is ready: ${SITE}/company/dashboard\n\nReview, tweak salary or skills, then hit *Publish*. Candidates start matching the moment you go live.`)
+              return new NextResponse('', { status: 200 })
+            }
+          }
+          // Extraction failed — keep chat, ask company to try again
+          await admin.from('profiles').update({ ...updates, jd_conversation_active: true }).eq('id', profile.id)
+          await sendWhatsApp(phone, aiReply || 'I caught most of that but want to be sure I got the details right — can you confirm the role title + must-have skills again?')
+          return new NextResponse('', { status: 200 })
+        } catch (err) {
+          console.error('[webhook] JD extraction failed:', err)
+        }
+      }
+
+      await admin.from('profiles').update(updates).eq('id', profile.id)
+      await sendWhatsApp(phone, aiReply || `Tell me about the role you want to fill — title, key skills, location, what success looks like.`)
+      return new NextResponse('', { status: 200 })
+    } catch (err) {
+      console.error('[webhook] JD intake claude failed:', err)
+      await sendWhatsApp(phone, `Hmm, my brain glitched. Could you send that again?`)
+      return new NextResponse('', { status: 200 })
+    }
+  }
 
   // ── State (single source of truth, computed once) ───────────────────────
   const isPro = profile.cv_tier === 'pro'
