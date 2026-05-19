@@ -20,7 +20,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
   // Support short 8-char IDs (from the share link) or full UUIDs
   const { data: c } = await admin
     .from('profiles')
-    .select('id, full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, completion_pct, profile_live, industry, linkedin_url, github_url, website_url, portfolio_url, languages_spoken, language_proficiency, english_level, native_language')
+    .select('id, full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, completion_pct, profile_live, industry, linkedin_url, github_url, website_url, portfolio_url, languages_spoken, language_proficiency, english_level, native_language, voice_samples')
     .ilike('id', `${id}%`)
     .eq('type', 'candidate')
     .limit(1)
@@ -253,6 +253,38 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
                 )}
               </div>
             )}
+
+            {/* Voice samples — playable audio per language */}
+            {(() => {
+              const samples = (c.voice_samples as Record<string, { transcript?: string; duration_s?: number; language: string }> | null) || {}
+              const entries = Object.entries(samples)
+              if (entries.length === 0) return null
+              return (
+                <div className="gradient-border-card rounded-2xl p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <h2 className="text-white font-black text-xs uppercase tracking-widest opacity-50">Voice Samples</h2>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.12)', color: '#22D3EE' }}>LIVE</span>
+                  </div>
+                  <p className="text-white/35 text-xs mb-4">Hear how this candidate actually communicates — recorded via Shapi WhatsApp.</p>
+                  <div className="space-y-3">
+                    {entries.map(([lang, s]) => (
+                      <div key={lang} className="bg-white/[0.03] rounded-xl p-3 border border-white/[0.04]">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-white/80 text-sm font-bold capitalize">{s.language || lang}</span>
+                          {s.duration_s && <span className="text-white/30 text-[10px]">{s.duration_s}s</span>}
+                        </div>
+                        <audio controls preload="none" src={`/api/voice-sample/${c.id}/${encodeURIComponent(lang)}`} className="w-full" style={{ height: 32 }}>
+                          Your browser does not support audio playback.
+                        </audio>
+                        {s.transcript && (
+                          <p className="text-white/40 text-[11px] mt-2 italic line-clamp-2">&ldquo;{s.transcript}&rdquo;</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
 
             {/* References badge */}
             {refCount > 0 && (

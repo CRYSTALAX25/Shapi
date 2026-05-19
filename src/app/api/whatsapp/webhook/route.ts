@@ -8,6 +8,7 @@ import { recomputeProfileLive, resolveOutreachContact, updateVerificationTier, r
 import { extractProfileFromChat, saveExtractedProfile } from '@/lib/chat-to-profile'
 import { interpretAndApplyEdit } from '@/lib/cv-edits'
 import { INDUSTRY_BRIEFS, type Industry } from '@/lib/industry-briefs'
+import { saveVoiceSample, pickNextLanguageToCapture, type VoiceSamplesMap } from '@/lib/voice-samples'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
@@ -271,7 +272,7 @@ export async function POST(request: Request) {
   // had conversation_active flipped one way or another — chaos.
   const { data: profiles } = await admin
     .from('profiles')
-    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, languages_spoken, cv_tier, industry_chats, whatsapp_conversation_active, created_at')
+    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, languages_spoken, cv_tier, industry_chats, whatsapp_conversation_active, created_at, voice_samples, awaiting_voice_sample_lang')
     .eq('whatsapp_number', phone)
     .order('created_at', { ascending: false })
     .limit(1)
@@ -362,6 +363,45 @@ export async function POST(request: Request) {
       if (transcript) {
         console.log('[webhook] Transcribed:', transcript.slice(0, 100))
         userMessage = transcript
+
+        // ── Voice sample capture ──────────────────────────────────────────
+        // If we're explicitly waiting for a voice sample (the post-[DONE] flow
+        // set awaiting_voice_sample_lang), this voice note IS the sample.
+        // Save it + advance to the next language (or finish).
+        const awaitingLang = profile.awaiting_voice_sample_lang as string | null
+        if (awaitingLang) {
+          const mediaSid = (formData.get('MediaSid0') as string) || ''
+          const messageSid = (formData.get('MessageSid') as string) || (formData.get('SmsMessageSid') as string) || ''
+          const durationGuess = Math.max(8, Math.min(60, Math.ceil(transcript.split(/\s+/).length / 2.5)))
+          await saveVoiceSample(profile.id as string, awaitingLang, {
+            media_sid: mediaSid,
+            message_sid: messageSid,
+            media_url: mediaUrl,
+            content_type: mediaType,
+            transcript,
+            duration_s: durationGuess,
+          })
+
+          // Pick the next language that still needs a sample
+          const samplesMap = ((profile.voice_samples as VoiceSamplesMap) || {})
+          samplesMap[awaitingLang.toLowerCase()] = {
+            media_sid: mediaSid, message_sid: messageSid, media_url: mediaUrl,
+            transcript, duration_s: durationGuess, language: awaitingLang.toLowerCase(),
+            recorded_at: new Date().toISOString(),
+          }
+          const next = pickNextLanguageToCapture(
+            profile.languages_spoken as Array<{ language: string }> | null,
+            samplesMap,
+          )
+          if (next) {
+            await admin.from('profiles').update({ awaiting_voice_sample_lang: next }).eq('id', profile.id)
+            await sendWhatsApp(phone, `Got it ✓ — your ${awaitingLang} sample is saved.\n\nOne more: send a short voice note in *${next}* (15–30s, anything natural — introduce yourself, talk about your work). This helps companies hear how you communicate.`)
+          } else {
+            await admin.from('profiles').update({ awaiting_voice_sample_lang: null }).eq('id', profile.id)
+            await sendWhatsApp(phone, `Got it ✓ — voice sample${(profile.languages_spoken as Array<{ language: string }> | null || []).length > 1 ? 's' : ''} saved. Companies viewing your profile will hear how you sound — much more powerful than text.`)
+          }
+          return new NextResponse('', { status: 200 })
+        }
       } else {
         await sendWhatsApp(phone, `I got your voice note 🎙️ but couldn't make it out clearly — could you try again or type it?`)
         return new NextResponse('', { status: 200 })
@@ -854,6 +894,20 @@ Return ONLY valid JSON:
   if (isDone && !hasLangPref && !awaitingLang) {
     await sendWhatsApp(phone, buildLangPrompt(getOfferedLanguagesForPicker(profile)))
     await admin.from('profiles').update({ awaiting_cv_language: 'choice' }).eq('id', profile.id)
+  }
+
+  // ── Voice sample collection after [DONE] — only first time, only if multilingual ──
+  if (isDone) {
+    const samples = (profile.voice_samples as VoiceSamplesMap) || {}
+    const languagesSpoken = profile.languages_spoken as Array<{ language: string }> | null
+    const nextLang = pickNextLanguageToCapture(languagesSpoken, samples)
+    // Only prompt if at least one language is listed AND we haven't already
+    // asked + there's something to capture
+    if (nextLang && !profile.awaiting_voice_sample_lang) {
+      await admin.from('profiles').update({ awaiting_voice_sample_lang: nextLang }).eq('id', profile.id)
+      const multi = (languagesSpoken?.length ?? 0) > 1
+      await sendWhatsApp(phone, `One more thing 🎙️ — send me a short voice note in *${nextLang}* (15–30 seconds, just introduce yourself or talk about your work).${multi ? `\n\nWe'll do one per language so companies viewing your profile can hear how you communicate in each.` : `\n\nCompanies viewing your profile will hear how you sound — much more authentic than text alone.`}`)
+    }
   }
 
   // ── Post-completion emails (non-blocking) ────────────────────────────────

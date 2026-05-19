@@ -22,7 +22,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score, languages_spoken, language_proficiency, english_level, native_language')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score, languages_spoken, language_proficiency, english_level, native_language, voice_samples')
     .eq('id', user.id)
     .single()
 
@@ -324,6 +324,38 @@ export default async function ProfilePage() {
                       </p>
                     </div>
                   )}
+                </div>
+              )
+            })()}
+
+            {/* Voice samples — playable audio per language */}
+            {(() => {
+              const samples = (profile.voice_samples as Record<string, { transcript?: string; duration_s?: number; language: string }> | null) || {}
+              const entries = Object.entries(samples)
+              if (entries.length === 0) return null
+              return (
+                <div className="gradient-border-card rounded-2xl p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <h2 className="text-white font-black text-sm uppercase tracking-widest opacity-50">Voice Samples</h2>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.12)', color: '#22D3EE' }}>NEW</span>
+                  </div>
+                  <p className="text-white/35 text-xs mb-4">Hiring managers hear how you communicate — much more authentic than text alone.</p>
+                  <div className="space-y-3">
+                    {entries.map(([lang, s]) => (
+                      <div key={lang} className="bg-white/[0.03] rounded-xl p-3 border border-white/[0.04]">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-white/80 text-sm font-bold capitalize">{s.language || lang}</span>
+                          {s.duration_s && <span className="text-white/30 text-[10px]">{s.duration_s}s</span>}
+                        </div>
+                        <audio controls preload="none" src={`/api/voice-sample/${user.id}/${encodeURIComponent(lang)}`} className="w-full" style={{ height: 32 }}>
+                          Your browser does not support audio playback.
+                        </audio>
+                        {s.transcript && (
+                          <p className="text-white/40 text-[11px] mt-2 italic line-clamp-2">&ldquo;{s.transcript}&rdquo;</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )
             })()}
