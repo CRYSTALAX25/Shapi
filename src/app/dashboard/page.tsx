@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import ShapiCharacter from '@/components/ShapiCharacter'
 import { computeJobCompletionScore } from '@/lib/references'
+import { hasOpenRolesBoard, hasActive as hasActiveProduct, hasConcierge } from '@/lib/subscriptions'
 
 export default async function Dashboard() {
   const supabase = await createClient()
@@ -13,7 +14,7 @@ export default async function Dashboard() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased, cv_tier, profile_live')
+    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased, cv_tier, profile_live, subscription_product')
     .eq('id', user.id)
     .single()
 
@@ -40,8 +41,12 @@ export default async function Dashboard() {
 
   // Tier detection — Pro purchase ALSO grants CV Kit access (Pro is the upgraded Kit)
   const cvKitPurchased = !!profile?.cv_kit_purchased || profile?.cv_tier === 'pro'
-  const isRolesBoard = !!profile?.paid || !!profile?.subscription_tier
-  const isActive = profile?.subscription_status === 'active'
+  // New SKU-split gating: read subscription_product[] via helpers.
+  // Legacy fallback: pre-split candidates had `paid=true` or `subscription_tier` set —
+  // treat them as Roles Board so they don't lose access during the transition.
+  const isRolesBoard = hasOpenRolesBoard(profile) || !!profile?.paid || !!profile?.subscription_tier
+  const isActive = hasActiveProduct(profile) || profile?.subscription_status === 'active'
+  const isConcierge = hasConcierge(profile)
 
   const isProfileLive = !!profile?.profile_live
 
@@ -254,7 +259,9 @@ export default async function Dashboard() {
             {/* ── Tier label ── */}
             <div className="mb-3 flex items-center gap-2">
               <span className="text-white/20 text-xs font-bold uppercase tracking-wider">Your plan:</span>
-              {isActive ? (
+              {isConcierge ? (
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.18)', color: '#FBBF24' }}>Active Concierge</span>
+              ) : isActive ? (
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(251,113,133,0.15)', color: '#FB7185' }}>Shapi Active</span>
               ) : isRolesBoard ? (
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.12)', color: '#22D3EE' }}>Open Roles Board</span>
