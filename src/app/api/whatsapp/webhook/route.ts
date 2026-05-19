@@ -250,6 +250,27 @@ const buildLangPrompt = (offeredLangs: string[]): string => {
 }
 
 export async function POST(request: Request) {
+  // Wrap the whole handler in a try/catch so we can never silently fail —
+  // if anything below throws, we at least log + send the sender a "the bot
+  // crashed" message so the user knows it ran (rather than wondering whether
+  // their text vanished into the void).
+  let _phone: string | null = null
+  try {
+    return await handleWebhookRequest(request, (p: string) => { _phone = p })
+  } catch (err) {
+    const msg = err instanceof Error ? `${err.name}: ${err.message}` : String(err)
+    console.error('[webhook] top-level crash:', msg, err instanceof Error ? err.stack : '')
+    if (_phone) {
+      try {
+        await sendWhatsApp(_phone, `🤖 Hit an error processing that message: ${msg.slice(0, 200)}\n\nThe team has been notified. Try once more in a minute, or text "references" to see your queue.`)
+      } catch { /* swallow nested send failures */ }
+    }
+    // Always return 200 so Twilio doesn't keep retrying and stacking on the user
+    return new NextResponse('', { status: 200 })
+  }
+}
+
+async function handleWebhookRequest(request: Request, registerPhone: (p: string) => void): Promise<NextResponse> {
   const formData = await request.formData()
   const from = formData.get('From') as string
   const body = formData.get('Body') as string
@@ -259,6 +280,7 @@ export async function POST(request: Request) {
   // Normalise: strip whatsapp: prefix and ALL spaces
   const phone = from?.replace('whatsapp:', '').replace(/\s+/g, '').trim()
   if (!phone) return new NextResponse('', { status: 200 })
+  registerPhone(phone)
 
   console.log('[webhook] Message from:', phone, '| body:', body?.slice(0, 80), '| media:', numMedia, mediaType)
 
