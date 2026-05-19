@@ -50,6 +50,54 @@ export default async function Dashboard() {
 
   const isProfileLive = !!profile?.profile_live
 
+  // Concierge queue — today's AI-drafted outreach awaiting approval
+  type ConciergeDraft = {
+    id: string
+    role_id: string
+    match_score: number
+    match_reasons: string[] | null
+    draft_subject: string | null
+    draft_body: string
+    status: string
+    created_at: string
+  }
+  let conciergeDrafts: ConciergeDraft[] = []
+  let conciergeRoleMap: Record<string, { title: string; company_name: string }> = {}
+  if (isConcierge) {
+    const { data: drafts } = await supabase
+      .from('concierge_queue')
+      .select('id, role_id, match_score, match_reasons, draft_subject, draft_body, status, created_at')
+      .eq('candidate_id', user.id)
+      .in('status', ['pending_approval', 'auto_send', 'approved', 'sent'])
+      .order('created_at', { ascending: false })
+      .limit(10)
+    conciergeDrafts = (drafts as ConciergeDraft[]) || []
+    if (conciergeDrafts.length > 0) {
+      const { createAdminClient } = await import('@/lib/supabase/admin')
+      const admin = createAdminClient()
+      const roleIds = [...new Set(conciergeDrafts.map(d => d.role_id))]
+      const { data: roleRows } = await admin
+        .from('roles')
+        .select('id, title, company_id')
+        .in('id', roleIds)
+      const companyIds = [...new Set((roleRows || []).map(r => r.company_id))]
+      const { data: companyRows } = await admin
+        .from('profiles')
+        .select('id, company_name, full_name')
+        .in('id', companyIds)
+      const companyName: Record<string, string> = {}
+      for (const c of companyRows || []) {
+        companyName[c.id] = (c.company_name as string) || (c.full_name as string) || 'Company'
+      }
+      for (const r of roleRows || []) {
+        conciergeRoleMap[r.id] = {
+          title: r.title,
+          company_name: companyName[r.company_id] || 'Company',
+        }
+      }
+    }
+  }
+
   // Dynamic completion — calculated from real data, tier-aware
   // 100% ONLY when both jobs have all 3 references verified (profile_live=true)
   // Tiered: 0 jobs = 75% floor, 1 of 2 = 85%, 2 of 2 = 100%
@@ -438,6 +486,69 @@ export default async function Dashboard() {
                   </div>
                 </div>
               </Link>
+
+              {/* Concierge queue — today's AI-drafted outreach */}
+              {isConcierge && (
+              <div className="md:col-span-2 rounded-2xl p-6" style={{
+                background: 'linear-gradient(#0d0d14,#0d0d14) padding-box, linear-gradient(135deg,rgba(251,191,36,0.35),rgba(251,113,133,0.25)) border-box',
+                border: '1px solid transparent',
+              }}>
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div>
+                    <p className="text-[#FBBF24] text-xs font-bold uppercase tracking-wider mb-1">Concierge · today's shortlist</p>
+                    <h3 className="font-black text-white text-lg">
+                      {conciergeDrafts.length > 0
+                        ? `${conciergeDrafts.length} role${conciergeDrafts.length === 1 ? '' : 's'} matched · ready to send`
+                        : 'No new matches today'}
+                    </h3>
+                    <p className="text-white/45 text-xs mt-1">AI scans open roles every morning and drafts personalised intros — you review, approve, send.</p>
+                  </div>
+                  <form action="/api/concierge/scan" method="POST">
+                    <button type="submit" className="text-[#FBBF24] text-xs font-bold border border-[#FBBF24]/30 hover:border-[#FBBF24]/60 px-3 py-1.5 rounded-full transition-colors">
+                      Refresh now
+                    </button>
+                  </form>
+                </div>
+                {conciergeDrafts.length > 0 && (
+                  <div className="space-y-3">
+                    {conciergeDrafts.slice(0, 3).map(draft => {
+                      const role = conciergeRoleMap[draft.role_id]
+                      return (
+                        <div key={draft.id} className="bg-white/[0.03] rounded-xl p-3 border border-white/[0.05]">
+                          <div className="flex items-center justify-between mb-1">
+                            <div>
+                              <p className="text-white text-sm font-bold">{role?.title || 'Role'}</p>
+                              <p className="text-white/40 text-xs">{role?.company_name || ''}</p>
+                            </div>
+                            <span className="text-[#FBBF24] text-xs font-black">{draft.match_score}%</span>
+                          </div>
+                          {draft.draft_subject && (
+                            <p className="text-white/50 text-xs mt-2 italic">&ldquo;{draft.draft_subject}&rdquo;</p>
+                          )}
+                          <p className="text-white/35 text-[11px] mt-1 line-clamp-2">{draft.draft_body.slice(0, 220)}</p>
+                          <div className="flex items-center justify-between mt-2">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              draft.status === 'sent' ? 'bg-emerald-500/15 text-emerald-400' :
+                              draft.status === 'approved' ? 'bg-[#22D3EE]/15 text-[#22D3EE]' :
+                              draft.status === 'auto_send' ? 'bg-[#FBBF24]/15 text-[#FBBF24]' :
+                              'bg-white/[0.06] text-white/40'
+                            }`}>
+                              {draft.status.replace('_', ' ')}
+                            </span>
+                            {draft.match_reasons && draft.match_reasons.length > 0 && (
+                              <span className="text-white/30 text-[10px]">{draft.match_reasons[0]}</span>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                    {conciergeDrafts.length > 3 && (
+                      <p className="text-white/30 text-[11px] text-center">+ {conciergeDrafts.length - 3} more in queue</p>
+                    )}
+                  </div>
+                )}
+              </div>
+              )}
 
               {/* Matches / shortlisted signal — only Roles Board */}
               {isRolesBoard && (
