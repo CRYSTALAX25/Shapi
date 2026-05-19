@@ -251,14 +251,19 @@ References bonus (tiered):
 - ✅ CEFR / IELTS hover tooltips
 - ✅ WhatsApp intent handling (skip / repeat / start over / done / "I don't know")
 - ✅ Dashboard tips card (WhatsApp commands surfaced)
+- ✅ **Stripe SKU split** (9 SKUs — Kit / Pro / Roles Board ×2 / Active ×2 / Concierge / Bundle ×2) with `subscription_product[]` array gating + per-product cancel
+- ✅ **Voice samples per language** — capture during WhatsApp interview, streamed via /api/voice-sample, players on /profile and /p/[id]
+- ✅ **Employer prestige overlay** — Gartner MQ / Forrester Wave / G2 / FT500 badges on role cards (~70 curated employers)
+- ✅ **Variant A CV pull-quotes** — sidebar "In Their Own Words" picks 1-2 best WhatsApp answers (preview + sent PDF)
 
 ## 13. Build status — TODO (open tasks)
 
-1. **Stripe SKU split** — 5 distinct products: Kit / Pro / Roles Board / Active / Concierge / Bundle (currently Pro covers it monolithically). Add `subscription_product` column for tier-aware gating.
-2. **AI Auto-Outreach Concierge tier** — daily scan + draft + approval queue + auto-send opt-in
-3. **Employer prestige overlay** — Gartner MQ / Forrester Wave / G2 manually-curated dataset on role cards
-4. **JD-via-WhatsApp** — same conversational extraction for hiring companies posting roles
-5. **Voice samples per language** — capture + store voice notes, gated playback per company tier
+1. **JD-via-WhatsApp (full review UI)** — skeleton + extraction shipped; still need /company/roles/[id]/edit polish UI + WhatsApp ↔ dashboard "Edit this draft" round-trip
+2. **AI Auto-Outreach Concierge — outbound sender** — queue + scanner + drafts + approval shipped; outbound delivery worker (email via Resend, WhatsApp via Twilio) still to do
+3. **Daily cron for Concierge** — wire `POST /api/concierge/scan?all=1` to a Vercel cron (or external scheduler) running 06:00 UAE
+4. **Voice-sample storage migration** — currently proxied via Twilio; for production move to Supabase Storage so playback isn't dependent on Twilio CDN auth
+5. **Company dashboard prestige badge** — surface the candidate's prestige overlay on /p/[id] too (employers like to see "you trained at X")
+6. **Verification tier auto-recompute** — currently runs only on reference completion; add a daily recompute for stale candidates
 
 ---
 
@@ -300,6 +305,10 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 9. `career_roadmap.sql` — ai_resilience_score + career_recommendations
 10. `evidence.sql` — work evidence uploads
 11. `jobs.sql`, `matches.sql`, `waitlist.sql` — supporting tables
+12. `subscription_product.sql` — subscription_product[] + per-product Stripe IDs
+13. `voice_samples.sql` — voice_samples jsonb + awaiting_voice_sample_lang
+14. `jd_chat.sql` — company JD intake state + extra roles columns (must_have_skills, employment_type, etc.)
+15. `concierge_queue.sql` — Concierge daily shortlist + draft outreach queue
 
 All idempotent (`ADD COLUMN IF NOT EXISTS`).
 
