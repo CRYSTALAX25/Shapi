@@ -271,14 +271,43 @@ export async function POST(request: Request) {
   // no state-dependent flip-flops. The previous "prefer active interview"
   // ordering caused +test2 messages to land on the main account whenever main
   // had conversation_active flipped one way or another — chaos.
-  const { data: profiles } = await admin
+  // Profile lookup — duplicate phone numbers are a real problem (signup flow
+  // bug lets the same phone exist on multiple accounts). The naive
+  // "newest profile wins" picks the orphan when a stale signup is more recent
+  // than the candidate's actual main account. So: prefer the profile that
+  // has (a) candidate_references attached, then (b) cv_parsed=true, falling
+  // back to most-recently-created.
+  const { data: profileCandidates } = await admin
     .from('profiles')
     .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, languages_spoken, cv_tier, industry_chats, whatsapp_conversation_active, created_at, voice_samples, awaiting_voice_sample_lang, type, company_name, jd_chat')
     .eq('whatsapp_number', phone)
     .order('created_at', { ascending: false })
-    .limit(1)
 
-  const profile = profiles?.[0] ?? null
+  let profile = profileCandidates?.[0] ?? null
+  if (profileCandidates && profileCandidates.length > 1) {
+    // Multiple profiles share this phone — pick the one with the most signal
+    const candidateIds = profileCandidates.map(p => p.id)
+    const { data: refCounts } = await admin
+      .from('candidate_references')
+      .select('candidate_id')
+      .in('candidate_id', candidateIds)
+    const refHits: Record<string, number> = {}
+    for (const r of refCounts || []) {
+      refHits[r.candidate_id as string] = (refHits[r.candidate_id as string] || 0) + 1
+    }
+    // Sort: most refs first, then cv_parsed, then most-recent
+    const scored = [...profileCandidates].sort((a, b) => {
+      const aRefs = refHits[a.id as string] || 0
+      const bRefs = refHits[b.id as string] || 0
+      if (aRefs !== bRefs) return bRefs - aRefs
+      const aParsed = a.cv_parsed ? 1 : 0
+      const bParsed = b.cv_parsed ? 1 : 0
+      if (aParsed !== bParsed) return bParsed - aParsed
+      return new Date(b.created_at as string).getTime() - new Date(a.created_at as string).getTime()
+    })
+    profile = scored[0]
+    console.log('[webhook] Multiple profiles for phone — picked', profile?.id, '(refs:', refHits[profile?.id as string] || 0, 'cv_parsed:', profile?.cv_parsed, ')')
+  }
 
   // ═══ PRIORITY 0: Reference reply routing ═══════════════════════════════
   // Two distinct rules:
