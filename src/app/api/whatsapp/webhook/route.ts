@@ -300,21 +300,43 @@ export async function POST(request: Request) {
   //   means outreach hasn't gone out, so any reply would be unsolicited.
   const interviewExplicitlyDone = profile?.whatsapp_conversation_active === false
 
-  // First try: TEST-MODE SELF REFS — most permissive, always fires
+  // First try: TEST-MODE SELF REFS — most permissive, always fires.
+  //
+  // CRITICAL: stickiness. When a user is mid-conversation with one referee,
+  // every reply must land on THAT referee until it's completed — otherwise
+  // each turn ping-pongs to a different ref. So:
+  //   1) prefer status='opened' (already in conversation) — there should be
+  //      at most one
+  //   2) else: prefer the ref with the most recent assistant message —
+  //      i.e. the one we LAST spoke to (whatsapp_chat is non-empty)
+  //   3) else: pick the oldest 'pending'/'contacted' to KICK OFF
   if (profile) {
     const { data: selfRefs } = await admin
       .from('candidate_references')
-      .select('id, candidate_id, ref_type, job_slot, status, referee_name, candidate_company, candidate_job_title, candidate_dates, whatsapp_chat, is_test_outreach, nominator_name, response_channel, first_responded_at, token')
+      .select('id, candidate_id, ref_type, job_slot, status, referee_name, candidate_company, candidate_job_title, candidate_dates, whatsapp_chat, is_test_outreach, nominator_name, response_channel, first_responded_at, token, updated_at')
       .eq('referee_phone', phone)
       .eq('candidate_id', profile.id)
       .eq('is_test_outreach', true)
       .in('status', ['pending', 'contacted', 'opened'])
-      .order('updated_at', { ascending: true })
-      .limit(1)
 
     if (selfRefs && selfRefs.length > 0) {
-      console.log('[webhook] Routing to TEST-MODE self ref:', selfRefs[0].id, 'status:', selfRefs[0].status)
-      return handleReferenceReply(selfRefs[0], body || '', formData, numMedia, mediaType, phone)
+      // (1) ref currently in conversation
+      const opened = selfRefs.find(r => r.status === 'opened')
+      // (2) ref we last spoke to (has any chat history)
+      type RefRowLite = typeof selfRefs[number] & { whatsapp_chat?: Array<unknown> | null; updated_at?: string }
+      const withChat = (selfRefs as RefRowLite[])
+        .filter(r => Array.isArray(r.whatsapp_chat) && r.whatsapp_chat.length > 0)
+        .sort((a, b) => (new Date(b.updated_at || 0).getTime()) - (new Date(a.updated_at || 0).getTime()))
+      // (3) start the next pending/contacted, oldest first (created_at proxy via updated_at)
+      const fresh = (selfRefs as RefRowLite[])
+        .filter(r => !Array.isArray(r.whatsapp_chat) || r.whatsapp_chat.length === 0)
+        .sort((a, b) => (new Date(a.updated_at || 0).getTime()) - (new Date(b.updated_at || 0).getTime()))
+
+      const chosen = opened || withChat[0] || fresh[0]
+      if (chosen) {
+        console.log('[webhook] Routing to TEST-MODE self ref:', chosen.id, '| name:', chosen.referee_name, '| status:', chosen.status, '| chat turns:', Array.isArray(chosen.whatsapp_chat) ? chosen.whatsapp_chat.length : 0)
+        return handleReferenceReply(chosen, body || '', formData, numMedia, mediaType, phone)
+      }
     }
   }
 
