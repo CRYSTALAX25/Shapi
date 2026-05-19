@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import RoleInterestButton from './RoleInterestButton'
+import { getPrestigeForCompany, topAccolade } from '@/lib/company-prestige'
 
 type Role = {
   id: string
@@ -148,11 +149,38 @@ export default async function RolesBoard() {
                           <span className="bg-white/[0.06] text-white/40 text-xs px-2.5 py-1 rounded-full">Remote OK</span>
                         )}
                       </div>
-                      <p className="text-white/50 text-sm mb-1">{company.name}</p>
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <p className="text-white/50 text-sm">{company.name}</p>
+                        {(() => {
+                          const prestige = getPrestigeForCompany(company.name)
+                          if (!prestige) return null
+                          const accolade = topAccolade(prestige)
+                          if (!accolade) return null
+                          const toneColors = {
+                            gold:   { bg: 'rgba(251,191,36,0.13)', fg: '#FBBF24' },
+                            teal:   { bg: 'rgba(34,211,238,0.12)', fg: '#22D3EE' },
+                            purple: { bg: 'rgba(167,139,250,0.13)', fg: '#A78BFA' },
+                          }[accolade.tone]
+                          return (
+                            <span
+                              title={accolade.tooltip}
+                              className="text-[10px] font-bold px-2 py-0.5 rounded-full cursor-help"
+                              style={{ background: toneColors.bg, color: toneColors.fg }}
+                            >
+                              ★ {accolade.label}
+                            </span>
+                          )
+                        })()}
+                      </div>
                       <div className="flex items-center gap-3 text-xs text-white/30 mb-3 flex-wrap">
                         {role.department && <span>{role.department}</span>}
                         {role.location && <span>📍 {role.location}</span>}
-                        {company.glassdoor && <span>⭐ {company.glassdoor} Glassdoor</span>}
+                        {(() => {
+                          // Use curated glassdoor first (more reliable), fall back to company-provided
+                          const prestige = getPrestigeForCompany(company.name)
+                          const score = prestige?.glassdoor ?? company.glassdoor
+                          return score ? <span>⭐ {score} Glassdoor</span> : null
+                        })()}
                         <span>Posted {new Date(role.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
                       </div>
                       {role.salary_visible && role.salary_min && role.salary_max && (
