@@ -28,11 +28,16 @@ Tagline: "Shape what's next." UAE-first launch May 2026.
 - **Repo:** https://github.com/CRYSTALAX25/Shapi (branch: main)
 
 ## Brand
-- Primary teal: #0B5563 | Mid teal: #0D6B7A | Light teal: #0F8299
-- Coral (companies/CTAs): #E8745A
-- Background: #F8F4EE
-- Text: #1C1C2E
-- Font: Plus Jakarta Sans (Google Fonts)
+**See `BRAND.md` for the full kit.** Quick reference below.
+
+- Background: `#060609` (deep space) · Card surface: `#0d0d14`
+- Cyan `#22D3EE` (primary) · Purple `#A78BFA` (secondary)
+- Coral `#FB7185` (punch) · Emerald `#34D399` (positive) · Amber `#FBBF24` (premium)
+- Primary gradient: `linear-gradient(135deg, #22D3EE, #A78BFA)`
+- Font: Plus Jakarta Sans (Google Fonts, 400–900)
+- Text on dark: `rgba(255,255,255,0.9)` body, `rgba(255,255,255,0.4)` subtitles
+
+**Do NOT use** the older warm-teal / cream palette (`#0B5563`, `#F8F4EE`, etc.) — that's stale from an earlier direction.
 
 ## Current routes
 - `/` — Homepage + waitlist form (saves to Supabase, sends Resend confirmation)
