@@ -187,6 +187,11 @@ export default function CVReady() {
   const [deepDiveState, setDeepDiveState] = useState<'idle' | 'sending' | 'sent' | 'error' | 'fallback'>('idle')
   const [selectedIndustries, setSelectedIndustries] = useState<string[]>([])
   const [deepDiveError, setDeepDiveError] = useState('')
+  // Send picker state — must live at top of component so React sees the same hook
+  // order on every render (otherwise the early "Loading…" return changes the hook
+  // count and the page crashes with "Rendered more hooks than during the previous render")
+  const [pickerOpen, setPickerOpen] = useState<null | 'email' | 'whatsapp'>(null)
+  const [pickerChosen, setPickerChosen] = useState<Set<string>>(new Set(['lang:english']))
   const [deepDiveQuestions, setDeepDiveQuestions] = useState('')
   // Per-industry "Start interview" loading state — tracks which industry button is currently spinning
   const [deepDiveStartingFor, setDeepDiveStartingFor] = useState<string | null>(null)
@@ -312,11 +317,9 @@ export default function CVReady() {
     )
   }
 
-  // Send picker modal — open before invoking actual send so the candidate
-  // chooses which CV versions to bundle.
+  // Send picker — pickerOpen + pickerChosen state hoisted to top of component above.
+  // The selection shape:
   type SendSelection = { type: 'language' | 'industry' | 'universal'; value: string; label: string }
-  const [pickerOpen, setPickerOpen] = useState<null | 'email' | 'whatsapp'>(null)
-  const [pickerChosen, setPickerChosen] = useState<Set<string>>(new Set(['lang:english']))
 
   // Build the list of CV versions available to pick: English always; every
   // language on the profile; every matched industry; Universal.
