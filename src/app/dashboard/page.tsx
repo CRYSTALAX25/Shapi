@@ -233,7 +233,7 @@ export default async function Dashboard() {
           <>
             {/* Shapi greeting banner */}
             <div className="gradient-border-card rounded-2xl p-5 mb-6 flex items-center gap-5">
-              <ShapiCharacter mood={shapiMood} size={64} className="flex-shrink-0" />
+              <ShapiCharacter mood={shapiMood} size={84} className="flex-shrink-0" />
               <div>
                 <p className="text-white/35 text-[10px] font-bold uppercase tracking-widest mb-1">Shapi says</p>
                 <p className="text-white text-sm leading-relaxed font-medium">{shapiMessage}</p>
