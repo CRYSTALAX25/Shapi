@@ -407,7 +407,7 @@ function PrintContent() {
         .va-loc { font-size: 12px; color: #888; margin-top: 8px; }
         .va-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px; border-radius: 999px; font-size: 11px; font-weight: 700; margin-top: 13px; font-family: system-ui, sans-serif; }
         .va-section { margin-top: 24px; break-inside: avoid; }
-        .va-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.3px; color: #6B7280; margin-bottom: 9px; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px; font-family: system-ui, sans-serif; }
+        .va-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.3px; color: #0E7490; margin-bottom: 9px; border-bottom: 2px solid; border-image: linear-gradient(90deg,#22D3EE,#A78BFA) 1; padding-bottom: 5px; font-family: system-ui, sans-serif; }
         .va-summary { font-size: 13px; line-height: 1.65; color: #374151; text-align: justify; }
         .va-job { margin-bottom: 15px; break-inside: avoid; }
         .va-job-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
@@ -415,12 +415,12 @@ function PrintContent() {
         .va-jc { font-size: 12.5px; color: #4B5563; }
         .va-jd { font-size: 11px; color: #9CA3AF; white-space: nowrap; font-family: system-ui, sans-serif; }
         .va-jach { font-size: 11.5px; line-height: 1.6; color: #4B5563; margin-top: 4px; white-space: pre-line; text-align: justify; }
-        .va-sidelabel { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: #6B7280; margin-bottom: 9px; font-family: system-ui, sans-serif; }
+        .va-sidelabel { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: #7C3AED; margin-bottom: 9px; font-family: system-ui, sans-serif; }
         .va-block { margin-bottom: 22px; break-inside: avoid; }
         .va-bar-row { display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; font-weight: 600; margin-bottom: 6px; color: #1a1a2e; }
         .va-bar-fill { display: flex; align-items: center; gap: 2px; }
         .va-seg { width: 9px; height: 6px; border-radius: 1px; }
-        .va-chip-sm { display: inline-block; font-size: 10px; padding: 3px 9px; border-radius: 999px; background: white; color: #374151; border: 1px solid #E5E7EB; margin: 2px 3px 2px 0; }
+        .va-chip-sm { display: inline-block; font-size: 10px; padding: 3px 9px; border-radius: 999px; background: linear-gradient(135deg,#F0FBFD,#F5F3FF); color: #0E7490; border: 1px solid #DDEAF0; margin: 2px 3px 2px 0; }
         .va-quote { position: relative; font-size: 11.5px; line-height: 1.55; color: #374151; font-style: italic; padding: 4px 0 4px 13px; border-${isRTL ? 'right' : 'left'}: 2px solid #A78BFA; margin-bottom: 11px; break-inside: avoid; }
         .va-quote .attr { display: block; font-size: 9px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: #9CA3AF; font-style: normal; margin-top: 4px; font-family: system-ui, sans-serif; }
         .va-lang { font-size: 11.5px; color: #374151; margin-bottom: 4px; }
@@ -509,8 +509,9 @@ function PrintContent() {
           ↓ Save as PDF
         </button>
       </div>
-      {/* Print tip — shown only on screen, hidden on print */}
-      <div className="no-print" style={{ position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.75)', color: 'rgba(255,255,255,0.5)', fontSize: 12, padding: '8px 16px', borderRadius: 99, whiteSpace: 'nowrap', backdropFilter: 'blur(8px)' }}>
+      {/* Print tip — shown only on screen, hidden on print. Light pill so it
+          never reads as an overlay covering the CV. */}
+      <div className="no-print" style={{ position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)', background: '#ffffff', color: '#6B7280', fontSize: 12, padding: '8px 16px', borderRadius: 99, whiteSpace: 'nowrap', boxShadow: '0 2px 12px rgba(0,0,0,0.15)', border: '1px solid #E5E7EB' }}>
         Click &quot;Save as PDF&quot; → in the print dialog choose &quot;Save as PDF&quot; as the destination
       </div>
 
@@ -736,15 +737,23 @@ function PrintContent() {
           )}
         </div>
 
-        {/* Impact tiles — full width */}
+        {/* Impact tiles — full width, rotating brand colours */}
         {impactStats.length >= 2 && (
           <div className="va-impact">
-            {impactStats.map((s, i) => (
-              <div key={i} className="va-stat">
-                <div className="v">{s.value}</div>
-                <div className="l">{s.label}</div>
-              </div>
-            ))}
+            {impactStats.map((s, i) => {
+              const palette = [
+                { v: '#0E7490', bg: 'linear-gradient(135deg,#ECFEFF,#F0F9FF)', bd: '#A5F3FC' },
+                { v: '#7C3AED', bg: 'linear-gradient(135deg,#F5F3FF,#FAF5FF)', bd: '#DDD6FE' },
+                { v: '#E11D48', bg: 'linear-gradient(135deg,#FFF1F2,#FFF5F5)', bd: '#FECDD3' },
+                { v: '#059669', bg: 'linear-gradient(135deg,#ECFDF5,#F0FDF4)', bd: '#A7F3D0' },
+              ][i % 4]
+              return (
+                <div key={i} className="va-stat" style={{ background: palette.bg, borderColor: palette.bd }}>
+                  <div className="v" style={{ color: palette.v }}>{s.value}</div>
+                  <div className="l">{s.label}</div>
+                </div>
+              )
+            })}
           </div>
         )}
 
