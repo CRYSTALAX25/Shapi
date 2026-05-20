@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 
 type ActiveUpload = {
+  id: string
   name: string
   size: number
   status: 'uploading' | 'done' | 'error'
@@ -50,12 +51,16 @@ export default function Evidence() {
   }
 
   const addFiles = (files: FileList) => {
-    const incoming = Array.from(files)
-    const startIdx = activeUploads.length
-    setActiveUploads(prev => [...prev, ...incoming.map(f => ({ name: f.name, size: f.size, status: 'uploading' as const }))])
-    incoming.forEach(async (file, i) => {
+    const incoming = Array.from(files).map(file => ({
+      file,
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+    }))
+    // Match status updates by stable id (not computed index) so concurrent
+    // batches can't overwrite each other's rows.
+    setActiveUploads(prev => [...prev, ...incoming.map(({ file, id }) => ({ id, name: file.name, size: file.size, status: 'uploading' as const }))])
+    incoming.forEach(async ({ file, id }) => {
       const ok = await upload(file)
-      setActiveUploads(prev => prev.map((u, j) => j === startIdx + i ? { ...u, status: ok ? 'done' : 'error' } : u))
+      setActiveUploads(prev => prev.map(u => u.id === id ? { ...u, status: ok ? 'done' : 'error' } : u))
       if (ok) loadSaved()
     })
   }
