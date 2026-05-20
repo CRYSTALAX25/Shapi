@@ -22,7 +22,9 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
     .from('profiles')
     .select('id, full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, completion_pct, profile_live, industry, linkedin_url, github_url, website_url, portfolio_url, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work, work_style, verification_tier, verification_report')
     .ilike('id', `${id}%`)
-    .eq('type', 'candidate')
+    // Candidates may have type=null (signup doesn't always set it). Exclude only
+    // company accounts; show candidate + untyped profiles.
+    .or('type.eq.candidate,type.is.null')
     .limit(1)
     .single()
 
