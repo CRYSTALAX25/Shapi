@@ -37,6 +37,15 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
 
   const completedRefs = refRows || []
   const refCount = completedRefs.length
+
+  // Completed courses (verified learning) to show on the company-facing profile
+  const { data: courseRows } = await admin
+    .from('candidate_courses')
+    .select('course_name, platform, verification_status, credential_url, sponsored_by')
+    .eq('candidate_id', c.id)
+    .eq('status', 'completed')
+    .order('updated_at', { ascending: false })
+  const completedCourses = courseRows || []
   // Merge all extracted skills from references, deduplicate, cap at 10
   const refSkillsRaw: string[] = completedRefs.flatMap(r => Array.isArray(r.extracted_skills) ? r.extracted_skills : [])
   const refSkills = [...new Set(refSkillsRaw)].slice(0, 10)
@@ -306,6 +315,30 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
                 </div>
               )
             })()}
+
+            {/* Verified learning — completed courses */}
+            {completedCourses.length > 0 && (
+              <div className="gradient-border-card rounded-2xl p-6">
+                <h2 className="text-white font-black text-xs uppercase tracking-widest mb-4 opacity-50">Courses & Learning</h2>
+                <div className="space-y-2">
+                  {completedCourses.map((cc, i) => {
+                    const verified = cc.verification_status === 'verified'
+                    return (
+                      <div key={i} className="flex items-center justify-between gap-2 bg-white/[0.03] rounded-lg px-3 py-2">
+                        <span className="text-white/75 text-xs">{cc.course_name}{cc.platform ? <span className="text-white/35"> · {cc.platform}</span> : null}</span>
+                        <span className="flex items-center gap-1.5 flex-shrink-0">
+                          {cc.sponsored_by && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.15)', color: '#FBBF24' }}>🏢 {cc.sponsored_by}</span>}
+                          {verified
+                            ? <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#34D399' }}>✓ Verified</span>
+                            : <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.4)' }}>○ Self-reported</span>}
+                          {cc.credential_url && <a href={cc.credential_url as string} target="_blank" rel="noopener noreferrer" className="text-[#22D3EE] text-[10px] font-bold">cert ↗</a>}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* References badge */}
             {refCount > 0 && (

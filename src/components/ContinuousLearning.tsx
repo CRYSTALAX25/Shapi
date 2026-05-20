@@ -56,8 +56,11 @@ export default function ContinuousLearning({
   const [error, setError] = useState('')
   // Per-event tracked status (booked / attended / not_attended), keyed by name
   const [eventStatus, setEventStatusMap] = useState<Record<string, string>>({})
+  // Tracked courses (from /upskill) with verification status
+  type TrackedCourse = { id: string; course_name: string; platform: string | null; status: string; verification_status: string; credential_url: string | null; sponsored_by?: string | null }
+  const [trackedCourses, setTrackedCourses] = useState<TrackedCourse[]>([])
 
-  // Load tracked event statuses so the roadmap events show booked/attended state
+  // Load tracked event statuses + courses so the roadmap shows live state
   useEffect(() => {
     fetch('/api/upskill')
       .then(r => r.json())
@@ -65,6 +68,7 @@ export default function ContinuousLearning({
         const map: Record<string, string> = {}
         for (const e of (d.events || [])) if (e.status) map[e.name] = e.status
         setEventStatusMap(map)
+        setTrackedCourses(Array.isArray(d.courses) ? d.courses : [])
       })
       .catch(() => {})
   }, [])
@@ -150,8 +154,38 @@ export default function ContinuousLearning({
       <p className="text-white/35 text-xs mb-5 ml-4">What you&apos;ve done — and where to grow next.</p>
 
       {/* ─── HALF 1: PASSIVE ─── */}
-      {!hasAny && (
+      {!hasAny && trackedCourses.length === 0 && (
         <p className="text-white/30 text-sm mb-6">No certifications, events, talks, OSS, or courses detected on your CV yet. Add them via your profile to strengthen credibility.</p>
+      )}
+
+      {/* Tracked courses from /upskill — with verification marks */}
+      {trackedCourses.length > 0 && (
+        <div className="mb-5">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-white/45 text-xs font-bold uppercase tracking-wider">Courses & Learning</p>
+            <Link href="/upskill" className="text-[#22D3EE] text-xs font-bold hover:underline">Manage →</Link>
+          </div>
+          <div className="space-y-1.5">
+            {trackedCourses.map(c => {
+              const verified = c.verification_status === 'verified'
+              return (
+                <div key={c.id} className="flex items-center justify-between gap-2 bg-white/[0.03] rounded-lg px-3 py-2">
+                  <span className="text-white/80 text-xs">
+                    {c.course_name}{c.platform ? <span className="text-white/35"> · {c.platform}</span> : null}
+                    {c.status === 'completed' ? <span className="text-white/35"> · done</span> : c.status === 'in_progress' ? <span className="text-white/35"> · in progress</span> : null}
+                  </span>
+                  <span className="flex items-center gap-1.5 flex-shrink-0">
+                    {c.sponsored_by && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.15)', color: '#FBBF24' }}>🏢 {c.sponsored_by}</span>}
+                    {verified
+                      ? <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#34D399' }}>✓ Verified</span>
+                      : <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.4)' }}>○ Self-reported</span>}
+                    {c.credential_url && <a href={c.credential_url} target="_blank" rel="noopener noreferrer" className="text-[#22D3EE] text-[10px] font-bold">cert ↗</a>}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
       )}
 
       {(data?.certifications?.length ?? 0) > 0 && (
