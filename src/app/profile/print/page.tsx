@@ -45,6 +45,34 @@ type Meta = {
   has_whatsapp: boolean
 }
 
+// Extract up to 4 headline impact stats from work-history achievements for the
+// schematic "Impact" tiles — money ($40M), large counts (90+), percentages (30%).
+// Each stat gets a short label from the words immediately following the number.
+// Returns [] if nothing strong found (the strip then just doesn't render).
+function extractImpactStats(workHistory: WorkEntry[]): Array<{ value: string; label: string }> {
+  const out: Array<{ value: string; label: string }> = []
+  const seen = new Set<string>()
+  const numRe = /(\$\s?\d[\d,.]*\s?(?:k|m|bn|b|million|billion)?|\b\d{2,}\+?\b|\d+%)/gi
+  for (const job of workHistory || []) {
+    const text = (job.achievements || '').replace(/\n/g, ' ')
+    let m: RegExpExecArray | null
+    numRe.lastIndex = 0
+    while ((m = numRe.exec(text)) !== null) {
+      const value = m[0].replace(/\s+/g, '')
+      // Skip bare years (1900-2099) — they're dates, not impact
+      if (/^\d{4}$/.test(value) && +value > 1900 && +value < 2100) continue
+      const key = value.toUpperCase()
+      if (seen.has(key)) continue
+      const after = text.slice(m.index + m[0].length).trim().split(/\s+/).slice(0, 3).join(' ')
+      const label = after.replace(/[^a-zA-Z\s-]/g, '').trim().toLowerCase().slice(0, 20) || 'impact'
+      seen.add(key)
+      out.push({ value, label })
+      if (out.length >= 4) return out
+    }
+  }
+  return out
+}
+
 function PrintContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -76,6 +104,8 @@ function PrintContent() {
     profile_id?: string | null
     verification_tier?: string | null
     cv_tier?: string | null
+    ai_resilience_score?: number | null
+    pivot?: { to_role?: string; to_industry?: string } | null
   }>({})
 
   // Load the candidate's spoken languages so we can render one toolbar
@@ -103,12 +133,15 @@ function PrintContent() {
         const fromChats = Object.keys(chats).filter(k => (chats[k]?.answers?.length ?? 0) > 0 || chats[k]?.status === 'completed')
         const matched = Array.isArray(profile.matched_industries) ? (profile.matched_industries as string[]) : []
         setAvailableIndustries([...new Set([...fromChats, ...matched])])
+        const roadmap = profile.career_recommendations as { ai_resilience_score?: number; pivot_paths?: Array<{ to_role?: string; to_industry?: string }> } | null
         setFooterData({
           skill_quadrant: profile.skill_quadrant as { hands: number; heart: number; head: number; spark: number } | null,
           ai_tier: profile.ai_tier,
           profile_id: profile.id,
           verification_tier: profile.verification_tier as string | null,
           cv_tier: profile.cv_tier as string | null,
+          ai_resilience_score: (profile.ai_resilience_score as number | null) ?? roadmap?.ai_resilience_score ?? null,
+          pivot: roadmap?.pivot_paths?.[0] ?? null,
         })
       })
       .catch(() => {})
@@ -254,6 +287,25 @@ function PrintContent() {
     .sort((x, y) => Math.abs(110 - x.length) - Math.abs(110 - y.length))
     .slice(0, 2)
 
+  // Blended schematic data
+  const impactStats = extractImpactStats(cv.workHistory || [])
+  const pivot = footerData.pivot
+  const resilience = footerData.ai_resilience_score
+  const resilienceColor = resilience == null ? '#9CA3AF' : resilience >= 70 ? '#059669' : resilience >= 50 ? '#B45309' : '#DC2626'
+  // Radar geometry (only used if quadrant present + we choose the radar)
+  const RS = 132, cx = RS / 2, cy = RS / 2, maxR = 46
+  const pt = (angle: number, val: number) => {
+    const r = (Math.max(0, Math.min(10, val)) / 10) * maxR
+    return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) }
+  }
+  const ang = { head: -Math.PI / 2, spark: 0, heart: Math.PI / 2, hands: Math.PI }
+  const radarPath = q
+    ? (() => {
+        const p = { head: pt(ang.head, q.head), spark: pt(ang.spark, q.spark), heart: pt(ang.heart, q.heart), hands: pt(ang.hands, q.hands) }
+        return `M ${p.head.x} ${p.head.y} L ${p.spark.x} ${p.spark.y} L ${p.heart.x} ${p.heart.y} L ${p.hands.x} ${p.hands.y} Z`
+      })()
+    : ''
+
   return (
     <>
       {/* Force light mode at browser level — prevents Chrome dark mode inverting CV colours */}
@@ -365,6 +417,22 @@ function PrintContent() {
         .va-lang { font-size: 11.5px; color: #374151; margin-bottom: 4px; }
         .va-lang strong { color: #1a1a2e; }
         .va-foot { grid-column: 1 / -1; padding: 14px 36px 22px; font-size: 9.5px; color: #9CA3AF; border-top: 1px solid #E5E7EB; text-align: center; font-family: system-ui, sans-serif; }
+        /* Blended schematic additions */
+        .va-impact { grid-column: 1 / -1; display: flex; gap: 10px; padding: 0 36px 4px 44px; margin-top: -8px; flex-wrap: wrap; }
+        .va-stat { flex: 1; min-width: 90px; background: linear-gradient(135deg,#F0FBFD,#F5F3FF); border: 1px solid #E5E9F0; border-radius: 10px; padding: 12px 14px; }
+        .va-stat .v { font-size: 21px; font-weight: 800; color: #0E7490; letter-spacing: -0.5px; line-height: 1; }
+        .va-stat .l { font-size: 9.5px; color: #6B7280; margin-top: 5px; text-transform: capitalize; font-family: system-ui, sans-serif; }
+        .va-arc { background: #F7F9FB; border: 1px solid #E5E9F0; border-radius: 10px; padding: 13px 16px; margin-top: 4px; }
+        .va-arc-row { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: #374151; }
+        .va-arc-node { font-weight: 700; color: #1a1a2e; }
+        .va-arc-sep { color: #A78BFA; font-weight: 700; }
+        .va-arc-next { color: #7C3AED; font-weight: 700; }
+        .va-trust { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 999px; font-family: system-ui, sans-serif; letter-spacing: 0.3px; vertical-align: middle; }
+        .va-verline { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; }
+        .va-learn-item { font-size: 11px; color: #4B5563; margin-bottom: 3px; }
+        .va-radar-wrap { display: flex; flex-direction: column; align-items: center; }
+        .va-resil { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+        .va-resil .num { font-size: 22px; font-weight: 800; line-height: 1; }
 
         @media print {
           body { background: white; }
@@ -606,31 +674,90 @@ function PrintContent() {
         <div className="footer">{labels.verifiedBy}</div>
       </div>}
 
-      {/* ─── Variant A — premium Verified Profile (Pro only) ─── */}
+      {/* ─── Variant A — premium "Shapi Verified" blended design (Pro only) ─── */}
       {isPro && (
       <div className="va-page">
         <div className="va-strip" />
-        <div className="va-main">
+
+        {/* Header (spans both columns via grid auto-flow: name left, badge right) */}
+        <div className="va-main" style={{ paddingBottom: 0 }}>
           <h1 className="va-name">{cv.full_name}</h1>
           {cv.headline && <p className="va-headline">{cv.headline}</p>}
           {cv.location && <p className="va-loc">📍 {cv.location}</p>}
           <span className="va-chip" style={{ background: tierInfo.color + '15', color: tierInfo.color, border: `1px solid ${tierInfo.color}40` }}>
             ✓ {tierInfo.label}
           </span>
-
           {(isNative && cv.languageCode !== 'en') && (
-            <div className="translation-notice" style={{ marginTop: 16 }}>
-              🌐 {cv.language} version — auto-translated by Shapi AI. Review before sending.
-            </div>
+            <div className="translation-notice" style={{ marginTop: 14 }}>🌐 {cv.language} version — auto-translated by Shapi AI. Review before sending.</div>
           )}
           {isUniversal && (
-            <div className="translation-notice" style={{ marginTop: 16, background: '#f0fdf4', borderColor: '#86efac', color: '#166534' }}>
-              📋 Universal version — industry jargon removed.
-            </div>
+            <div className="translation-notice" style={{ marginTop: 14, background: '#f0fdf4', borderColor: '#86efac', color: '#166534' }}>📋 Universal version — industry jargon removed.</div>
           )}
           {targetIndustry && !isNative && !isUniversal && (
-            <div className="translation-notice" style={{ marginTop: 16, background: '#eff6ff', borderColor: '#93c5fd', color: '#1e40af' }}>
-              🎯 {targetIndustry.charAt(0).toUpperCase() + targetIndustry.slice(1)}-targeted version.
+            <div className="translation-notice" style={{ marginTop: 14, background: '#eff6ff', borderColor: '#93c5fd', color: '#1e40af' }}>🎯 {targetIndustry.charAt(0).toUpperCase() + targetIndustry.slice(1)}-targeted version.</div>
+          )}
+        </div>
+        {/* Right column header spacer — radar lives here so it aligns with the name band */}
+        <div className="va-side" style={{ paddingBottom: 0 }}>
+          {q && (
+            <div className="va-radar-wrap">
+              <p className="va-sidelabel" style={{ alignSelf: 'flex-start' }}>Skill Quadrant <span className="va-trust" style={{ background: '#EDE9FE', color: '#6D28D9' }}>◆ Shapi-assessed</span></p>
+              <svg width={RS} height={RS} viewBox={`0 0 ${RS} ${RS}`}>
+                <defs>
+                  <linearGradient id="vaRadar" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#22D3EE" stopOpacity={0.35} />
+                    <stop offset="100%" stopColor="#A78BFA" stopOpacity={0.35} />
+                  </linearGradient>
+                </defs>
+                {[0.33, 0.66, 1].map(rr => (
+                  <path key={rr} d={`M ${cx} ${cy - maxR * rr} L ${cx + maxR * rr} ${cy} L ${cx} ${cy + maxR * rr} L ${cx - maxR * rr} ${cy} Z`} fill="none" stroke="#E5E7EB" strokeWidth={1} />
+                ))}
+                <path d={radarPath} fill="url(#vaRadar)" stroke="#22D3EE" strokeWidth={1.5} strokeLinejoin="round" />
+                <text x={cx} y={cy - maxR - 5} fontSize={8.5} fontWeight={700} textAnchor="middle" fill="#6B7280">HEAD</text>
+                <text x={cx + maxR + 16} y={cy + 3} fontSize={8.5} fontWeight={700} textAnchor="middle" fill="#6B7280">SPARK</text>
+                <text x={cx} y={cy + maxR + 12} fontSize={8.5} fontWeight={700} textAnchor="middle" fill="#6B7280">HEART</text>
+                <text x={cx - maxR - 16} y={cy + 3} fontSize={8.5} fontWeight={700} textAnchor="middle" fill="#6B7280">HANDS</text>
+              </svg>
+              {footerData.ai_tier && (
+                <p style={{ fontSize: 10, color: '#6B7280', marginTop: 4 }}>🤖 AI {footerData.ai_tier.charAt(0).toUpperCase() + footerData.ai_tier.slice(1)}</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Impact tiles — full width */}
+        {impactStats.length >= 2 && (
+          <div className="va-impact">
+            {impactStats.map((s, i) => (
+              <div key={i} className="va-stat">
+                <div className="v">{s.value}</div>
+                <div className="l">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Body — left column */}
+        <div className="va-main" style={{ paddingTop: 18 }}>
+          {/* Trajectory / Direction (forward-looking, clearly labelled as intent) */}
+          {(pivot?.to_role || resilience != null) && (
+            <div className="va-section">
+              <p className="va-label">Direction <span className="va-trust" style={{ background: '#F3E8FF', color: '#7C3AED' }}>goal · not a claim</span></p>
+              <div className="va-arc">
+                {pivot?.to_role && (
+                  <div className="va-arc-row" style={{ marginBottom: resilience != null ? 8 : 0 }}>
+                    <span className="va-arc-node">Now</span>
+                    <span className="va-arc-sep">⟶</span>
+                    <span className="va-arc-next">{pivot.to_role}{pivot.to_industry ? ` · ${pivot.to_industry}` : ''}</span>
+                  </div>
+                )}
+                {resilience != null && (
+                  <div className="va-resil">
+                    <span className="num" style={{ color: resilienceColor }}>{resilience}</span>
+                    <span style={{ fontSize: 10.5, color: '#6B7280' }}>AI-resilience score <span className="va-trust" style={{ background: '#EDE9FE', color: '#6D28D9' }}>◆ Shapi-assessed</span><br/><span style={{ color: '#9CA3AF' }}>how future-proof this profile is vs automation</span></span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -656,58 +783,17 @@ function PrintContent() {
               ))}
             </div>
           )}
-
-          {(cv.certifications?.length || cv.courses?.length || cv.events?.length || cv.talks?.length) ? (
-            <div className="va-section">
-              <p className="va-label">{labels.certifications || 'Certifications & Learning'}</p>
-              {(cv.certifications?.length ?? 0) > 0 && (
-                <p style={{ fontSize: 11.5, color: '#4B5563', lineHeight: 1.5, marginBottom: 4 }}>
-                  <strong>Certifications:</strong> {cv.certifications!.map(c => `${c.name}${c.issuer ? ` (${c.issuer})` : ''}${c.year ? ` ${c.year}` : ''}`).join(' · ')}
-                </p>
-              )}
-              {(cv.courses?.length ?? 0) > 0 && (
-                <p style={{ fontSize: 11.5, color: '#4B5563', lineHeight: 1.5 }}>
-                  <strong>Courses:</strong> {cv.courses!.map(c => `${c.name}${c.platform ? ` · ${c.platform}` : ''}${c.year ? ` ${c.year}` : ''}`).join(' · ')}
-                </p>
-              )}
-            </div>
-          ) : null}
         </div>
 
-        <div className="va-side">
-          {q && (
-            <div className="va-block">
-              <p className="va-sidelabel">Skill Fingerprint</p>
-              {([
-                { label: 'Heart', val: Math.round(q.heart), color: '#FB7185' },
-                { label: 'Spark', val: Math.round(q.spark), color: '#A78BFA' },
-                { label: 'Head', val: Math.round(q.head), color: '#22D3EE' },
-                { label: 'Hands', val: Math.round(q.hands), color: '#34D399' },
-              ]).map(r => (
-                <div key={r.label} className="va-bar-row">
-                  <span>{r.label}</span>
-                  <div className="va-bar-fill">
-                    {Array.from({ length: 10 }, (_, i) => (
-                      <div key={i} className="va-seg" style={{ background: i < r.val ? r.color : '#E5E7EB' }} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-              {footerData.ai_tier && (
-                <p style={{ fontSize: 10, color: '#6B7280', marginTop: 8 }}>🤖 AI {footerData.ai_tier.charAt(0).toUpperCase() + footerData.ai_tier.slice(1)}</p>
-              )}
-            </div>
-          )}
-
+        {/* Body — right column */}
+        <div className="va-side" style={{ paddingTop: 18 }}>
           {sidebarQuotes.length > 0 && (
             <div className="va-block">
               <p className="va-sidelabel">{labels.inTheirOwnWords}</p>
               {sidebarQuotes.map((quote, i) => (
                 <div key={i} className="va-quote">
                   &ldquo;{quote}&rdquo;
-                  {i === sidebarQuotes.length - 1 && (
-                    <span className="attr">— {cv.full_name.split(' ')[0]}, Shapi interview</span>
-                  )}
+                  {i === sidebarQuotes.length - 1 && <span className="attr">— {cv.full_name.split(' ')[0]}, Shapi interview</span>}
                 </div>
               ))}
             </div>
@@ -725,13 +811,29 @@ function PrintContent() {
           {cv.skills && cv.skills.length > 0 && (
             <div className="va-block">
               <p className="va-sidelabel">{labels.skills}</p>
-              <div>{cv.skills.slice(0, 22).map((s, i) => <span key={i} className="va-chip-sm">{s}</span>)}</div>
+              <div>{cv.skills.slice(0, 20).map((s, i) => <span key={i} className="va-chip-sm">{s}</span>)}</div>
             </div>
           )}
+
+          {/* Continuous Learning — self-reported until verified through Shapi */}
+          {(cv.certifications?.length || cv.courses?.length || cv.events?.length) ? (
+            <div className="va-block">
+              <p className="va-sidelabel">Continuous Learning <span className="va-trust" style={{ background: '#F3F4F6', color: '#6B7280' }}>○ self-reported</span></p>
+              {(cv.certifications || []).map((c, i) => (
+                <div key={`c${i}`} className="va-learn-item">○ {c.name}{c.issuer ? ` · ${c.issuer}` : ''}{c.year ? ` ${c.year}` : ''}</div>
+              ))}
+              {(cv.courses || []).map((c, i) => (
+                <div key={`co${i}`} className="va-learn-item">○ {c.name}{c.platform ? ` · ${c.platform}` : ''}{c.year ? ` ${c.year}` : ''}</div>
+              ))}
+              {(cv.events || []).map((e, i) => (
+                <div key={`e${i}`} className="va-learn-item">○ {e.name}{e.year ? ` ${e.year}` : ''}</div>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <div className="va-foot">
-          {footerData.profile_id ? `Verified by Shapi · shapi.io/p/${footerData.profile_id.slice(0, 8)}` : labels.verifiedBy}
+          {footerData.profile_id ? `Verified by Shapi · shapi.io/p/${footerData.profile_id.slice(0, 8)} · ✓ verified  ◆ Shapi-assessed  ○ self-reported` : labels.verifiedBy}
         </div>
       </div>
       )}
