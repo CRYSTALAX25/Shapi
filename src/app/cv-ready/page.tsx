@@ -345,6 +345,17 @@ export default function CVReady() {
     setPickerOpen(channel)
   }
 
+  // Map a CVSelection to the /api/cv/generate request body so we can
+  // pre-generate any version that isn't cached yet (otherwise the bundler
+  // silently drops uncached selections and only English comes through).
+  const generateBodyFor = (sel: { type: string; value: string }): Record<string, unknown> => {
+    if (sel.type === 'industry') return { mode: 'english', targetIndustry: sel.value }
+    if (sel.type === 'universal') return { mode: 'universal' }
+    // language
+    if (sel.value.toLowerCase() === 'english') return { mode: 'english' }
+    return { targetLanguage: sel.value }
+  }
+
   const sendSelectedCVs = async () => {
     const channel = pickerOpen
     if (!channel) return
@@ -358,6 +369,19 @@ export default function CVReady() {
     if (selections.length === 0) selections.push({ type: 'language', value: 'English' })
 
     try {
+      // Pre-generate every selected CV so the bundle has them all. Run in
+      // parallel; each call no-ops fast if already cached. Don't fail the whole
+      // send if one generation errors — the bundler will just skip that one.
+      await Promise.all(
+        selections.map(sel =>
+          fetch('/api/cv/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(generateBodyFor(sel)),
+          }).catch(() => {})
+        )
+      )
+
       const res = await fetch('/api/cv/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
