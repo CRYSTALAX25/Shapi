@@ -13,6 +13,17 @@ import { buildJDPrompt, extractRoleFromChat, saveDraftRole } from '@/lib/jd-extr
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
+// A concrete, business-professional speaking prompt for a voice sample — anchored
+// to the candidate's actual CV so they say something relevant, not ramble.
+function voicePromptSuggestion(profile: { work_history?: unknown; headline?: unknown }): string {
+  const wh = Array.isArray(profile.work_history) ? profile.work_history as Array<{ title?: string; company?: string }> : []
+  const recent = wh.find(w => w.company || w.title)
+  if (recent?.company) return `tell me about your role at ${recent.company} — what you did and an achievement you're proud of`
+  if (recent?.title) return `walk me through a recent project or win from your time as ${recent.title}`
+  if (profile.headline) return `tell me about your work as a ${profile.headline} — a recent project and the impact you had`
+  return `describe a recent work challenge you solved and how you approached it`
+}
+
 // ── Industry detection ───────────────────────────────────────────────────────
 function detectIndustry(headline: string, workHistory: Array<{ title?: string; company?: string }>): string {
   const text = [
@@ -529,7 +540,7 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
           )
           if (next) {
             await admin.from('profiles').update({ awaiting_voice_sample_lang: next }).eq('id', profile.id)
-            await sendWhatsApp(phone, `Got it ✓ — your ${awaitingLang} sample is saved.\n\nOne more: send a short voice note in *${next}* (15–30s, anything natural — introduce yourself, talk about your work). This helps companies hear how you communicate.`)
+            await sendWhatsApp(phone, `Got it ✓ — your ${awaitingLang} sample is saved.\n\nNow one in *${next}* (15–30s). Keep it work-related — for example: *${voicePromptSuggestion(profile)}*. This is what companies hear, so keep it professional.`)
           } else {
             await admin.from('profiles').update({ awaiting_voice_sample_lang: null }).eq('id', profile.id)
             await sendWhatsApp(phone, `Got it ✓ — voice sample${(profile.languages_spoken as Array<{ language: string }> | null || []).length > 1 ? 's' : ''} saved. Companies viewing your profile will hear how you sound — much more powerful than text.`)
@@ -601,7 +612,7 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
     }
     await admin.from('profiles').update({ awaiting_voice_sample_lang: next }).eq('id', profile.id)
     const remaining = langs.filter(l => !samples[l.language.toLowerCase()]).map(l => l.language)
-    await sendWhatsApp(phone, `🎙️ Let's capture your voice samples (${remaining.length} to go: ${remaining.join(', ')}).\n\nSend me a 15–30 second voice note in *${next}* — introduce yourself or talk about your work. Companies viewing your profile will hear how you communicate in each language.`)
+    await sendWhatsApp(phone, `🎙️ Let's capture your voice samples (${remaining.length} to go: ${remaining.join(', ')}).\n\nSend a 15–30 second voice note in *${next}*. Keep it work-related — for example: *${voicePromptSuggestion(profile)}*. This is what companies hear, so keep it professional.`)
     return new NextResponse('', { status: 200 })
   }
 
@@ -1163,7 +1174,7 @@ Return ONLY valid JSON:
     if (nextLang && !profile.awaiting_voice_sample_lang) {
       await admin.from('profiles').update({ awaiting_voice_sample_lang: nextLang }).eq('id', profile.id)
       const multi = (languagesSpoken?.length ?? 0) > 1
-      await sendWhatsApp(phone, `One more thing 🎙️ — send me a short voice note in *${nextLang}* (15–30 seconds, just introduce yourself or talk about your work).${multi ? `\n\nWe'll do one per language so companies viewing your profile can hear how you communicate in each.` : `\n\nCompanies viewing your profile will hear how you sound — much more authentic than text alone.`}`)
+      await sendWhatsApp(phone, `One more thing 🎙️ — send a 15–30s voice note in *${nextLang}*. Keep it work-related — for example: *${voicePromptSuggestion(profile)}*. This is what companies hear, so keep it professional.${multi ? `\n\nWe'll do one per language so companies hear how you communicate in each.` : ''}`)
     }
   }
 
