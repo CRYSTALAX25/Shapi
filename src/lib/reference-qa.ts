@@ -108,7 +108,9 @@ WHATSAPP STYLE:
 - Detect their language and reply in the SAME language always (Arabic → Arabic, etc.)
 
 This is exchange ${exchangeCount + 1}.
-${exchangeCount === 0 ? 'OPEN WARMLY — introduce yourself as Shapi, thank them for helping ' + candFirst + ', and ask the first topic question.' : 'Continue the conversation naturally.'}`
+${exchangeCount === 0
+  ? `YOUR FIRST MESSAGE MUST clearly establish context (even if they only said "hi"). Include ALL of: (1) greet them by name — "Hi ${refereeFirst}"; (2) say who you are — "I'm Shapi"; (3) state why — you're running a quick, confidential reference check on ${candidateName}, who listed them as their manager at ${candidateCompany}; (4) reassure ${candFirst} won't see their answers. THEN ask the first topic question. Do NOT jump straight into a question without this introduction.`
+  : 'Continue the conversation naturally.'}`
 }
 
 function nomineeSystemPrompt(opts: {
@@ -162,7 +164,9 @@ WHATSAPP STYLE:
 - Acknowledge before next question
 
 This is exchange ${exchangeCount + 1}.
-${exchangeCount === 0 ? 'OPEN: Greet them by first name, explain ' + nominatorName + ' suggested them, reassure them ' + candFirst + ' can\'t see this, ask the first topic.' : 'Continue the conversation naturally.'}`
+${exchangeCount === 0
+  ? `YOUR FIRST MESSAGE MUST clearly establish context (even if they only said "hi"). Include ALL of: (1) greet them by name — "Hi ${refereeFirst}"; (2) say who you are — "I'm Shapi"; (3) state why — ${nominatorName} suggested them as someone who worked with ${candidateName} at ${nominatorCompany}, and you're gathering a quick confidential reference; (4) reassure ${candFirst} doesn't know they've been contacted, so they can be candid. THEN ask the first topic question. Do NOT jump straight into a question without this introduction.`
+  : 'Continue the conversation naturally.'}`
 }
 
 // Peer refs are added directly by the candidate (not nominated), so the
@@ -216,7 +220,9 @@ WHATSAPP STYLE:
 - Acknowledge before next question
 
 This is exchange ${exchangeCount + 1}.
-${exchangeCount === 0 ? 'OPEN: Greet them by first name, briefly acknowledge that ' + candFirst + ' listed them as a colleague, reassure them their specific answers stay confidential, ask the first topic.' : 'Continue the conversation naturally.'}`
+${exchangeCount === 0
+  ? `YOUR FIRST MESSAGE MUST clearly establish context (even if they only said "hi"). Include ALL of: (1) greet them by name — "Hi ${refereeFirst}"; (2) say who you are — "I'm Shapi"; (3) state why — ${candidateName} listed them as a colleague at ${candidateCompany} and you're gathering a quick confidential reference; (4) reassure their specific answers stay confidential. THEN ask the first topic question. Do NOT jump straight into a question without this introduction.`
+  : 'Continue the conversation naturally.'}`
 }
 
 export async function runReferenceTurn(opts: {
