@@ -63,6 +63,9 @@ function PrintContent() {
   const [error, setError] = useState('')
   const [fromCache, setFromCache] = useState(false)
   const [availableLangs, setAvailableLangs] = useState<string[]>([])
+  // Industries the candidate has run a deep-dive for — shown as their own
+  // dropdown group so the picker stays organised as versions accumulate.
+  const [availableIndustries, setAvailableIndustries] = useState<string[]>([])
   const fetched = useRef(false)
 
   // Also load skill_quadrant + AI tier + profile ID for the PDF footer
@@ -71,6 +74,8 @@ function PrintContent() {
     skill_quadrant?: { hands: number; heart: number; head: number; spark: number } | null
     ai_tier?: string | null
     profile_id?: string | null
+    verification_tier?: string | null
+    cv_tier?: string | null
   }>({})
 
   // Load the candidate's spoken languages so we can render one toolbar
@@ -93,10 +98,17 @@ function PrintContent() {
           if (!seen.has(k)) { seen.add(k); unique.push(l) }
         }
         setAvailableLangs(unique)
+        // Industries with a completed/in-progress deep-dive (or matched_industries)
+        const chats = (profile.industry_chats as Record<string, { answers?: string[]; status?: string }> | null) || {}
+        const fromChats = Object.keys(chats).filter(k => (chats[k]?.answers?.length ?? 0) > 0 || chats[k]?.status === 'completed')
+        const matched = Array.isArray(profile.matched_industries) ? (profile.matched_industries as string[]) : []
+        setAvailableIndustries([...new Set([...fromChats, ...matched])])
         setFooterData({
           skill_quadrant: profile.skill_quadrant as { hands: number; heart: number; head: number; spark: number } | null,
           ai_tier: profile.ai_tier,
           profile_id: profile.id,
+          verification_tier: profile.verification_tier as string | null,
+          cv_tier: profile.cv_tier as string | null,
         })
       })
       .catch(() => {})
@@ -220,6 +232,28 @@ function PrintContent() {
     verifiedBy: 'Verified profile · shapi.io',
   }
 
+  // Pro users get the premium "Verified Profile" (Variant A) two-column design.
+  // Kit users keep the classic single-column format. The premium design
+  // showcases Pro-only elements: verification tier badge, skill fingerprint,
+  // and "In Their Own Words" deep-dive pull-quotes.
+  const isPro = footerData.cv_tier === 'pro'
+  const q = footerData.skill_quadrant
+  const tier = footerData.verification_tier
+  const tierMeta: Record<string, { label: string; color: string }> = {
+    basic: { label: 'Basic Verified', color: '#0891b2' },
+    strong: { label: 'Strongly Verified', color: '#059669' },
+    premium: { label: 'Premium Verified', color: '#B45309' },
+  }
+  const tierInfo = tier && tier !== 'unverified'
+    ? tierMeta[tier]
+    : { label: 'Shapi Verified Profile', color: '#7C3AED' }
+  // Pick 1-2 tight pull-quotes for the sidebar
+  const sidebarQuotes = (cv.chatAnswers || [])
+    .map(a => (a || '').trim().replace(/\s+/g, ' '))
+    .filter(a => a.length >= 40 && a.length <= 180)
+    .sort((x, y) => Math.abs(110 - x.length) - Math.abs(110 - y.length))
+    .slice(0, 2)
+
   return (
     <>
       {/* Force light mode at browser level — prevents Chrome dark mode inverting CV colours */}
@@ -296,11 +330,48 @@ function PrintContent() {
 
         .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #eee; font-size: 11px; color: #bbb; font-family: system-ui, sans-serif; text-align: center; }
 
+        /* ─── Variant A — premium "Verified Profile" (Pro only) ─── */
+        .va-page {
+          max-width: 820px; margin: 72px auto 32px; background: white;
+          box-shadow: 0 6px 48px rgba(0,0,0,0.15); border-radius: 4px;
+          font-family: ${isRTL ? "'Noto Sans Arabic','Arial',sans-serif" : "'Inter','Helvetica Neue',Arial,system-ui,sans-serif"};
+          color: #1a1a2e; direction: ${isRTL ? 'rtl' : 'ltr'};
+          display: grid; grid-template-columns: 1fr 240px; overflow: hidden;
+        }
+        .va-strip { grid-column: 1 / -1; height: 7px; background: linear-gradient(90deg,#22D3EE,#A78BFA); }
+        .va-main { padding: 40px 36px 32px 44px; }
+        .va-side { padding: 40px 26px 32px 26px; background: #F7F9FB; border-${isRTL ? 'right' : 'left'}: 1px solid #E5E9F0; }
+        .va-name { font-size: 28px; font-weight: 800; letter-spacing: -0.6px; line-height: 1.1; }
+        .va-headline { font-size: 14.5px; color: #555; margin-top: 5px; }
+        .va-loc { font-size: 12px; color: #888; margin-top: 8px; }
+        .va-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px; border-radius: 999px; font-size: 11px; font-weight: 700; margin-top: 13px; font-family: system-ui, sans-serif; }
+        .va-section { margin-top: 24px; break-inside: avoid; }
+        .va-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.3px; color: #6B7280; margin-bottom: 9px; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px; font-family: system-ui, sans-serif; }
+        .va-summary { font-size: 13px; line-height: 1.65; color: #374151; text-align: justify; }
+        .va-job { margin-bottom: 15px; break-inside: avoid; }
+        .va-job-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+        .va-jt { font-size: 13.5px; font-weight: 700; color: #1a1a2e; }
+        .va-jc { font-size: 12.5px; color: #4B5563; }
+        .va-jd { font-size: 11px; color: #9CA3AF; white-space: nowrap; font-family: system-ui, sans-serif; }
+        .va-jach { font-size: 11.5px; line-height: 1.6; color: #4B5563; margin-top: 4px; white-space: pre-line; text-align: justify; }
+        .va-sidelabel { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: #6B7280; margin-bottom: 9px; font-family: system-ui, sans-serif; }
+        .va-block { margin-bottom: 22px; break-inside: avoid; }
+        .va-bar-row { display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; font-weight: 600; margin-bottom: 6px; color: #1a1a2e; }
+        .va-bar-fill { display: flex; align-items: center; gap: 2px; }
+        .va-seg { width: 9px; height: 6px; border-radius: 1px; }
+        .va-chip-sm { display: inline-block; font-size: 10px; padding: 3px 9px; border-radius: 999px; background: white; color: #374151; border: 1px solid #E5E7EB; margin: 2px 3px 2px 0; }
+        .va-quote { position: relative; font-size: 11.5px; line-height: 1.55; color: #374151; font-style: italic; padding: 4px 0 4px 13px; border-${isRTL ? 'right' : 'left'}: 2px solid #A78BFA; margin-bottom: 11px; break-inside: avoid; }
+        .va-quote .attr { display: block; font-size: 9px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: #9CA3AF; font-style: normal; margin-top: 4px; font-family: system-ui, sans-serif; }
+        .va-lang { font-size: 11.5px; color: #374151; margin-bottom: 4px; }
+        .va-lang strong { color: #1a1a2e; }
+        .va-foot { grid-column: 1 / -1; padding: 14px 36px 22px; font-size: 9.5px; color: #9CA3AF; border-top: 1px solid #E5E7EB; text-align: center; font-family: system-ui, sans-serif; }
+
         @media print {
           body { background: white; }
           .no-print { display: none !important; }
           .translation-notice { display: none !important; }
           .page { margin: 0; padding: 40px 48px; box-shadow: none; max-width: 100%; }
+          .va-page { margin: 0; box-shadow: none; max-width: 100%; border-radius: 0; }
           body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
         }
       `}</style>
@@ -316,6 +387,7 @@ function PrintContent() {
         <select
           className="lang-picker"
           value={(() => {
+            if (targetIndustry) return `ind:${targetIndustry}`
             if (isUniversal) return '__universal'
             if (targetLanguage) return `lang:${targetLanguage}`
             if (isNative && cv?.language) return `lang:${cv.language}`
@@ -326,13 +398,27 @@ function PrintContent() {
             if (v === '__english') router.push('/profile/print')
             else if (v === '__universal') router.push('/profile/print?lang=universal')
             else if (v.startsWith('lang:')) router.push(`/profile/print?lang=${encodeURIComponent(v.slice(5))}`)
+            else if (v.startsWith('ind:')) router.push(`/profile/print?industry=${encodeURIComponent(v.slice(4))}`)
           }}
         >
-          <option value="__english">🇬🇧 English</option>
-          {availableLangs.map(l => (
-            <option key={l} value={`lang:${l}`}>🌐 {l}</option>
-          ))}
-          <option value="__universal">📋 Universal (industry-agnostic)</option>
+          <optgroup label="General">
+            <option value="__english">🇬🇧 English</option>
+            <option value="__universal">📋 Universal (industry-agnostic)</option>
+          </optgroup>
+          {availableLangs.length > 0 && (
+            <optgroup label="Your languages">
+              {availableLangs.map(l => (
+                <option key={l} value={`lang:${l}`}>🌐 {l}</option>
+              ))}
+            </optgroup>
+          )}
+          {availableIndustries.length > 0 && (
+            <optgroup label="Industry-targeted">
+              {availableIndustries.map(ind => (
+                <option key={ind} value={`ind:${ind}`}>🎯 {ind.charAt(0).toUpperCase() + ind.slice(1)}</option>
+              ))}
+            </optgroup>
+          )}
         </select>
 
         <button className="btn btn-secondary" onClick={() => { fetched.current = false; loadCV(true) }}
@@ -351,7 +437,7 @@ function PrintContent() {
         Click &quot;Save as PDF&quot; → in the print dialog choose &quot;Save as PDF&quot; as the destination
       </div>
 
-      <div className="page">
+      {!isPro && <div className="page">
         {isNative && cv.languageCode !== 'en' && (
           <div className="translation-notice">
             🌐 {cv.language} version — auto-translated by Shapi AI. Review before sending.
@@ -518,7 +604,137 @@ function PrintContent() {
           </div>
         )}
         <div className="footer">{labels.verifiedBy}</div>
+      </div>}
+
+      {/* ─── Variant A — premium Verified Profile (Pro only) ─── */}
+      {isPro && (
+      <div className="va-page">
+        <div className="va-strip" />
+        <div className="va-main">
+          <h1 className="va-name">{cv.full_name}</h1>
+          {cv.headline && <p className="va-headline">{cv.headline}</p>}
+          {cv.location && <p className="va-loc">📍 {cv.location}</p>}
+          <span className="va-chip" style={{ background: tierInfo.color + '15', color: tierInfo.color, border: `1px solid ${tierInfo.color}40` }}>
+            ✓ {tierInfo.label}
+          </span>
+
+          {(isNative && cv.languageCode !== 'en') && (
+            <div className="translation-notice" style={{ marginTop: 16 }}>
+              🌐 {cv.language} version — auto-translated by Shapi AI. Review before sending.
+            </div>
+          )}
+          {isUniversal && (
+            <div className="translation-notice" style={{ marginTop: 16, background: '#f0fdf4', borderColor: '#86efac', color: '#166534' }}>
+              📋 Universal version — industry jargon removed.
+            </div>
+          )}
+          {targetIndustry && !isNative && !isUniversal && (
+            <div className="translation-notice" style={{ marginTop: 16, background: '#eff6ff', borderColor: '#93c5fd', color: '#1e40af' }}>
+              🎯 {targetIndustry.charAt(0).toUpperCase() + targetIndustry.slice(1)}-targeted version.
+            </div>
+          )}
+
+          {cv.summary && (
+            <div className="va-section">
+              <p className="va-label">{labels.profile}</p>
+              <p className="va-summary">{cv.summary}</p>
+            </div>
+          )}
+
+          {cv.workHistory && cv.workHistory.length > 0 && (
+            <div className="va-section">
+              <p className="va-label">{labels.experience}</p>
+              {cv.workHistory.map((job, i) => (
+                <div key={i} className="va-job">
+                  <div className="va-job-top">
+                    <span className="va-jt">{job.title || '—'}</span>
+                    <span className="va-jd">{job.start}{job.end ? ` – ${job.end}` : ` – ${labels.present}`}</span>
+                  </div>
+                  <div className="va-jc">{job.company || '—'}</div>
+                  {job.achievements && <div className="va-jach">{job.achievements}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {(cv.certifications?.length || cv.courses?.length || cv.events?.length || cv.talks?.length) ? (
+            <div className="va-section">
+              <p className="va-label">{labels.certifications || 'Certifications & Learning'}</p>
+              {(cv.certifications?.length ?? 0) > 0 && (
+                <p style={{ fontSize: 11.5, color: '#4B5563', lineHeight: 1.5, marginBottom: 4 }}>
+                  <strong>Certifications:</strong> {cv.certifications!.map(c => `${c.name}${c.issuer ? ` (${c.issuer})` : ''}${c.year ? ` ${c.year}` : ''}`).join(' · ')}
+                </p>
+              )}
+              {(cv.courses?.length ?? 0) > 0 && (
+                <p style={{ fontSize: 11.5, color: '#4B5563', lineHeight: 1.5 }}>
+                  <strong>Courses:</strong> {cv.courses!.map(c => `${c.name}${c.platform ? ` · ${c.platform}` : ''}${c.year ? ` ${c.year}` : ''}`).join(' · ')}
+                </p>
+              )}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="va-side">
+          {q && (
+            <div className="va-block">
+              <p className="va-sidelabel">Skill Fingerprint</p>
+              {([
+                { label: 'Heart', val: Math.round(q.heart), color: '#FB7185' },
+                { label: 'Spark', val: Math.round(q.spark), color: '#A78BFA' },
+                { label: 'Head', val: Math.round(q.head), color: '#22D3EE' },
+                { label: 'Hands', val: Math.round(q.hands), color: '#34D399' },
+              ]).map(r => (
+                <div key={r.label} className="va-bar-row">
+                  <span>{r.label}</span>
+                  <div className="va-bar-fill">
+                    {Array.from({ length: 10 }, (_, i) => (
+                      <div key={i} className="va-seg" style={{ background: i < r.val ? r.color : '#E5E7EB' }} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+              {footerData.ai_tier && (
+                <p style={{ fontSize: 10, color: '#6B7280', marginTop: 8 }}>🤖 AI {footerData.ai_tier.charAt(0).toUpperCase() + footerData.ai_tier.slice(1)}</p>
+              )}
+            </div>
+          )}
+
+          {sidebarQuotes.length > 0 && (
+            <div className="va-block">
+              <p className="va-sidelabel">{labels.inTheirOwnWords}</p>
+              {sidebarQuotes.map((quote, i) => (
+                <div key={i} className="va-quote">
+                  &ldquo;{quote}&rdquo;
+                  {i === sidebarQuotes.length - 1 && (
+                    <span className="attr">— {cv.full_name.split(' ')[0]}, Shapi interview</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {cv.languages_spoken && cv.languages_spoken.length > 0 && (
+            <div className="va-block">
+              <p className="va-sidelabel">{labels.languages || 'Languages'}</p>
+              {cv.languages_spoken.map((l, i) => (
+                <div key={i} className="va-lang"><strong>{l.language}</strong>{l.level ? ` · ${l.level}` : ''}</div>
+              ))}
+            </div>
+          )}
+
+          {cv.skills && cv.skills.length > 0 && (
+            <div className="va-block">
+              <p className="va-sidelabel">{labels.skills}</p>
+              <div>{cv.skills.slice(0, 22).map((s, i) => <span key={i} className="va-chip-sm">{s}</span>)}</div>
+            </div>
+          )}
+        </div>
+
+        <div className="va-foot">
+          {footerData.profile_id ? `Verified by Shapi · shapi.io/p/${footerData.profile_id.slice(0, 8)}` : labels.verifiedBy}
+        </div>
       </div>
+      )}
     </>
   )
 }

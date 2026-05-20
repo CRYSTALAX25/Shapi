@@ -207,11 +207,22 @@ Return ONLY valid JSON, no prose.`
   const cappedMessages = userMessages.slice(0, isNativeMode ? 4 : 6)
   const sampleText = cappedMessages.slice(0, 4).join(' | ')
 
-  // ── Pro deep-dive answers for this specific industry ─────────────────────────
+  // ── Pro deep-dive answers — HYBRID ───────────────────────────────────────────
+  // Deep-dive answers are real achievements that belong on EVERY version, not
+  // just the industry they were captured under. So we pull from ALL industries
+  // the candidate has done, with the target industry's answers first (most
+  // relevant framing for this specific CV). The base English / language /
+  // universal versions get the full pool too — they just frame it generally.
   const industryChats = (profile.industry_chats as Record<string, { answers?: string[] }> | null) || {}
-  const deepDiveAnswers: string[] = targetIndustry && industryChats[targetIndustry]?.answers
+  const targetAnswers: string[] = targetIndustry && industryChats[targetIndustry]?.answers
     ? industryChats[targetIndustry].answers!
     : []
+  const otherAnswers: string[] = Object.entries(industryChats)
+    .filter(([key]) => key !== targetIndustry)
+    .flatMap(([, v]) => Array.isArray(v?.answers) ? v.answers! : [])
+  // Target industry answers first, then everything else; dedupe + cap to keep
+  // the prompt under the Vercel 60s timeout budget.
+  const deepDiveAnswers: string[] = [...new Set([...targetAnswers, ...otherAnswers])].slice(0, 12)
   const industry = targetIndustry || (profile.industry as string) || 'general'
   const industryGuide = INDUSTRY_GUIDES[industry] || INDUSTRY_GUIDES.general
   // Full rich brief — handed to Claude so the CV writer aligns with the same rubric
