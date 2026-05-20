@@ -250,6 +250,31 @@ const buildLangPrompt = (offeredLangs: string[]): string => {
 }
 
 export async function POST(request: Request) {
+  // ── Diagnostic probe ────────────────────────────────────────────────────
+  // POST ?diag=1 with a phone= param to do a raw test send and return the
+  // exact Twilio result (success + error code/message) as JSON. Lets us see
+  // *why* outbound sends are failing without digging through Vercel logs.
+  // Twilio never sends ?diag=1, so production traffic is unaffected.
+  const diagUrl = new URL(request.url)
+  if (diagUrl.searchParams.get('diag') === '1') {
+    const testPhone = diagUrl.searchParams.get('phone') || ''
+    const fromEnv = process.env.TWILIO_WHATSAPP_FROM || '(unset)'
+    const hasSid = !!process.env.TWILIO_ACCOUNT_SID
+    const hasToken = !!process.env.TWILIO_AUTH_TOKEN
+    let sendResult: { success: boolean; error?: string } = { success: false, error: 'no phone provided' }
+    if (testPhone) {
+      sendResult = await sendWhatsApp(testPhone, '🔧 Shapi diagnostic test message — if you see this, outbound works.')
+    }
+    return NextResponse.json({
+      diag: true,
+      twilio_from: fromEnv,
+      has_account_sid: hasSid,
+      has_auth_token: hasToken,
+      test_phone: testPhone,
+      send_result: sendResult,
+    })
+  }
+
   // Wrap the whole handler in a try/catch so we can never silently fail —
   // if anything below throws, we at least log + send the sender a "the bot
   // crashed" message so the user knows it ran (rather than wondering whether
