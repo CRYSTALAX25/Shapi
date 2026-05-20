@@ -3,13 +3,34 @@ import { notFound } from 'next/navigation'
 
 type WorkEntry = { title?: string; company?: string; start?: string; end?: string; achievements?: string }
 
+// `profiles.id` is a UUID column — you cannot ILIKE a uuid (Postgres throws
+// "operator does not exist: uuid ~~* unknown"). The share link uses the first
+// 8 hex chars of the UUID, so we match by UUID range: every UUID whose first
+// group equals the prefix falls between <prefix>-0000-… and <prefix>-ffff-…
+// A full UUID is matched exactly.
+function uuidMatch(raw: string): { full: string } | { lo: string; hi: string } {
+  const s = raw.trim().toLowerCase()
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(s)) {
+    return { full: s }
+  }
+  const hex = s.replace(/[^0-9a-f]/g, '').slice(0, 8)
+  return {
+    lo: `${hex.padEnd(8, '0')}-0000-0000-0000-000000000000`,
+    hi: `${hex.padEnd(8, 'f')}-ffff-ffff-ffff-ffffffffffff`,
+  }
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const admin = createAdminClient()
-  const { data } = await admin.from('profiles').select('full_name, headline').ilike('id', `${id}%`).limit(1).single()
+  const m = uuidMatch(id)
+  let q = admin.from('profiles').select('full_name, headline')
+  q = 'full' in m ? q.eq('id', m.full) : q.gte('id', m.lo).lte('id', m.hi)
+  const { data } = await q.limit(1)
+  const row = data?.[0] as { full_name?: string; headline?: string } | undefined
   return {
-    title: data?.full_name ? `${data.full_name} — Shapi` : 'Shapi Profile',
-    description: data?.headline || 'Verified professional profile on Shapi',
+    title: row?.full_name ? `${row.full_name} — Shapi` : 'Shapi Profile',
+    description: row?.headline || 'Verified professional profile on Shapi',
   }
 }
 
@@ -18,15 +39,15 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
   const admin = createAdminClient()
 
   // Support short 8-char IDs (from the share link) or full UUIDs
-  const { data: c } = await admin
+  const m = uuidMatch(id)
+  let baseQuery = admin
     .from('profiles')
     .select('id, full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, completion_pct, profile_live, industry, linkedin_url, github_url, website_url, portfolio_url, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work, work_style, verification_tier, verification_report')
-    .ilike('id', `${id}%`)
-    // Candidates may have type=null (signup doesn't always set it). Exclude only
-    // company accounts; show candidate + untyped profiles.
-    .or('type.eq.candidate,type.is.null')
-    .limit(1)
-    .single()
+  baseQuery = 'full' in m ? baseQuery.eq('id', m.full) : baseQuery.gte('id', m.lo).lte('id', m.hi)
+  // Candidates may have type=null (signup doesn't always set it). Exclude only
+  // company accounts; show candidate + untyped profiles.
+  const { data: rows } = await baseQuery.or('type.eq.candidate,type.is.null').limit(1)
+  const c = rows?.[0]
 
   if (!c) notFound()
 
