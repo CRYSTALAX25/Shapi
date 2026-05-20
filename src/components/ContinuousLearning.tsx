@@ -7,6 +7,20 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
+// A first-step often maps to a Shapi feature: a course step → /upskill, a
+// role-targeting step → /roles. Return a contextual link only when it fits
+// (no forced/dead links on self-tasks like "build a case study").
+function stepLink(action: string): { href: string; label: string } | null {
+  const a = action.toLowerCase()
+  if (/\b(course|courses|certificate|certification|cert|coursera|udemy|edx|deeplearning|learn|upskill|training|bootcamp)\b/.test(a)) {
+    return { href: '/upskill', label: 'find courses →' }
+  }
+  if (/\b(role|roles|job|jobs|apply|applying|application|position|positions|target|targeting|vacanc)\b/.test(a)) {
+    return { href: '/roles', label: 'see roles →' }
+  }
+  return null
+}
+
 type Cert = { name?: string; issuer?: string; year?: string }
 type Event = { name?: string; year?: string; role?: string }
 type Talk = { venue?: string; year?: string; title?: string }
@@ -346,8 +360,16 @@ export default function ContinuousLearning({
                       {p.first_actions?.length > 0 && (
                         <div className="mt-3 pt-3 border-t border-white/[0.06]">
                           <p className="text-[#22D3EE] text-xs font-bold mb-1">First steps</p>
-                          <ol className="text-white/55 text-xs space-y-1 list-decimal list-inside">
-                            {p.first_actions.map((a, j) => <li key={j}>{a}</li>)}
+                          <ol className="text-white/55 text-xs space-y-1.5 list-decimal list-inside">
+                            {p.first_actions.map((a, j) => {
+                              const link = stepLink(a)
+                              return (
+                                <li key={j}>
+                                  {a}
+                                  {link && <Link href={link.href} className="text-[#A78BFA] font-bold hover:underline ml-1.5 whitespace-nowrap">{link.label}</Link>}
+                                </li>
+                              )
+                            })}
                           </ol>
                         </div>
                       )}

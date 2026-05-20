@@ -22,9 +22,11 @@ Everything discussed but deliberately deferred until after the **2 June 2026** f
 - Keep inbound webhook on `https://www.shapi.io/...` (apex 307-redirects and drops messages).
 
 ## Candidate-side fast-follows
-- **Work-style self-assessment** — optional questionnaire → Work Style profile card (◆ Shapi-assessed). [building now]
-- **Profile image + right-to-work** — [building now]
+- **Work-style self-assessment** — optional questionnaire → Work Style profile card (◆ Shapi-assessed). [shipped]
+- **Profile image + right-to-work** — [shipped]
 - Voice samples capture, WhatsApp CV editor, no-CV path — built, need live testing once Twilio is upgraded.
+- **Career Roadmap first-steps — tick-as-done + progress tracking.** Right now first-steps have contextual links (course step → /upskill, role step → /roles) but no per-step completion state. Add checkable steps with persistence so candidates can mark progress on their action plan (and we can nudge/celebrate completion).
+- **URL-link evidence** — let candidates attach live links (portfolio, published work, their own sites like Shapi/Crystalax) alongside file uploads in the evidence section.
 
 ## Pricing / packaging (revenue)
 - Verified-RTW and verified-aptitude as premium add-ons employers pay for.
