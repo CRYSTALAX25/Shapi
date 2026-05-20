@@ -45,39 +45,49 @@ type Meta = {
   has_whatsapp: boolean
 }
 
-// Extract up to 4 headline impact stats from work-history achievements for the
-// schematic "Impact" tiles — money ($40M), large counts (90+), percentages (30%).
-// Each stat gets a short label from the words immediately following the number.
-// Returns [] if nothing strong found (the strip then just doesn't render).
+// Parse a stat token into a comparable magnitude so we can lead with the
+// biggest achievement across the whole career ($56M > $1M > $75K > 120).
+function statMagnitude(v: string): number {
+  const s = v.toLowerCase().replace(/[$,\s]/g, '')
+  const num = parseFloat(s)
+  if (isNaN(num)) return 0
+  if (/b|bn|billion/.test(s)) return num * 1e9
+  if (/m|million/.test(s)) return num * 1e6
+  if (/k|thousand/.test(s)) return num * 1e3
+  if (s.includes('%')) return num            // percentages rank low (small abs)
+  return num
+}
+
+// Extract headline impact stats for the schematic "Impact" tiles.
+// Rules (per Ana): at most ONE stat per role (the biggest), then sort ALL by
+// magnitude descending and take the top 4 — so the strongest career achievement
+// always leads, and no single company hogs multiple boxes.
 function extractImpactStats(workHistory: WorkEntry[]): Array<{ value: string; label: string }> {
-  const out: Array<{ value: string; label: string }> = []
-  const seen = new Set<string>()
-  const numRe = /(\$\s?\d[\d,.]*\s?(?:k|m|bn|b|million|billion)?|\b\d{2,}\+?\b|\d+%)/gi
+  const STOP = new Set(['a', 'an', 'the', 'and', 'of', 'to', 'in', 'within', 'by', 'with', 'for', 'on', 'that', 'was', 'were', 'is', 'are', 'our', 'us', 'their', 'per', 'across', 'over', 'while', 'first', 'last'])
+  const numRe = /(\$\s?\d[\d,.]*\s?(?:k|m|bn|b|million|billion|thousand)?|\b\d{2,}\+?\b|\d+%)/gi
+  const perRole: Array<{ value: string; label: string; mag: number }> = []
+
   for (const job of workHistory || []) {
     const text = (job.achievements || '').replace(/\n/g, ' ')
+    let best: { value: string; label: string; mag: number } | null = null
     let m: RegExpExecArray | null
     numRe.lastIndex = 0
     while ((m = numRe.exec(text)) !== null) {
       const value = m[0].replace(/\s+/g, '')
-      // Skip bare years (1900-2099) — they're dates, not impact
-      if (/^\d{4}$/.test(value) && +value > 1900 && +value < 2100) continue
-      const key = value.toUpperCase()
-      if (seen.has(key)) continue
-      // Build a clean 1-2 word label from the words after the number, dropping
-      // filler words so we get "revenue" not "in revenue within".
-      const STOP = new Set(['a', 'an', 'the', 'and', 'of', 'to', 'in', 'within', 'by', 'with', 'for', 'on', 'that', 'was', 'were', 'is', 'are', 'our', 'us', 'their', 'per', 'across', 'over'])
+      if (/^\d{4}$/.test(value) && +value > 1900 && +value < 2100) continue // skip years
+      const mag = statMagnitude(value)
       const afterWords = text.slice(m.index + m[0].length).trim()
         .replace(/[^a-zA-Z\s-]/g, ' ')
         .split(/\s+/)
         .filter(w => w.length > 1 && !STOP.has(w.toLowerCase()))
         .slice(0, 2)
       const label = afterWords.join(' ').toLowerCase().slice(0, 22) || 'impact'
-      seen.add(key)
-      out.push({ value, label })
-      if (out.length >= 4) return out
+      if (!best || mag > best.mag) best = { value, label, mag }
     }
+    if (best) perRole.push(best)
   }
-  return out
+
+  return perRole.sort((a, b) => b.mag - a.mag).slice(0, 4).map(({ value, label }) => ({ value, label }))
 }
 
 // Bucket flat skills into Tech / Soft / Hard for a structured sidebar.
@@ -313,10 +323,8 @@ function PrintContent() {
   // Blended schematic data
   const impactStats = extractImpactStats(cv.workHistory || [])
   const pivot = footerData.pivot
-  // AI-resilience is a 0-10 score (matches the profile Career Roadmap component).
-  const resilience = footerData.ai_resilience_score
-  const resilienceColor = resilience == null ? '#9CA3AF' : resilience >= 7 ? '#059669' : resilience >= 4 ? '#B45309' : '#DC2626'
-  const resilienceLabel = resilience == null ? '' : resilience >= 7 ? 'low risk' : resilience >= 4 ? 'medium risk' : 'high risk'
+  // (AI-resilience score is intentionally not shown on the CV — personal to the
+  // candidate, lives on /profile only.)
   // Radar geometry (only used if quadrant present + we choose the radar)
   const RS = 132, cx = RS / 2, cy = RS / 2, maxR = 46
   const pt = (angle: number, val: number) => {
@@ -428,7 +436,7 @@ function PrintContent() {
         .va-job { margin-bottom: 15px; break-inside: avoid; }
         .va-job-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
         .va-jt { font-size: 13.5px; font-weight: 700; color: #1a1a2e; }
-        .va-jc { font-size: 12.5px; color: #4B5563; }
+        .va-jc { font-size: 12.5px; color: #0E7490; font-weight: 700; }
         .va-jd { font-size: 11px; color: #9CA3AF; white-space: nowrap; font-family: system-ui, sans-serif; }
         .va-jach { font-size: 11.5px; line-height: 1.6; color: #4B5563; margin-top: 4px; white-space: pre-line; text-align: justify; }
         .va-sidelabel { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: #7C3AED; margin-bottom: 9px; font-family: system-ui, sans-serif; }
@@ -436,14 +444,14 @@ function PrintContent() {
         .va-bar-row { display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; font-weight: 600; margin-bottom: 6px; color: #1a1a2e; }
         .va-bar-fill { display: flex; align-items: center; gap: 2px; }
         .va-seg { width: 9px; height: 6px; border-radius: 1px; }
-        .va-chip-sm { display: inline-block; font-size: 10px; padding: 3px 9px; border-radius: 999px; background: linear-gradient(135deg,#F0FBFD,#F5F3FF); color: #0E7490; border: 1px solid #DDEAF0; margin: 2px 3px 2px 0; }
+        .va-chip-sm { display: inline-block; font-size: 10px; padding: 3px 9px; border-radius: 999px; background: linear-gradient(135deg,#F0FBFD,#F5F3FF); color: #1a1a2e; font-weight: 600; border: 1px solid #DDEAF0; margin: 2px 3px 2px 0; }
         .va-quote { position: relative; font-size: 11.5px; line-height: 1.55; color: #374151; font-style: italic; padding: 4px 0 4px 13px; border-${isRTL ? 'right' : 'left'}: 2px solid #A78BFA; margin-bottom: 11px; break-inside: avoid; }
         .va-quote .attr { display: block; font-size: 9px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: #9CA3AF; font-style: normal; margin-top: 4px; font-family: system-ui, sans-serif; }
         .va-lang { font-size: 11.5px; color: #374151; margin-bottom: 4px; }
         .va-lang strong { color: #1a1a2e; }
         .va-foot { grid-column: 1 / -1; padding: 14px 36px 22px; font-size: 9.5px; color: #9CA3AF; border-top: 1px solid #E5E7EB; text-align: center; font-family: system-ui, sans-serif; }
         /* Blended schematic additions */
-        .va-impact { grid-column: 1 / -1; display: flex; gap: 10px; padding: 0 36px 4px 44px; margin-top: -8px; flex-wrap: wrap; }
+        .va-impact { grid-column: 1 / -1; display: flex; gap: 10px; padding: 0 36px 4px 44px; margin-top: 14px; flex-wrap: wrap; }
         .va-stat { flex: 1; min-width: 90px; background: linear-gradient(135deg,#F0FBFD,#F5F3FF); border: 1px solid #E5E9F0; border-radius: 10px; padding: 12px 14px; }
         .va-stat .v { font-size: 21px; font-weight: 800; color: #0E7490; letter-spacing: -0.5px; line-height: 1; }
         .va-stat .l { font-size: 9.5px; color: #6B7280; margin-top: 5px; text-transform: capitalize; font-family: system-ui, sans-serif; }
@@ -524,11 +532,6 @@ function PrintContent() {
         }}>
           ↓ Save as PDF
         </button>
-      </div>
-      {/* Print tip — shown only on screen, hidden on print. Light pill so it
-          never reads as an overlay covering the CV. */}
-      <div className="no-print" style={{ position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)', background: '#ffffff', color: '#6B7280', fontSize: 12, padding: '8px 16px', borderRadius: 99, whiteSpace: 'nowrap', boxShadow: '0 2px 12px rgba(0,0,0,0.15)', border: '1px solid #E5E7EB' }}>
-        Click &quot;Save as PDF&quot; → in the print dialog choose &quot;Save as PDF&quot; as the destination
       </div>
 
       {!isPro && <div className="page">
@@ -726,8 +729,11 @@ function PrintContent() {
         {/* Right column header spacer — radar lives here so it aligns with the name band */}
         <div className="va-side" style={{ paddingBottom: 0 }}>
           {q && (
-            <div className="va-radar-wrap">
-              <p className="va-sidelabel" style={{ alignSelf: 'flex-start' }}>Skill Quadrant <span className="va-trust" style={{ background: '#EDE9FE', color: '#6D28D9' }}>◆ Shapi-assessed</span></p>
+            <div className="va-radar-wrap" style={{ marginTop: 6 }}>
+              <div style={{ alignSelf: 'flex-start', marginBottom: 4 }}>
+                <p className="va-sidelabel" style={{ marginBottom: 3 }}>Skill Quadrant</p>
+                <span className="va-trust" style={{ background: '#EDE9FE', color: '#7C3AED' }}>◆ Shapi-assessed</span>
+              </div>
               {/* viewBox padded horizontally (28px each side) + vertically so the
                   HANDS/SPARK/HEAD/HEART labels are never clipped by the column edge */}
               <svg width={RS + 56} height={RS + 20} viewBox={`-28 -10 ${RS + 56} ${RS + 20}`} style={{ maxWidth: '100%' }}>
@@ -775,24 +781,18 @@ function PrintContent() {
 
         {/* Body — left column */}
         <div className="va-main" style={{ paddingTop: 18 }}>
-          {/* Trajectory / Direction (forward-looking, clearly labelled as intent) */}
-          {(pivot?.to_role || resilience != null) && (
+          {/* Career direction — where they're heading next (aspiration, not a
+              claim of current fact). AI-resilience score is intentionally NOT
+              shown here — it's personal to the candidate, not for employers. */}
+          {pivot?.to_role && (
             <div className="va-section">
-              <p className="va-label">Direction <span className="va-trust" style={{ background: '#F3E8FF', color: '#7C3AED' }}>goal · not a claim</span></p>
+              <p className="va-label">Open to next</p>
               <div className="va-arc">
-                {pivot?.to_role && (
-                  <div className="va-arc-row" style={{ marginBottom: resilience != null ? 8 : 0 }}>
-                    <span className="va-arc-node">Now</span>
-                    <span className="va-arc-sep">⟶</span>
-                    <span className="va-arc-next">{pivot.to_role}{pivot.to_industry ? ` · ${pivot.to_industry}` : ''}</span>
-                  </div>
-                )}
-                {resilience != null && (
-                  <div className="va-resil">
-                    <span className="num" style={{ color: resilienceColor }}>{resilience}<span style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 600 }}>/10</span></span>
-                    <span style={{ fontSize: 10.5, color: '#6B7280' }}>AI-resilience · <span style={{ color: resilienceColor, fontWeight: 700 }}>{resilienceLabel}</span> <span className="va-trust" style={{ background: '#EDE9FE', color: '#6D28D9' }}>◆ Shapi-assessed</span><br/><span style={{ color: '#9CA3AF' }}>how future-proof this profile is vs automation</span></span>
-                  </div>
-                )}
+                <div className="va-arc-row">
+                  <span className="va-arc-node">Now</span>
+                  <span className="va-arc-sep">⟶</span>
+                  <span className="va-arc-next">{pivot.to_role}{pivot.to_industry ? ` · ${pivot.to_industry}` : ''}</span>
+                </div>
               </div>
             </div>
           )}
@@ -847,16 +847,16 @@ function PrintContent() {
           {cv.skills && cv.skills.length > 0 && (() => {
             const cat = categorizeSkills(cv.skills.slice(0, 28))
             const groups = [
-              { title: 'Technical & Tools', items: cat.tech },
-              { title: 'Core Skills', items: cat.hard },
-              { title: 'Soft Skills', items: cat.soft },
+              { title: 'Technical & Tools', items: cat.tech, color: '#0E7490' },
+              { title: 'Core Skills', items: cat.hard, color: '#7C3AED' },
+              { title: 'Soft Skills', items: cat.soft, color: '#E11D48' },
             ].filter(g => g.items.length > 0)
             return (
               <div className="va-block">
                 <p className="va-sidelabel">{labels.skills}</p>
                 {groups.map(g => (
                   <div key={g.title} style={{ marginBottom: 8 }}>
-                    <p style={{ fontSize: 8.5, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{g.title}</p>
+                    <p style={{ fontSize: 8.5, fontWeight: 800, color: g.color, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{g.title}</p>
                     <div>{g.items.map((s, i) => <span key={i} className="va-chip-sm">{s}</span>)}</div>
                   </div>
                 ))}
@@ -867,28 +867,29 @@ function PrintContent() {
           {/* Continuous Learning — grouped by type, self-reported until verified */}
           {(cv.certifications?.length || cv.courses?.length || cv.events?.length) ? (
             <div className="va-block">
-              <p className="va-sidelabel">Continuous Learning <span className="va-trust" style={{ background: '#F3F4F6', color: '#6B7280' }}>○ self-reported</span></p>
+              <p className="va-sidelabel" style={{ marginBottom: 3 }}>Continuous Learning</p>
+              <span className="va-trust" style={{ background: '#F3F4F6', color: '#6B7280', marginBottom: 8, display: 'inline-block' }}>○ self-reported</span>
               {(cv.certifications?.length ?? 0) > 0 && (
                 <div style={{ marginBottom: 8 }}>
-                  <p style={{ fontSize: 8.5, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Certifications</p>
+                  <p style={{ fontSize: 8.5, fontWeight: 800, color: '#0E7490', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Certifications</p>
                   {cv.certifications!.map((c, i) => (
-                    <div key={`c${i}`} className="va-learn-item"><strong style={{ color: '#374151' }}>{c.name}</strong>{c.issuer ? ` · ${c.issuer}` : ''}{c.year ? ` · ${c.year}` : ''}</div>
+                    <div key={`c${i}`} className="va-learn-item"><strong style={{ color: '#1a1a2e' }}>{c.name}</strong>{c.issuer ? ` — ${c.issuer}` : ''}{c.year ? ` (${c.year})` : ''}</div>
                   ))}
                 </div>
               )}
               {(cv.courses?.length ?? 0) > 0 && (
                 <div style={{ marginBottom: 8 }}>
-                  <p style={{ fontSize: 8.5, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Courses</p>
+                  <p style={{ fontSize: 8.5, fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Courses</p>
                   {cv.courses!.map((c, i) => (
-                    <div key={`co${i}`} className="va-learn-item"><strong style={{ color: '#374151' }}>{c.name}</strong>{c.platform ? ` · ${c.platform}` : ''}{c.year ? ` · ${c.year}` : ''}</div>
+                    <div key={`co${i}`} className="va-learn-item"><strong style={{ color: '#1a1a2e' }}>{c.name}</strong>{c.platform ? ` — ${c.platform}` : ''}{c.year ? ` (${c.year})` : ''}</div>
                   ))}
                 </div>
               )}
               {(cv.events?.length ?? 0) > 0 && (
                 <div>
-                  <p style={{ fontSize: 8.5, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Events</p>
+                  <p style={{ fontSize: 8.5, fontWeight: 800, color: '#E11D48', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Events</p>
                   {cv.events!.map((e, i) => (
-                    <div key={`e${i}`} className="va-learn-item"><strong style={{ color: '#374151' }}>{e.name}</strong>{e.year ? ` · ${e.year}` : ''}</div>
+                    <div key={`e${i}`} className="va-learn-item"><strong style={{ color: '#1a1a2e' }}>{e.name}</strong>{e.year ? ` (${e.year})` : ''}</div>
                   ))}
                 </div>
               )}
