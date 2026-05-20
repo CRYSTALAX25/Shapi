@@ -82,6 +82,13 @@ function UpskillContent() {
     return <div className="min-h-screen bg-[#060609] flex items-center justify-center text-white/40 text-sm">Loading…</div>
   }
 
+  // If arrived via ?skill=X and X isn't already a roadmap gap, prepend a
+  // synthetic gap so the link shows real course options for that exact skill.
+  const focusInGaps = focusSkill && gaps.some(g => g.skill.toLowerCase() === focusSkill.toLowerCase())
+  const displayGaps: SkillGap[] = focusSkill && !focusInGaps
+    ? [{ skill: focusSkill, why: 'A gap to close for your target pivot — here are courses for it.' }, ...gaps]
+    : gaps
+
   return (
     <div className="min-h-screen bg-[#060609] text-white">
       <style>{`
@@ -107,8 +114,10 @@ function UpskillContent() {
           </p>
         </div>
 
-        {/* Skill gaps from roadmap */}
-        {gaps.length === 0 ? (
+        {/* Skill gaps from roadmap. If arrived via ?skill=X (e.g. a pivot gap)
+            and X isn't already a roadmap gap, prepend a synthetic card so the
+            link lands on real course options for that exact gap. */}
+        {displayGaps.length === 0 ? (
           <div className="gradient-border-card rounded-2xl p-8 text-center mb-6">
             <p className="text-white/50 font-bold mb-1">No skill gaps yet</p>
             <p className="text-white/30 text-sm mb-4">Generate your Career Roadmap first — it identifies exactly what to learn next.</p>
@@ -118,7 +127,7 @@ function UpskillContent() {
           </div>
         ) : (
           <div className="space-y-4 mb-8">
-            {gaps.map((gap, i) => {
+            {displayGaps.map((gap, i) => {
               const opts = providersByTier(gap.skill)
               const highlighted = focusSkill && gap.skill.toLowerCase() === focusSkill.toLowerCase()
               return (
