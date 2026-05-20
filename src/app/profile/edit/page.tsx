@@ -6,6 +6,15 @@ import Link from 'next/link'
 
 type WorkEntry = { title: string; company: string; start: string; end: string; achievements: string }
 type LanguageEntry = { language: string; level: string }
+type RtwEntry = { region: string; basis: string }
+
+const RTW_BASIS = [
+  { value: 'citizen', label: 'Citizen' },
+  { value: 'permanent_resident', label: 'Permanent Resident' },
+  { value: 'work_visa', label: 'Work Visa' },
+  { value: 'eu_citizen', label: 'EU/EEA citizen' },
+  { value: 'need_sponsorship', label: 'Needs sponsorship' },
+]
 
 const PROFICIENCY_LEVELS = ['Native', 'Fluent', 'Professional', 'Intermediate', 'Conversational', 'Basic']
 
@@ -57,6 +66,9 @@ export default function EditProfile() {
     english_level?: string
     proficiency_notes?: string
   } | null>(null)
+  const [profileImageUrl, setProfileImageUrl] = useState('')
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [rightToWork, setRightToWork] = useState<RtwEntry[]>([])
 
   useEffect(() => {
     fetch('/api/profile/get')
@@ -83,6 +95,12 @@ export default function EditProfile() {
             : []
         )
         setLanguageProficiency(data.language_proficiency || null)
+        setProfileImageUrl(data.profile_image_url || '')
+        setRightToWork(
+          Array.isArray(data.right_to_work)
+            ? data.right_to_work.map((r: { region?: string; basis?: string }) => ({ region: r.region || '', basis: r.basis || 'citizen' }))
+            : []
+        )
         setWorkHistory(
           Array.isArray(data.work_history)
             ? data.work_history.map((w: Partial<WorkEntry>) => ({
@@ -98,6 +116,23 @@ export default function EditProfile() {
 
   const addJob = () => setWorkHistory(prev => [...prev, { title: '', company: '', start: '', end: '', achievements: '' }])
   const removeJob = (i: number) => setWorkHistory(prev => prev.filter((_, j) => j !== i))
+
+  const handleImageUpload = async (file: File) => {
+    setUploadingImage(true)
+    setError('')
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await fetch('/api/profile/avatar', { method: 'POST', body: fd })
+    const d = await res.json().catch(() => ({}))
+    setUploadingImage(false)
+    if (res.ok && d.url) setProfileImageUrl(d.url)
+    else setError(d.error || 'Image upload failed')
+  }
+
+  const addRtw = () => setRightToWork(prev => [...prev, { region: '', basis: 'citizen' }])
+  const removeRtw = (i: number) => setRightToWork(prev => prev.filter((_, j) => j !== i))
+  const updateRtw = (i: number, field: keyof RtwEntry, value: string) =>
+    setRightToWork(prev => prev.map((r, j) => j === i ? { ...r, [field]: value } : r))
   const updateJob = (i: number, field: keyof WorkEntry, value: string) =>
     setWorkHistory(prev => prev.map((w, j) => j === i ? { ...w, [field]: value } : w))
 
@@ -124,6 +159,9 @@ export default function EditProfile() {
         languages_spoken: languagesSpoken
           .filter(l => l.language.trim().length > 0)
           .map(l => ({ language: l.language.trim(), level: l.level })),
+        right_to_work: rightToWork
+          .filter(r => r.region.trim().length > 0)
+          .map(r => ({ region: r.region.trim(), basis: r.basis, verified: false })),
       }),
     })
     setSaving(false)
@@ -187,6 +225,25 @@ export default function EditProfile() {
         {/* Basic info */}
         <div className="gradient-border-card rounded-2xl p-6 mb-5 space-y-4">
           <p className="text-white/50 text-xs font-bold uppercase tracking-wider">Basic info</p>
+
+          {/* Profile photo */}
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              {profileImageUrl
+                ? <img src={profileImageUrl} alt="Profile" className="w-full h-full object-cover" />
+                : <span className="text-white/30 text-2xl">{(fullName || '?').charAt(0).toUpperCase()}</span>}
+            </div>
+            <div>
+              <label>Profile photo</label>
+              <label className="inline-block cursor-pointer text-xs font-bold px-3 py-2 rounded-lg" style={{ background: 'rgba(34,211,238,0.1)', color: '#22D3EE', border: '1px solid rgba(34,211,238,0.25)' }}>
+                {uploadingImage ? 'Uploading…' : profileImageUrl ? 'Change photo' : 'Upload photo'}
+                <input type="file" accept="image/*" className="hidden"
+                  onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f) }} />
+              </label>
+              <p className="text-white/25 text-[10px] mt-1">JPG/PNG/WebP, under 5MB</p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label>Full name</label>
@@ -433,6 +490,45 @@ export default function EditProfile() {
                     >
                       ✕
                     </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Right to work — multi-entry (you can have rights in several places) */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="!mb-0">Right to work</label>
+              <button type="button" onClick={addRtw} className="text-[#22D3EE] text-xs font-bold hover:opacity-80">+ Add country/region</button>
+            </div>
+            <p className="text-white/25 text-xs mb-3">
+              Where you&apos;re authorised to work, and on what basis. Add all that apply (e.g. UK PR, Saudi PR, EU/EEA via citizenship). Shown as self-reported until document-verified.
+            </p>
+            {rightToWork.length === 0 ? (
+              <p className="text-white/25 text-xs italic">None added yet — click &quot;Add country/region&quot;.</p>
+            ) : (
+              <div className="space-y-2">
+                {rightToWork.map((r, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <input
+                      className="field"
+                      value={r.region}
+                      onChange={e => updateRtw(i, 'region', e.target.value)}
+                      placeholder="e.g. United Kingdom, Saudi Arabia, EU/EEA"
+                      style={{ flex: 2 }}
+                    />
+                    <select
+                      value={r.basis}
+                      onChange={e => updateRtw(i, 'basis', e.target.value)}
+                      className="field"
+                      style={{ flex: 1, minWidth: 150 }}
+                    >
+                      {RTW_BASIS.map(b => (
+                        <option key={b.value} value={b.value} style={{ background: '#0d0d14' }}>{b.label}</option>
+                      ))}
+                    </select>
+                    <button type="button" onClick={() => removeRtw(i)} className="text-white/30 hover:text-[#FB7185] text-lg px-2" aria-label="Remove">✕</button>
                   </div>
                 ))}
               </div>
