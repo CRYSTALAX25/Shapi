@@ -819,9 +819,62 @@ function PrintContent() {
               ))}
             </div>
           )}
+
+          {/* Skills — full width in the main column (3 categories, room to breathe) */}
+          {cv.skills && cv.skills.length > 0 && (() => {
+            const cat = categorizeSkills(cv.skills.slice(0, 30))
+            const groups = [
+              { title: 'Technical & Tools', items: cat.tech, color: '#0E7490' },
+              { title: 'Core Skills', items: cat.hard, color: '#7C3AED' },
+              { title: 'Soft Skills', items: cat.soft, color: '#E11D48' },
+            ].filter(g => g.items.length > 0)
+            return (
+              <div className="va-section">
+                <p className="va-label">{labels.skills}</p>
+                {groups.map(g => (
+                  <div key={g.title} style={{ marginBottom: 8 }}>
+                    <p style={{ fontSize: 9, fontWeight: 800, color: g.color, textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 4 }}>{g.title}</p>
+                    <div>{g.items.map((s, i) => <span key={i} className="va-chip-sm">{s}</span>)}</div>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
+
+          {/* Continuous Learning — full width in the main column */}
+          {(cv.certifications?.length || cv.courses?.length || cv.events?.length) ? (
+            <div className="va-section">
+              <p className="va-label">Continuous Learning</p>
+              <span className="va-trust" style={{ background: '#F3F4F6', color: '#6B7280', marginBottom: 8, display: 'inline-block' }}>○ self-reported</span>
+              {(cv.certifications?.length ?? 0) > 0 && (
+                <div style={{ marginBottom: 8 }}>
+                  <p style={{ fontSize: 9, fontWeight: 800, color: '#0E7490', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 4 }}>Certifications</p>
+                  {cv.certifications!.map((c, i) => (
+                    <div key={`c${i}`} className="va-learn-item"><strong style={{ color: '#1a1a2e' }}>{c.name}</strong>{c.issuer ? ` — ${c.issuer}` : ''}{c.year ? ` (${c.year})` : ''}</div>
+                  ))}
+                </div>
+              )}
+              {(cv.courses?.length ?? 0) > 0 && (
+                <div style={{ marginBottom: 8 }}>
+                  <p style={{ fontSize: 9, fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 4 }}>Courses</p>
+                  {cv.courses!.map((c, i) => (
+                    <div key={`co${i}`} className="va-learn-item"><strong style={{ color: '#1a1a2e' }}>{c.name}</strong>{c.platform ? ` — ${c.platform}` : ''}{c.year ? ` (${c.year})` : ''}</div>
+                  ))}
+                </div>
+              )}
+              {(cv.events?.length ?? 0) > 0 && (
+                <div>
+                  <p style={{ fontSize: 9, fontWeight: 800, color: '#E11D48', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 4 }}>Events</p>
+                  {cv.events!.map((e, i) => (
+                    <div key={`e${i}`} className="va-learn-item"><strong style={{ color: '#1a1a2e' }}>{e.name}</strong>{e.year ? ` (${e.year})` : ''}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : null}
         </div>
 
-        {/* Body — right column */}
+        {/* Body — right column (kept light: quotes + languages) */}
         <div className="va-side" style={{ paddingTop: 18 }}>
           {sidebarQuotes.length > 0 && (
             <div className="va-block">
@@ -843,58 +896,6 @@ function PrintContent() {
               ))}
             </div>
           )}
-
-          {cv.skills && cv.skills.length > 0 && (() => {
-            const cat = categorizeSkills(cv.skills.slice(0, 28))
-            const groups = [
-              { title: 'Technical & Tools', items: cat.tech, color: '#0E7490' },
-              { title: 'Core Skills', items: cat.hard, color: '#7C3AED' },
-              { title: 'Soft Skills', items: cat.soft, color: '#E11D48' },
-            ].filter(g => g.items.length > 0)
-            return (
-              <div className="va-block">
-                <p className="va-sidelabel">{labels.skills}</p>
-                {groups.map(g => (
-                  <div key={g.title} style={{ marginBottom: 8 }}>
-                    <p style={{ fontSize: 8.5, fontWeight: 800, color: g.color, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{g.title}</p>
-                    <div>{g.items.map((s, i) => <span key={i} className="va-chip-sm">{s}</span>)}</div>
-                  </div>
-                ))}
-              </div>
-            )
-          })()}
-
-          {/* Continuous Learning — grouped by type, self-reported until verified */}
-          {(cv.certifications?.length || cv.courses?.length || cv.events?.length) ? (
-            <div className="va-block">
-              <p className="va-sidelabel" style={{ marginBottom: 3 }}>Continuous Learning</p>
-              <span className="va-trust" style={{ background: '#F3F4F6', color: '#6B7280', marginBottom: 8, display: 'inline-block' }}>○ self-reported</span>
-              {(cv.certifications?.length ?? 0) > 0 && (
-                <div style={{ marginBottom: 8 }}>
-                  <p style={{ fontSize: 8.5, fontWeight: 800, color: '#0E7490', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Certifications</p>
-                  {cv.certifications!.map((c, i) => (
-                    <div key={`c${i}`} className="va-learn-item"><strong style={{ color: '#1a1a2e' }}>{c.name}</strong>{c.issuer ? ` — ${c.issuer}` : ''}{c.year ? ` (${c.year})` : ''}</div>
-                  ))}
-                </div>
-              )}
-              {(cv.courses?.length ?? 0) > 0 && (
-                <div style={{ marginBottom: 8 }}>
-                  <p style={{ fontSize: 8.5, fontWeight: 800, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Courses</p>
-                  {cv.courses!.map((c, i) => (
-                    <div key={`co${i}`} className="va-learn-item"><strong style={{ color: '#1a1a2e' }}>{c.name}</strong>{c.platform ? ` — ${c.platform}` : ''}{c.year ? ` (${c.year})` : ''}</div>
-                  ))}
-                </div>
-              )}
-              {(cv.events?.length ?? 0) > 0 && (
-                <div>
-                  <p style={{ fontSize: 8.5, fontWeight: 800, color: '#E11D48', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Events</p>
-                  {cv.events!.map((e, i) => (
-                    <div key={`e${i}`} className="va-learn-item"><strong style={{ color: '#1a1a2e' }}>{e.name}</strong>{e.year ? ` (${e.year})` : ''}</div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : null}
         </div>
 
         <div className="va-foot">
