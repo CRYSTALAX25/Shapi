@@ -22,7 +22,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score, languages_spoken, language_proficiency, english_level, native_language, voice_samples')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work')
     .eq('id', user.id)
     .single()
 
@@ -146,14 +146,35 @@ export default async function ProfilePage() {
         {/* Header */}
         <div className="gradient-border-card rounded-3xl p-8 mb-4">
           <div className="flex items-start justify-between gap-4 mb-6">
-            <div>
-              <h1 className="text-3xl font-black text-white mb-1">
-                {profile.full_name || 'Your Name'}
-              </h1>
-              <p className="text-white/60 text-lg">{profile.headline || 'Professional'}</p>
-              {profile.location && (
-                <p className="text-white/35 text-sm mt-1">📍 {profile.location}</p>
+            <div className="flex items-start gap-4">
+              {profile.profile_image_url && (
+                <img src={profile.profile_image_url as string} alt={(profile.full_name as string) || 'Profile'}
+                  className="w-16 h-16 rounded-full object-cover flex-shrink-0" style={{ border: '2px solid rgba(34,211,238,0.3)' }} />
               )}
+              <div>
+                <h1 className="text-3xl font-black text-white mb-1">
+                  {profile.full_name || 'Your Name'}
+                </h1>
+                <p className="text-white/60 text-lg">{profile.headline || 'Professional'}</p>
+                {profile.location && (
+                  <p className="text-white/35 text-sm mt-1">📍 {profile.location}</p>
+                )}
+                {(() => {
+                  const rtw = Array.isArray(profile.right_to_work) ? profile.right_to_work as Array<{ region?: string; basis?: string; verified?: boolean }> : []
+                  if (rtw.length === 0) return null
+                  const basisLabel: Record<string, string> = { citizen: 'Citizen', permanent_resident: 'PR', work_visa: 'Work Visa', eu_citizen: 'EU/EEA', need_sponsorship: 'Needs sponsorship' }
+                  return (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      <span className="text-white/30 text-[10px] font-bold uppercase tracking-wider self-center">Right to work:</span>
+                      {rtw.filter(r => r.region).map((r, i) => (
+                        <span key={i} className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.6)' }}>
+                          {r.verified ? '✓' : '○'} {r.region}{r.basis ? ` · ${basisLabel[r.basis] || r.basis}` : ''}
+                        </span>
+                      ))}
+                    </div>
+                  )
+                })()}
+              </div>
             </div>
             <div className="text-right flex-shrink-0">
               <div className="text-4xl font-black" style={{
