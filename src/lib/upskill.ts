@@ -60,6 +60,24 @@ export const FINANCING_OPTIONS: Array<{ title: string; detail: string; href?: st
   },
 ]
 
+// Build a search URL that lands on a SPECIFIC named course on its platform.
+// Searching the exact course name puts it at/near the top of results — gives
+// the candidate the curated pick without a rot-prone hardcoded course URL.
+export function courseSearchUrl(platform: string | undefined, courseName: string): string {
+  const p = (platform || '').toLowerCase()
+  const q = enc(courseName)
+  if (p.includes('coursera')) return `https://www.coursera.org/search?query=${q}`
+  if (p.includes('udemy')) return `https://www.udemy.com/courses/search/?q=${q}`
+  if (p.includes('edx')) return `https://www.edx.org/search?q=${q}`
+  if (p.includes('deeplearning')) return `https://www.deeplearning.ai/courses/?search=${q}`
+  if (p.includes('linkedin')) return `https://www.linkedin.com/learning/search?keywords=${q}`
+  if (p.includes('pluralsight')) return `https://www.pluralsight.com/search?q=${q}`
+  if (p.includes('udacity')) return `https://www.udacity.com/catalog?searchValue=${q}`
+  if (p.includes('youtube')) return `https://www.youtube.com/results?search_query=${enc(courseName + ' full course')}`
+  // Unknown platform → Google the course + platform so they still find it
+  return `https://www.google.com/search?q=${enc(courseName + ' ' + (platform || 'course'))}`
+}
+
 export function providersByTier(skillQuery: string) {
   const build = (tier: CostTier) =>
     PROVIDERS.filter(p => p.tier === tier).map(p => ({ name: p.name, url: p.searchUrl(skillQuery), note: p.note }))

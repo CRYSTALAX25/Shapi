@@ -3,9 +3,9 @@
 import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { providersByTier, FINANCING_OPTIONS } from '@/lib/upskill'
+import { providersByTier, courseSearchUrl, FINANCING_OPTIONS } from '@/lib/upskill'
 
-type SkillGap = { skill: string; priority?: string; why?: string }
+type SkillGap = { skill: string; priority?: string; why?: string; suggested_courses?: Array<{ name: string; platform?: string }> }
 type RoadmapEvent = { name: string; when?: string; where?: string; why?: string; priority?: string; status?: string; official_url?: string | null }
 type Course = {
   id: string
@@ -132,7 +132,24 @@ function UpskillContent() {
                       }}>{gap.priority} priority</span>
                     )}
                   </div>
-                  {gap.why && <p className="text-white/40 text-xs mb-4">{gap.why}</p>}
+                  {gap.why && <p className="text-white/40 text-xs mb-3">{gap.why}</p>}
+
+                  {/* Shapi's specific recommendation — lands on the exact course via name search */}
+                  {gap.suggested_courses && gap.suggested_courses.length > 0 && (
+                    <div className="rounded-xl p-3 mb-4" style={{ background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.2)' }}>
+                      <p className="text-[#A78BFA] text-[10px] font-bold uppercase tracking-wider mb-2">⭐ Shapi recommends</p>
+                      <div className="space-y-1.5">
+                        {gap.suggested_courses.map((c, k) => (
+                          <a key={k} href={courseSearchUrl(c.platform, c.name)} target="_blank" rel="noopener noreferrer"
+                            className="flex items-center justify-between gap-2 bg-white/[0.04] hover:bg-white/[0.08] rounded-lg px-3 py-2 transition-colors">
+                            <span className="text-white/85 text-xs font-bold">{c.name}{c.platform ? <span className="text-white/40 font-normal"> · {c.platform}</span> : null}</span>
+                            <span className="text-[#A78BFA] text-xs font-bold flex-shrink-0">Open ↗</span>
+                          </a>
+                        ))}
+                      </div>
+                      <p className="text-white/25 text-[10px] mt-2">Different level or budget? Browse alternatives below.</p>
+                    </div>
+                  )}
 
                   <div className="grid md:grid-cols-2 gap-4">
                     {/* Free */}
