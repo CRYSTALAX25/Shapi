@@ -716,6 +716,27 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
   if (isInDeepDive) {
     // Pick the most recently started industry as the active one
     const [activeIndustry, activeEntry] = activeDeepDiveEntries[0]
+    const ddLabel = INDUSTRY_META[activeIndustry as Industry]?.label || activeIndustry
+
+    // ── Deep-dive commands (deterministic) ──────────────────────────────────
+    const ddCmd = userMessage.toLowerCase().trim()
+    if (/^(pause|stop|not now|later|hold)$/.test(ddCmd)) {
+      await admin.from('profiles').update({
+        industry_chats: { ...industryChats, [activeIndustry]: { ...activeEntry, status: 'pending' } },
+        updated_at: new Date().toISOString(),
+      }).eq('id', profile.id)
+      await sendWhatsApp(phone, `Paused the ${ddLabel} deep-dive 👍 — your answers are saved. Pick it back up anytime from your CV Kit page, or just message me.`)
+      return new NextResponse('', { status: 200 })
+    }
+    if (/^(done|finish|finished|that'?s? (it|all|everything)|wrap up|complete|i'?m done)$/.test(ddCmd)) {
+      await admin.from('profiles').update({
+        industry_chats: { ...industryChats, [activeIndustry]: { ...activeEntry, status: 'completed', completed_at: new Date().toISOString() } },
+        updated_at: new Date().toISOString(),
+      }).eq('id', profile.id)
+      await sendWhatsApp(phone, `${INDUSTRY_META[activeIndustry as Industry]?.emoji || '🎯'} ${ddLabel} deep-dive complete ✓ — I'll weave everything you shared into your ${ddLabel} CV. Generate it from your CV Kit page.`)
+      return new NextResponse('', { status: 200 })
+    }
+
     const chat: Array<{ role: 'user' | 'assistant'; content: string }> =
       Array.isArray(activeEntry.whatsapp_chat) ? [...activeEntry.whatsapp_chat] : []
     chat.push({ role: 'user', content: userMessage })
@@ -816,15 +837,25 @@ This is exchange ${userTurns + 1}. ${userTurns >= 8 ? 'WRAP UP NOW with [DEEP_DI
   // ── Priority 2: Language preference reply ────────────────────────────────
   if (awaitingLang === 'choice' || awaitingLang === 'custom') {
     const offeredLangs = getOfferedLanguagesForPicker(profile)
+
+    // Escape hatch — let the candidate leave the language picker to do something
+    // else (deep-dive, skip, etc.) instead of being trapped until they pick.
+    const langCmd = userMessage.toLowerCase().trim()
+    if (/(deep ?dive|skip|later|not now|cancel|nevermind|never mind|continue|leave|exit)/.test(langCmd)) {
+      await admin.from('profiles').update({ awaiting_cv_language: null, updated_at: new Date().toISOString() }).eq('id', profile.id)
+      await sendWhatsApp(phone, `No problem — I'll skip the CV-language pick for now (English is ready by default; you can grab other languages anytime from your CV Kit page). What would you like to do — continue a deep-dive, record a *voice* sample, or check *references*?`)
+      return new NextResponse('', { status: 200 })
+    }
+
     const parsed = parseLanguageReply(userMessage, offeredLangs, awaitingLang)
 
     if (parsed.clarify) {
-      // Don't accept ambiguous replies like "yes / ok / go ahead" as a language
+      // Re-show the actual options so "reply 1-4" isn't meaningless.
       await sendWhatsApp(
         phone,
         awaitingLang === 'custom'
-          ? `Sorry — I need the language name itself (e.g. "Italian" or "Tagalog"). Just type the language you want your CV in.`
-          : `Hmm, didn't quite catch that. Reply with the *number* (1, 2, 3, or 4) — or type the language name directly (e.g. "English" or "Spanish").`,
+          ? `Sorry — I need the language name itself (e.g. "Italian" or "Tagalog"). Just type the language you want your CV in. (Or say "skip" to do this later.)`
+          : `${buildLangPrompt(offeredLangs)}\n\n_(Or say "skip" to do this later.)_`,
       )
       return new NextResponse('', { status: 200 })
     }
