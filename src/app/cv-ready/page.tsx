@@ -930,36 +930,60 @@ export default function CVReady() {
             <h3 className="text-white font-black text-lg mb-1">Which CVs to send?</h3>
             <p className="text-white/35 text-xs mb-5">English is selected by default. Tick others to send multiple in one bundle.</p>
 
-            <div className="space-y-1 mb-5">
-              {availablePickerOptions().map(opt => {
-                const k = keyOf(opt)
-                const checked = pickerChosen.has(k)
-                return (
-                  <label key={k}
-                    onClick={() => {
-                      // Functional update form — captures latest state, not the
-                      // value from the render where this handler was created.
-                      // Without this, fast successive clicks lose selections.
-                      setPickerChosen(prev => {
-                        const next = new Set(prev)
-                        if (next.has(k)) next.delete(k)
-                        else next.add(k)
-                        return next
-                      })
-                    }}
-                    className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors"
-                    style={{
-                      background: checked ? 'rgba(34,211,238,0.08)' : 'rgba(255,255,255,0.02)',
-                      border: `1px solid ${checked ? 'rgba(34,211,238,0.3)' : 'rgba(255,255,255,0.05)'}`,
-                    }}>
-                    <input type="checkbox" checked={checked} readOnly className="w-4 h-4 accent-[#22D3EE] pointer-events-none" />
-                    <span className={`text-sm ${checked ? 'text-white' : 'text-white/55'} font-${checked ? 'bold' : 'normal'}`}>
-                      {opt.label}
-                    </span>
-                  </label>
-                )
-              })}
-            </div>
+            {(() => {
+              const all = availablePickerOptions()
+              const groups: Array<{ title: string; items: SendSelection[] }> = [
+                { title: 'Languages', items: all.filter(o => o.type === 'language') },
+                { title: 'Industry-targeted', items: all.filter(o => o.type === 'industry') },
+                { title: 'General', items: all.filter(o => o.type === 'universal') },
+              ].filter(g => g.items.length > 0)
+
+              const toggle = (k: string) => setPickerChosen(prev => {
+                const next = new Set(prev)
+                if (next.has(k)) next.delete(k)
+                else next.add(k)
+                return next
+              })
+
+              return (
+                <div className="space-y-4 mb-5">
+                  {groups.map(group => (
+                    <div key={group.title}>
+                      <p className="text-white/30 text-[10px] font-bold uppercase tracking-wider mb-1.5">{group.title}</p>
+                      <div className="space-y-1">
+                        {group.items.map(opt => {
+                          const k = keyOf(opt)
+                          const checked = pickerChosen.has(k)
+                          // Plain div — NOT a <label> — so the click doesn't get
+                          // double-fired by the browser forwarding it to the checkbox.
+                          return (
+                            <div key={k}
+                              onClick={() => toggle(k)}
+                              role="checkbox" aria-checked={checked} tabIndex={0}
+                              className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors select-none"
+                              style={{
+                                background: checked ? 'rgba(34,211,238,0.08)' : 'rgba(255,255,255,0.02)',
+                                border: `1px solid ${checked ? 'rgba(34,211,238,0.3)' : 'rgba(255,255,255,0.05)'}`,
+                              }}>
+                              <span className="flex items-center justify-center w-4 h-4 rounded flex-shrink-0"
+                                style={{
+                                  background: checked ? '#22D3EE' : 'transparent',
+                                  border: `1.5px solid ${checked ? '#22D3EE' : 'rgba(255,255,255,0.3)'}`,
+                                }}>
+                                {checked && <span style={{ color: '#060609', fontSize: 11, fontWeight: 900, lineHeight: 1 }}>✓</span>}
+                              </span>
+                              <span className={`text-sm ${checked ? 'text-white font-bold' : 'text-white/55'}`}>
+                                {opt.label}
+                              </span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
 
             <div className="flex gap-2">
               <button onClick={() => setPickerOpen(null)}

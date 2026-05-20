@@ -63,8 +63,15 @@ function extractImpactStats(workHistory: WorkEntry[]): Array<{ value: string; la
       if (/^\d{4}$/.test(value) && +value > 1900 && +value < 2100) continue
       const key = value.toUpperCase()
       if (seen.has(key)) continue
-      const after = text.slice(m.index + m[0].length).trim().split(/\s+/).slice(0, 3).join(' ')
-      const label = after.replace(/[^a-zA-Z\s-]/g, '').trim().toLowerCase().slice(0, 20) || 'impact'
+      // Build a clean 1-2 word label from the words after the number, dropping
+      // filler words so we get "revenue" not "in revenue within".
+      const STOP = new Set(['a', 'an', 'the', 'and', 'of', 'to', 'in', 'within', 'by', 'with', 'for', 'on', 'that', 'was', 'were', 'is', 'are', 'our', 'us', 'their', 'per', 'across', 'over'])
+      const afterWords = text.slice(m.index + m[0].length).trim()
+        .replace(/[^a-zA-Z\s-]/g, ' ')
+        .split(/\s+/)
+        .filter(w => w.length > 1 && !STOP.has(w.toLowerCase()))
+        .slice(0, 2)
+      const label = afterWords.join(' ').toLowerCase().slice(0, 22) || 'impact'
       seen.add(key)
       out.push({ value, label })
       if (out.length >= 4) return out
@@ -318,11 +325,11 @@ function PrintContent() {
         html, body { background: #f8f8f8 !important; color: #1a1a2e !important; }
 
         .no-print {
-          position: fixed; top: 12px; right: 12px; z-index: 9999;
+          position: fixed; top: 12px; right: 12px; z-index: 2147483647;
           display: flex; gap: 6px; align-items: center;
-          background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
+          background: #ffffff;
           padding: 6px 8px; border-radius: 999px;
-          box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+          box-shadow: 0 2px 16px rgba(0,0,0,0.28);
           max-width: calc(100vw - 24px);
         }
         .btn { padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; font-family: system-ui, sans-serif; white-space: nowrap; }
@@ -704,7 +711,9 @@ function PrintContent() {
           {q && (
             <div className="va-radar-wrap">
               <p className="va-sidelabel" style={{ alignSelf: 'flex-start' }}>Skill Quadrant <span className="va-trust" style={{ background: '#EDE9FE', color: '#6D28D9' }}>◆ Shapi-assessed</span></p>
-              <svg width={RS} height={RS} viewBox={`0 0 ${RS} ${RS}`}>
+              {/* viewBox padded horizontally (28px each side) + vertically so the
+                  HANDS/SPARK/HEAD/HEART labels are never clipped by the column edge */}
+              <svg width={RS + 56} height={RS + 20} viewBox={`-28 -10 ${RS + 56} ${RS + 20}`} style={{ maxWidth: '100%' }}>
                 <defs>
                   <linearGradient id="vaRadar" x1="0" y1="0" x2="1" y2="1">
                     <stop offset="0%" stopColor="#22D3EE" stopOpacity={0.35} />
@@ -715,10 +724,10 @@ function PrintContent() {
                   <path key={rr} d={`M ${cx} ${cy - maxR * rr} L ${cx + maxR * rr} ${cy} L ${cx} ${cy + maxR * rr} L ${cx - maxR * rr} ${cy} Z`} fill="none" stroke="#E5E7EB" strokeWidth={1} />
                 ))}
                 <path d={radarPath} fill="url(#vaRadar)" stroke="#22D3EE" strokeWidth={1.5} strokeLinejoin="round" />
-                <text x={cx} y={cy - maxR - 5} fontSize={8.5} fontWeight={700} textAnchor="middle" fill="#6B7280">HEAD</text>
-                <text x={cx + maxR + 16} y={cy + 3} fontSize={8.5} fontWeight={700} textAnchor="middle" fill="#6B7280">SPARK</text>
-                <text x={cx} y={cy + maxR + 12} fontSize={8.5} fontWeight={700} textAnchor="middle" fill="#6B7280">HEART</text>
-                <text x={cx - maxR - 16} y={cy + 3} fontSize={8.5} fontWeight={700} textAnchor="middle" fill="#6B7280">HANDS</text>
+                <text x={cx} y={cy - maxR - 6} fontSize={8} fontWeight={700} textAnchor="middle" fill="#6B7280">HEAD</text>
+                <text x={cx + maxR + 6} y={cy + 3} fontSize={8} fontWeight={700} textAnchor="start" fill="#6B7280">SPARK</text>
+                <text x={cx} y={cy + maxR + 13} fontSize={8} fontWeight={700} textAnchor="middle" fill="#6B7280">HEART</text>
+                <text x={cx - maxR - 6} y={cy + 3} fontSize={8} fontWeight={700} textAnchor="end" fill="#6B7280">HANDS</text>
               </svg>
               {footerData.ai_tier && (
                 <p style={{ fontSize: 10, color: '#6B7280', marginTop: 4 }}>🤖 AI {footerData.ai_tier.charAt(0).toUpperCase() + footerData.ai_tier.slice(1)}</p>
