@@ -301,18 +301,25 @@ export default async function Dashboard() {
                   <span>Things you can say in WhatsApp anytime</span>
                   <span className="ml-auto text-white/30 text-xs">tap to view</span>
                 </summary>
-                <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-2">
-                  <p className="text-white/55 text-xs leading-relaxed">
-                    During the interview or reference Q&amp;A, type or send a voice note saying any of:
-                  </p>
-                  <ul className="text-white/55 text-xs leading-relaxed space-y-1.5 pl-1">
-                    <li><span className="font-bold text-[#22D3EE]">&quot;skip&quot;</span> or <span className="font-bold text-[#22D3EE]">&quot;next&quot;</span> — move to the next question</li>
-                    <li><span className="font-bold text-[#22D3EE]">&quot;repeat that&quot;</span> — re-ask the previous question</li>
-                    <li><span className="font-bold text-[#22D3EE]">&quot;start over&quot;</span> or <span className="font-bold text-[#22D3EE]">&quot;restart&quot;</span> — wipe + begin the interview fresh</li>
-                    <li><span className="font-bold text-[#22D3EE]">&quot;I&apos;m done&quot;</span> — wrap up the current interview</li>
-                    <li><span className="font-bold text-[#22D3EE]">&quot;I don&apos;t know&quot;</span> — totally fine, we&apos;ll move on</li>
-                  </ul>
-                  <p className="text-white/40 text-xs leading-relaxed pt-2">
+                <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-3">
+                  <div>
+                    <p className="text-white/40 text-[11px] font-bold uppercase tracking-wider mb-1.5">In any interview</p>
+                    <ul className="text-white/55 text-xs leading-relaxed space-y-1.5 pl-1">
+                      <li><span className="font-bold text-[#22D3EE]">&quot;skip&quot;</span> / <span className="font-bold text-[#22D3EE]">&quot;next&quot;</span> — move to the next question</li>
+                      <li><span className="font-bold text-[#22D3EE]">&quot;repeat that&quot;</span> — re-ask the previous question</li>
+                      <li><span className="font-bold text-[#22D3EE]">&quot;done&quot;</span> / <span className="font-bold text-[#22D3EE]">&quot;pause&quot;</span> — finish or pause (your answers are saved)</li>
+                      <li><span className="font-bold text-[#22D3EE]">&quot;start over&quot;</span> — wipe + begin the main interview fresh</li>
+                      <li><span className="font-bold text-[#22D3EE]">&quot;I don&apos;t know&quot;</span> — totally fine, we&apos;ll move on</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="text-white/40 text-[11px] font-bold uppercase tracking-wider mb-1.5">Anytime, just text</p>
+                    <ul className="text-white/55 text-xs leading-relaxed space-y-1.5 pl-1">
+                      <li><span className="font-bold text-[#A78BFA]">&quot;voice&quot;</span> — record a voice sample in each language you speak</li>
+                      <li><span className="font-bold text-[#A78BFA]">&quot;references&quot;</span> — see your reference requests + status</li>
+                    </ul>
+                  </div>
+                  <p className="text-white/40 text-xs leading-relaxed pt-1">
                     🎙 <strong>Voice notes work in any language</strong> — Arabic, Tagalog, Spanish, Hindi, whatever&apos;s easier. We transcribe + respond in the same language.
                   </p>
                 </div>

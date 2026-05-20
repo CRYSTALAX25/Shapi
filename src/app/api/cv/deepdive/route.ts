@@ -170,8 +170,12 @@ Return ONLY valid JSON:
   await supabase.from('profiles').update({ industry_chats: updated }).eq('id', user.id)
 
   // ─── Step 3: Send the opening WhatsApp message ───────────────────────────
+  // Lead with the industry banner so it's clear which deep-dive this is, and
+  // close with the available commands so the candidate knows their options.
+  const emoji = INDUSTRY_META[industry as Industry]?.emoji || '🎯'
+  const openingMessage = `${emoji} *${industryLabel} deep-dive* — let's sharpen your ${industryLabel} CV.\n\n${assessment.opening_message}\n\n_Anytime: say *"skip"* for a question, *"pause"* to stop (saved), or *"done"* to finish._`
   console.log('[deepdive/start] industry:', industry, '| coverage:', assessment.coverage_level, assessment.coverage_score, '| sending to:', profile.whatsapp_number)
-  const wa = await sendWhatsApp(profile.whatsapp_number as string, assessment.opening_message)
+  const wa = await sendWhatsApp(profile.whatsapp_number as string, openingMessage)
   if (!wa.success) {
     console.error('[deepdive/start] WhatsApp send failed:', wa.error)
     return NextResponse.json({
