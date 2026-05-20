@@ -6,6 +6,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { courseSearchUrl } from '@/lib/upskill'
 
 // A first-step often maps to a Shapi feature: a course step → /upskill, a
 // role-targeting step → /roles. Return a contextual link only when it fits
@@ -331,13 +332,13 @@ export default function ContinuousLearning({
                           <p className="text-[#FBBF24] font-bold mb-1">⌛ Gaps to close</p>
                           <div className="flex flex-wrap gap-1.5">
                             {p.gaps_to_close.map((g, j) => (
-                              <Link key={j} href={`/upskill?skill=${encodeURIComponent(g)}`}
+                              <a key={j} href={courseSearchUrl('Coursera', g)} target="_blank" rel="noopener noreferrer"
                                 className="text-white/65 hover:text-[#22D3EE] underline decoration-dotted underline-offset-2 transition-colors">
-                                {g}{j < p.gaps_to_close.length - 1 ? '' : ''}
-                              </Link>
+                                {g}
+                              </a>
                             ))}
                           </div>
-                          <p className="text-white/25 text-[10px] mt-1">tap a gap → find courses</p>
+                          <p className="text-white/25 text-[10px] mt-1">tap a gap → courses for it ↗</p>
                         </div>
                       </div>
                       {p.first_actions?.length > 0 && (
