@@ -4,7 +4,7 @@
 //   HALF 1 (everyone): passive — what they've already done (certs, events, talks, OSS, courses)
 //   HALF 2 (Pro only): active — Shapi's personalised Career Roadmap (AI resilience + upskill + pivots)
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 type Cert = { name?: string; issuer?: string; year?: string }
@@ -30,7 +30,7 @@ type PivotPath = {
   gaps_to_close: string[]
   first_actions: string[]
 }
-type EventRec = { name: string; when: string; where: string; why: string; priority: 'high' | 'medium' | 'low' }
+type EventRec = { name: string; when: string; where: string; why: string; priority: 'high' | 'medium' | 'low'; official_url?: string | null }
 type Roadmap = {
   ai_resilience_score: number
   resilience_reasoning: string
@@ -54,6 +54,33 @@ export default function ContinuousLearning({
   const [generating, setGenerating] = useState(false)
   const [localRoadmap, setLocalRoadmap] = useState<Roadmap | null>(roadmap)
   const [error, setError] = useState('')
+  // Per-event tracked status (booked / attended / not_attended), keyed by name
+  const [eventStatus, setEventStatusMap] = useState<Record<string, string>>({})
+
+  // Load tracked event statuses so the roadmap events show booked/attended state
+  useEffect(() => {
+    fetch('/api/upskill')
+      .then(r => r.json())
+      .then(d => {
+        const map: Record<string, string> = {}
+        for (const e of (d.events || [])) if (e.status) map[e.name] = e.status
+        setEventStatusMap(map)
+      })
+      .catch(() => {})
+  }, [])
+
+  const eventLink = (e: EventRec) =>
+    (e.official_url && /^https?:\/\//i.test(e.official_url))
+      ? e.official_url
+      : `https://www.google.com/search?q=${encodeURIComponent(e.name + ' ' + (e.where || '') + ' official site tickets')}`
+
+  const trackEvent = async (e: EventRec, status: string) => {
+    setEventStatusMap(prev => ({ ...prev, [e.name]: status }))
+    await fetch('/api/upskill/event', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event_name: e.name, event_when: e.when, event_where: e.where, event_url: eventLink(e), status }),
+    }).catch(() => {})
+  }
 
   const generateRoadmap = async () => {
     setGenerating(true)
@@ -304,18 +331,46 @@ export default function ContinuousLearning({
                   <h3 className="text-white text-base font-black">📅 Events to attend</h3>
                 </div>
                 <div className="space-y-2">
-                  {rm.events_to_attend.map((e, i) => (
-                    <div key={i} className="p-3 rounded-xl flex items-start justify-between gap-3" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="text-white font-bold text-sm">{e.name}</p>
-                          {priorityChip(e.priority)}
+                  {rm.events_to_attend.map((e, i) => {
+                    const isOfficial = !!(e.official_url && /^https?:\/\//i.test(e.official_url))
+                    const st = eventStatus[e.name] || 'interested'
+                    return (
+                      <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                        <div className="flex items-start justify-between gap-3 mb-1">
+                          <div className="flex items-center gap-2">
+                            <p className="text-white font-bold text-sm">{e.name}</p>
+                            {priorityChip(e.priority)}
+                          </div>
+                          <a href={eventLink(e)} target="_blank" rel="noopener noreferrer" className="text-[#22D3EE] text-xs font-bold flex-shrink-0 hover:underline">{isOfficial ? 'Official site ↗' : 'Find event ↗'}</a>
                         </div>
                         <p className="text-white/40 text-xs">{e.when} · {e.where}</p>
-                        <p className="text-white/55 text-xs mt-1">{e.why}</p>
+                        <p className="text-white/55 text-xs mt-1 mb-2">{e.why}</p>
+                        <div className="flex gap-1.5 flex-wrap">
+                          {([
+                            { key: 'booked', label: '🎟 Booked' },
+                            { key: 'attended', label: '✓ Attended' },
+                            { key: 'not_attended', label: 'Didn’t attend' },
+                          ] as const).map(opt => {
+                            const active = st === opt.key
+                            return (
+                              <button key={opt.key} onClick={() => trackEvent(e, active ? 'interested' : opt.key)}
+                                className="text-[11px] font-bold px-2.5 py-1 rounded-full transition-colors"
+                                style={{
+                                  background: active
+                                    ? (opt.key === 'attended' ? 'rgba(52,211,153,0.15)' : opt.key === 'booked' ? 'rgba(34,211,238,0.12)' : 'rgba(255,255,255,0.1)')
+                                    : 'rgba(255,255,255,0.04)',
+                                  color: active
+                                    ? (opt.key === 'attended' ? '#34D399' : opt.key === 'booked' ? '#22D3EE' : 'rgba(255,255,255,0.6)')
+                                    : 'rgba(255,255,255,0.45)',
+                                }}>
+                                {opt.label}
+                              </button>
+                            )
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             )}
