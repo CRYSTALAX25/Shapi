@@ -20,7 +20,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
   // Support short 8-char IDs (from the share link) or full UUIDs
   const { data: c } = await admin
     .from('profiles')
-    .select('id, full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, completion_pct, profile_live, industry, linkedin_url, github_url, website_url, portfolio_url, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work, work_style')
+    .select('id, full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, completion_pct, profile_live, industry, linkedin_url, github_url, website_url, portfolio_url, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work, work_style, verification_tier, verification_report')
     .ilike('id', `${id}%`)
     .eq('type', 'candidate')
     .limit(1)
@@ -187,6 +187,65 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div className="md:col-span-2 space-y-5">
+            {/* AI cross-check — the verification moat. What references independently confirmed. */}
+            {(() => {
+              const report = c.verification_report as {
+                claims_verified?: string[]
+                claims_unverified?: string[]
+                conflicts?: Array<{ topic: string; perspectives: string[]; note: string }>
+                top_skills?: string[]
+                tone_summary?: string
+                summary_en?: string
+              } | null
+              if (!report || (!report.summary_en && !(report.claims_verified?.length))) return null
+              return (
+                <div className="rounded-2xl p-6" style={{
+                  background: 'linear-gradient(#0d0d14,#0d0d14) padding-box, linear-gradient(135deg,rgba(52,211,153,0.35),rgba(34,211,238,0.25)) border-box',
+                  border: '1px solid transparent',
+                }}>
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#34D399,#22D3EE)' }} />
+                    <h2 className="text-white font-black text-xl tracking-tight">AI Cross-Check</h2>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,0.18)', color: '#34D399' }}>✓ verified across references</span>
+                  </div>
+                  <p className="text-white/40 text-xs mb-4 ml-4">Independent claims compared across every reference — conflicts flagged, not hidden.</p>
+                  {report.summary_en && <p className="text-white/70 text-sm leading-relaxed mb-4 ml-4">{report.summary_en}</p>}
+                  <div className="grid sm:grid-cols-2 gap-4 ml-4">
+                    {(report.claims_verified?.length ?? 0) > 0 && (
+                      <div>
+                        <p className="text-[#34D399] text-[11px] font-bold uppercase tracking-wider mb-2">✓ Independently confirmed</p>
+                        <ul className="space-y-1">
+                          {report.claims_verified!.map((cl, i) => <li key={i} className="text-white/65 text-xs leading-relaxed">· {cl}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                    {(report.top_skills?.length ?? 0) > 0 && (
+                      <div>
+                        <p className="text-[#22D3EE] text-[11px] font-bold uppercase tracking-wider mb-2">Most-cited strengths</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {report.top_skills!.map((s, i) => (
+                            <span key={i} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.1)', color: '#67E8F9' }}>{s}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {(report.conflicts?.length ?? 0) > 0 && (
+                    <div className="ml-4 mt-4 pt-3 border-t border-white/[0.06]">
+                      <p className="text-[#FBBF24] text-[11px] font-bold uppercase tracking-wider mb-2">⚠ Differing perspectives</p>
+                      {report.conflicts!.map((cf, i) => (
+                        <div key={i} className="mb-2">
+                          <p className="text-white/70 text-xs font-bold">{cf.topic}</p>
+                          <p className="text-white/40 text-[11px] leading-relaxed">{cf.note}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {report.tone_summary && <p className="text-white/35 text-[11px] mt-3 ml-4 italic">Overall tone: {report.tone_summary}</p>}
+                </div>
+              )
+            })()}
+
             {workHistory.length > 0 && (
               <div className="gradient-border-card rounded-2xl p-6">
                 <h2 className="text-white font-black text-xs uppercase tracking-widest mb-5 opacity-50">Experience</h2>

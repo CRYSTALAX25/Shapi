@@ -87,6 +87,10 @@ export default async function ProfilePage() {
           backgroundClip: 'text',
         }}>shapi</Link>
         <div className="flex items-center gap-3">
+          <a href={`/p/${user.id.slice(0, 8)}`} target="_blank" rel="noopener noreferrer"
+            className="text-[#22D3EE] text-xs font-bold px-4 py-2 rounded-full border border-[#22D3EE]/30 hover:border-[#22D3EE]/60 transition-colors">
+            👁 View public profile
+          </a>
           <Link href="/profile/edit"
             className="text-white/50 text-xs font-bold px-4 py-2 rounded-full border border-white/[0.12] hover:border-white/30 transition-colors">
             Edit profile
@@ -139,6 +143,61 @@ export default async function ProfilePage() {
                 <p className="font-bold text-sm" style={{ color: m.color }}>{m.label}</p>
                 <p className="text-white/45 text-xs mt-0.5">{m.description}</p>
               </div>
+            </div>
+          )
+        })()}
+
+        {/* AI cross-check report — what references independently confirmed */}
+        {(() => {
+          const report = profile.verification_report as {
+            claims_verified?: string[]
+            claims_unverified?: string[]
+            conflicts?: Array<{ topic: string; perspectives: string[]; note: string }>
+            top_skills?: string[]
+            tone_summary?: string
+            summary_en?: string
+          } | null
+          if (!report || (!report.summary_en && !(report.claims_verified?.length))) return null
+          return (
+            <div className="gradient-border-card rounded-2xl p-6 mb-6">
+              <div className="flex items-center gap-2.5 mb-3">
+                <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#34D399,#22D3EE)' }} />
+                <h2 className="text-white font-black text-xl tracking-tight">AI Cross-Check</h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#34D399' }}>◆ across all references</span>
+              </div>
+              {report.summary_en && <p className="text-white/65 text-sm leading-relaxed mb-4 ml-4">{report.summary_en}</p>}
+              <div className="grid sm:grid-cols-2 gap-4 ml-4">
+                {(report.claims_verified?.length ?? 0) > 0 && (
+                  <div>
+                    <p className="text-[#34D399] text-[11px] font-bold uppercase tracking-wider mb-2">✓ Independently confirmed</p>
+                    <ul className="space-y-1">
+                      {report.claims_verified!.map((c, i) => <li key={i} className="text-white/65 text-xs leading-relaxed">· {c}</li>)}
+                    </ul>
+                  </div>
+                )}
+                {(report.top_skills?.length ?? 0) > 0 && (
+                  <div>
+                    <p className="text-[#22D3EE] text-[11px] font-bold uppercase tracking-wider mb-2">Most-cited strengths</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {report.top_skills!.map((s, i) => (
+                        <span key={i} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.1)', color: '#67E8F9' }}>{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              {(report.conflicts?.length ?? 0) > 0 && (
+                <div className="ml-4 mt-4 pt-3 border-t border-white/[0.06]">
+                  <p className="text-[#FBBF24] text-[11px] font-bold uppercase tracking-wider mb-2">⚠ Differing perspectives</p>
+                  {report.conflicts!.map((c, i) => (
+                    <div key={i} className="mb-2">
+                      <p className="text-white/70 text-xs font-bold">{c.topic}</p>
+                      <p className="text-white/40 text-[11px] leading-relaxed">{c.note}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {report.tone_summary && <p className="text-white/35 text-[11px] mt-3 ml-4 italic">Overall tone: {report.tone_summary}</p>}
             </div>
           )
         })()}
