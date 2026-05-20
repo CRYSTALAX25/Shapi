@@ -60,7 +60,20 @@ export default function ContinuousLearning({
     setError('')
     try {
       const res = await fetch('/api/career/roadmap', { method: 'POST' })
-      const d = await res.json()
+      // Parse defensively — a Vercel timeout / gateway error returns an HTML
+      // page, not JSON, and res.json() would throw a misleading "Network error".
+      const txt = await res.text()
+      let d: { success?: boolean; roadmap?: Roadmap; error?: string }
+      try {
+        d = JSON.parse(txt)
+      } catch {
+        if (res.status === 504 || /timeout|gateway/i.test(txt)) {
+          setError('That took too long and timed out — tap Generate once more, it usually works on the second try.')
+        } else {
+          setError(`Server returned ${res.status}. Try again in a moment.`)
+        }
+        return
+      }
       if (d.success && d.roadmap) {
         setLocalRoadmap(d.roadmap)
       } else {

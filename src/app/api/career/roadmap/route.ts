@@ -80,23 +80,23 @@ What they've already done (continuous learning):
    - 7-10 = low risk (deep expertise + judgement + interpersonal + physical or creative synthesis)
    Be honest and specific to THIS role, not generic. Don't comfort.
 
-2. SKILLS GAPS — 3 to 5 skills they should learn in the next 6-12 months to either:
+2. SKILLS GAPS — exactly 3 skills they should learn in the next 6-12 months to either:
    (a) make their current career MORE AI-augmented (use AI as a multiplier), OR
    (b) prepare for a pivot if their role is high-risk.
-   Each gap: { skill, priority (high|medium|low), why (1 sentence), suggested_courses ([{name, platform}]) }
-   Courses must be REAL platforms (Coursera, edX, Udacity, Pluralsight, AWS Skill Builder, Google Digital Garage, LinkedIn Learning, Stripe Atlas Guides, Stanford Online, DeepLearning.AI). Don't invent course names — be conservative if unsure.
+   Each gap: { skill, priority (high|medium|low), why (1 sentence), suggested_courses ([{name, platform}] — 1 course each) }
+   Courses must be REAL platforms (Coursera, edX, Udacity, Pluralsight, AWS Skill Builder, Google Digital Garage, LinkedIn Learning, Stanford Online, DeepLearning.AI). Don't invent course names — be conservative if unsure.
 
-3. PIVOT PATHS — 2 to 3 career pivots they could realistically make. Each path:
+3. PIVOT PATHS — exactly 2 career pivots they could realistically make. Each path:
    - to_role: target role title
    - to_industry: target industry
-   - why (1-2 sentences: how their current skills transfer + market opportunity)
-   - transferable_skills (3-5 strongest matches from their actual history)
-   - gaps_to_close (3-5 specific skills/credentials to acquire)
-   - first_actions (3 concrete first steps — books, courses, certs, communities, side projects — in priority order)
-   Prefer pivots within their target industries (matched_industries) where possible. Include ONE adjacent industry pivot too if it makes sense.
+   - why (1 sentence: how their current skills transfer + market opportunity)
+   - transferable_skills (3 strongest matches from their actual history)
+   - gaps_to_close (3 specific skills/credentials to acquire)
+   - first_actions (3 concrete first steps — courses, certs, communities, side projects — in priority order)
+   Prefer pivots within their target industries (matched_industries) where possible.
 
-4. EVENTS TO ATTEND — 3 to 5 conferences/meetups in the next 12 months relevant to their target industries.
-   Each: { name, when (month/year if known, "Q3 2025" otherwise), where (city or "online"), why (1 sentence: who's there + why this candidate should go), priority (high|medium|low) }
+4. EVENTS TO ATTEND — exactly 3 conferences/meetups in the next 12 months relevant to their target industries.
+   Each: { name, when (month/year if known, "Q3 2025" otherwise), where (city or "online"), why (1 sentence), priority (high|medium|low) }
    Use real, well-known events (Money 20/20, KubeCon, Web Summit, GITEX, MozCon, SaaStr, AHIC, ATD, Cannes Lions, etc.). Prefer their location/region.
 
 ═══ OUTPUT ═══
@@ -120,7 +120,7 @@ Be specific and honest. Generic advice = useless advice.`
   try {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 3000,
+      max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }],
     })
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
