@@ -20,6 +20,45 @@ import Anthropic from '@anthropic-ai/sdk'
 
 export const maxDuration = 60
 
+// Salvage a truncated JSON string (Claude hit max_tokens mid-array). Strategy:
+// walk the string tracking string/bracket state, drop any trailing incomplete
+// token, then close all still-open arrays/objects in the right order.
+function repairTruncatedJson(s: string): string {
+  let inStr = false, esc = false
+  const stack: string[] = []
+  let lastSafe = -1 // index just after the last complete top-level-ish value
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i]
+    if (inStr) {
+      if (esc) esc = false
+      else if (c === '\\') esc = true
+      else if (c === '"') inStr = false
+      continue
+    }
+    if (c === '"') inStr = true
+    else if (c === '{' || c === '[') stack.push(c === '{' ? '}' : ']')
+    else if (c === '}' || c === ']') stack.pop()
+    // A comma or closing bracket at depth >=1 marks a clean cut point
+    if (!inStr && (c === ',' || c === '}' || c === ']')) lastSafe = i
+  }
+  // Trim to last safe boundary, drop a trailing comma, then close open brackets
+  let out = lastSafe > 0 ? s.slice(0, lastSafe + 1) : s
+  out = out.replace(/,\s*$/, '')
+  // Recompute open brackets on the trimmed string
+  inStr = false; esc = false
+  const open: string[] = []
+  for (let i = 0; i < out.length; i++) {
+    const c = out[i]
+    if (inStr) { if (esc) esc = false; else if (c === '\\') esc = true; else if (c === '"') inStr = false; continue }
+    if (c === '"') inStr = true
+    else if (c === '{') open.push('}')
+    else if (c === '[') open.push(']')
+    else if (c === '}' || c === ']') open.pop()
+  }
+  while (open.length) out += open.pop()
+  return out
+}
+
 export async function POST() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -100,6 +139,8 @@ What they've already done (continuous learning):
    Use real, well-known events (Money 20/20, KubeCon, Web Summit, GITEX, MozCon, SaaStr, AHIC, ATD, Cannes Lions, etc.). Prefer their location/region.
 
 ═══ OUTPUT ═══
+KEEP IT TIGHT so the JSON is complete and valid: every "why" = 1 short sentence (max 18 words); each first_action max 10 words; each transferable_skill / gap_to_close max 4 words; resilience_reasoning max 2 sentences. Do NOT pad. The full JSON MUST close properly.
+
 Return ONLY valid JSON in this exact shape:
 {
   "ai_resilience_score": 0,
@@ -120,7 +161,7 @@ Be specific and honest. Generic advice = useless advice.`
   try {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
+      max_tokens: 2800,
       messages: [{ role: 'user', content: prompt }],
     })
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
@@ -129,7 +170,14 @@ Be specific and honest. Generic advice = useless advice.`
       console.error('[career/roadmap] no JSON in response')
       return NextResponse.json({ error: 'Could not parse roadmap' }, { status: 500 })
     }
-    const parsed = JSON.parse(match[0])
+    let parsed: Record<string, unknown>
+    try {
+      parsed = JSON.parse(match[0])
+    } catch {
+      // Repair a truncated response: cut to the last complete object/array element
+      // and close any open brackets so we salvage a valid roadmap.
+      parsed = JSON.parse(repairTruncatedJson(match[0]))
+    }
     const roadmap = { ...parsed, generated_at: new Date().toISOString() }
 
     // Persist via admin client (bypasses RLS on the score column)
