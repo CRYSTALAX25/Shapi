@@ -290,8 +290,10 @@ function PrintContent() {
   // Blended schematic data
   const impactStats = extractImpactStats(cv.workHistory || [])
   const pivot = footerData.pivot
+  // AI-resilience is a 0-10 score (matches the profile Career Roadmap component).
   const resilience = footerData.ai_resilience_score
-  const resilienceColor = resilience == null ? '#9CA3AF' : resilience >= 70 ? '#059669' : resilience >= 50 ? '#B45309' : '#DC2626'
+  const resilienceColor = resilience == null ? '#9CA3AF' : resilience >= 7 ? '#059669' : resilience >= 4 ? '#B45309' : '#DC2626'
+  const resilienceLabel = resilience == null ? '' : resilience >= 7 ? 'low risk' : resilience >= 4 ? 'medium risk' : 'high risk'
   // Radar geometry (only used if quadrant present + we choose the radar)
   const RS = 132, cx = RS / 2, cy = RS / 2, maxR = 46
   const pt = (angle: number, val: number) => {
@@ -753,8 +755,8 @@ function PrintContent() {
                 )}
                 {resilience != null && (
                   <div className="va-resil">
-                    <span className="num" style={{ color: resilienceColor }}>{resilience}</span>
-                    <span style={{ fontSize: 10.5, color: '#6B7280' }}>AI-resilience score <span className="va-trust" style={{ background: '#EDE9FE', color: '#6D28D9' }}>◆ Shapi-assessed</span><br/><span style={{ color: '#9CA3AF' }}>how future-proof this profile is vs automation</span></span>
+                    <span className="num" style={{ color: resilienceColor }}>{resilience}<span style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 600 }}>/10</span></span>
+                    <span style={{ fontSize: 10.5, color: '#6B7280' }}>AI-resilience · <span style={{ color: resilienceColor, fontWeight: 700 }}>{resilienceLabel}</span> <span className="va-trust" style={{ background: '#EDE9FE', color: '#6D28D9' }}>◆ Shapi-assessed</span><br/><span style={{ color: '#9CA3AF' }}>how future-proof this profile is vs automation</span></span>
                   </div>
                 )}
               </div>
