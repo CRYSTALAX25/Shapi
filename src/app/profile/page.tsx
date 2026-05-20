@@ -22,7 +22,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work, work_style')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work, work_style, linkedin_url, github_url, website_url, portfolio_url')
     .eq('id', user.id)
     .single()
 
@@ -523,6 +523,39 @@ export default async function ProfilePage() {
                 {hasEvidence ? 'Add more →' : 'Upload evidence →'}
               </p>
             </Link>
+
+            {/* Online presence — the links from profile/edit, surfaced as proof */}
+            {(() => {
+              const links = [
+                { url: profile.linkedin_url as string | null, label: 'LinkedIn', icon: 'in' },
+                { url: profile.github_url as string | null, label: 'GitHub', icon: '</>' },
+                { url: profile.website_url as string | null, label: 'Website', icon: '🌐' },
+                { url: profile.portfolio_url as string | null, label: 'Portfolio', icon: '🎨' },
+              ].filter(l => l.url && l.url.trim())
+              if (links.length === 0) return null
+              const tidy = (u: string) => u.replace(/^https?:\/\//, '').replace(/\/$/, '')
+              return (
+                <div className="gradient-border-card rounded-2xl p-5">
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <p className="text-white font-bold text-sm">Online presence</p>
+                    <Link href="/profile/edit" className="text-white/30 text-[10px] hover:text-white/60 flex-shrink-0">Edit</Link>
+                  </div>
+                  <div className="space-y-2">
+                    {links.map((l, i) => (
+                      <a key={i} href={l.url!.startsWith('http') ? l.url! : `https://${l.url}`} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 bg-white/[0.03] hover:bg-white/[0.06] rounded-lg px-3 py-2 transition-colors">
+                        <span className="text-[#22D3EE] text-xs font-bold w-8 flex-shrink-0">{l.icon}</span>
+                        <span className="min-w-0">
+                          <span className="text-white/80 text-xs font-bold block">{l.label}</span>
+                          <span className="text-white/35 text-[11px] truncate block">{tidy(l.url!)}</span>
+                        </span>
+                        <span className="text-white/25 text-xs ml-auto flex-shrink-0">↗</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
           </div>
         </div>
       </div>
