@@ -289,6 +289,22 @@ export default function CVReady() {
       })
       setReady(true)
 
+      // ── Assess coverage for ALL matched industries (one Claude call) so every
+      // industry card shows its thin/medium/rich badge without being started ──
+      if (p?.cv_tier === 'pro' && Array.isArray(p?.matched_industries) && p.matched_industries.length > 0) {
+        fetch('/api/cv/coverage', { method: 'POST' })
+          .then(r => r.json())
+          .then(d => {
+            if (d.coverage) {
+              setProfile(prev => prev ? {
+                ...prev,
+                industry_chats: d.coverage as Record<string, { status?: string; answers?: string[] }>,
+              } : prev)
+            }
+          })
+          .catch(() => {})
+      }
+
       // ── Silently pre-generate the English CV in the background ──────────────
       // Stores result in sessionStorage so the print page renders instantly
       // without any spinner — no API call needed on the print side.
@@ -528,7 +544,10 @@ export default function CVReady() {
             background: 'linear-gradient(135deg, #A78BFA, #22D3EE)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>shapi</Link>
-          <Link href="/dashboard" className="text-white/30 text-sm hover:text-white/60 transition-colors">Dashboard →</Link>
+          <div className="flex items-center gap-4">
+            <Link href="/profile" className="text-white/30 text-sm hover:text-white/60 transition-colors">Profile</Link>
+            <Link href="/dashboard" className="text-white/30 text-sm hover:text-white/60 transition-colors">Dashboard →</Link>
+          </div>
         </div>
       </nav>
 
