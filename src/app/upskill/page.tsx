@@ -86,7 +86,13 @@ function UpskillContent() {
   // synthetic gap so the link shows real course options for that exact skill.
   const focusInGaps = focusSkill && gaps.some(g => g.skill.toLowerCase() === focusSkill.toLowerCase())
   const displayGaps: SkillGap[] = focusSkill && !focusInGaps
-    ? [{ skill: focusSkill, why: 'A gap to close for your target pivot — here are courses for it.' }, ...gaps]
+    ? [{
+        skill: focusSkill,
+        why: 'A gap to close for your target pivot — here are courses for it.',
+        // Synthesise a "Shapi recommends" pick so the link isn't a dead-end:
+        // the exact skill on Coursera (strong, certificate-bearing platform).
+        suggested_courses: [{ name: focusSkill, platform: 'Coursera' }],
+      }, ...gaps]
     : gaps
 
   return (

@@ -461,7 +461,7 @@ export default async function ProfilePage() {
                 {[
                   { label: 'CV parsed', done: profile.cv_parsed },
                   { label: 'WhatsApp interview', done: Array.isArray(profile.whatsapp_chat) && (profile.whatsapp_chat as unknown[]).length > 2 },
-                  { label: 'Reference checked', done: false },
+                  { label: 'References checked', done: refScore.jobsComplete >= 1 },
                   { label: 'Profile live', done: isLive },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
