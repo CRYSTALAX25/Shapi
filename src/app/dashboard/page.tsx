@@ -578,50 +578,6 @@ export default async function Dashboard() {
                 </div>
               </Link>
 
-              {/* Upskilling — Pro only (driven by the Career Roadmap). Kit users
-                  see a Pro upsell instead. */}
-              {profile?.cv_tier === 'pro' ? (
-                <Link href="/upskill" className="md:col-span-2 rounded-2xl p-5 block transition-colors hover:bg-white/[0.02]" style={{
-                  background: 'linear-gradient(#0d0d14,#0d0d14) padding-box, linear-gradient(135deg,rgba(34,211,238,0.2),rgba(52,211,153,0.15)) border-box',
-                  border: '1px solid transparent',
-                }}>
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-[#34D399] text-xs font-bold uppercase tracking-wider mb-1">Upskilling</p>
-                      <h3 className="font-black text-white text-sm mb-1">
-                        {(coursesInProgress + coursesCompleted + eventsBooked + eventsAttended) > 0
-                          ? 'Keep your momentum going'
-                          : 'Close your skill gaps'}
-                      </h3>
-                      <p className="text-white/45 text-xs">
-                        {(coursesInProgress + coursesCompleted + eventsBooked + eventsAttended) > 0
-                          ? [
-                              coursesInProgress > 0 ? `${coursesInProgress} learning` : null,
-                              coursesCompleted > 0 ? `${coursesCompleted} completed` : null,
-                              eventsBooked > 0 ? `${eventsBooked} event${eventsBooked === 1 ? '' : 's'} booked` : null,
-                              eventsAttended > 0 ? `${eventsAttended} attended` : null,
-                            ].filter(Boolean).join(' · ')
-                          : 'Courses (free / paid / financed) + events from your Career Roadmap.'}
-                      </p>
-                    </div>
-                    <span className="text-[#34D399] text-sm font-bold flex-shrink-0">Open →</span>
-                  </div>
-                </Link>
-              ) : (
-                <Link href="/profile" className="md:col-span-2 rounded-2xl p-5 block transition-colors hover:bg-white/[0.02]" style={{
-                  background: 'linear-gradient(#0d0d14,#0d0d14) padding-box, linear-gradient(135deg,rgba(167,139,250,0.2),rgba(34,211,238,0.12)) border-box',
-                  border: '1px solid transparent',
-                }}>
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-[#A78BFA] text-xs font-bold uppercase tracking-wider mb-1">Upskilling — Pro</p>
-                      <h3 className="font-black text-white text-sm mb-1">Unlock your Career Roadmap</h3>
-                      <p className="text-white/45 text-xs">AI-resilience score + skill gaps + pivot paths + courses (free/paid/financed) + events. Upgrade to Pro to unlock.</p>
-                    </div>
-                    <span className="text-[#A78BFA] text-sm font-bold flex-shrink-0">Upgrade →</span>
-                  </div>
-                </Link>
-              )}
 
               {/* Concierge queue — today's AI-drafted outreach */}
               {isConcierge && (
