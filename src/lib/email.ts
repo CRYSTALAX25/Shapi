@@ -85,20 +85,51 @@ export async function sendProfileLiveEmail(to: string, name: string, profileId: 
 
 // ── 2. CV Kit purchased ────────────────────────────────────────────────────
 
-export async function sendCvKitEmail(to: string, name: string) {
+export async function sendCvKitEmail(to: string, name: string, tier: 'kit' | 'pro' = 'kit') {
   const firstName = name?.split(' ')[0] || 'there'
   const dashboardUrl = `${SITE}/cv-ready`
 
+  if (tier === 'pro') {
+    const html = emailShell(`
+      ${h1(`Welcome to CV Pro, ${firstName}.`)}
+      ${p(`You've unlocked the full Shapi toolkit. Here's everything Pro gives you on top of the Kit — and where to find it.`)}
+      ${btn('Open your CV Pro dashboard →', dashboardUrl)}
+      ${divider()}
+      ${p(`<strong style="color:rgba(255,255,255,0.75)">Everything in CV Kit ($25):</strong><br>
+        · AI-written CV in English + every language you speak<br>
+        · Industry-targeted versions, re-framed per sector<br>
+        · Print-ready PDFs, download anytime, link never expires`)}
+      ${p(`<strong style="color:#22D3EE">Plus what Pro ($59) adds:</strong><br>
+        · <strong style="color:rgba(255,255,255,0.7)">WhatsApp deep-dive interviews</strong> — per-industry conversations that pull out the achievements your CV missed, then rewrite each version with them<br>
+        · <strong style="color:rgba(255,255,255,0.7)">Verification chain</strong> — we independently contact your past managers, plus colleagues + stakeholders they nominate (you don't pick what they say)<br>
+        · <strong style="color:rgba(255,255,255,0.7)">AI cross-check report</strong> — Claude analyses every reference against your CV claims and flags what's independently confirmed<br>
+        · <strong style="color:rgba(255,255,255,0.7)">Verification tier badge</strong> — Basic → Strong → Premium, shown to companies<br>
+        · <strong style="color:rgba(255,255,255,0.7)">Career Roadmap</strong> — AI-resilience score, skills gaps, and pivot paths for your field`)}
+      ${divider()}
+      ${p(`<strong style="color:rgba(255,255,255,0.7)">Start here:</strong> open your dashboard and look for the deep-dive interview prompts per industry — that's where Pro does its best work. Then add your references to start the verification chain.`)}
+    `)
+    await getResend().emails.send({
+      from: FROM,
+      to,
+      subject: `Welcome to Shapi CV Pro — here's what you unlocked`,
+      html,
+    })
+    return
+  }
+
   const html = emailShell(`
     ${h1(`Your CV Kit is ready, ${firstName}.`)}
-    ${p(`Your AI-written CV (English + native language) is waiting in your dashboard. Claude used your full profile, work history, and WhatsApp conversation to write it — it's specific to you, not a template.`)}
+    ${p(`Your AI-written CVs are waiting in your dashboard. Claude used your full profile, work history, and WhatsApp conversation to write them — specific to you, not a template.`)}
     ${btn('Download your CV →', dashboardUrl)}
     ${divider()}
-    ${p(`<strong style="color:rgba(255,255,255,0.7)">What's included:</strong><br>
+    ${p(`<strong style="color:rgba(255,255,255,0.7)">What's included in your Kit:</strong><br>
       · English CV — industry-optimised, ATS-friendly<br>
-      · Native language CV — same content, translated precisely<br>
-      · Both are print-ready PDFs`)}
+      · A version in every language you speak — translated precisely<br>
+      · Industry-targeted versions, re-framed per sector<br>
+      · All print-ready PDFs`)}
     ${p(`You can download as many times as you like — the link never expires.`)}
+    ${divider()}
+    ${p(`<span style="font-size:13px;color:rgba(255,255,255,0.4)"><strong style="color:#22D3EE">Want more?</strong> Upgrade to <strong style="color:rgba(255,255,255,0.7)">CV Pro ($59)</strong> for WhatsApp deep-dive interviews, an independent verification chain (we contact your references directly), an AI cross-check report, and a Career Roadmap. Find the upgrade on your dashboard.</span>`)}
   `)
 
   await getResend().emails.send({

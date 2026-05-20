@@ -148,7 +148,7 @@ export async function POST(request: Request) {
           .eq('id', userId)
           .single()
         if (customerEmail) {
-          sendCvKitEmail(customerEmail, profile?.full_name || '')
+          sendCvKitEmail(customerEmail, profile?.full_name || '', cvTier === 'pro' ? 'pro' : 'kit')
             .catch(err => console.error('[stripe/webhook] cv-kit email failed:', err))
         }
 
