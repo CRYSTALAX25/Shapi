@@ -22,7 +22,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work, work_style')
     .eq('id', user.id)
     .single()
 
@@ -228,6 +228,59 @@ export default async function ProfilePage() {
             </div>
           </div>
         )}
+
+        {/* Work Style — self-assessment (Shapi-assessed). Prompt to take it if not done. */}
+        {(() => {
+          const ws = profile.work_style as { scores?: Record<string, number> } | null
+          const dims: Array<{ key: string; poleA: string; poleB: string }> = [
+            { key: 'collaboration', poleA: 'Collaborative', poleB: 'Independent' },
+            { key: 'leadership', poleA: 'Director', poleB: 'Contributor' },
+            { key: 'structure', poleA: 'Structured', poleB: 'Adaptive' },
+            { key: 'decisions', poleA: 'Analytical', poleB: 'Intuitive' },
+            { key: 'communication', poleA: 'Direct', poleB: 'Diplomatic' },
+          ]
+          if (!ws?.scores) {
+            return (
+              <div className="gradient-border-card rounded-2xl p-6 mb-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-white font-black text-base mb-1">Work-style check <span className="text-[10px] font-bold px-2 py-0.5 rounded-full align-middle" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.4)' }}>optional · 2 min</span></h2>
+                    <p className="text-white/40 text-xs">Show companies how you prefer to work — team vs solo, leader vs contributor, and more.</p>
+                  </div>
+                  <a href="/work-style" className="flex-shrink-0 px-4 py-2.5 rounded-xl font-black text-xs" style={{ background: 'linear-gradient(135deg,#22D3EE,#A78BFA)', color: '#060609' }}>Take it →</a>
+                </div>
+              </div>
+            )
+          }
+          return (
+            <div className="gradient-border-card rounded-2xl p-6 mb-4">
+              <div className="flex items-center gap-2.5 mb-4">
+                <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#A78BFA)' }} />
+                <h2 className="text-white font-black text-xl tracking-tight">Work Style</h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#EDE9FE', color: '#A78BFA' }}>◆ Shapi-assessed</span>
+                <a href="/work-style" className="ml-auto text-white/30 text-xs hover:text-white/60">Retake</a>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
+                {dims.map(d => {
+                  const score = ws.scores![d.key] ?? 50
+                  const label = score >= 65 ? d.poleA : score <= 35 ? d.poleB : `Balanced`
+                  return (
+                    <div key={d.key}>
+                      <div className="flex items-center justify-between text-[11px] mb-1">
+                        <span className="text-white/45">{d.poleB}</span>
+                        <span className="text-white font-bold">{label}</span>
+                        <span className="text-white/45">{d.poleA}</span>
+                      </div>
+                      <div className="relative h-2 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                        <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full" style={{ left: `calc(${score}% - 6px)`, background: 'linear-gradient(135deg,#22D3EE,#A78BFA)' }} />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })()}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Left column */}

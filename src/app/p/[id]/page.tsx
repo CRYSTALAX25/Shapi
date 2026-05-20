@@ -20,7 +20,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
   // Support short 8-char IDs (from the share link) or full UUIDs
   const { data: c } = await admin
     .from('profiles')
-    .select('id, full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, completion_pct, profile_live, industry, linkedin_url, github_url, website_url, portfolio_url, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work')
+    .select('id, full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, completion_pct, profile_live, industry, linkedin_url, github_url, website_url, portfolio_url, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work, work_style')
     .ilike('id', `${id}%`)
     .eq('type', 'candidate')
     .limit(1)
@@ -311,6 +311,45 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
                         )}
                       </div>
                     ))}
+                  </div>
+                </div>
+              )
+            })()}
+
+            {/* Work Style — self-assessment */}
+            {(() => {
+              const ws = c.work_style as { scores?: Record<string, number> } | null
+              if (!ws?.scores) return null
+              const dims = [
+                { key: 'collaboration', poleA: 'Collaborative', poleB: 'Independent' },
+                { key: 'leadership', poleA: 'Director', poleB: 'Contributor' },
+                { key: 'structure', poleA: 'Structured', poleB: 'Adaptive' },
+                { key: 'decisions', poleA: 'Analytical', poleB: 'Intuitive' },
+                { key: 'communication', poleA: 'Direct', poleB: 'Diplomatic' },
+              ]
+              return (
+                <div className="gradient-border-card rounded-2xl p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <h2 className="text-white font-black text-xs uppercase tracking-widest opacity-50">Work Style</h2>
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.15)', color: '#A78BFA' }}>◆ self-assessed</span>
+                  </div>
+                  <div className="space-y-3">
+                    {dims.map(d => {
+                      const score = ws.scores![d.key] ?? 50
+                      const label = score >= 65 ? d.poleA : score <= 35 ? d.poleB : 'Balanced'
+                      return (
+                        <div key={d.key}>
+                          <div className="flex items-center justify-between text-[11px] mb-1">
+                            <span className="text-white/40">{d.poleB}</span>
+                            <span className="text-white/80 font-bold">{label}</span>
+                            <span className="text-white/40">{d.poleA}</span>
+                          </div>
+                          <div className="relative h-2 rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                            <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full" style={{ left: `calc(${score}% - 6px)`, background: 'linear-gradient(135deg,#22D3EE,#A78BFA)' }} />
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               )
