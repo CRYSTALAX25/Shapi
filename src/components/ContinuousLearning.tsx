@@ -112,12 +112,15 @@ export default function ContinuousLearning({
   return (
     <div className="gradient-border-card rounded-2xl p-6">
       <div className="flex items-start justify-between mb-1">
-        <h2 className="text-white font-black text-sm uppercase tracking-widest opacity-50">Continuous learning</h2>
+        <div className="flex items-center gap-2.5">
+          <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#A78BFA)' }} />
+          <h2 className="text-white font-black text-xl tracking-tight">Continuous Learning</h2>
+        </div>
         {isPro && (
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.10)', color: '#A78BFA' }}>Pro ✓</span>
         )}
       </div>
-      <p className="text-white/35 text-xs mb-5">What you&apos;ve done — and where to grow next.</p>
+      <p className="text-white/35 text-xs mb-5 ml-4">What you&apos;ve done — and where to grow next.</p>
 
       {/* ─── HALF 1: PASSIVE ─── */}
       {!hasAny && (
@@ -219,7 +222,10 @@ export default function ContinuousLearning({
             {rm.skills_gaps?.length > 0 && (
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-white/45 text-xs font-bold uppercase tracking-wider">🎯 Skills to learn next</p>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#34D399)' }} />
+                    <h3 className="text-white text-base font-black">🎯 Skills to learn next</h3>
+                  </div>
                   <Link href="/upskill" className="text-[#22D3EE] text-xs font-bold hover:underline">Browse courses →</Link>
                 </div>
                 <div className="space-y-2">
@@ -249,7 +255,10 @@ export default function ContinuousLearning({
             {/* Pivot paths */}
             {rm.pivot_paths?.length > 0 && (
               <div className="mb-6">
-                <p className="text-white/45 text-xs font-bold uppercase tracking-wider mb-3">↗️ Pivot paths to consider</p>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#A78BFA,#FB7185)' }} />
+                  <h3 className="text-white text-base font-black">↗️ Pivot paths to consider</h3>
+                </div>
                 <div className="space-y-3">
                   {rm.pivot_paths.map((p, i) => (
                     <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)' }}>
@@ -290,7 +299,10 @@ export default function ContinuousLearning({
             {/* Events to attend */}
             {rm.events_to_attend?.length > 0 && (
               <div className="mb-2">
-                <p className="text-white/45 text-xs font-bold uppercase tracking-wider mb-3">📅 Events to attend</p>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#FBBF24,#FB7185)' }} />
+                  <h3 className="text-white text-base font-black">📅 Events to attend</h3>
+                </div>
                 <div className="space-y-2">
                   {rm.events_to_attend.map((e, i) => (
                     <div key={i} className="p-3 rounded-xl flex items-start justify-between gap-3" style={{ background: 'rgba(255,255,255,0.03)' }}>

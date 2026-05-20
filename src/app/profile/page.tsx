@@ -212,7 +212,10 @@ export default async function ProfilePage() {
             {/* Work history */}
             {workHistory.length > 0 && (
               <div className="gradient-border-card rounded-2xl p-6">
-                <h2 className="text-white font-black text-sm uppercase tracking-widest mb-5 opacity-50">Experience</h2>
+                <div className="flex items-center gap-2.5 mb-5">
+                  <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#A78BFA)' }} />
+                  <h2 className="text-white font-black text-xl tracking-tight">Experience</h2>
+                </div>
                 <div className="space-y-6">
                   {workHistory.map((job, i) => (
                     <div key={i} className={i > 0 ? 'pt-6 border-t border-white/[0.06]' : ''}>
