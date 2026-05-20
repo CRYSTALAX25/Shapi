@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { providersByTier, FINANCING_OPTIONS } from '@/lib/upskill'
 
 type SkillGap = { skill: string; priority?: string; why?: string }
+type RoadmapEvent = { name: string; when?: string; where?: string; why?: string; priority?: string; status?: string }
 type Course = {
   id: string
   skill: string | null
@@ -17,6 +18,7 @@ type Course = {
   verification_status: string
   credential_url: string | null
   completed_at: string | null
+  sponsored_by?: string | null
 }
 
 function UpskillContent() {
@@ -27,6 +29,7 @@ function UpskillContent() {
   const [isPro, setIsPro] = useState<boolean | null>(null)
   const [gaps, setGaps] = useState<SkillGap[]>([])
   const [courses, setCourses] = useState<Course[]>([])
+  const [events, setEvents] = useState<RoadmapEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [addOpen, setAddOpen] = useState(false)
 
@@ -37,11 +40,22 @@ function UpskillContent() {
         setIsPro(!!d.isPro)
         setGaps(d.skill_gaps || [])
         setCourses(d.courses || [])
+        setEvents(d.events || [])
       })
       .catch(() => {})
       .finally(() => setLoading(false))
   }
   useEffect(() => { load() }, [])
+
+  const setEventStatus = async (ev: RoadmapEvent, status: string) => {
+    const event_url = `https://www.google.com/search?q=${encodeURIComponent(ev.name + ' ' + (ev.where || '') + ' tickets')}`
+    // optimistic
+    setEvents(prev => prev.map(e => e.name === ev.name ? { ...e, status } : e))
+    await fetch('/api/upskill/event', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event_name: ev.name, event_when: ev.when, event_where: ev.where, event_url, status }),
+    })
+  }
 
   const trackCourse = async (payload: Record<string, unknown>) => {
     await fetch('/api/upskill/course', {
@@ -170,6 +184,55 @@ function UpskillContent() {
           </div>
         </div>
 
+        {/* Events to attend */}
+        {events.length > 0 && (
+          <div className="gradient-border-card rounded-2xl p-5 mb-8">
+            <p className="text-[#A78BFA] text-xs font-bold uppercase tracking-wider mb-1">📅 Events to attend</p>
+            <p className="text-white/35 text-xs mb-4">Recommended for your field. Find tickets, then track whether you booked + attended.</p>
+            <div className="space-y-2.5">
+              {events.map((ev, i) => {
+                const ticketUrl = `https://www.google.com/search?q=${encodeURIComponent(ev.name + ' ' + (ev.where || '') + ' tickets')}`
+                const st = ev.status || 'interested'
+                return (
+                  <div key={i} className="bg-white/[0.03] rounded-xl p-3">
+                    <div className="flex items-start justify-between gap-3 mb-1">
+                      <div className="min-w-0">
+                        <p className="text-white/85 text-sm font-bold">{ev.name}</p>
+                        <p className="text-white/35 text-xs">{[ev.when, ev.where].filter(Boolean).join(' · ')}</p>
+                      </div>
+                      <a href={ticketUrl} target="_blank" rel="noopener noreferrer" className="text-[#22D3EE] text-xs font-bold flex-shrink-0 hover:underline">Find tickets ↗</a>
+                    </div>
+                    {ev.why && <p className="text-white/30 text-[11px] mb-2">{ev.why}</p>}
+                    <div className="flex gap-1.5 flex-wrap">
+                      {([
+                        { key: 'booked', label: '🎟 Booked' },
+                        { key: 'attended', label: '✓ Attended' },
+                        { key: 'not_attended', label: 'Didn’t attend' },
+                      ] as const).map(opt => {
+                        const active = st === opt.key
+                        return (
+                          <button key={opt.key} onClick={() => setEventStatus(ev, active ? 'interested' : opt.key)}
+                            className="text-[11px] font-bold px-2.5 py-1 rounded-full transition-colors"
+                            style={{
+                              background: active
+                                ? (opt.key === 'attended' ? 'rgba(52,211,153,0.15)' : opt.key === 'booked' ? 'rgba(34,211,238,0.12)' : 'rgba(255,255,255,0.1)')
+                                : 'rgba(255,255,255,0.04)',
+                              color: active
+                                ? (opt.key === 'attended' ? '#34D399' : opt.key === 'booked' ? '#22D3EE' : 'rgba(255,255,255,0.6)')
+                                : 'rgba(255,255,255,0.45)',
+                            }}>
+                            {opt.label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
         {/* My courses */}
         <div className="gradient-border-card rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
@@ -253,6 +316,9 @@ function CourseRow({ course, onUpdate, onRemove }: { course: Course; onUpdate: (
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#34D399' }}>✓ Verified</span>
           ) : (
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.4)' }}>○ Self-reported</span>
+          )}
+          {course.sponsored_by && (
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.15)', color: '#FBBF24' }}>🏢 Sponsored by {course.sponsored_by}</span>
           )}
         </div>
         <p className="text-white/35 text-xs">{course.platform || '—'} · {course.status === 'completed' ? 'Completed' : course.status === 'in_progress' ? 'In progress' : 'Interested'}{course.credential_url ? ' · ' : ''}{course.credential_url && <a href={course.credential_url} target="_blank" rel="noopener noreferrer" className="text-[#22D3EE]">view cert ↗</a>}</p>
