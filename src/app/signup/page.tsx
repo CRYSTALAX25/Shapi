@@ -15,6 +15,9 @@ function SignUpForm() {
   const [password, setPassword] = useState('')
   // If arriving via company invite, type is locked to 'company'
   const [type, setType] = useState<'candidate' | 'company' | null>(companyInvite ? 'company' : null)
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
+  const [marketingOptIn, setMarketingOptIn] = useState(false)
+  const [referralSource, setReferralSource] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
@@ -22,6 +25,10 @@ function SignUpForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!type) return
+    if (!agreedToTerms) {
+      setError('Please agree to the Terms of Service and Privacy Policy to continue.')
+      return
+    }
     setLoading(true)
     setError(null)
 
@@ -30,7 +37,12 @@ function SignUpForm() {
       email,
       password,
       options: {
-        data: { type, company_invite: companyInvite || undefined },
+        data: {
+          type,
+          company_invite: companyInvite || undefined,
+          marketing_opt_in: marketingOptIn,
+          referral_source: referralSource || undefined,
+        },
         emailRedirectTo: companyInvite
           ? `${location.origin}/company/dashboard?joined=1`
           : `${location.origin}/upload-cv`,
@@ -172,6 +184,52 @@ function SignUpForm() {
             className="gradient-border-card w-full px-5 py-4 rounded-2xl text-white placeholder-white/25 focus:outline-none text-sm bg-transparent"
           />
 
+          {/* How did you hear about us */}
+          <select
+            value={referralSource}
+            onChange={e => setReferralSource(e.target.value)}
+            className="gradient-border-card w-full px-5 py-4 rounded-2xl text-sm bg-transparent focus:outline-none"
+            style={{ color: referralSource ? '#fff' : 'rgba(255,255,255,0.25)' }}
+          >
+            <option value="" style={{ color: '#000' }}>How did you hear about us?</option>
+            <option value="friend_referral" style={{ color: '#000' }}>Friend or colleague</option>
+            <option value="instagram" style={{ color: '#000' }}>Instagram</option>
+            <option value="linkedin" style={{ color: '#000' }}>LinkedIn</option>
+            <option value="tiktok" style={{ color: '#000' }}>TikTok</option>
+            <option value="search" style={{ color: '#000' }}>Google / search</option>
+            <option value="event" style={{ color: '#000' }}>Event or talk</option>
+            <option value="press" style={{ color: '#000' }}>News / press</option>
+            <option value="other" style={{ color: '#000' }}>Other</option>
+          </select>
+
+          {/* Consent ticks */}
+          <label className="flex items-start gap-3 cursor-pointer px-1 pt-1">
+            <input
+              type="checkbox"
+              checked={agreedToTerms}
+              onChange={e => setAgreedToTerms(e.target.checked)}
+              className="mt-0.5 w-4 h-4 flex-shrink-0 accent-[#22D3EE]"
+            />
+            <span className="text-white/45 text-xs leading-relaxed">
+              I agree to the{' '}
+              <Link href="/terms" target="_blank" className="text-[#22D3EE] hover:underline">Terms of Service</Link>{' '}
+              and{' '}
+              <Link href="/privacy" target="_blank" className="text-[#22D3EE] hover:underline">Privacy Policy</Link>.
+            </span>
+          </label>
+
+          <label className="flex items-start gap-3 cursor-pointer px-1">
+            <input
+              type="checkbox"
+              checked={marketingOptIn}
+              onChange={e => setMarketingOptIn(e.target.checked)}
+              className="mt-0.5 w-4 h-4 flex-shrink-0 accent-[#22D3EE]"
+            />
+            <span className="text-white/45 text-xs leading-relaxed">
+              Send me product updates and job-market insights. <span className="text-white/25">(Optional — unsubscribe anytime.)</span>
+            </span>
+          </label>
+
           {error && (
             <p className="text-[#FB7185] text-xs bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3">
               {error}
@@ -184,7 +242,7 @@ function SignUpForm() {
 
           <button
             type="submit"
-            disabled={!type || loading}
+            disabled={!type || !agreedToTerms || loading}
             className="w-full bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] py-4 rounded-full font-black text-sm text-[#060609] hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed mt-2"
           >
             {loading ? 'Creating account...' : 'Create account →'}
