@@ -218,7 +218,10 @@ export default function ContinuousLearning({
             {/* Skills gaps */}
             {rm.skills_gaps?.length > 0 && (
               <div className="mb-6">
-                <p className="text-white/45 text-xs font-bold uppercase tracking-wider mb-3">🎯 Skills to learn next</p>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-white/45 text-xs font-bold uppercase tracking-wider">🎯 Skills to learn next</p>
+                  <Link href="/upskill" className="text-[#22D3EE] text-xs font-bold hover:underline">Browse courses →</Link>
+                </div>
                 <div className="space-y-2">
                   {rm.skills_gaps.map((g, i) => (
                     <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
@@ -228,12 +231,15 @@ export default function ContinuousLearning({
                       </div>
                       <p className="text-white/40 text-xs mb-2">{g.why}</p>
                       {g.suggested_courses && g.suggested_courses.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5">
+                        <div className="flex flex-wrap gap-1.5 mb-2">
                           {g.suggested_courses.map((c, j) => (
                             <span key={j} className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.06)', color: '#67E8F9' }}>{c.name} · {c.platform}</span>
                           ))}
                         </div>
                       )}
+                      <Link href={`/upskill?skill=${encodeURIComponent(g.skill)}`} className="text-[#A78BFA] text-xs font-bold hover:underline">
+                        Free / paid / financing options →
+                      </Link>
                     </div>
                   ))}
                 </div>
