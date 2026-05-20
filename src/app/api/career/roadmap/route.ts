@@ -66,7 +66,7 @@ export async function POST() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('work_history, headline, summary, skills, matched_industries, ai_tier, location, continuous_learning, cv_tier, cv_kit_purchased')
+    .select('work_history, headline, summary, skills, matched_industries, ai_tier, location, continuous_learning, cv_tier, cv_kit_purchased, languages_spoken, native_language')
     .eq('id', user.id)
     .single()
 
@@ -87,6 +87,17 @@ export async function POST() {
   const skills = Array.isArray(profile.skills) ? profile.skills : []
   const matchedIndustries = Array.isArray(profile.matched_industries) ? profile.matched_industries : []
   const continuousLearning = profile.continuous_learning as Record<string, unknown> | null
+  // Languages the candidate actually speaks — never recommend courses/events
+  // in a language they don't (e.g. don't push Arabic resources just because
+  // they're UAE-based).
+  const spokenLangs = Array.isArray(profile.languages_spoken)
+    ? (profile.languages_spoken as Array<{ language?: string }>).map(l => l.language).filter(Boolean)
+    : []
+  const languageList = [...new Set([
+    'English',
+    ...(profile.native_language ? [profile.native_language as string] : []),
+    ...spokenLangs as string[],
+  ])].join(', ')
 
   const prompt = `You are a senior career strategist advising a mid-career professional on how to stay relevant in an AI-disrupted job market. Produce a personalised Career Roadmap.
 
@@ -98,6 +109,9 @@ Location: ${profile.location || 'not provided'}
 Current skills: ${skills.join(', ') || 'none listed'}
 Industries with real experience: ${matchedIndustries.join(', ') || 'none specified'}
 AI tier (current proficiency): ${(profile.ai_tier as string) || 'unknown — possibly User'}
+Languages they speak: ${languageList}
+
+⚠️ LANGUAGE RULE: Only recommend courses and events delivered in a language the candidate speaks (${languageList}). NEVER recommend Arabic-language (or any other-language) resources unless that language is in their list — even though they may be based in a region where it's common. Default to English-language courses/events.
 
 Work history (most recent first):
 ${workHistory.map((w: { title?: string; company?: string; start?: string; end?: string; achievements?: string }, i: number) =>
