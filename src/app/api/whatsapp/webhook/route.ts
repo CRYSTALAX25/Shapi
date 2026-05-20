@@ -7,7 +7,7 @@ import { runReferenceTurn, parseManagerResponses, parseNomineeResponses } from '
 import { recomputeProfileLive, resolveOutreachContact, updateVerificationTier, runVerificationCrossCheck } from '@/lib/references'
 import { extractProfileFromChat, saveExtractedProfile } from '@/lib/chat-to-profile'
 import { interpretAndApplyEdit } from '@/lib/cv-edits'
-import { INDUSTRY_BRIEFS, type Industry } from '@/lib/industry-briefs'
+import { INDUSTRY_BRIEFS, INDUSTRY_META, type Industry } from '@/lib/industry-briefs'
 import { saveVoiceSample, pickNextLanguageToCapture, type VoiceSamplesMap } from '@/lib/voice-samples'
 import { buildJDPrompt, extractRoleFromChat, saveDraftRole } from '@/lib/jd-extract'
 
@@ -596,7 +596,7 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
   // automatic prompt only fires right after [DONE]). Sets the awaiting flag to
   // the next language without a sample, then each inbound voice note is captured
   // by the voice-sample handler above.
-  if (/^(voice|voice samples?|record voice|voice notes?)$/.test(lowerMsg)) {
+  if (/^(voice|voice test|test voice|start voice( test)?|record (a )?voice|voice samples?|voice notes?|do voice)$/.test(lowerMsg)) {
     const samples = (profile.voice_samples as VoiceSamplesMap) || {}
     const langs = profile.languages_spoken as Array<{ language: string }> | null
     if (!langs || langs.length === 0) {
@@ -799,7 +799,15 @@ This is exchange ${userTurns + 1}. ${userTurns >= 8 ? 'WRAP UP NOW with [DEEP_DI
       updated_at: new Date().toISOString(),
     }).eq('id', profile.id)
 
-    await sendWhatsApp(phone, aiReply)
+    // Always tag which industry deep-dive this is, so the candidate is never
+    // confused about what conversation they're in (and isn't surprised one
+    // started). Fuller banner on the first turn.
+    const indMeta = INDUSTRY_META[activeIndustry as Industry] || { label: activeIndustry, emoji: '🎯' }
+    const priorAssistant = Array.isArray(activeEntry.whatsapp_chat) && activeEntry.whatsapp_chat.some(m => m.role === 'assistant')
+    const banner = priorAssistant
+      ? `${indMeta.emoji} _${indMeta.label} deep-dive_`
+      : `${indMeta.emoji} *${indMeta.label} deep-dive* — let's sharpen your ${indMeta.label} CV.`
+    await sendWhatsApp(phone, `${banner}\n\n${aiReply}`)
 
     console.log('[webhook] Deep-dive turn for', activeIndustry, '| user turn:', userTurns, '| done:', isDeepDiveDone)
     return new NextResponse('', { status: 200 })
