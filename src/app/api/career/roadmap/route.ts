@@ -149,8 +149,9 @@ What they've already done (continuous learning):
    Prefer pivots within their target industries (matched_industries) where possible.
 
 4. EVENTS TO ATTEND — exactly 3 conferences/meetups in the next 12 months relevant to their target industries.
-   Each: { name, when (month/year if known, "Q3 2025" otherwise), where (city or "online"), why (1 sentence), priority (high|medium|low) }
+   Each: { name, when (month/year if known, "Q3 2025" otherwise), where (city or "online"), why (1 sentence), priority (high|medium|low), official_url }
    Use real, well-known events (Money 20/20, KubeCon, Web Summit, GITEX, MozCon, SaaStr, AHIC, ATD, Cannes Lions, etc.). Prefer their location/region.
+   official_url: the event's official website ROOT DOMAIN ONLY (e.g. "https://gitex.com", "https://websummit.com", "https://www.money2020.com"). Root domains are stable across years. If you are not confident of the exact official domain, set official_url to null — do NOT guess a deep URL.
 
 ═══ OUTPUT ═══
 KEEP IT TIGHT so the JSON is complete and valid: every "why" = 1 short sentence (max 18 words); each first_action max 10 words; each transferable_skill / gap_to_close max 4 words; resilience_reasoning max 2 sentences. Do NOT pad. The full JSON MUST close properly.
@@ -166,7 +167,7 @@ Return ONLY valid JSON in this exact shape:
     { "to_role": "...", "to_industry": "...", "why": "...", "transferable_skills": ["..."], "gaps_to_close": ["..."], "first_actions": ["..."] }
   ],
   "events_to_attend": [
-    { "name": "...", "when": "...", "where": "...", "why": "...", "priority": "high|medium|low" }
+    { "name": "...", "when": "...", "where": "...", "why": "...", "priority": "high|medium|low", "official_url": "https://... or null" }
   ]
 }
 

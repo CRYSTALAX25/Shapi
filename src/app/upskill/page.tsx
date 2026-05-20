@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { providersByTier, FINANCING_OPTIONS } from '@/lib/upskill'
 
 type SkillGap = { skill: string; priority?: string; why?: string }
-type RoadmapEvent = { name: string; when?: string; where?: string; why?: string; priority?: string; status?: string }
+type RoadmapEvent = { name: string; when?: string; where?: string; why?: string; priority?: string; status?: string; official_url?: string | null }
 type Course = {
   id: string
   skill: string | null
@@ -47,8 +47,14 @@ function UpskillContent() {
   }
   useEffect(() => { load() }, [])
 
+  // Prefer the official event site (stable root domain); fall back to a search.
+  const eventLink = (ev: RoadmapEvent) =>
+    (ev.official_url && /^https?:\/\//i.test(ev.official_url))
+      ? ev.official_url
+      : `https://www.google.com/search?q=${encodeURIComponent(ev.name + ' ' + (ev.where || '') + ' official site')}`
+
   const setEventStatus = async (ev: RoadmapEvent, status: string) => {
-    const event_url = `https://www.google.com/search?q=${encodeURIComponent(ev.name + ' ' + (ev.where || '') + ' tickets')}`
+    const event_url = eventLink(ev)
     // optimistic
     setEvents(prev => prev.map(e => e.name === ev.name ? { ...e, status } : e))
     await fetch('/api/upskill/event', {
@@ -191,7 +197,8 @@ function UpskillContent() {
             <p className="text-white/35 text-xs mb-4">Recommended for your field. Find tickets, then track whether you booked + attended.</p>
             <div className="space-y-2.5">
               {events.map((ev, i) => {
-                const ticketUrl = `https://www.google.com/search?q=${encodeURIComponent(ev.name + ' ' + (ev.where || '') + ' tickets')}`
+                const ticketUrl = eventLink(ev)
+                const isOfficial = !!(ev.official_url && /^https?:\/\//i.test(ev.official_url))
                 const st = ev.status || 'interested'
                 return (
                   <div key={i} className="bg-white/[0.03] rounded-xl p-3">
@@ -200,7 +207,7 @@ function UpskillContent() {
                         <p className="text-white/85 text-sm font-bold">{ev.name}</p>
                         <p className="text-white/35 text-xs">{[ev.when, ev.where].filter(Boolean).join(' · ')}</p>
                       </div>
-                      <a href={ticketUrl} target="_blank" rel="noopener noreferrer" className="text-[#22D3EE] text-xs font-bold flex-shrink-0 hover:underline">Find tickets ↗</a>
+                      <a href={ticketUrl} target="_blank" rel="noopener noreferrer" className="text-[#22D3EE] text-xs font-bold flex-shrink-0 hover:underline">{isOfficial ? 'Official site ↗' : 'Find event ↗'}</a>
                     </div>
                     {ev.why && <p className="text-white/30 text-[11px] mb-2">{ev.why}</p>}
                     <div className="flex gap-1.5 flex-wrap">

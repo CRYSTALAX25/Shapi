@@ -24,19 +24,34 @@ export default async function Dashboard() {
   let activeApplicationsCount = 0
   let evidenceCount = 0
   let completedRefsCount = 0
+  // Upskilling summary
+  let coursesInProgress = 0
+  let coursesCompleted = 0
+  let eventsBooked = 0
+  let eventsAttended = 0
   if (type === 'candidate') {
-    const [interestsRes, shortlistRes, appsRes, evidenceRes, refsRes] = await Promise.all([
+    const [interestsRes, shortlistRes, appsRes, evidenceRes, refsRes, coursesRes, eventsRes] = await Promise.all([
       supabase.from('candidate_interests').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('company_shortlists').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('active_applications').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('evidence').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
       supabase.from('candidate_references').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id).eq('status', 'completed'),
+      supabase.from('candidate_courses').select('status').eq('candidate_id', user.id),
+      supabase.from('candidate_events').select('status').eq('candidate_id', user.id),
     ])
     interestedRolesCount = interestsRes.count ?? 0
     shortlistedByCount = shortlistRes.count ?? 0
     activeApplicationsCount = appsRes.count ?? 0
     evidenceCount = evidenceRes.count ?? 0
     completedRefsCount = refsRes.count ?? 0
+    for (const c of (coursesRes.data ?? [])) {
+      if (c.status === 'completed') coursesCompleted++
+      else if (c.status === 'in_progress') coursesInProgress++
+    }
+    for (const e of (eventsRes.data ?? [])) {
+      if (e.status === 'attended') eventsAttended++
+      else if (e.status === 'booked') eventsBooked++
+    }
   }
 
   // Tier detection — Pro purchase ALSO grants CV Kit access (Pro is the upgraded Kit)
@@ -484,6 +499,34 @@ export default async function Dashboard() {
                     </div>
                     <p className="text-white/35 text-xs">{evidenceCount > 0 ? 'Photos and docs uploaded — adds weight to your profile.' : 'Photos and docs that prove your experience.'}</p>
                   </div>
+                </div>
+              </Link>
+
+              {/* Upskilling summary — compact card linking to /upskill */}
+              <Link href="/upskill" className="md:col-span-2 rounded-2xl p-5 block transition-colors hover:bg-white/[0.02]" style={{
+                background: 'linear-gradient(#0d0d14,#0d0d14) padding-box, linear-gradient(135deg,rgba(34,211,238,0.2),rgba(52,211,153,0.15)) border-box',
+                border: '1px solid transparent',
+              }}>
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-[#34D399] text-xs font-bold uppercase tracking-wider mb-1">Upskilling</p>
+                    <h3 className="font-black text-white text-sm mb-1">
+                      {(coursesInProgress + coursesCompleted + eventsBooked + eventsAttended) > 0
+                        ? 'Keep your momentum going'
+                        : 'Close your skill gaps'}
+                    </h3>
+                    <p className="text-white/45 text-xs">
+                      {(coursesInProgress + coursesCompleted + eventsBooked + eventsAttended) > 0
+                        ? [
+                            coursesInProgress > 0 ? `${coursesInProgress} learning` : null,
+                            coursesCompleted > 0 ? `${coursesCompleted} completed` : null,
+                            eventsBooked > 0 ? `${eventsBooked} event${eventsBooked === 1 ? '' : 's'} booked` : null,
+                            eventsAttended > 0 ? `${eventsAttended} attended` : null,
+                          ].filter(Boolean).join(' · ')
+                        : 'Courses (free / paid / financed) + events from your Career Roadmap.'}
+                    </p>
+                  </div>
+                  <span className="text-[#34D399] text-sm font-bold flex-shrink-0">Open →</span>
                 </div>
               </Link>
 

@@ -189,8 +189,11 @@ export default async function ProfilePage() {
           <div className="gradient-border-card rounded-2xl p-6 mb-4">
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
-                <h2 className="text-white font-black text-sm uppercase tracking-widest opacity-50">Skill fingerprint</h2>
-                <p className="text-white/40 text-xs mt-1">How you work, scored 0–10 on 4 axes</p>
+                <div className="flex items-center gap-2.5">
+                  <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#A78BFA)' }} />
+                  <h2 className="text-white font-black text-xl tracking-tight">Skill Fingerprint</h2>
+                </div>
+                <p className="text-white/40 text-xs mt-1 ml-4">How you work, scored 0–10 on 4 axes</p>
               </div>
               {profile.ai_tier && (
                 <span className="text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0"
