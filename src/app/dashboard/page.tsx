@@ -144,8 +144,13 @@ export default async function Dashboard() {
   const chatLength = Array.isArray(profile?.whatsapp_chat) ? profile.whatsapp_chat.length : 0
   const conversationDone = chatLength >= 8
 
+  // Profile is fully complete when it's live (verified + 100%).
+  const profileComplete = isProfileLive || completion >= 100
+
   // Pick Shapi mood based on candidate state
-  const shapiMood = !profile?.cv_parsed
+  const shapiMood = profileComplete
+    ? 'happy'
+    : !profile?.cv_parsed
     ? 'idle'
     : !profile?.whatsapp_number
     ? 'listening'
@@ -153,7 +158,9 @@ export default async function Dashboard() {
     ? 'happy'
     : 'thinking'
 
-  const shapiMessage = !profile?.cv_parsed
+  const shapiMessage = profileComplete
+    ? `🎉 Congratulations${firstName ? `, ${firstName}` : ''} — your profile is complete and live. Companies can now find, verify, and reach out to you. You're all set.`
+    : !profile?.cv_parsed
     ? `Hey${firstName ? ` ${firstName}` : ''} — drop your CV and I'll take it from here. No forms, I promise.`
     : !profile?.whatsapp_number
     ? `CV's in. Now I want to hear about the stuff that never makes it onto paper. Check your WhatsApp.`

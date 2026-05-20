@@ -32,7 +32,9 @@ export default async function RolesBoard() {
     .eq('id', user.id)
     .single()
 
-  if (profile?.type !== 'candidate') redirect('/company/dashboard')
+  // Only bounce actual company accounts — candidates may have type=null
+  // (signup doesn't always set it), and they should still see the roles board.
+  if (profile?.type === 'company') redirect('/company/dashboard')
 
   // Fetch all active roles
   const admin = createAdminClient()
