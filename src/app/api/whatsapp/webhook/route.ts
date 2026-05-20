@@ -580,6 +580,31 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
     return new NextResponse('', { status: 200 })
   }
 
+  // ═══ Manual "voice" command — start/continue voice-sample capture ════════
+  // Lets the candidate record a voice sample per CV language on demand (the
+  // automatic prompt only fires right after [DONE]). Sets the awaiting flag to
+  // the next language without a sample, then each inbound voice note is captured
+  // by the voice-sample handler above.
+  if (/^(voice|voice samples?|record voice|voice notes?)$/.test(lowerMsg)) {
+    const samples = (profile.voice_samples as VoiceSamplesMap) || {}
+    const langs = profile.languages_spoken as Array<{ language: string }> | null
+    if (!langs || langs.length === 0) {
+      await sendWhatsApp(phone, `I don't see any languages on your profile yet. Add the languages you speak at ${SITE}/profile/edit, then text "voice" again.`)
+      return new NextResponse('', { status: 200 })
+    }
+    const next = pickNextLanguageToCapture(langs, samples)
+    if (!next) {
+      const done = Object.keys(samples).join(', ')
+      await admin.from('profiles').update({ awaiting_voice_sample_lang: langs[0].language }).eq('id', profile.id)
+      await sendWhatsApp(phone, `You've already got voice samples for: ${done}. Want to redo one? Send a fresh voice note in *${langs[0].language}* and I'll replace it. (Or text "voice" then a note for any language.)`)
+      return new NextResponse('', { status: 200 })
+    }
+    await admin.from('profiles').update({ awaiting_voice_sample_lang: next }).eq('id', profile.id)
+    const remaining = langs.filter(l => !samples[l.language.toLowerCase()]).map(l => l.language)
+    await sendWhatsApp(phone, `🎙️ Let's capture your voice samples (${remaining.length} to go: ${remaining.join(', ')}).\n\nSend me a 15–30 second voice note in *${next}* — introduce yourself or talk about your work. Companies viewing your profile will hear how you communicate in each language.`)
+    return new NextResponse('', { status: 200 })
+  }
+
   // ═══ PRIORITY 0.5: Company JD-via-WhatsApp intake ════════════════════════
   // If the matched profile is a company user, this conversation isn't a
   // candidate interview — it's a hiring manager describing a role they want
