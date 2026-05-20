@@ -192,6 +192,36 @@ Be specific and honest. Generic advice = useless advice.`
       // and close any open brackets so we salvage a valid roadmap.
       parsed = JSON.parse(repairTruncatedJson(match[0]))
     }
+
+    // Bulletproof language filter — strip any course/event in a language the
+    // candidate doesn't speak (belt-and-suspenders on top of the prompt rule).
+    // Detects Arabic script or an explicit "(Arabic)" / "in Arabic" mention.
+    const spokenLower = (languageList || 'English').toLowerCase()
+    const hasArabicScript = (s: unknown) => typeof s === 'string' && /[؀-ۿ]/.test(s)
+    const mentionsUnspokenLang = (s: unknown) => {
+      if (typeof s !== 'string') return false
+      const m = s.toLowerCase()
+      // Flag a language mention only if the candidate doesn't speak it
+      for (const lang of ['arabic', 'french', 'spanish', 'german', 'mandarin', 'chinese', 'hindi', 'urdu', 'russian']) {
+        if (m.includes(lang) && !spokenLower.includes(lang)) return true
+      }
+      return false
+    }
+    const tainted = (s: unknown) => hasArabicScript(s) || mentionsUnspokenLang(s)
+    if (Array.isArray(parsed.events_to_attend)) {
+      parsed.events_to_attend = (parsed.events_to_attend as Array<Record<string, unknown>>)
+        .filter(e => !tainted(e.name) && !tainted(e.why) && !tainted(e.where))
+    }
+    if (Array.isArray(parsed.skills_gaps)) {
+      parsed.skills_gaps = (parsed.skills_gaps as Array<Record<string, unknown>>).map(g => {
+        if (Array.isArray(g.suggested_courses)) {
+          g.suggested_courses = (g.suggested_courses as Array<Record<string, unknown>>)
+            .filter(c => !tainted(c.name) && !tainted(c.platform))
+        }
+        return g
+      })
+    }
+
     const roadmap = { ...parsed, generated_at: new Date().toISOString() }
 
     // Persist via admin client (bypasses RLS on the score column)

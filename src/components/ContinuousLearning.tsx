@@ -262,7 +262,15 @@ export default function ContinuousLearning({
                         </div>
                         <div>
                           <p className="text-[#FBBF24] font-bold mb-1">⌛ Gaps to close</p>
-                          <p className="text-white/55">{p.gaps_to_close.join(' · ')}</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {p.gaps_to_close.map((g, j) => (
+                              <Link key={j} href={`/upskill?skill=${encodeURIComponent(g)}`}
+                                className="text-white/65 hover:text-[#22D3EE] underline decoration-dotted underline-offset-2 transition-colors">
+                                {g}{j < p.gaps_to_close.length - 1 ? '' : ''}
+                              </Link>
+                            ))}
+                          </div>
+                          <p className="text-white/25 text-[10px] mt-1">tap a gap → find courses</p>
                         </div>
                       </div>
                       {p.first_actions?.length > 0 && (
