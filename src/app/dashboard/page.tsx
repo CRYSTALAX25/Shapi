@@ -14,7 +14,7 @@ export default async function Dashboard() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased, cv_tier, profile_live, subscription_product')
+    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased, cv_tier, profile_live, subscription_product, right_to_work, work_style')
     .eq('id', user.id)
     .single()
 
@@ -514,6 +514,66 @@ export default async function Dashboard() {
                       )}
                     </div>
                     <p className="text-white/35 text-xs">{evidenceCount > 0 ? 'Photos and docs uploaded — adds weight to your profile.' : 'Photos and docs that prove your experience.'}</p>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Right to work */}
+              {(() => {
+                const rtw = Array.isArray(profile?.right_to_work) ? (profile!.right_to_work as Array<{ region?: string }>).filter(r => r.region) : []
+                const has = rtw.length > 0
+                return (
+                  <Link href="/profile/edit" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.02] transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${has ? 'bg-emerald-500/15' : 'bg-[#22D3EE]/15'}`}>
+                        <span className="text-lg">{has ? '✅' : '🌍'}</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <h3 className="font-bold text-white text-sm">Right to work</h3>
+                          {has
+                            ? <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">{rtw.length} added ✓</span>
+                            : <span className="text-[10px] font-bold bg-[#22D3EE]/15 text-[#22D3EE] px-2 py-0.5 rounded-full">Add now</span>}
+                        </div>
+                        <p className="text-white/35 text-xs">{has ? rtw.map(r => r.region).slice(0, 3).join(' · ') : 'Where you’re authorised to work — a key signal for employers.'}</p>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })()}
+
+              {/* Courses / learning */}
+              <Link href="/upskill" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.02] transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${(coursesInProgress + coursesCompleted) > 0 ? 'bg-emerald-500/15' : 'bg-[#A78BFA]/15'}`}>
+                    <span className="text-lg">🎓</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <h3 className="font-bold text-white text-sm">Courses & learning</h3>
+                      {(coursesInProgress + coursesCompleted) > 0
+                        ? <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">{coursesCompleted} done · {coursesInProgress} learning</span>
+                        : <span className="text-[10px] font-bold bg-[#A78BFA]/15 text-[#A78BFA] px-2 py-0.5 rounded-full">Browse</span>}
+                    </div>
+                    <p className="text-white/35 text-xs">{(coursesInProgress + coursesCompleted) > 0 ? 'Verified learning shows companies real growth.' : 'Close your skill gaps — free, paid or financed.'}</p>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Work style */}
+              <Link href="/work-style" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.02] transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${profile?.work_style ? 'bg-emerald-500/15' : 'bg-[#FB7185]/15'}`}>
+                    <span className="text-lg">🧭</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <h3 className="font-bold text-white text-sm">Work style</h3>
+                      {profile?.work_style
+                        ? <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">Done ✓</span>
+                        : <span className="text-[10px] font-bold bg-[#FB7185]/15 text-[#FB7185] px-2 py-0.5 rounded-full">2 min</span>}
+                    </div>
+                    <p className="text-white/35 text-xs">{profile?.work_style ? 'How you prefer to work — shown to companies.' : 'Quick check — how you work best (team vs solo, etc.).'}</p>
                   </div>
                 </div>
               </Link>
