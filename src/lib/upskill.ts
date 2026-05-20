@@ -35,11 +35,14 @@ export const PROVIDERS: Provider[] = [
 
 // Financing options — static guidance, not search links. These are the routes
 // candidates can use to pay for paid courses without upfront cost.
+// Financing options — static guidance. Links use search URLs (never 404) since
+// providers' deep article links rot frequently.
+const gsearch = (q: string) => `https://www.google.com/search?q=${encodeURIComponent(q)}`
 export const FINANCING_OPTIONS: Array<{ title: string; detail: string; href?: string }> = [
   {
     title: 'Course financial aid',
     detail: 'Coursera and edX offer financial aid on most certificates — apply and it can be fully free if approved (≈2 week turnaround).',
-    href: 'https://www.coursera.org/articles/financial-aid',
+    href: gsearch('how to apply for Coursera financial aid'),
   },
   {
     title: 'Employer sponsorship',
@@ -48,10 +51,12 @@ export const FINANCING_OPTIONS: Array<{ title: string; detail: string; href?: st
   {
     title: 'Government / regional schemes',
     detail: 'Check national upskilling funds and free programmes (e.g. UAE’s "One Million Coders", UK Skills Bootcamps, EU digital skills funds).',
+    href: gsearch('government free upskilling programmes near me'),
   },
   {
     title: 'Pay-after-you-earn (ISA / BNPL)',
     detail: 'Some bootcamps offer income-share agreements or instalments (Klarna/Affirm) — you pay once you’re placed or in monthly chunks.',
+    href: gsearch('bootcamp income share agreement courses'),
   },
 ]
 
