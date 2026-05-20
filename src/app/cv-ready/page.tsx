@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { INDUSTRY_FOCUS_SHORT, type Industry } from '@/lib/industry-briefs'
 
 type SendState = 'idle' | 'sending' | 'sent' | 'error' | 'fallback'
 
@@ -753,6 +754,7 @@ export default function CVReady() {
                   coverage_level?: string
                   coverage_score?: number
                   missing_areas?: string[]
+                  opening_message?: string
                 } | undefined
                 const status = ic?.status || 'pending'
                 const isInProgress = status === 'in_progress'
@@ -798,10 +800,30 @@ export default function CVReady() {
                         </span>
                       )}
                     </div>
-                    {ic?.missing_areas && ic.missing_areas.length > 0 && !isComplete && (
-                      <p className="text-white/35 text-xs mb-2">
-                        Gaps to fill: {ic.missing_areas.slice(0, 3).join(', ')}
-                      </p>
+                    {/* Always-present brief — collapsed by default so the card
+                        stays light on mobile. Shows the static "what we'll explore"
+                        for every industry, plus personalised gaps once started. */}
+                    {!isComplete && (
+                      <details className="mb-2 group">
+                        <summary className="text-[#A78BFA] text-xs cursor-pointer list-none flex items-center gap-1 select-none">
+                          <span className="transition-transform group-open:rotate-90">▸</span>
+                          What we&apos;ll explore
+                        </summary>
+                        <div className="mt-2 pl-3 border-l border-white/10">
+                          {ic?.missing_areas && ic.missing_areas.length > 0 ? (
+                            <p className="text-white/45 text-xs mb-2">
+                              <span className="text-white/30 font-bold">Your gaps to fill:</span> {ic.missing_areas.slice(0, 3).join(', ')}
+                            </p>
+                          ) : (
+                            <p className="text-white/45 text-xs mb-2">
+                              <span className="text-white/30 font-bold">This deep-dive surfaces:</span> {INDUSTRY_FOCUS_SHORT[ind as Industry] || 'specific projects, numbers and outcomes that make your experience stand out'}
+                            </p>
+                          )}
+                          {ic?.opening_message && (
+                            <p className="text-white/35 text-[11px] italic leading-relaxed">&ldquo;{ic.opening_message}&rdquo;</p>
+                          )}
+                        </div>
+                      </details>
                     )}
                     <button
                       onClick={() => startIndustryDeepDive(ind)}
