@@ -209,8 +209,11 @@ export default function CVReady() {
         body: JSON.stringify({ industry }),
       })
       const d = await res.json().catch(() => ({}))
-      if (d.success) {
-        // Optimistic local state update — refresh profile to get the new industry_chats state
+
+      // The coverage analysis + gaps are stored in industry_chats by the server
+      // on BOTH success and whatsapp_failed (only the WhatsApp send differs). So
+      // refresh local state in either case — that's what surfaces the brief/gaps.
+      if (d.success || d.whatsapp_failed) {
         const supabase = createClient()
         const { data: { user } } = await supabase.auth.getUser()
         if (user) {
@@ -224,9 +227,16 @@ export default function CVReady() {
             industry_chats: (p?.industry_chats as Record<string, { status?: string; answers?: string[] }>) ?? prev.industry_chats,
           } : prev)
         }
-      } else if (d.whatsapp_failed) {
-        setDeepDiveError(d.error || 'WhatsApp delivery failed — try again in a moment.')
-      } else {
+      }
+
+      if (d.whatsapp_failed) {
+        // Twilio is rate-limited / unavailable — show the opening question inline
+        // so the candidate can still answer here instead of on WhatsApp.
+        const opening = d.coverage?.opening_message || d.opening_message || ''
+        setDeepDiveError(opening
+          ? `WhatsApp is rate-limited right now — here's your opening question:\n\n"${opening}"`
+          : (d.error || 'WhatsApp delivery failed — the brief is ready below, try the interview again shortly.'))
+      } else if (!d.success) {
         setDeepDiveError(d.error || 'Could not start the interview — try again.')
       }
     } catch {
