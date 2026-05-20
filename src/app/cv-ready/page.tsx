@@ -191,7 +191,8 @@ export default function CVReady() {
   // order on every render (otherwise the early "Loading…" return changes the hook
   // count and the page crashes with "Rendered more hooks than during the previous render")
   const [pickerOpen, setPickerOpen] = useState<null | 'email' | 'whatsapp'>(null)
-  const [pickerChosen, setPickerChosen] = useState<Set<string>>(new Set(['lang:english']))
+  // Keys are `${type}:${value.toLowerCase()}` — must match keyOf below.
+  const [pickerChosen, setPickerChosen] = useState<Set<string>>(new Set(['language:english']))
   const [deepDiveQuestions, setDeepDiveQuestions] = useState('')
   // Per-industry "Start interview" loading state — tracks which industry button is currently spinning
   const [deepDiveStartingFor, setDeepDiveStartingFor] = useState<string | null>(null)
@@ -880,10 +881,15 @@ export default function CVReady() {
                 return (
                   <label key={k}
                     onClick={() => {
-                      const next = new Set(pickerChosen)
-                      if (next.has(k)) next.delete(k)
-                      else next.add(k)
-                      setPickerChosen(next)
+                      // Functional update form — captures latest state, not the
+                      // value from the render where this handler was created.
+                      // Without this, fast successive clicks lose selections.
+                      setPickerChosen(prev => {
+                        const next = new Set(prev)
+                        if (next.has(k)) next.delete(k)
+                        else next.add(k)
+                        return next
+                      })
                     }}
                     className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors"
                     style={{
