@@ -80,6 +80,22 @@ function extractImpactStats(workHistory: WorkEntry[]): Array<{ value: string; la
   return out
 }
 
+// Bucket flat skills into Tech / Soft / Hard for a structured sidebar.
+// Heuristic keyword match — Tech = tools/software/platforms, Soft = behavioural,
+// Hard = everything else (domain expertise, methods).
+const TECH_HINTS = ['excel', 'sap', 'netsuite', 'quickbooks', 'salesforce', 'hubspot', 'python', 'sql', 'tableau', 'power bi', 'powerbi', 'looker', 'shopify', 'amazon', 'aws', 'azure', 'gcp', 'figma', 'jira', 'asana', 'notion', 'slack', 'chatgpt', 'claude', 'gpt', 'midjourney', 'canva', 'wordpress', 'html', 'css', 'javascript', 'react', 'node', 'erp', 'crm', 'qr', 'api', 'photoshop', 'illustrator', 'premiere', 'word', 'powerpoint', 'google ', 'zapier', 'airtable', 'monday', 'oracle', 'workday', 'xero', 'stripe', 'meta ads', 'google ads', 'seo', 'analytics']
+const SOFT_HINTS = ['communication', 'leadership', 'teamwork', 'team work', 'collaboration', 'problem solving', 'problem-solving', 'adaptability', 'negotiation', 'time management', 'critical thinking', 'creativity', 'emotional intelligence', 'mentoring', 'coaching', 'presentation', 'public speaking', 'conflict resolution', 'decision making', 'decision-making', 'interpersonal', 'empathy', 'resilience', 'work ethic', 'attention to detail', 'organisation', 'organization', 'flexibility', 'initiative', 'stakeholder management', 'relationship']
+function categorizeSkills(skills: string[]): { tech: string[]; soft: string[]; hard: string[] } {
+  const tech: string[] = [], soft: string[] = [], hard: string[] = []
+  for (const s of skills) {
+    const l = s.toLowerCase()
+    if (TECH_HINTS.some(h => l.includes(h))) tech.push(s)
+    else if (SOFT_HINTS.some(h => l.includes(h))) soft.push(s)
+    else hard.push(s)
+  }
+  return { tech, soft, hard }
+}
+
 function PrintContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -438,7 +454,7 @@ function PrintContent() {
         .va-arc-next { color: #7C3AED; font-weight: 700; }
         .va-trust { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 999px; font-family: system-ui, sans-serif; letter-spacing: 0.3px; vertical-align: middle; }
         .va-verline { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; }
-        .va-learn-item { font-size: 11px; color: #4B5563; margin-bottom: 3px; }
+        .va-learn-item { font-size: 10.5px; color: #6B7280; line-height: 1.45; margin-bottom: 5px; padding-left: 8px; border-left: 1.5px solid #E5E7EB; }
         .va-radar-wrap { display: flex; flex-direction: column; align-items: center; }
         .va-resil { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
         .va-resil .num { font-size: 22px; font-weight: 800; line-height: 1; }
@@ -828,26 +844,54 @@ function PrintContent() {
             </div>
           )}
 
-          {cv.skills && cv.skills.length > 0 && (
-            <div className="va-block">
-              <p className="va-sidelabel">{labels.skills}</p>
-              <div>{cv.skills.slice(0, 20).map((s, i) => <span key={i} className="va-chip-sm">{s}</span>)}</div>
-            </div>
-          )}
+          {cv.skills && cv.skills.length > 0 && (() => {
+            const cat = categorizeSkills(cv.skills.slice(0, 28))
+            const groups = [
+              { title: 'Technical & Tools', items: cat.tech },
+              { title: 'Core Skills', items: cat.hard },
+              { title: 'Soft Skills', items: cat.soft },
+            ].filter(g => g.items.length > 0)
+            return (
+              <div className="va-block">
+                <p className="va-sidelabel">{labels.skills}</p>
+                {groups.map(g => (
+                  <div key={g.title} style={{ marginBottom: 8 }}>
+                    <p style={{ fontSize: 8.5, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{g.title}</p>
+                    <div>{g.items.map((s, i) => <span key={i} className="va-chip-sm">{s}</span>)}</div>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
 
-          {/* Continuous Learning — self-reported until verified through Shapi */}
+          {/* Continuous Learning — grouped by type, self-reported until verified */}
           {(cv.certifications?.length || cv.courses?.length || cv.events?.length) ? (
             <div className="va-block">
               <p className="va-sidelabel">Continuous Learning <span className="va-trust" style={{ background: '#F3F4F6', color: '#6B7280' }}>○ self-reported</span></p>
-              {(cv.certifications || []).map((c, i) => (
-                <div key={`c${i}`} className="va-learn-item">○ {c.name}{c.issuer ? ` · ${c.issuer}` : ''}{c.year ? ` ${c.year}` : ''}</div>
-              ))}
-              {(cv.courses || []).map((c, i) => (
-                <div key={`co${i}`} className="va-learn-item">○ {c.name}{c.platform ? ` · ${c.platform}` : ''}{c.year ? ` ${c.year}` : ''}</div>
-              ))}
-              {(cv.events || []).map((e, i) => (
-                <div key={`e${i}`} className="va-learn-item">○ {e.name}{e.year ? ` ${e.year}` : ''}</div>
-              ))}
+              {(cv.certifications?.length ?? 0) > 0 && (
+                <div style={{ marginBottom: 8 }}>
+                  <p style={{ fontSize: 8.5, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Certifications</p>
+                  {cv.certifications!.map((c, i) => (
+                    <div key={`c${i}`} className="va-learn-item"><strong style={{ color: '#374151' }}>{c.name}</strong>{c.issuer ? ` · ${c.issuer}` : ''}{c.year ? ` · ${c.year}` : ''}</div>
+                  ))}
+                </div>
+              )}
+              {(cv.courses?.length ?? 0) > 0 && (
+                <div style={{ marginBottom: 8 }}>
+                  <p style={{ fontSize: 8.5, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Courses</p>
+                  {cv.courses!.map((c, i) => (
+                    <div key={`co${i}`} className="va-learn-item"><strong style={{ color: '#374151' }}>{c.name}</strong>{c.platform ? ` · ${c.platform}` : ''}{c.year ? ` · ${c.year}` : ''}</div>
+                  ))}
+                </div>
+              )}
+              {(cv.events?.length ?? 0) > 0 && (
+                <div>
+                  <p style={{ fontSize: 8.5, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Events</p>
+                  {cv.events!.map((e, i) => (
+                    <div key={`e${i}`} className="va-learn-item"><strong style={{ color: '#374151' }}>{e.name}</strong>{e.year ? ` · ${e.year}` : ''}</div>
+                  ))}
+                </div>
+              )}
             </div>
           ) : null}
         </div>
