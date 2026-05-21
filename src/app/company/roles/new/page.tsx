@@ -28,6 +28,7 @@ export default function NewRole() {
   const [salaryMax, setSalaryMax] = useState('')
   const [currency, setCurrency] = useState('USD')
   const [salaryVisible, setSalaryVisible] = useState(true)
+  const [engagementType, setEngagementType] = useState<'permanent' | 'contract' | 'temp'>('permanent')
 
   // WhatsApp-style deep questions
   const [problemToSolve, setProblemToSolve] = useState('')
@@ -94,6 +95,7 @@ export default function NewRole() {
         salary_max: parseInt(salaryMax),
         salary_currency: currency,
         salary_visible: salaryVisible,
+        engagement_type: engagementType,
         problem_to_solve: problemToSolve.trim(),
         ideal_candidate: idealCandidate.trim(),
         team_context: teamContext.trim(),
@@ -248,6 +250,26 @@ export default function NewRole() {
               <label>Location</label>
               <input className="field" value={location} onChange={e => setLocation(e.target.value)}
                 placeholder="Dubai, UAE" />
+            </div>
+          </div>
+
+          <div>
+            <label>Engagement type</label>
+            <div className="grid grid-cols-3 gap-2">
+              {([
+                { v: 'permanent', l: 'Permanent', s: 'Full-time hire' },
+                { v: 'contract', l: 'Contract', s: 'Fixed-term / day rate' },
+                { v: 'temp', l: 'Temp / Shift', s: 'Short-term cover' },
+              ] as const).map(o => (
+                <button key={o.v} type="button" onClick={() => setEngagementType(o.v)}
+                  className="text-left rounded-xl px-3 py-2.5 transition-all"
+                  style={engagementType === o.v
+                    ? { background: 'rgba(34,211,238,0.1)', border: '1px solid rgba(34,211,238,0.45)' }
+                    : { background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)' }}>
+                  <p className="text-sm font-bold" style={{ color: engagementType === o.v ? '#0891B2' : '#3F3F4E' }}>{o.l}</p>
+                  <p className="text-[#8A8A99] text-[10px] leading-tight">{o.s}</p>
+                </button>
+              ))}
             </div>
           </div>
 

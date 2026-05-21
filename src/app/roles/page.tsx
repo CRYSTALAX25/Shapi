@@ -19,6 +19,7 @@ type Role = {
   status: string
   created_at: string
   company_id: string
+  engagement_type: string | null
 }
 
 export default async function RolesBoard() {
@@ -40,7 +41,7 @@ export default async function RolesBoard() {
   const admin = createAdminClient()
   const { data: roles } = await admin
     .from('roles')
-    .select('id, title, department, location, remote, salary_min, salary_max, salary_currency, salary_visible, description, status, created_at, company_id')
+    .select('id, title, department, location, remote, salary_min, salary_max, salary_currency, salary_visible, description, status, created_at, company_id, engagement_type')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
 
@@ -151,6 +152,12 @@ export default async function RolesBoard() {
                         </span>
                         {role.remote && (
                           <span className="bg-[#0E0E1A]/[0.04] text-[#5A5A6E] text-xs px-2.5 py-1 rounded-full">Remote OK</span>
+                        )}
+                        {role.engagement_type && role.engagement_type !== 'permanent' && (
+                          <span className="text-xs font-bold px-2.5 py-1 rounded-full capitalize"
+                            style={{ background: 'rgba(167,139,250,0.14)', color: '#7C3AED' }}>
+                            {role.engagement_type === 'temp' ? 'Temp / Shift' : 'Contract'}
+                          </span>
                         )}
                       </div>
                       <div className="flex items-center gap-2 mb-1 flex-wrap">

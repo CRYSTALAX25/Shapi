@@ -87,6 +87,7 @@ export default function EditProfile() {
   const [primaryMin, setPrimaryMin] = useState('')
   const [primaryMax, setPrimaryMax] = useState('')
   const [pivotBands, setPivotBands] = useState<PivotBand[]>([])
+  const [openToEngagement, setOpenToEngagement] = useState<string[]>([])
 
   useEffect(() => {
     fetch('/api/profile/get')
@@ -120,6 +121,7 @@ export default function EditProfile() {
             : []
         )
         setJobSearchStatus(data.job_search_status || 'open')
+        setOpenToEngagement(Array.isArray(data.open_to_engagement) ? data.open_to_engagement : [])
         const se = data.salary_expectations
         if (se && typeof se === 'object') {
           setSalCurrency(se.currency || 'AED')
@@ -200,6 +202,7 @@ export default function EditProfile() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         job_search_status: jobSearchStatus,
+        open_to_engagement: openToEngagement,
         salary_expectations: salaryExpectations,
         full_name: fullName.trim() || null,
         headline: headline.trim() || null,
@@ -668,6 +671,31 @@ export default function EditProfile() {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Open to engagement types */}
+          <div>
+            <label>Open to</label>
+            <div className="flex flex-wrap gap-2">
+              {([
+                { v: 'permanent', l: 'Permanent' },
+                { v: 'contract', l: 'Contract' },
+                { v: 'temp', l: 'Temp / Shift' },
+              ] as const).map(o => {
+                const on = openToEngagement.includes(o.v)
+                return (
+                  <button key={o.v} type="button"
+                    onClick={() => setOpenToEngagement(prev => on ? prev.filter(x => x !== o.v) : [...prev, o.v])}
+                    className="text-sm font-bold px-4 py-2 rounded-full transition-all"
+                    style={on
+                      ? { background: 'rgba(34,211,238,0.12)', border: '1px solid rgba(34,211,238,0.45)', color: '#0891B2' }
+                      : { background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)', color: '#5A5A6E' }}>
+                    {on ? '✓ ' : ''}{o.l}
+                  </button>
+                )
+              })}
+            </div>
+            <p className="text-[#8A8A99] text-xs mt-2">Which kinds of work you&apos;ll consider. Helps us match you to the right roles.</p>
           </div>
 
           {/* Salary settings */}
