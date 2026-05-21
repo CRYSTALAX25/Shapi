@@ -85,6 +85,35 @@ Fix structurally, not by chasing — four layers:
 
 ---
 
+## 4a. Intent, salary & responsiveness — the engagement trust layer [IDEA, added 2026-05-21]
+The unifying concept: **apply the "claims, then proof" trust model to engagement, not just
+credentials.** Self-reported intent, verified by behaviour. Strong fundraising line:
+*"We don't just verify who you are — we verify how you actually show up."*
+
+- **Active / Passive intent (both sides).**
+  - Candidates: *Actively looking* / *Open to offers* (passive) / *Not looking*. Passive-but-open
+    are the most desirable to companies; the signal also sets outreach tone + response-time
+    expectations.
+  - Companies: *Hiring now* / *Building pipeline*.
+  - ⚠️ Naming: "Shapi Active" is already a paid candidate product — use plain status labels for
+    intent, NOT "Active/Passive", to avoid confusion.
+- **Salary (currently captured nowhere — gap).**
+  - Candidate salary expectation: captured, **private by default** (matching only / shown to
+    matched companies or as a band).
+  - Role: encourage/require a **salary range**; transparency boosts the company's trust signal,
+    hiding it lowers it ("ghost salary" ≈ ghost job). "Salary as advertised" = a verified trust
+    signal alongside "paid on time".
+  - UAE nuance: capture **total package** (base + housing + transport, tax-free), not just base.
+  - Position salary as *transparency* (trust), not the headline — match on salary fit so we never
+    show mismatched pairs.
+- **Responsiveness & follow-through tracking (both sides).**
+  - Track time-to-reply, ghost/no-show rate, and behaviour vs stated intent (e.g. "actively
+    looking" but ignores all matches → not really active; downgrade/nudge).
+  - Feeds a **candidate reliability score** + **company responsiveness score** → badges like
+    "Replies in ~1 day" / "Responds to 90% of candidates". Ghosting is the #1 two-sided
+    complaint; nobody surfaces this today.
+  - Connects to intent: behaviour *validates* the self-reported active/passive status.
+
 ## 5. Tech moat
 - The **data** is the moat, not the features. Every independent reference, cross-check, company
   rating, and **hire outcome** (did they stay? how rated?) is proprietary → trains a real
