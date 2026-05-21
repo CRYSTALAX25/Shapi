@@ -45,6 +45,8 @@ function SignUpForm() {
         },
         emailRedirectTo: companyInvite
           ? `${location.origin}/company/dashboard?joined=1`
+          : type === 'company'
+          ? `${location.origin}/company/onboarding`
           : `${location.origin}/upload-cv`,
       },
     })

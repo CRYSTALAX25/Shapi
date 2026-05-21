@@ -14,9 +14,12 @@ export default async function Dashboard() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased, cv_tier, profile_live, subscription_product, right_to_work, work_style')
+    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased, cv_tier, profile_live, subscription_product, right_to_work, work_style, type')
     .eq('id', user.id)
     .single()
+
+  // Companies belong on the company dashboard, not the candidate one.
+  if (type === 'company' || profile?.type === 'company') redirect('/company/dashboard')
 
   // Fetch candidate signals
   let interestedRolesCount = 0
