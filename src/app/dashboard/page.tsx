@@ -211,6 +211,7 @@ export default async function Dashboard() {
           {type === 'candidate' && (
             <>
               <Link href="/roles" className="text-sm text-[#5A5A6E] hover:text-[#3F3F4E] transition-colors hidden md:block">Roles</Link>
+              <Link href="/applications" className="text-sm text-[#5A5A6E] hover:text-[#3F3F4E] transition-colors hidden md:block">My applications</Link>
               <Link href="/active" className="text-sm text-[#5A5A6E] hover:text-[#3F3F4E] transition-colors hidden md:block">Active</Link>
               <Link href="/profile" className="text-sm text-[#0891B2] font-semibold hover:opacity-80 transition-opacity">
                 View profile →

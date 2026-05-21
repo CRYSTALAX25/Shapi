@@ -19,6 +19,16 @@ export async function POST(request: Request) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
+  // Mirror into the pipeline: shortlisting puts the candidate at the 'shortlisted'
+  // stage (don't downgrade if already further along).
+  const { data: existingApp } = await supabase
+    .from('applications').select('id, stage').eq('candidate_id', candidate_id).eq('role_id', role_id).maybeSingle()
+  if (!existingApp) {
+    await supabase.from('applications').insert({ candidate_id, role_id, company_id: user.id, stage: 'shortlisted' })
+  } else if (existingApp.stage === 'matched') {
+    await supabase.from('applications').update({ stage: 'shortlisted' }).eq('id', existingApp.id)
+  }
+
   // Check mutual match — has candidate expressed interest?
   const { data: interest } = await supabase
     .from('candidate_interests')

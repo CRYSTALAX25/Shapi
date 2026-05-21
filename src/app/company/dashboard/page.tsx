@@ -171,6 +171,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
             backgroundClip: 'text',
           }}>shapi</Link>
           <div className="flex items-center gap-6">
+            <Link href="/company/pipeline" className="text-[#5A5A6E] text-sm font-bold hover:text-[#0E0E1A] transition-colors">Pipeline →</Link>
             <span className="text-[#8A8A99] text-sm">{companyName}</span>
             {!isPaid && (
               <Link href="/company/pricing"
