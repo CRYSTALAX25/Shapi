@@ -4,6 +4,7 @@ import Link from 'next/link'
 import ShapiCharacter from '@/components/ShapiCharacter'
 import { createAdminClient } from '@/lib/supabase/admin'
 import ShortlistButton from './ShortlistButton'
+import { scoreCandidateForRole, matchLabel } from '@/lib/matching'
 
 type Candidate = {
   id: string
@@ -16,7 +17,11 @@ type Candidate = {
   summary: string | null
   whatsapp_chat: unknown[]
   industry: string | null
+  verification_tier: string | null
+  salary_expectations: unknown
+  open_to_engagement: string[] | null
   match_score?: number
+  match_reasons?: string[]
 }
 
 type Role = {
@@ -29,56 +34,9 @@ type Role = {
   salary_min: number | null
   salary_max: number | null
   salary_currency: string | null
+  engagement_type: string | null
   status: string
   created_at: string
-}
-
-function scoreCandidate(candidate: Candidate, role: Role): number {
-  let score = 0
-
-  const reqText = `${role.requirements || ''} ${role.description || ''} ${role.title || ''}`.toLowerCase()
-  const candidateSkills = (candidate.skills || []).map(s => s.toLowerCase())
-
-  if (candidateSkills.length > 0) {
-    let matchCount = 0
-    for (const skill of candidateSkills) {
-      const escaped = skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      if (new RegExp(`\\b${escaped}\\b`).test(reqText)) matchCount++
-    }
-    score += Math.round((matchCount / candidateSkills.length) * 50)
-  }
-
-  if (role.location && candidate.location) {
-    const roleCity = role.location.toLowerCase()
-    const candCity = candidate.location.toLowerCase()
-    if (roleCity.includes(candCity) || candCity.includes(roleCity)) {
-      score += 20
-    } else {
-      const roleWords = roleCity.split(/[\s,]+/)
-      const candWords = candCity.split(/[\s,]+/)
-      if (roleWords.some(w => w.length > 2 && candWords.includes(w))) score += 10
-    }
-  } else if (!role.location) {
-    score += 10
-  }
-
-  const deptText = `${role.department || ''} ${role.title || ''}`.toLowerCase()
-  const headlineText = `${candidate.headline || ''} ${candidate.industry || ''}`.toLowerCase()
-  if (deptText && headlineText) {
-    const deptWords = deptText.split(/[\s,\/\-]+/).filter(w => w.length > 3)
-    const headlineWords = headlineText.split(/[\s,\/\-]+/)
-    if (deptWords.some(w => headlineWords.some(h => h.includes(w) || w.includes(h)))) score += 15
-  }
-
-  score += Math.round((candidate.completion_pct / 100) * 15)
-  return Math.min(score, 100)
-}
-
-function matchLabel(score: number) {
-  if (score >= 75) return { label: 'Strong match', colour: 'bg-emerald-500/15 text-emerald-600' }
-  if (score >= 50) return { label: 'Good match', colour: 'bg-[#22D3EE]/10 text-[#0891B2]' }
-  if (score >= 30) return { label: 'Possible', colour: 'bg-[#A78BFA]/10 text-[#7C3AED]' }
-  return { label: 'Low match', colour: 'bg-[#0E0E1A]/[0.04] text-[#8A8A99]' }
 }
 
 export default async function CompanyDashboard({ searchParams }: { searchParams: Promise<{ role?: string }> }) {
@@ -110,7 +68,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   // Fetch all active roles for this company
   const { data: roles } = await supabase
     .from('roles')
-    .select('id, title, department, location, requirements, description, salary_min, salary_max, salary_currency, status, created_at')
+    .select('id, title, department, location, requirements, description, salary_min, salary_max, salary_currency, engagement_type, status, created_at')
     .eq('company_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -126,7 +84,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   const admin = createAdminClient()
   const { data: rawCandidates } = await admin
     .from('profiles')
-    .select('id, full_name, headline, location, skills, ai_tier, completion_pct, summary, whatsapp_chat, industry')
+    .select('id, full_name, headline, location, skills, ai_tier, completion_pct, summary, whatsapp_chat, industry, verification_tier, salary_expectations, open_to_engagement')
     .eq('type', 'candidate')
     .gte('completion_pct', 20)
     .order('completion_pct', { ascending: false })
@@ -145,7 +103,10 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   // Score and sort candidates if a role is selected
   const candidates: Candidate[] = selectedRole
     ? allCandidates
-        .map(c => ({ ...c, match_score: scoreCandidate(c, selectedRole) }))
+        .map(c => {
+          const { score, reasons } = scoreCandidateForRole(c, selectedRole)
+          return { ...c, match_score: score, match_reasons: reasons }
+        })
         .sort((a, b) => (b.match_score ?? 0) - (a.match_score ?? 0))
     : allCandidates
 
@@ -427,6 +388,15 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                           {c.skills.length > 5 && (
                             <span className="text-[#8A8A99] text-xs py-1">+{c.skills.length - 5} more</span>
                           )}
+                        </div>
+                      )}
+                      {c.match_reasons && c.match_reasons.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                          {c.match_reasons.map((r, i) => (
+                            <span key={i} className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(16,185,129,0.10)', color: '#059669' }}>
+                              ✓ {r}
+                            </span>
+                          ))}
                         </div>
                       )}
                       {isPaid && c.summary && (
