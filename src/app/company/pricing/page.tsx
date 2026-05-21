@@ -32,11 +32,12 @@ export default function CompanyPricing() {
       </nav>
 
       <div className="max-w-4xl mx-auto px-6 pt-12 pb-20">
-        <div className="text-center mb-12">
+        <div className="text-center mb-10">
           <h1 className="text-4xl font-black tracking-tighter text-[#0E0E1A] mb-4">Unlock verified candidates</h1>
           <p className="text-[#5A5A6E] text-lg max-w-xl mx-auto">
             Every candidate is independently verified — work history, skills, and references. No CVs to sift through.
           </p>
+          <p className="text-sm font-bold mt-5" style={{ color: '#7C3AED' }}>★ 30-day free trial · Founding Partners lock 50% off for 12 months</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 mb-12">
@@ -44,10 +45,10 @@ export default function CompanyPricing() {
           <div className="bg-white rounded-2xl p-8" style={{ border: '1px solid rgba(14,14,26,0.08)', boxShadow: '0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05)' }}>
             <p className="text-sm font-bold text-[#8A8A99] uppercase tracking-wider mb-2">Starter</p>
             <div className="flex items-end gap-1 mb-1">
-              <span className="text-4xl font-black text-[#0E0E1A]">$299</span>
+              <span className="text-4xl font-black text-[#0E0E1A]">$149</span>
               <span className="text-[#8A8A99] mb-1">/month</span>
             </div>
-            <p className="text-sm text-[#8A8A99] mb-6">Cancel anytime</p>
+            <p className="text-sm text-[#8A8A99] mb-6"><span className="line-through">$299/mo</span> standard · founding rate, 12 mo</p>
 
             <div className="space-y-3 mb-8">
               {[
@@ -70,7 +71,7 @@ export default function CompanyPricing() {
               className="w-full py-4 rounded-full font-bold text-sm transition-all disabled:opacity-50"
               style={{ border: '1px solid rgba(14,14,26,0.12)', color: '#0E0E1A' }}
             >
-              {loading === 'starter' ? 'Redirecting...' : 'Start hiring — $299/mo →'}
+              {loading === 'starter' ? 'Redirecting...' : 'Start 30-day free trial →'}
             </button>
           </div>
 
@@ -81,10 +82,10 @@ export default function CompanyPricing() {
             </div>
             <p className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: '#67E8F9' }}>Growth</p>
             <div className="flex items-end gap-1 mb-1">
-              <span className="text-4xl font-black text-white">$799</span>
+              <span className="text-4xl font-black text-white">$399</span>
               <span className="text-white/50 mb-1">/month</span>
             </div>
-            <p className="text-sm text-white/50 mb-6">Cancel anytime</p>
+            <p className="text-sm text-white/50 mb-6"><span className="line-through">$799/mo</span> standard · founding rate, 12 mo</p>
 
             <div className="space-y-3 mb-8">
               {[
@@ -92,7 +93,7 @@ export default function CompanyPricing() {
                 'Priority candidate matching',
                 'Dedicated account manager',
                 'Company trust score dashboard',
-                'Placement fee waiver on first hire',
+                'Priority onboarding + support',
                 'Custom enterprise integrations',
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3">
@@ -108,7 +109,7 @@ export default function CompanyPricing() {
               className="w-full py-4 rounded-full font-black text-sm transition-all disabled:opacity-50 text-white"
               style={{ background: 'linear-gradient(135deg, #06B6D4, #7C3AED)' }}
             >
-              {loading === 'growth' ? 'Redirecting...' : 'Start hiring — $799/mo →'}
+              {loading === 'growth' ? 'Redirecting...' : 'Start 30-day free trial →'}
             </button>
           </div>
         </div>
@@ -126,7 +127,7 @@ export default function CompanyPricing() {
         </div>
 
         <p className="text-center text-xs text-[#8A8A99] mt-6">
-          A $500 placement fee applies per successful hire after 30 days in role. Included in Growth plan first hire.
+          Simple subscription — no placement fees, no per-hire costs. Cancel anytime.
         </p>
       </div>
     </div>

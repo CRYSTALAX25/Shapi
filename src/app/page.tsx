@@ -347,18 +347,19 @@ export default function Home() {
         </div>
 
         {/* Companies */}
-        <div className="mb-6 flex items-center gap-3">
+        <div className="mb-2 flex items-center gap-3">
           <h3 className="text-xl font-black">For companies</h3>
-          <span className="text-[#8A8A99] text-sm">Post roles free. Pay to reach verified talent.</span>
+          <span className="text-[#8A8A99] text-sm">30-day free trial. Cancel anytime.</span>
         </div>
+        <p className="text-sm font-bold mb-6" style={{ color: '#7C3AED' }}>★ Founding Partners: the first 25 companies lock 50% off for 12 months.</p>
         <div className="grid md:grid-cols-3 gap-5">
           {[
-            { name: 'Starter', price: '$299', per: '/mo', popular: false, color: '#06B6D4',
+            { name: 'Starter', standard: '$299', founding: '$149', per: '/mo', custom: false, popular: false, color: '#06B6D4',
               features: ['Post unlimited roles', 'Access verified candidate profiles', 'Match scoring', 'Up to 3 seats'] },
-            { name: 'Growth', price: '$799', per: '/mo', popular: true, color: '#7C3AED',
+            { name: 'Growth', standard: '$799', founding: '$399', per: '/mo', custom: false, popular: true, color: '#7C3AED',
               features: ['Everything in Starter', 'AI shortlisting + outreach', 'Company trust score', 'Priority placement', 'Up to 10 seats'] },
-            { name: 'Enterprise', price: 'Custom', per: '', popular: false, color: '#F43F5E',
-              features: ['Everything in Growth', 'API + ATS integration', 'Dedicated success manager', 'Custom verification SLAs', 'Unlimited seats'] },
+            { name: 'Enterprise', standard: '', founding: 'Custom', per: '', custom: true, popular: false, color: '#F43F5E',
+              features: ['Everything in Growth', 'Private API + ATS integration', 'Dedicated success manager', 'Custom verification SLAs', 'Unlimited seats'] },
           ].map((tier, i) => (
             <div key={i} className={`rounded-2xl p-7 flex flex-col ${tier.popular ? 'text-white' : 'card'}`}
               style={tier.popular ? { background: 'linear-gradient(160deg, #0E0E1A, #2A1759 60%, #0E2B33)', boxShadow: '0 20px 50px rgba(124,58,237,0.25)' } : undefined}>
@@ -366,20 +367,29 @@ export default function Home() {
                 <p className="text-sm font-bold uppercase tracking-wider" style={{ color: tier.popular ? '#67E8F9' : '#8A8A99' }}>{tier.name}</p>
                 {tier.popular && <span className="text-[10px] font-black px-2.5 py-1 rounded-full" style={{ background: 'linear-gradient(135deg,#06B6D4,#7C3AED)' }}>POPULAR</span>}
               </div>
-              <p className="text-4xl font-black mb-6">{tier.price}<span className={`text-base font-bold ${tier.popular ? 'text-white/50' : 'text-[#8A8A99]'}`}>{tier.per}</span></p>
+              {tier.custom ? (
+                <p className="text-4xl font-black mb-6">Custom</p>
+              ) : (
+                <div className="mb-6">
+                  <p className="text-4xl font-black">{tier.founding}<span className={`text-base font-bold ${tier.popular ? 'text-white/50' : 'text-[#8A8A99]'}`}>{tier.per}</span></p>
+                  <p className={`text-xs mt-1 ${tier.popular ? 'text-white/55' : 'text-[#8A8A99]'}`}>
+                    <span className="line-through">{tier.standard}{tier.per}</span> standard · founding rate, 12 mo
+                  </p>
+                </div>
+              )}
               <ul className={`space-y-2.5 text-sm mb-7 flex-1 ${tier.popular ? 'text-white/85' : 'text-[#3F3F4E]'}`}>
                 {tier.features.map((f, j) => (
                   <li key={j} className="flex gap-2.5"><Check c={tier.popular ? '#34D399' : tier.color} />{f}</li>
                 ))}
               </ul>
               <Link href="/signup" className={`rounded-full py-3 text-center text-sm font-black ${tier.popular ? 'btn-primary' : 'card text-[#0E0E1A]'}`}>
-                {tier.name === 'Enterprise' ? 'Talk to us →' : 'Start hiring →'}
+                {tier.custom ? 'Talk to us →' : 'Start 30-day free trial →'}
               </Link>
             </div>
           ))}
         </div>
         <p className="text-center text-[#8A8A99] text-sm mt-6">
-          Plus a <span className="font-bold text-[#0E0E1A]">$500 placement fee</span> per successful hire — only after they&apos;ve stayed 30 days.
+          Simple subscription — <span className="font-bold text-[#0E0E1A]">no placement fees, no per-hire costs</span>. Cancel anytime.
         </p>
       </section>
 
