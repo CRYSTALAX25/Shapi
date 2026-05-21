@@ -34,6 +34,13 @@ export default async function MyApplications() {
     .eq('candidate_id', user.id)
   const ivMap = new Map((ivRows || []).map(i => [i.role_id, i]))
 
+  const { data: fbRows } = await supabase
+    .from('interview_feedback')
+    .select('role_id, rating, move_forward, notes')
+    .eq('candidate_id', user.id)
+    .eq('author', 'candidate')
+  const fbMap = new Map((fbRows || []).map(f => [f.role_id, f]))
+
   const apps = (appRows || []).map(a => ({
     id: a.id,
     role_id: a.role_id,
@@ -42,6 +49,7 @@ export default async function MyApplications() {
     role: roleMap.get(a.role_id) || null,
     company_name: companyMap.get(a.company_id) || 'Company',
     interview: ivMap.get(a.role_id) || null,
+    feedback: fbMap.get(a.role_id) || null,
   }))
 
   return (

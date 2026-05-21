@@ -41,7 +41,14 @@ export default async function CompanyPipeline({ searchParams }: { searchParams: 
       .eq('company_id', user.id)
       .eq('role_id', selectedRoleId)
     const ivMap = new Map((ivRows || []).map(i => [i.candidate_id, i]))
-    apps = (appRows || []).map(a => ({ ...a, candidate: cmap.get(a.candidate_id) || null, interview: ivMap.get(a.candidate_id) || null }))
+    const { data: fbRows } = await supabase
+      .from('interview_feedback')
+      .select('candidate_id, rating, move_forward, notes')
+      .eq('company_id', user.id)
+      .eq('role_id', selectedRoleId)
+      .eq('author', 'company')
+    const fbMap = new Map((fbRows || []).map(f => [f.candidate_id, f]))
+    apps = (appRows || []).map(a => ({ ...a, candidate: cmap.get(a.candidate_id) || null, interview: ivMap.get(a.candidate_id) || null, feedback: fbMap.get(a.candidate_id) || null }))
   }
 
   return (
