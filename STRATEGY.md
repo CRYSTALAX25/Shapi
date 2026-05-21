@@ -133,6 +133,23 @@ sent to BOTH sides.
   (calendar API later; manual/generated link now) and show a "Join" button to both at the right
   time. Skip FaceTime (Apple-only) — use a generic "video link". This is the "more software than
   app" direction Ana wants.
+
+## 4c. Pipeline, job health & two-sided feedback [IDEA, added 2026-05-21]
+The hiring loop, kept inside Shapi so we always know what's going on:
+- **Candidate pipeline stages per role:** Matched → Shortlisted → Interviewing → Offer →
+  Hired / Passed. Moving a candidate triggers the right thing (booking at Interviewing, prep
+  docs, feedback capture, and at Hired → the candidate-confirmed-hire that closes the
+  leakage loop). Needs an `applications`/pipeline table (candidate_id, role_id, stage, history).
+- **Two-sided post-interview feedback (required):** after each interview BOTH sides submit a
+  quick rating + short notes + "move forward? y/n". This is the data that tells us what's
+  happening, and it feeds the **company trust score** (candidate-reported) and **candidate
+  reliability** (company-reported). Needs an `interview_feedback` table.
+- **Job timestamp + health / ghost-job signal:** show "posted X days ago" on the company role
+  view (roles already store created_at). If a role sits open too long with low engagement
+  (e.g. >21 days, few shortlists/interviews), flag it and **Shapi proactively follows up** —
+  "this role's been open 3 weeks with low interest; common fixes: salary below market, JD too
+  narrow, must-haves too strict — want help?" On-brand with the ghost-job/health
+  differentiator (core diff #7) and a strong retention touch (later an actual outbound message).
 - **Responsiveness & follow-through tracking (both sides).**
   - Track time-to-reply, ghost/no-show rate, and behaviour vs stated intent (e.g. "actively
     looking" but ignores all matches → not really active; downgrade/nudge).
