@@ -7,6 +7,14 @@ import Link from 'next/link'
 type WorkEntry = { title: string; company: string; start: string; end: string; achievements: string }
 type LanguageEntry = { language: string; level: string }
 type RtwEntry = { region: string; basis: string }
+type PivotBand = { track: string; min: string; max: string; note: string }
+
+const INTENT_OPTIONS = [
+  { value: 'actively_looking', label: 'Actively looking', sub: 'Ready to move now' },
+  { value: 'open', label: 'Open to offers', sub: 'Happy where I am, open to the right thing' },
+  { value: 'not_looking', label: 'Not looking', sub: 'Profile stays private' },
+]
+const CURRENCIES = ['AED', 'SAR', 'USD', 'GBP', 'EUR', 'QAR', 'KWD', 'BHD', 'OMR']
 
 const RTW_BASIS = [
   { value: 'citizen', label: 'Citizen' },
@@ -69,6 +77,16 @@ export default function EditProfile() {
   const [profileImageUrl, setProfileImageUrl] = useState('')
   const [uploadingImage, setUploadingImage] = useState(false)
   const [rightToWork, setRightToWork] = useState<RtwEntry[]>([])
+  // Availability + salary
+  const [jobSearchStatus, setJobSearchStatus] = useState('open')
+  const [salCurrency, setSalCurrency] = useState('AED')
+  const [salPeriod, setSalPeriod] = useState<'month' | 'year'>('month')
+  const [salAllowances, setSalAllowances] = useState(true)
+  const [salFlexible, setSalFlexible] = useState(true)
+  const [primaryTrack, setPrimaryTrack] = useState('')
+  const [primaryMin, setPrimaryMin] = useState('')
+  const [primaryMax, setPrimaryMax] = useState('')
+  const [pivotBands, setPivotBands] = useState<PivotBand[]>([])
 
   useEffect(() => {
     fetch('/api/profile/get')
@@ -101,6 +119,24 @@ export default function EditProfile() {
             ? data.right_to_work.map((r: { region?: string; basis?: string }) => ({ region: r.region || '', basis: r.basis || 'citizen' }))
             : []
         )
+        setJobSearchStatus(data.job_search_status || 'open')
+        const se = data.salary_expectations
+        if (se && typeof se === 'object') {
+          setSalCurrency(se.currency || 'AED')
+          setSalPeriod(se.period === 'year' ? 'year' : 'month')
+          setSalAllowances(se.includes_allowances !== false)
+          setSalFlexible(se.flexible !== false)
+          setPrimaryTrack(se.primary?.track || '')
+          setPrimaryMin(se.primary?.min != null ? String(se.primary.min) : '')
+          setPrimaryMax(se.primary?.max != null ? String(se.primary.max) : '')
+          setPivotBands(
+            Array.isArray(se.pivots)
+              ? se.pivots.map((p: { track?: string; min?: number; max?: number; note?: string }) => ({
+                  track: p.track || '', min: p.min != null ? String(p.min) : '', max: p.max != null ? String(p.max) : '', note: p.note || '',
+                }))
+              : []
+          )
+        }
         setWorkHistory(
           Array.isArray(data.work_history)
             ? data.work_history.map((w: Partial<WorkEntry>) => ({
@@ -136,13 +172,35 @@ export default function EditProfile() {
   const updateJob = (i: number, field: keyof WorkEntry, value: string) =>
     setWorkHistory(prev => prev.map((w, j) => j === i ? { ...w, [field]: value } : w))
 
+  const addPivot = () => setPivotBands(prev => [...prev, { track: '', min: '', max: '', note: '' }])
+  const removePivot = (i: number) => setPivotBands(prev => prev.filter((_, j) => j !== i))
+  const updatePivot = (i: number, field: keyof PivotBand, value: string) =>
+    setPivotBands(prev => prev.map((p, j) => j === i ? { ...p, [field]: value } : p))
+
+  const numOrNull = (s: string) => { const n = parseInt(s.replace(/[^0-9]/g, ''), 10); return Number.isFinite(n) ? n : null }
+
   const save = async () => {
     setSaving(true)
     setError('')
+    const hasPrimary = primaryMin || primaryMax || primaryTrack
+    const salaryExpectations = (hasPrimary || pivotBands.length > 0)
+      ? {
+          currency: salCurrency,
+          period: salPeriod,
+          includes_allowances: salAllowances,
+          flexible: salFlexible,
+          primary: hasPrimary ? { track: primaryTrack.trim() || null, min: numOrNull(primaryMin), max: numOrNull(primaryMax) } : null,
+          pivots: pivotBands
+            .filter(p => p.track.trim() || p.min || p.max)
+            .map(p => ({ track: p.track.trim(), min: numOrNull(p.min), max: numOrNull(p.max), note: p.note.trim() || null })),
+        }
+      : null
     const res = await fetch('/api/profile/update', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        job_search_status: jobSearchStatus,
+        salary_expectations: salaryExpectations,
         full_name: fullName.trim() || null,
         headline: headline.trim() || null,
         location: location.trim() || null,
@@ -582,6 +640,102 @@ export default function EditProfile() {
               <p className="text-[#B0B0BC] text-xs mt-2">Assessed automatically — complete more of your WhatsApp conversation to improve accuracy.</p>
             </div>
           )}
+        </div>
+
+        {/* Availability & salary */}
+        <div className="gradient-border-card rounded-2xl p-6 mb-5 space-y-5">
+          <div>
+            <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider">Availability & salary</p>
+            <p className="text-[#B0B0BC] text-xs mt-1">Your salary expectations are <span className="font-bold text-[#5A5A6E]">private</span> — used for matching and shown only to companies you match with.</p>
+          </div>
+
+          {/* Intent status */}
+          <div>
+            <label>I&apos;m currently</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {INTENT_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setJobSearchStatus(opt.value)}
+                  className="text-left rounded-xl px-4 py-3 transition-all"
+                  style={jobSearchStatus === opt.value
+                    ? { background: 'rgba(34,211,238,0.1)', border: '1px solid rgba(34,211,238,0.45)' }
+                    : { background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)' }}
+                >
+                  <p className="text-sm font-bold" style={{ color: jobSearchStatus === opt.value ? '#0891B2' : '#3F3F4E' }}>{opt.label}</p>
+                  <p className="text-[#8A8A99] text-[11px] mt-0.5 leading-tight">{opt.sub}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Salary settings */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div>
+              <label>Currency</label>
+              <select className="field" value={salCurrency} onChange={e => setSalCurrency(e.target.value)}>
+                {CURRENCIES.map(c => <option key={c} value={c} style={{ background: '#ffffff' }}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <label>Per</label>
+              <select className="field" value={salPeriod} onChange={e => setSalPeriod(e.target.value as 'month' | 'year')}>
+                <option value="month" style={{ background: '#ffffff' }}>Month</option>
+                <option value="year" style={{ background: '#ffffff' }}>Year</option>
+              </select>
+            </div>
+            <label className="flex items-end gap-2 pb-3 cursor-pointer">
+              <input type="checkbox" checked={salAllowances} onChange={e => setSalAllowances(e.target.checked)} className="w-4 h-4 accent-[#06B6D4]" />
+              <span className="text-[#3F3F4E] text-xs font-medium normal-case tracking-normal">Incl. allowances</span>
+            </label>
+            <label className="flex items-end gap-2 pb-3 cursor-pointer">
+              <input type="checkbox" checked={salFlexible} onChange={e => setSalFlexible(e.target.checked)} className="w-4 h-4 accent-[#06B6D4]" />
+              <span className="text-[#3F3F4E] text-xs font-medium normal-case tracking-normal">Negotiable</span>
+            </label>
+          </div>
+
+          {/* Primary expectation */}
+          <div>
+            <label>Primary expectation — your main field</label>
+            <p className="text-[#8A8A99] text-xs mb-2">Where you have the experience and references to back it up.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <input className="field" value={primaryTrack} onChange={e => setPrimaryTrack(e.target.value)} placeholder="Field, e.g. Operations" />
+              <input className="field" value={primaryMin} onChange={e => setPrimaryMin(e.target.value)} placeholder={`Min (${salCurrency})`} inputMode="numeric" />
+              <input className="field" value={primaryMax} onChange={e => setPrimaryMax(e.target.value)} placeholder={`Max (${salCurrency})`} inputMode="numeric" />
+            </div>
+          </div>
+
+          {/* Pivot bands */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="!mb-0">Pivot tracks — open from a lower band</label>
+              <button type="button" onClick={addPivot} className="text-[#0891B2] text-xs font-bold hover:opacity-80">+ Add track</button>
+            </div>
+            <p className="text-[#8A8A99] text-xs mb-3">
+              Exploring a new field where you&apos;re still building experience? Set a fair, lower band for it — it rises as you upskill. Companies hiring for that track see the right number.
+            </p>
+            {pivotBands.length === 0 ? (
+              <p className="text-[#8A8A99] text-xs italic">None yet — add a track you&apos;re open to at a different rate.</p>
+            ) : (
+              <div className="space-y-3">
+                {pivotBands.map((p, i) => (
+                  <div key={i} className="rounded-xl p-3" style={{ background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)' }}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[#8A8A99] text-[11px] font-bold uppercase tracking-wider">Pivot track {i + 1}</span>
+                      <button type="button" onClick={() => removePivot(i)} className="text-[#8A8A99] hover:text-[#E11D48] text-sm">✕</button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2">
+                      <input className="field" value={p.track} onChange={e => updatePivot(i, 'track', e.target.value)} placeholder="Track, e.g. UX Design" />
+                      <input className="field" value={p.min} onChange={e => updatePivot(i, 'min', e.target.value)} placeholder={`Open from (${salCurrency})`} inputMode="numeric" />
+                      <input className="field" value={p.max} onChange={e => updatePivot(i, 'max', e.target.value)} placeholder={`Up to (${salCurrency})`} inputMode="numeric" />
+                    </div>
+                    <input className="field" value={p.note} onChange={e => updatePivot(i, 'note', e.target.value)} placeholder="Note, e.g. completing Google UX certificate" />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Save */}

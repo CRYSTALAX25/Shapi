@@ -121,18 +121,18 @@ export default function ContinuousLearning({
   const rm = localRoadmap
 
   const resilienceColor = (score: number | null) => {
-    if (score === null) return { color: 'rgba(255,255,255,0.5)', label: '—', bg: 'rgba(255,255,255,0.04)' }
-    if (score >= 7) return { color: '#34D399', label: 'Low risk', bg: 'rgba(52,211,153,0.10)' }
-    if (score >= 4) return { color: '#FBBF24', label: 'Medium risk', bg: 'rgba(251,191,36,0.10)' }
-    return { color: '#FB7185', label: 'High risk', bg: 'rgba(251,113,133,0.10)' }
+    if (score === null) return { color: '#5A5A6E', label: '—', bg: 'rgba(14,14,26,0.04)' }
+    if (score >= 7) return { color: '#059669', label: 'Low risk', bg: 'rgba(52,211,153,0.10)' }
+    if (score >= 4) return { color: '#D97706', label: 'Medium risk', bg: 'rgba(251,191,36,0.10)' }
+    return { color: '#E11D48', label: 'High risk', bg: 'rgba(251,113,133,0.10)' }
   }
   const r = resilienceColor(resilienceScore)
 
   const priorityChip = (p: string) => {
     const map: Record<string, { color: string; bg: string }> = {
-      high: { color: '#FB7185', bg: 'rgba(251,113,133,0.12)' },
-      medium: { color: '#FBBF24', bg: 'rgba(251,191,36,0.12)' },
-      low: { color: 'rgba(255,255,255,0.5)', bg: 'rgba(255,255,255,0.05)' },
+      high: { color: '#E11D48', bg: 'rgba(251,113,133,0.12)' },
+      medium: { color: '#D97706', bg: 'rgba(251,191,36,0.12)' },
+      low: { color: '#5A5A6E', bg: 'rgba(14,14,26,0.04)' },
     }
     const c = map[p] || map.low
     return <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase" style={{ color: c.color, background: c.bg }}>{p}</span>
@@ -143,41 +143,41 @@ export default function ContinuousLearning({
       <div className="flex items-start justify-between mb-1">
         <div className="flex items-center gap-2.5">
           <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#A78BFA)' }} />
-          <h2 className="text-white font-black text-xl tracking-tight">Continuous Learning</h2>
+          <h2 className="text-[#0E0E1A] font-black text-xl tracking-tight">Continuous Learning</h2>
         </div>
         {isPro && (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.10)', color: '#A78BFA' }}>Pro ✓</span>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.10)', color: '#7C3AED' }}>Pro ✓</span>
         )}
       </div>
-      <p className="text-white/35 text-xs mb-5 ml-4">What you&apos;ve done — and where to grow next.</p>
+      <p className="text-[#8A8A99] text-xs mb-5 ml-4">What you&apos;ve done — and where to grow next.</p>
 
       {/* ─── HALF 1: PASSIVE ─── */}
       {!hasAny && trackedCourses.length === 0 && (
-        <p className="text-white/30 text-sm mb-6">No certifications, events, talks, OSS, or courses detected on your CV yet. Add them via your profile to strengthen credibility.</p>
+        <p className="text-[#8A8A99] text-sm mb-6">No certifications, events, talks, OSS, or courses detected on your CV yet. Add them via your profile to strengthen credibility.</p>
       )}
 
       {/* Tracked courses from /upskill — with verification marks */}
       {trackedCourses.length > 0 && (
         <div className="mb-5">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-white/45 text-xs font-bold uppercase tracking-wider">Courses & Learning</p>
-            <Link href="/upskill" className="text-[#22D3EE] text-xs font-bold hover:underline">Manage →</Link>
+            <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider">Courses & Learning</p>
+            <Link href="/upskill" className="text-[#0891B2] text-xs font-bold hover:underline">Manage →</Link>
           </div>
           <div className="space-y-1.5">
             {trackedCourses.map(c => {
               const verified = c.verification_status === 'verified'
               return (
-                <div key={c.id} className="flex items-center justify-between gap-2 bg-white/[0.03] rounded-lg px-3 py-2">
-                  <span className="text-white/80 text-xs">
-                    {c.course_name}{c.platform ? <span className="text-white/35"> · {c.platform}</span> : null}
-                    {c.status === 'completed' ? <span className="text-white/35"> · done</span> : c.status === 'in_progress' ? <span className="text-white/35"> · in progress</span> : null}
+                <div key={c.id} className="flex items-center justify-between gap-2 bg-[#0E0E1A]/[0.04] rounded-lg px-3 py-2">
+                  <span className="text-[#0E0E1A] text-xs">
+                    {c.course_name}{c.platform ? <span className="text-[#8A8A99]"> · {c.platform}</span> : null}
+                    {c.status === 'completed' ? <span className="text-[#8A8A99]"> · done</span> : c.status === 'in_progress' ? <span className="text-[#8A8A99]"> · in progress</span> : null}
                   </span>
                   <span className="flex items-center gap-1.5 flex-shrink-0">
-                    {c.sponsored_by && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.15)', color: '#FBBF24' }}>🏢 {c.sponsored_by}</span>}
+                    {c.sponsored_by && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.15)', color: '#D97706' }}>🏢 {c.sponsored_by}</span>}
                     {verified
-                      ? <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#34D399' }}>✓ Verified</span>
-                      : <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.4)' }}>○ Self-reported</span>}
-                    {c.credential_url && <a href={c.credential_url} target="_blank" rel="noopener noreferrer" className="text-[#22D3EE] text-[10px] font-bold">cert ↗</a>}
+                      ? <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#059669' }}>✓ Verified</span>
+                      : <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(14,14,26,0.04)', color: '#5A5A6E' }}>○ Self-reported</span>}
+                    {c.credential_url && <a href={c.credential_url} target="_blank" rel="noopener noreferrer" className="text-[#0891B2] text-[10px] font-bold">cert ↗</a>}
                   </span>
                 </div>
               )
@@ -188,10 +188,10 @@ export default function ContinuousLearning({
 
       {(data?.certifications?.length ?? 0) > 0 && (
         <div className="mb-5">
-          <p className="text-white/45 text-xs font-bold uppercase tracking-wider mb-2">Certifications</p>
+          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-2">Certifications</p>
           <div className="flex flex-wrap gap-2">
             {data!.certifications!.map((c, i) => (
-              <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(34,211,238,0.08)', color: '#67E8F9', border: '1px solid rgba(34,211,238,0.15)' }}>
+              <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(34,211,238,0.08)', color: '#0891B2', border: '1px solid rgba(34,211,238,0.15)' }}>
                 🎖 {c.name}{c.issuer ? ` · ${c.issuer}` : ''}{c.year ? ` (${c.year})` : ''}
               </span>
             ))}
@@ -201,10 +201,10 @@ export default function ContinuousLearning({
 
       {(data?.events?.length ?? 0) > 0 && (
         <div className="mb-5">
-          <p className="text-white/45 text-xs font-bold uppercase tracking-wider mb-2">Events attended</p>
+          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-2">Events attended</p>
           <div className="flex flex-wrap gap-2">
             {data!.events!.map((e, i) => (
-              <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(167,139,250,0.08)', color: '#C4B5FD', border: '1px solid rgba(167,139,250,0.15)' }}>
+              <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(167,139,250,0.08)', color: '#7C3AED', border: '1px solid rgba(167,139,250,0.15)' }}>
                 {e.role === 'speaker' ? '🎤' : e.role === 'organizer' ? '🎟' : '📍'} {e.name}{e.year ? ` (${e.year})` : ''}
               </span>
             ))}
@@ -214,19 +214,19 @@ export default function ContinuousLearning({
 
       {(data?.talks?.length ?? 0) > 0 && (
         <div className="mb-5">
-          <p className="text-white/45 text-xs font-bold uppercase tracking-wider mb-2">Talks given</p>
+          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-2">Talks given</p>
           {data!.talks!.map((t, i) => (
-            <p key={i} className="text-white/60 text-sm mb-1">🎤 <strong>{t.title}</strong> · {t.venue}{t.year ? ` (${t.year})` : ''}</p>
+            <p key={i} className="text-[#3F3F4E] text-sm mb-1">🎤 <strong>{t.title}</strong> · {t.venue}{t.year ? ` (${t.year})` : ''}</p>
           ))}
         </div>
       )}
 
       {(data?.courses?.length ?? 0) > 0 && (
         <div className="mb-5">
-          <p className="text-white/45 text-xs font-bold uppercase tracking-wider mb-2">Courses</p>
+          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-2">Courses</p>
           <div className="flex flex-wrap gap-2">
             {data!.courses!.map((c, i) => (
-              <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.65)' }}>
+              <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(14,14,26,0.04)', color: '#3F3F4E' }}>
                 📚 {c.name}{c.platform ? ` · ${c.platform}` : ''}{c.year ? ` (${c.year})` : ''}
               </span>
             ))}
@@ -236,20 +236,20 @@ export default function ContinuousLearning({
 
       {(data?.oss?.length ?? 0) > 0 && (
         <div className="mb-5">
-          <p className="text-white/45 text-xs font-bold uppercase tracking-wider mb-2">Open source</p>
+          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-2">Open source</p>
           {data!.oss!.map((o, i) => (
-            <p key={i} className="text-white/60 text-sm">💻 <a href={o.repo_url} target="_blank" rel="noreferrer" className="text-[#22D3EE] hover:underline">{o.repo_url}</a>{o.role ? ` · ${o.role}` : ''}{o.stars ? ` · ⭐ ${o.stars}` : ''}</p>
+            <p key={i} className="text-[#3F3F4E] text-sm">💻 <a href={o.repo_url} target="_blank" rel="noreferrer" className="text-[#0891B2] hover:underline">{o.repo_url}</a>{o.role ? ` · ${o.role}` : ''}{o.stars ? ` · ⭐ ${o.stars}` : ''}</p>
           ))}
         </div>
       )}
 
       {/* ─── HALF 2: CAREER ROADMAP (Pro only) ─── */}
-      <div className="mt-8 pt-6 border-t border-white/[0.08]">
+      <div className="mt-8 pt-6 border-t border-[#0E0E1A]/[0.08]">
         {!isPro && (
           <div className="rounded-2xl p-5" style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.2)' }}>
-            <p className="text-[#A78BFA] text-xs font-bold uppercase tracking-wider mb-2">🔒 Career Roadmap — Pro feature</p>
-            <p className="text-white/65 text-sm mb-1">Get a personalised AI-resilience score for your current role + 3-5 skills to learn next + 2-3 pivot paths + relevant events to attend.</p>
-            <p className="text-white/35 text-xs mb-4">Built from your work history, AI-displacement trends, and your target industries.</p>
+            <p className="text-[#7C3AED] text-xs font-bold uppercase tracking-wider mb-2">🔒 Career Roadmap — Pro feature</p>
+            <p className="text-[#3F3F4E] text-sm mb-1">Get a personalised AI-resilience score for your current role + 3-5 skills to learn next + 2-3 pivot paths + relevant events to attend.</p>
+            <p className="text-[#8A8A99] text-xs mb-4">Built from your work history, AI-displacement trends, and your target industries.</p>
             <Link href="/pay" className="inline-block px-5 py-2.5 rounded-full font-black text-sm" style={{ background: 'linear-gradient(135deg,#A78BFA,#22D3EE)', color: '#060609' }}>
               Upgrade to Pro →
             </Link>
@@ -258,11 +258,11 @@ export default function ContinuousLearning({
 
         {isPro && !rm && (
           <div>
-            <p className="text-white/55 text-sm mb-3">Generate your personalised Career Roadmap — Shapi analyses your work history + AI-displacement trends to recommend exactly what to learn next.</p>
+            <p className="text-[#5A5A6E] text-sm mb-3">Generate your personalised Career Roadmap — Shapi analyses your work history + AI-displacement trends to recommend exactly what to learn next.</p>
             <button onClick={generateRoadmap} disabled={generating} className="px-5 py-2.5 rounded-full font-black text-sm transition-opacity disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#A78BFA,#22D3EE)', color: '#060609' }}>
               {generating ? 'Generating…' : '✨ Generate my roadmap'}
             </button>
-            {error && <p className="text-[#FB7185] text-xs mt-3">{error}</p>}
+            {error && <p className="text-[#E11D48] text-xs mt-3">{error}</p>}
           </div>
         )}
 
@@ -273,7 +273,7 @@ export default function ContinuousLearning({
               <div className="text-4xl font-black" style={{ color: r.color }}>{resilienceScore ?? rm.ai_resilience_score}</div>
               <div className="flex-1">
                 <p className="text-xs font-bold uppercase tracking-wider" style={{ color: r.color }}>AI resilience · {r.label}</p>
-                <p className="text-white/55 text-xs leading-relaxed mt-1">{rm.resilience_reasoning}</p>
+                <p className="text-[#5A5A6E] text-xs leading-relaxed mt-1">{rm.resilience_reasoning}</p>
               </div>
             </div>
 
@@ -283,26 +283,26 @@ export default function ContinuousLearning({
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#34D399)' }} />
-                    <h3 className="text-white text-base font-black">🎯 Skills to learn next</h3>
+                    <h3 className="text-[#0E0E1A] text-base font-black">🎯 Skills to learn next</h3>
                   </div>
-                  <Link href="/upskill" className="text-[#22D3EE] text-xs font-bold hover:underline">Browse courses →</Link>
+                  <Link href="/upskill" className="text-[#0891B2] text-xs font-bold hover:underline">Browse courses →</Link>
                 </div>
                 <div className="space-y-2">
                   {rm.skills_gaps.map((g, i) => (
-                    <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)' }}>
                       <div className="flex items-center justify-between mb-1">
-                        <p className="text-white font-bold text-sm">{g.skill}</p>
+                        <p className="text-[#0E0E1A] font-bold text-sm">{g.skill}</p>
                         {priorityChip(g.priority)}
                       </div>
-                      <p className="text-white/40 text-xs mb-2">{g.why}</p>
+                      <p className="text-[#5A5A6E] text-xs mb-2">{g.why}</p>
                       {g.suggested_courses && g.suggested_courses.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 mb-2">
                           {g.suggested_courses.map((c, j) => (
-                            <span key={j} className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.06)', color: '#67E8F9' }}>{c.name} · {c.platform}</span>
+                            <span key={j} className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.06)', color: '#0891B2' }}>{c.name} · {c.platform}</span>
                           ))}
                         </div>
                       )}
-                      <Link href={`/upskill?skill=${encodeURIComponent(g.skill)}`} className="text-[#A78BFA] text-xs font-bold hover:underline">
+                      <Link href={`/upskill?skill=${encodeURIComponent(g.skill)}`} className="text-[#7C3AED] text-xs font-bold hover:underline">
                         Free / paid / financing options →
                       </Link>
                     </div>
@@ -316,41 +316,41 @@ export default function ContinuousLearning({
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#A78BFA,#FB7185)' }} />
-                  <h3 className="text-white text-base font-black">↗️ Pivot paths to consider</h3>
+                  <h3 className="text-[#0E0E1A] text-base font-black">↗️ Pivot paths to consider</h3>
                 </div>
                 <div className="space-y-3">
                   {rm.pivot_paths.map((p, i) => (
                     <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)' }}>
-                      <p className="text-white font-bold text-sm mb-1">{p.to_role} <span className="text-white/35 text-xs font-normal">· {p.to_industry}</span></p>
-                      <p className="text-white/55 text-xs mb-3 leading-relaxed">{p.why}</p>
+                      <p className="text-[#0E0E1A] font-bold text-sm mb-1">{p.to_role} <span className="text-[#8A8A99] text-xs font-normal">· {p.to_industry}</span></p>
+                      <p className="text-[#5A5A6E] text-xs mb-3 leading-relaxed">{p.why}</p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                         <div>
-                          <p className="text-emerald-400 font-bold mb-1">✓ Transferable</p>
-                          <p className="text-white/55">{p.transferable_skills.join(' · ')}</p>
+                          <p className="text-emerald-600 font-bold mb-1">✓ Transferable</p>
+                          <p className="text-[#5A5A6E]">{p.transferable_skills.join(' · ')}</p>
                         </div>
                         <div>
-                          <p className="text-[#FBBF24] font-bold mb-1">⌛ Gaps to close</p>
+                          <p className="text-[#D97706] font-bold mb-1">⌛ Gaps to close</p>
                           <div className="flex flex-wrap gap-1.5">
                             {p.gaps_to_close.map((g, j) => (
                               <a key={j} href={courseSearchUrl('Coursera', g)} target="_blank" rel="noopener noreferrer"
-                                className="text-white/65 hover:text-[#22D3EE] underline decoration-dotted underline-offset-2 transition-colors">
+                                className="text-[#3F3F4E] hover:text-[#0891B2] underline decoration-dotted underline-offset-2 transition-colors">
                                 {g}
                               </a>
                             ))}
                           </div>
-                          <p className="text-white/25 text-[10px] mt-1">tap a gap → courses for it ↗</p>
+                          <p className="text-[#8A8A99] text-[10px] mt-1">tap a gap → courses for it ↗</p>
                         </div>
                       </div>
                       {p.first_actions?.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-white/[0.06]">
-                          <p className="text-[#22D3EE] text-xs font-bold mb-1">First steps</p>
-                          <ol className="text-white/55 text-xs space-y-1.5 list-decimal list-inside">
+                        <div className="mt-3 pt-3 border-t border-[#0E0E1A]/[0.08]">
+                          <p className="text-[#0891B2] text-xs font-bold mb-1">First steps</p>
+                          <ol className="text-[#5A5A6E] text-xs space-y-1.5 list-decimal list-inside">
                             {p.first_actions.map((a, j) => {
                               const link = stepLink(a)
                               return (
                                 <li key={j}>
                                   {a}
-                                  {link && <Link href={link.href} className="text-[#A78BFA] font-bold hover:underline ml-1.5 whitespace-nowrap">{link.label}</Link>}
+                                  {link && <Link href={link.href} className="text-[#7C3AED] font-bold hover:underline ml-1.5 whitespace-nowrap">{link.label}</Link>}
                                 </li>
                               )
                             })}
@@ -368,14 +368,14 @@ export default function ContinuousLearning({
             {rm.events_to_attend?.length > 0 && (
               <div className="mb-2 p-3 rounded-xl flex items-center justify-between gap-3" style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.15)' }}>
                 <div>
-                  <p className="text-white font-bold text-sm">📅 {rm.events_to_attend.length} events recommended for you</p>
-                  <p className="text-white/40 text-xs mt-0.5">Find tickets + track Booked / Attended on Upskill.</p>
+                  <p className="text-[#0E0E1A] font-bold text-sm">📅 {rm.events_to_attend.length} events recommended for you</p>
+                  <p className="text-[#5A5A6E] text-xs mt-0.5">Find tickets + track Booked / Attended on Upskill.</p>
                 </div>
-                <Link href="/upskill" className="text-[#FBBF24] text-xs font-bold flex-shrink-0 hover:underline">Manage →</Link>
+                <Link href="/upskill" className="text-[#D97706] text-xs font-bold flex-shrink-0 hover:underline">Manage →</Link>
               </div>
             )}
 
-            <button onClick={generateRoadmap} disabled={generating} className="mt-4 text-xs text-white/30 hover:text-white/60 transition-colors">
+            <button onClick={generateRoadmap} disabled={generating} className="mt-4 text-xs text-[#8A8A99] hover:text-[#3F3F4E] transition-colors">
               {generating ? 'Regenerating…' : '↻ Regenerate roadmap'}
             </button>
           </div>

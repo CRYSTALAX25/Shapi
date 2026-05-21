@@ -70,11 +70,12 @@ export default function SkillRadar({
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ overflow: 'visible' }}>
         {/* Grid rings */}
         {ringPaths.map((d, i) => (
-          <path key={i} d={d} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={1} />
+          <path key={i} d={d} fill="none" stroke="rgba(14,14,26,0.10)" strokeWidth={1} />
         ))}
         {/* Axes — light gridlines through center */}
-        <line x1={cx - maxR} y1={cy} x2={cx + maxR} y2={cy} stroke="rgba(255,255,255,0.06)" />
-        <line x1={cx} y1={cy - maxR} x2={cx} y2={cy + maxR} stroke="rgba(255,255,255,0.06)" />
+        <line x1={cx - maxR} y1={cy} x2={cx + maxR} y2={cy} stroke="rgba(14,14,26,0.10)" />
+        <line x1={cx} y1={cy - maxR} x2={cx} y2={cy + maxR} stroke="rgba(14,14,26,0.10)" />
+        {/* (gridlines above are dark-on-white) */}
 
         {/* Data shape */}
         <defs>
@@ -87,7 +88,7 @@ export default function SkillRadar({
 
         {/* Data point dots */}
         {Object.values(pts).map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r={4} fill="#22D3EE" stroke="#060609" strokeWidth={1.5} />
+          <circle key={i} cx={p.x} cy={p.y} r={4} fill="#0891B2" stroke="#ffffff" strokeWidth={1.5} />
         ))}
 
         {/* Axis labels */}
@@ -103,7 +104,7 @@ export default function SkillRadar({
                 y={ly}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                fill="rgba(255,255,255,0.7)"
+                fill="#3F3F4E"
                 fontSize={13}
                 fontWeight={700}
                 style={{ userSelect: 'none' }}
@@ -115,7 +116,7 @@ export default function SkillRadar({
                 y={ly + 16}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                fill="#22D3EE"
+                fill="#0891B2"
                 fontSize={14}
                 fontWeight={900}
                 style={{ userSelect: 'none' }}
@@ -128,7 +129,7 @@ export default function SkillRadar({
       </svg>
 
       {showReasoning && data.reasoning && (
-        <p className="text-white/50 text-xs leading-relaxed text-center max-w-sm">{data.reasoning}</p>
+        <p className="text-[#5A5A6E] text-xs leading-relaxed text-center max-w-sm">{data.reasoning}</p>
       )}
     </div>
   )
@@ -147,9 +148,9 @@ export function SkillSummary({ data }: { data: SkillQuadrant | null }) {
             key={key}
             className="text-xs font-bold px-2.5 py-1 rounded-full"
             style={{
-              background: highlight ? 'rgba(34,211,238,0.10)' : 'rgba(255,255,255,0.04)',
-              color: highlight ? '#22D3EE' : 'rgba(255,255,255,0.4)',
-              border: `1px solid ${highlight ? 'rgba(34,211,238,0.2)' : 'rgba(255,255,255,0.06)'}`,
+              background: highlight ? 'rgba(34,211,238,0.10)' : 'rgba(14,14,26,0.04)',
+              color: highlight ? '#0891B2' : '#5A5A6E',
+              border: `1px solid ${highlight ? 'rgba(34,211,238,0.2)' : 'rgba(14,14,26,0.08)'}`,
             }}
           >
             {icon} {label} {score}

@@ -22,7 +22,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work, work_style, linkedin_url, github_url, website_url, portfolio_url')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work, work_style, linkedin_url, github_url, website_url, portfolio_url, job_search_status, salary_expectations')
     .eq('id', user.id)
     .single()
 
@@ -264,6 +264,78 @@ export default async function ProfilePage() {
             <p className="text-[#3F3F4E] text-sm leading-relaxed">{profile.summary}</p>
           )}
         </div>
+
+        {/* Availability & salary (private — own view) */}
+        {(() => {
+          const status = (profile.job_search_status as string) || null
+          const se = profile.salary_expectations as {
+            currency?: string; period?: string; includes_allowances?: boolean; flexible?: boolean
+            primary?: { track?: string; min?: number; max?: number } | null
+            pivots?: Array<{ track?: string; min?: number; max?: number; note?: string }>
+          } | null
+          const statusMeta: Record<string, { label: string; color: string }> = {
+            actively_looking: { label: 'Actively looking', color: '#10B981' },
+            open: { label: 'Open to offers', color: '#06B6D4' },
+            not_looking: { label: 'Not looking', color: '#8A8A99' },
+          }
+          const sm = status ? statusMeta[status] : null
+          const cur = se?.currency || ''
+          const per = se?.period === 'year' ? '/yr' : '/mo'
+          const band = (b?: { min?: number; max?: number } | null) =>
+            b && (b.min != null || b.max != null)
+              ? `${cur} ${b.min != null ? b.min.toLocaleString() : '—'}${b.max != null ? `–${b.max.toLocaleString()}` : '+'}${per}`
+              : null
+          const primaryBand = band(se?.primary)
+          const pivots = (se?.pivots || []).filter(p => p.track || p.min != null || p.max != null)
+          if (!sm && !primaryBand && pivots.length === 0) {
+            return (
+              <div className="gradient-border-card rounded-2xl p-5 mb-4 flex items-center justify-between gap-4">
+                <p className="text-[#5A5A6E] text-sm">Set your availability and salary expectations so we can match you.</p>
+                <Link href="/profile/edit" className="text-[#0891B2] text-sm font-bold whitespace-nowrap">Add →</Link>
+              </div>
+            )
+          }
+          return (
+            <div className="gradient-border-card rounded-2xl p-6 mb-4">
+              <div className="flex items-center gap-2.5 mb-4">
+                <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#A78BFA)' }} />
+                <h2 className="text-[#0E0E1A] font-black text-xl tracking-tight">Availability & salary</h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(14,14,26,0.06)', color: '#8A8A99' }}>🔒 private · matched companies only</span>
+              </div>
+              <div className="ml-4 space-y-4">
+                {sm && (
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full" style={{ background: sm.color }} />
+                    <span className="text-sm font-bold" style={{ color: sm.color }}>{sm.label}</span>
+                  </div>
+                )}
+                {primaryBand && (
+                  <div>
+                    <p className="text-[#8A8A99] text-[11px] font-bold uppercase tracking-wider mb-1">Primary{se?.primary?.track ? ` · ${se.primary.track}` : ''}</p>
+                    <p className="text-[#0E0E1A] text-lg font-black">{primaryBand}
+                      {se?.flexible && <span className="text-[#8A8A99] text-xs font-medium ml-2">negotiable</span>}
+                      {se?.includes_allowances && <span className="text-[#8A8A99] text-xs font-medium ml-2">incl. allowances</span>}
+                    </p>
+                  </div>
+                )}
+                {pivots.length > 0 && (
+                  <div>
+                    <p className="text-[#8A8A99] text-[11px] font-bold uppercase tracking-wider mb-2">Open to pivot tracks</p>
+                    <div className="space-y-1.5">
+                      {pivots.map((p, i) => (
+                        <div key={i} className="flex items-baseline gap-2 flex-wrap">
+                          <span className="text-[#3F3F4E] text-sm font-bold">{p.track || 'Track'}</span>
+                          <span className="text-[#0891B2] text-sm font-bold">{band(p) || '—'}</span>
+                          {p.note && <span className="text-[#8A8A99] text-xs">· {p.note}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })()}
 
         {/* Skill fingerprint — Hands/Heart/Head/Spark radar with AI Tier badge */}
         {profile.skill_quadrant && (
