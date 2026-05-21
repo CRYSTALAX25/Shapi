@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white text-[#0E0E1A] overflow-x-hidden">
+    <div className="min-h-screen bg-[#F1F2F7] text-[#0E0E1A] overflow-x-hidden">
       <style>{`
         @keyframes gradientShift {
           0%, 100% { background-position: 0% 50%; }

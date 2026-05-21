@@ -85,7 +85,7 @@ export default async function RolesBoard() {
   }).sort((a, b) => b.match_score - a.match_score)
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F1F2F7]">
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#ffffff, #ffffff) padding-box,

@@ -234,14 +234,14 @@ export default function EditProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#F1F2F7] flex items-center justify-center">
         <div className="w-8 h-8 rounded-full border-2 border-[#0E0E1A]/[0.08] border-t-[#22D3EE] animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F1F2F7]">
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#ffffff, #ffffff) padding-box,

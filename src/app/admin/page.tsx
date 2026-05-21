@@ -67,7 +67,7 @@ export default async function AdminPanel() {
   )
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F1F2F7]">
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#ffffff, #ffffff) padding-box,

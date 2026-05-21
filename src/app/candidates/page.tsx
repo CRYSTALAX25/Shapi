@@ -41,7 +41,7 @@ export default async function CandidatesPage() {
   const cardStyle = { border: '1px solid rgba(14,14,26,0.08)', boxShadow: '0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05)' }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F1F2F7]">
       <nav className="px-6 py-5 flex items-center justify-between max-w-6xl mx-auto border-b border-[#0E0E1A]/[0.08]">
         <Link href="/" className="font-black text-2xl tracking-tighter" style={{
           background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',

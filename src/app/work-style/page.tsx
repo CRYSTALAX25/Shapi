@@ -40,7 +40,7 @@ export default function WorkStylePage() {
   const previewScores = done || (allAnswered ? scoreWorkStyle(answers) : null)
 
   return (
-    <div className="min-h-screen bg-white text-[#0E0E1A]">
+    <div className="min-h-screen bg-[#F1F2F7] text-[#0E0E1A]">
       <style>{`.gradient-border-card { background: linear-gradient(#ffffff,#ffffff) padding-box, linear-gradient(135deg, rgba(34,211,238,0.12), rgba(139,92,246,0.12)) border-box; border: 1px solid transparent; box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05); }`}</style>
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
 

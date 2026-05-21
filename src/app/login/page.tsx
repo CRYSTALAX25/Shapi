@@ -30,7 +30,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-6">
+    <div className="min-h-screen bg-[#F1F2F7] flex items-center justify-center px-6">
       <style>{`
         @keyframes gradientShift {
           0%, 100% { background-position: 0% 50%; }

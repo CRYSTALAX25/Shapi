@@ -269,7 +269,7 @@ export default function References() {
   const managerSent = (slot: number) => refs.some(r => r.job_slot === slot && r.ref_type === 'manager')
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F1F2F7]">
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle,rgba(14,14,26,0.05) 1px,transparent 1px)', backgroundSize: '44px 44px' }} />
 
       <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-[#0E0E1A]/[0.08]">

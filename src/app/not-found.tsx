@@ -5,7 +5,7 @@ import ShapiCharacter from '@/components/ShapiCharacter'
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-6">
+    <div className="min-h-screen bg-[#F1F2F7] flex items-center justify-center px-6">
       <div className="fixed inset-0 pointer-events-none" style={{
         backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',

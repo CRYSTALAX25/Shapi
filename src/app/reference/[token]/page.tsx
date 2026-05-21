@@ -112,13 +112,13 @@ export default function ReferencePage() {
     : howWorked.trim() && biggestStrength.trim()
 
   if (loading) return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="min-h-screen bg-[#F1F2F7] flex items-center justify-center">
       <div className="flex gap-2">{[0,150,300].map(d => <div key={d} className="w-2 h-2 rounded-full bg-[#22D3EE]/40 animate-bounce" style={{ animationDelay: `${d}ms` }} />)}</div>
     </div>
   )
 
   if (notFound) return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-6">
+    <div className="min-h-screen bg-[#F1F2F7] flex items-center justify-center px-6">
       <div className="text-center max-w-sm">
         <div className="text-4xl mb-4">🔍</div>
         <h1 className="text-2xl font-black text-[#0E0E1A] mb-3">Link not found</h1>
@@ -131,7 +131,7 @@ export default function ReferencePage() {
     const first = ref?.referee_name?.split(' ')[0] || 'there'
     const cf = ref?.candidate_name?.split(' ')[0] || 'them'
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center px-6">
+      <div className="min-h-screen bg-[#F1F2F7] flex items-center justify-center px-6">
         <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle,rgba(14,14,26,0.05) 1px,transparent 1px)', backgroundSize: '44px 44px' }} />
         <div className="relative z-10 text-center max-w-sm">
           <div className="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center text-2xl" style={{ background: 'linear-gradient(135deg,#22D3EE,#A78BFA)' }}>✓</div>
@@ -153,7 +153,7 @@ export default function ReferencePage() {
   const first = ref?.candidate_name?.split(' ')[0] || 'them'
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F1F2F7]">
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle,rgba(14,14,26,0.05) 1px,transparent 1px)', backgroundSize: '44px 44px' }} />
 
       <nav className="relative z-10 px-6 py-5 border-b border-[#0E0E1A]/[0.08]">

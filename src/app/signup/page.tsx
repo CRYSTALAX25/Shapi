@@ -68,7 +68,7 @@ function SignUpForm() {
 
   if (sent) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center px-6">
+      <div className="min-h-screen bg-[#F1F2F7] flex items-center justify-center px-6">
         <div className="fixed inset-0 pointer-events-none" style={{
           backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
           backgroundSize: '44px 44px',
@@ -89,7 +89,7 @@ function SignUpForm() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-6">
+    <div className="min-h-screen bg-[#F1F2F7] flex items-center justify-center px-6">
       <style>{`
         @keyframes gradientShift {
           0%, 100% { background-position: 0% 50%; }
@@ -262,7 +262,7 @@ function SignUpForm() {
 export default function SignUp() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#F1F2F7] flex items-center justify-center">
         <div className="w-8 h-8 rounded-full border-2 border-[#0E0E1A]/[0.08] border-t-[#22D3EE] animate-spin" />
       </div>
     }>

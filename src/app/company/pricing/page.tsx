@@ -20,7 +20,7 @@ export default function CompanyPricing() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F1F2F7]">
       <nav className="px-6 py-5 flex items-center justify-between max-w-5xl mx-auto border-b border-[#0E0E1A]/[0.08]">
         <span className="font-black text-2xl tracking-tighter" style={{
           background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',

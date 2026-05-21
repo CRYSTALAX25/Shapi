@@ -169,7 +169,7 @@ export default async function Dashboard() {
     : `I'm working through your profile. Keep an eye on WhatsApp — I may have a few more questions.`
 
   return (
-    <div className="min-h-screen bg-white text-[#0E0E1A]">
+    <div className="min-h-screen bg-[#F1F2F7] text-[#0E0E1A]">
       <style>{`
         @keyframes gradientShift {
           0%, 100% { background-position: 0% 50%; }

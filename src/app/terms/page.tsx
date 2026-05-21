@@ -9,7 +9,7 @@ const UPDATED = '21 May 2026'
 
 export default function Terms() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F1F2F7]">
       <div className="fixed inset-0 pointer-events-none" style={{
         backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',

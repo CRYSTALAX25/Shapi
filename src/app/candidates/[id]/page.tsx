@@ -40,7 +40,7 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
   const aiTierLabel: Record<string, string> = { user: 'AI User', integrator: 'AI Integrator', builder: 'AI Builder' }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F1F2F7]">
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#ffffff, #ffffff) padding-box,

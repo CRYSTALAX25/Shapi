@@ -12,7 +12,7 @@ function fmtDate(iso: string) {
 
 export default function BlogIndex() {
   return (
-    <div className="min-h-screen bg-white text-[#0E0E1A]">
+    <div className="min-h-screen bg-[#F1F2F7] text-[#0E0E1A]">
       <nav className="px-6 py-5 max-w-5xl mx-auto flex items-center justify-between">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
           background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',

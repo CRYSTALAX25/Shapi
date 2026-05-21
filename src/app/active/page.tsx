@@ -246,7 +246,7 @@ export default function ActivePage() {
     score >= 70 ? '#059669' : score >= 50 ? '#0891B2' : '#7C3AED'
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F1F2F7]">
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#ffffff, #ffffff) padding-box,

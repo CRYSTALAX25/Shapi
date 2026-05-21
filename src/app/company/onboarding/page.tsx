@@ -99,7 +99,7 @@ export default function CompanyOnboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F1F2F7]">
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#ffffff, #ffffff) padding-box,
@@ -219,7 +219,7 @@ export default function CompanyOnboarding() {
 
 function Screen({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-[#F1F2F7] flex flex-col items-center justify-center px-6">
       <div className="fixed inset-0 pointer-events-none" style={{
         backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',

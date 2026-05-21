@@ -79,7 +79,7 @@ function UpskillContent() {
   }
 
   if (loading) {
-    return <div className="min-h-screen bg-white flex items-center justify-center text-[#5A5A6E] text-sm">Loading…</div>
+    return <div className="min-h-screen bg-[#F1F2F7] flex items-center justify-center text-[#5A5A6E] text-sm">Loading…</div>
   }
 
   // If arrived via ?skill=X and X isn't already a roadmap gap, prepend a
@@ -96,7 +96,7 @@ function UpskillContent() {
     : gaps
 
   return (
-    <div className="min-h-screen bg-white text-[#0E0E1A]">
+    <div className="min-h-screen bg-[#F1F2F7] text-[#0E0E1A]">
       <style>{`
         .gradient-border-card { background: linear-gradient(#ffffff,#ffffff) padding-box, linear-gradient(135deg, rgba(34,211,238,0.12), rgba(139,92,246,0.12)) border-box; border: 1px solid transparent; box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05); }
       `}</style>
@@ -375,7 +375,7 @@ function CourseRow({ course, onUpdate, onRemove }: { course: Course; onUpdate: (
 
 export default function UpskillPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-white" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#F1F2F7]" />}>
       <UpskillContent />
     </Suspense>
   )

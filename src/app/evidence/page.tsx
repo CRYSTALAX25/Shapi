@@ -88,7 +88,7 @@ export default function Evidence() {
   const allDone = activeUploads.length > 0 && activeUploads.every(u => u.status !== 'uploading')
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F1F2F7]">
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#ffffff, #ffffff) padding-box,

@@ -60,7 +60,7 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#F1F2F7]">
       <style>{`
         @keyframes gradientShift {
           0%, 100% { background-position: 0% 50%; }
