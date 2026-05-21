@@ -35,7 +35,13 @@ export default async function CompanyPipeline({ searchParams }: { searchParams: 
       ? await admin.from('profiles').select('id, full_name, headline, location, verification_tier, completion_pct').in('id', candidateIds)
       : { data: [] }
     const cmap = new Map((cands || []).map(c => [c.id, c]))
-    apps = (appRows || []).map(a => ({ ...a, candidate: cmap.get(a.candidate_id) || null }))
+    const { data: ivRows } = await supabase
+      .from('interviews')
+      .select('candidate_id, scheduled_at, video_platform, meeting_link, location, status')
+      .eq('company_id', user.id)
+      .eq('role_id', selectedRoleId)
+    const ivMap = new Map((ivRows || []).map(i => [i.candidate_id, i]))
+    apps = (appRows || []).map(a => ({ ...a, candidate: cmap.get(a.candidate_id) || null, interview: ivMap.get(a.candidate_id) || null }))
   }
 
   return (

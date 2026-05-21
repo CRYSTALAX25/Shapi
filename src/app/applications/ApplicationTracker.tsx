@@ -8,7 +8,14 @@ const STAGE_ORDER = ['matched', 'shortlisted', 'interviewing', 'offer', 'hired']
 const STAGE_LABEL: Record<string, string> = { matched: 'Matched', shortlisted: 'Shortlisted', interviewing: 'Interviewing', offer: 'Offer', hired: 'Hired', passed: 'Passed' }
 
 type Role = { id: string; title: string; location: string | null; salary_min: number | null; salary_max: number | null; salary_currency: string | null; engagement_type: string | null }
-type App = { id: string; role_id: string; stage: string; candidate_scorecard: Record<string, number> | null; role: Role | null; company_name: string }
+type Interview = { scheduled_at: string | null; video_platform: string | null; meeting_link: string | null; location: string | null; status: string | null }
+type App = { id: string; role_id: string; stage: string; candidate_scorecard: Record<string, number> | null; role: Role | null; company_name: string; interview: Interview | null }
+
+const PLATFORM_LABEL: Record<string, string> = { google_meet: 'Google Meet', zoom: 'Zoom', teams: 'Teams', in_person: 'In person', other: 'Video' }
+function fmtWhen(iso: string | null): string {
+  if (!iso) return ''
+  return new Date(iso).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+}
 
 function avg(sc: Record<string, number> | null): number | null {
   if (!sc) return null
@@ -76,6 +83,26 @@ export default function ApplicationTracker({ applications }: { applications: App
                     {i < STAGE_ORDER.length - 1 && <div className="h-0.5 flex-1 mx-1" style={{ background: i < stageIdx ? 'linear-gradient(135deg,#06B6D4,#7C3AED)' : 'rgba(14,14,26,0.10)' }} />}
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Booked interview */}
+            {a.interview?.scheduled_at && (
+              <div className="rounded-xl px-4 py-3 mb-4 flex items-center justify-between gap-3" style={{ background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.2)' }}>
+                <div>
+                  <p className="text-[#7C3AED] text-sm font-bold">📅 Interview · {fmtWhen(a.interview.scheduled_at)}</p>
+                  <p className="text-[#8A8A99] text-xs">
+                    {a.interview.video_platform === 'in_person'
+                      ? (a.interview.location ? `📍 ${a.interview.location}` : 'In person')
+                      : PLATFORM_LABEL[a.interview.video_platform || 'other'] || 'Video call'}
+                  </p>
+                </div>
+                {a.interview.video_platform !== 'in_person' && a.interview.meeting_link && (
+                  <a href={a.interview.meeting_link} target="_blank" rel="noopener noreferrer"
+                    className="flex-shrink-0 text-white text-xs font-black px-4 py-2 rounded-full" style={{ background: 'linear-gradient(135deg,#06B6D4,#7C3AED)' }}>
+                    Join call →
+                  </a>
+                )}
               </div>
             )}
 
