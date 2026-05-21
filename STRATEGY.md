@@ -143,7 +143,12 @@ The hiring loop, kept inside Shapi so we always know what's going on:
 - **Two-sided post-interview feedback (required):** after each interview BOTH sides submit a
   quick rating + short notes + "move forward? y/n". This is the data that tells us what's
   happening, and it feeds the **company trust score** (candidate-reported) and **candidate
-  reliability** (company-reported). Needs an `interview_feedback` table.
+  reliability** (company-reported). Needs an `interview_feedback` table. [SHIPPED — in-app, both sides]
+  - **[IDEA] Collect it over WhatsApp too** (both candidate AND hiring manager), on-brand with
+    Shapi's WhatsApp-native flow: after the interview time passes, Shapi messages whoever has a
+    WhatsApp number connected — "How did the interview go? Reply 1–5 and would you continue?" —
+    and we parse the reply (reuse the reference/webhook parsing). Also enables pre-interview
+    reminders. Depends on the Twilio upgrade (trial 50/day cap). In-app forms work now.
 - **Job timestamp + health / ghost-job signal:** show "posted X days ago" on the company role
   view (roles already store created_at). If a role sits open too long with low engagement
   (e.g. >21 days, few shortlists/interviews), flag it and **Shapi proactively follows up** —
