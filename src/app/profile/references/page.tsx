@@ -46,12 +46,12 @@ function workEntryLabel(w: WorkEntry, i: number): string {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  pending:   { label: 'Not sent',   color: 'rgba(255,255,255,0.3)',  bg: 'rgba(255,255,255,0.04)' },
-  contacted: { label: 'Contacted',  color: '#22D3EE',               bg: 'rgba(34,211,238,0.08)' },
-  opened:    { label: 'Opened',     color: '#A78BFA',               bg: 'rgba(167,139,250,0.08)' },
-  completed: { label: 'Responded ✓', color: '#34D399',              bg: 'rgba(52,211,153,0.08)' },
-  no_response: { label: 'No response', color: '#FB7185',            bg: 'rgba(251,113,133,0.08)' },
-  declined:  { label: 'Declined',   color: '#FB7185',               bg: 'rgba(251,113,133,0.08)' },
+  pending:   { label: 'Not sent',   color: '#8A8A99',               bg: 'rgba(14,14,26,0.04)' },
+  contacted: { label: 'Contacted',  color: '#0891B2',               bg: 'rgba(34,211,238,0.08)' },
+  opened:    { label: 'Opened',     color: '#7C3AED',               bg: 'rgba(167,139,250,0.08)' },
+  completed: { label: 'Responded ✓', color: '#059669',              bg: 'rgba(52,211,153,0.08)' },
+  no_response: { label: 'No response', color: '#E11D48',            bg: 'rgba(251,113,133,0.08)' },
+  declined:  { label: 'Declined',   color: '#E11D48',               bg: 'rgba(251,113,133,0.08)' },
 }
 
 const REF_TYPE_LABEL: Record<string, string> = {
@@ -75,15 +75,15 @@ function FieldStyle({ children, label, placeholder, value, onChange, type = 'tex
 }) {
   return (
     <div>
-      <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'rgba(255,255,255,0.3)', marginBottom: 6 }}>{label}</p>
+      <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#8A8A99', marginBottom: 6 }}>{label}</p>
       <input
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         style={{
-          width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)',
-          borderRadius: 10, padding: '11px 14px', fontSize: 14, color: 'white', outline: 'none', fontFamily: 'inherit',
+          width: '100%', background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)',
+          borderRadius: 10, padding: '11px 14px', fontSize: 14, color: '#0E0E1A', outline: 'none', fontFamily: 'inherit',
         }}
       />
       {children}
@@ -269,38 +269,38 @@ export default function References() {
   const managerSent = (slot: number) => refs.some(r => r.job_slot === slot && r.ref_type === 'manager')
 
   return (
-    <div className="min-h-screen bg-[#060609]">
-      <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle,rgba(34,211,238,0.07) 1px,transparent 1px)', backgroundSize: '44px 44px' }} />
+    <div className="min-h-screen bg-white">
+      <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle,rgba(14,14,26,0.05) 1px,transparent 1px)', backgroundSize: '44px 44px' }} />
 
-      <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-white/[0.05]">
+      <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-[#0E0E1A]/[0.08]">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#A78BFA,#22D3EE)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
-        <Link href="/profile" className="text-white/40 text-sm hover:text-white/60 transition-colors">← Profile</Link>
+        <Link href="/profile" className="text-[#5A5A6E] text-sm hover:text-[#3F3F4E] transition-colors">← Profile</Link>
       </nav>
 
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-10 pb-24">
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-white mb-2">Get Vouched.</h1>
-          <p className="text-white/35 text-sm leading-relaxed max-w-xl">
+          <h1 className="text-3xl font-black text-[#0E0E1A] mb-2">Get Vouched.</h1>
+          <p className="text-[#8A8A99] text-sm leading-relaxed max-w-xl">
             Give us your manager&apos;s details for two jobs. We email them independently — they fill in a short form and nominate a colleague and stakeholder from their team.
-            Those people get reached out to directly. <strong className="text-white/55">You don&apos;t find out who was nominated or what was said.</strong> That&apos;s what makes it credible.
+            Those people get reached out to directly. <strong className="text-[#3F3F4E]">You don&apos;t find out who was nominated or what was said.</strong> That&apos;s what makes it credible.
           </p>
         </div>
 
         {/* Progress bar */}
         {totalCount > 0 && (
-          <div className="mb-8 p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="mb-8 p-5 rounded-2xl" style={{ background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)' }}>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-white/50 text-xs font-bold uppercase tracking-wider">Verification progress</p>
-              <p className="text-white font-black text-sm">{completedCount} / {totalCount} responded</p>
+              <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider">Verification progress</p>
+              <p className="text-[#0E0E1A] font-black text-sm">{completedCount} / {totalCount} responded</p>
             </div>
-            <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
+            <div className="h-2 rounded-full bg-[#0E0E1A]/[0.04] overflow-hidden">
               <div className="h-full rounded-full transition-all duration-500"
                 style={{ width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%`, background: 'linear-gradient(90deg,#22D3EE,#A78BFA)' }} />
             </div>
             {completedCount >= 3 && (
-              <p className="text-[#34D399] text-xs font-bold mt-2">✓ Verification threshold reached — your profile now shows verified references.</p>
+              <p className="text-[#059669] text-xs font-bold mt-2">✓ Verification threshold reached — your profile now shows verified references.</p>
             )}
           </div>
         )}
@@ -313,18 +313,18 @@ export default function References() {
               if (slotRefs.length === 0) return null
               const mgr = slotRefs.find(r => r.ref_type === 'manager')
               return (
-                <div key={slot} className="mb-5 p-5 rounded-2xl" style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                  <p className="text-white/40 text-xs font-bold uppercase tracking-wider mb-4">
+                <div key={slot} className="mb-5 p-5 rounded-2xl" style={{ background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)' }}>
+                  <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-4">
                     Job {slot} — {mgr?.candidate_company || `Slot ${slot}`}
                   </p>
                   <div className="space-y-2">
                     {slotRefs.map(r => (
                       <div key={r.id} className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0">
-                          <span className="text-white/25 text-xs w-20 flex-shrink-0">{REF_TYPE_LABEL[r.ref_type]}</span>
-                          <span className="text-white/60 text-sm truncate">
+                          <span className="text-[#8A8A99] text-xs w-20 flex-shrink-0">{REF_TYPE_LABEL[r.ref_type]}</span>
+                          <span className="text-[#3F3F4E] text-sm truncate">
                             {r.referee_name}
-                            {r.nominator_name && <span className="text-white/25 text-xs ml-2">nominated by {r.nominator_name}</span>}
+                            {r.nominator_name && <span className="text-[#8A8A99] text-xs ml-2">nominated by {r.nominator_name}</span>}
                           </span>
                         </div>
                         <StatusBadge status={r.status} />
@@ -332,7 +332,7 @@ export default function References() {
                     ))}
                     {/* Show pending slots for colleague + stakeholder if not nominated yet */}
                     {slotRefs.filter(r => r.ref_type !== 'manager').length === 0 && mgr?.status === 'contacted' && (
-                      <p className="text-white/20 text-xs mt-2 pl-[92px]">Colleague and stakeholder will be nominated by the manager when they respond.</p>
+                      <p className="text-[#B0B0BC] text-xs mt-2 pl-[92px]">Colleague and stakeholder will be nominated by the manager when they respond.</p>
                     )}
                   </div>
                 </div>
@@ -344,16 +344,16 @@ export default function References() {
         {/* Test mode toggle — routes ALL outreach (manager + nominees) to the candidate */}
         <label className="flex items-center gap-3 mb-6 p-4 rounded-xl cursor-pointer transition-colors"
           style={{
-            background: testMode ? 'rgba(251,191,36,0.08)' : 'rgba(255,255,255,0.03)',
-            border: `1px solid ${testMode ? 'rgba(251,191,36,0.3)' : 'rgba(255,255,255,0.06)'}`,
+            background: testMode ? 'rgba(251,191,36,0.08)' : 'rgba(14,14,26,0.04)',
+            border: `1px solid ${testMode ? 'rgba(251,191,36,0.3)' : 'rgba(14,14,26,0.08)'}`,
           }}>
           <input type="checkbox" checked={testMode} onChange={e => setTestMode(e.target.checked)}
             className="w-4 h-4 accent-[#FBBF24]" />
           <div>
-            <p className={`text-sm font-bold ${testMode ? 'text-[#FBBF24]' : 'text-white/60'}`}>
+            <p className={`text-sm font-bold ${testMode ? 'text-[#D97706]' : 'text-[#3F3F4E]'}`}>
               🧪 Test mode — send all outreach to me
             </p>
-            <p className="text-white/30 text-xs mt-0.5">
+            <p className="text-[#8A8A99] text-xs mt-0.5">
               Everything that would go to the manager, colleague, and stakeholder routes to your own WhatsApp + email. Use this to validate the full chain end-to-end without involving real contacts.
             </p>
           </div>
@@ -365,55 +365,56 @@ export default function References() {
             background: 'rgba(167,139,250,0.06)',
             border: '1px solid rgba(167,139,250,0.18)',
           }}>
-            <p className="text-[#A78BFA] text-xs font-bold uppercase tracking-wider mb-2">💡 Shapi recommends</p>
-            <p className="text-white/70 text-sm leading-relaxed mb-2">{suggestion.reasoning}</p>
-            <p className="text-white/35 text-xs">You can change any of the picks below if you prefer different roles.</p>
+            <p className="text-[#7C3AED] text-xs font-bold uppercase tracking-wider mb-2">💡 Shapi recommends</p>
+            <p className="text-[#3F3F4E] text-sm leading-relaxed mb-2">{suggestion.reasoning}</p>
+            <p className="text-[#8A8A99] text-xs">You can change any of the picks below if you prefer different roles.</p>
           </div>
         )}
         {loadingSuggestion && (
-          <div className="mb-6 p-4 rounded-2xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <p className="text-white/35 text-xs">✨ Shapi is picking the best references for your CV…</p>
+          <div className="mb-6 p-4 rounded-2xl" style={{ background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)' }}>
+            <p className="text-[#8A8A99] text-xs">✨ Shapi is picking the best references for your CV…</p>
           </div>
         )}
 
         {/* ─── Peer reference for CURRENT role (discretion-protected) ─── */}
         <div className="mb-6 rounded-2xl p-6" style={{
-          background: 'linear-gradient(#0d0d14,#0d0d14) padding-box,linear-gradient(135deg,rgba(52,211,153,0.15),rgba(34,211,238,0.10)) border-box',
+          background: 'linear-gradient(#ffffff,#ffffff) padding-box,linear-gradient(135deg,rgba(52,211,153,0.15),rgba(34,211,238,0.10)) border-box',
           border: '1px solid transparent',
+          boxShadow: '0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05)',
         }}>
           <div className="flex items-center justify-between mb-1">
-            <p className="text-[#34D399] text-xs font-bold uppercase tracking-wider">Current role · peer reference</p>
-            {sentPeer && <span className="text-[#22D3EE] text-xs font-bold">✓ Sent</span>}
+            <p className="text-[#059669] text-xs font-bold uppercase tracking-wider">Current role · peer reference</p>
+            {sentPeer && <span className="text-[#0891B2] text-xs font-bold">✓ Sent</span>}
           </div>
-          <p className="text-white/35 text-xs mb-5">A <strong>colleague</strong> (not your manager) from your current job. Keeps your job-hunt discreet — we never contact your current boss.</p>
+          <p className="text-[#8A8A99] text-xs mb-5">A <strong>colleague</strong> (not your manager) from your current job. Keeps your job-hunt discreet — we never contact your current boss.</p>
 
           {sentPeer ? (
-            <p className="text-white/40 text-sm">Peer reference request sent to {peerJob.managerName}. They&apos;ll have 3 quick questions to answer.</p>
+            <p className="text-[#5A5A6E] text-sm">Peer reference request sent to {peerJob.managerName}. They&apos;ll have 3 quick questions to answer.</p>
           ) : (
             <div className="space-y-4">
               {workHistory.length > 0 && (
                 <div>
-                  <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'rgba(255,255,255,0.3)', marginBottom: 6 }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#8A8A99', marginBottom: 6 }}>
                     Which is your current role?
                   </p>
                   <select
                     value={peerJob.workIndex === null ? '' : peerJob.workIndex.toString()}
                     onChange={e => pickWorkEntry('peer', e.target.value)}
                     style={{
-                      width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)',
-                      borderRadius: 10, padding: '11px 14px', fontSize: 14, color: 'white', outline: 'none',
+                      width: '100%', background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)',
+                      borderRadius: 10, padding: '11px 14px', fontSize: 14, color: '#0E0E1A', outline: 'none',
                       fontFamily: 'inherit', cursor: 'pointer',
                     }}
                   >
-                    <option value="" style={{ background: '#0d0d14' }}>— Pick your current role —</option>
+                    <option value="" style={{ background: '#ffffff' }}>— Pick your current role —</option>
                     {workHistory.map((w, i) => (
-                      <option key={i} value={i} style={{ background: '#0d0d14' }}>
+                      <option key={i} value={i} style={{ background: '#ffffff' }}>
                         {workEntryLabel(w, i)}
                       </option>
                     ))}
                   </select>
                   {suggestion?.currentRole && peerJob.workIndex === suggestion.currentRole.index && (
-                    <p style={{ fontSize: 11, color: 'rgba(52,211,153,0.7)', marginTop: 6 }}>
+                    <p style={{ fontSize: 11, color: '#059669', marginTop: 6 }}>
                       💡 Shapi&apos;s pick: {suggestion.currentRole.reason}
                     </p>
                   )}
@@ -426,10 +427,10 @@ export default function References() {
               </div>
               <FieldStyle label="Dates" placeholder="2024 – present" value={peerJob.dates} onChange={v => setPeerJob(f => ({ ...f, dates: v }))} />
 
-              <div className="border-t border-white/[0.06] pt-4">
+              <div className="border-t border-[#0E0E1A]/[0.08] pt-4">
                 <div className="flex items-start justify-between mb-4">
-                  <p className="text-white/35 text-xs font-bold uppercase tracking-wider">Colleague (not manager)</p>
-                  <p className="text-white/20 text-xs">At least one contact method required</p>
+                  <p className="text-[#8A8A99] text-xs font-bold uppercase tracking-wider">Colleague (not manager)</p>
+                  <p className="text-[#B0B0BC] text-xs">At least one contact method required</p>
                 </div>
                 <div className="space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -441,7 +442,7 @@ export default function References() {
                 </div>
               </div>
 
-              {errorPeer && <p className="text-[#FB7185] text-xs bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3">{errorPeer}</p>}
+              {errorPeer && <p className="text-[#E11D48] text-xs bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3">{errorPeer}</p>}
 
               <button
                 onClick={sendPeerRequest}
@@ -456,8 +457,8 @@ export default function References() {
 
         {/* ─── Past role manager references (2 of them) ─── */}
         <div className="mb-3 mt-8">
-          <p className="text-white/40 text-xs font-bold uppercase tracking-wider">Past role manager references</p>
-          <p className="text-white/25 text-xs mt-1">2 line managers from past roles. They&apos;ll each nominate a colleague + stakeholder — those nominees get contacted independently.</p>
+          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider">Past role manager references</p>
+          <p className="text-[#8A8A99] text-xs mt-1">2 line managers from past roles. They&apos;ll each nominate a colleague + stakeholder — those nominees get contacted independently.</p>
         </div>
 
         {/* Job forms */}
@@ -471,18 +472,19 @@ export default function References() {
 
           return (
             <div key={slot} className="mb-6 rounded-2xl p-6" style={{
-              background: 'linear-gradient(#0d0d14,#0d0d14) padding-box,linear-gradient(135deg,rgba(34,211,238,0.12),rgba(139,92,246,0.12)) border-box',
+              background: 'linear-gradient(#ffffff,#ffffff) padding-box,linear-gradient(135deg,rgba(34,211,238,0.12),rgba(139,92,246,0.12)) border-box',
               border: '1px solid transparent',
+              boxShadow: '0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05)',
             }}>
               <div className="flex items-center justify-between mb-5">
-                <p className="text-white/50 text-xs font-bold uppercase tracking-wider">
+                <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider">
                   Reference {slot} of 2
                 </p>
-                {alreadySent && <span className="text-[#22D3EE] text-xs font-bold">✓ Sent</span>}
+                {alreadySent && <span className="text-[#0891B2] text-xs font-bold">✓ Sent</span>}
               </div>
 
               {alreadySent && !sent ? (
-                <p className="text-white/30 text-sm">Reference request sent. You can re-send with updated details if needed.</p>
+                <p className="text-[#8A8A99] text-sm">Reference request sent. You can re-send with updated details if needed.</p>
               ) : (
                 <div className="space-y-4">
                   {/* Role picker — pick which job from work_history this reference is for.
@@ -490,35 +492,35 @@ export default function References() {
                       (not just the chronologically latest 2). */}
                   {workHistory.length > 0 && (
                     <div>
-                      <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'rgba(255,255,255,0.3)', marginBottom: 6 }}>
+                      <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#8A8A99', marginBottom: 6 }}>
                         Which role is this reference for?
                       </p>
                       <select
                         value={form.workIndex === null ? '' : form.workIndex.toString()}
                         onChange={e => pickWorkEntry(slot as 1 | 2, e.target.value)}
                         style={{
-                          width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)',
-                          borderRadius: 10, padding: '11px 14px', fontSize: 14, color: 'white', outline: 'none',
+                          width: '100%', background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)',
+                          borderRadius: 10, padding: '11px 14px', fontSize: 14, color: '#0E0E1A', outline: 'none',
                           fontFamily: 'inherit', cursor: 'pointer',
                         }}
                       >
-                        <option value="" style={{ background: '#0d0d14' }}>— Pick a role from your CV —</option>
+                        <option value="" style={{ background: '#ffffff' }}>— Pick a role from your CV —</option>
                         {workHistory.map((w, i) => {
                           // Disable in this dropdown if the OTHER form already picked this role
                           const otherForm = slot === 1 ? job2 : job1
                           const isUsedByOther = otherForm.workIndex === i
                           return (
-                            <option key={i} value={i} disabled={isUsedByOther} style={{ background: '#0d0d14' }}>
+                            <option key={i} value={i} disabled={isUsedByOther} style={{ background: '#ffffff' }}>
                               {workEntryLabel(w, i)}{isUsedByOther ? '  (used for the other reference)' : ''}
                             </option>
                           )
                         })}
                       </select>
-                      <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 6, lineHeight: 1.5 }}>
+                      <p style={{ fontSize: 11, color: '#5A5A6E', marginTop: 6, lineHeight: 1.5 }}>
                         💡 Pick the role most <strong>relevant to where you&apos;re applying</strong> — not necessarily your latest. If you&apos;re moving into sales, pick a sales role even if your last job was operations.
                       </p>
                       {suggestion?.pastManagers?.[slot - 1] && form.workIndex === suggestion.pastManagers[slot - 1].index && (
-                        <p style={{ fontSize: 11, color: 'rgba(167,139,250,0.7)', marginTop: 6 }}>
+                        <p style={{ fontSize: 11, color: '#7C3AED', marginTop: 6 }}>
                           💡 Shapi&apos;s pick: {suggestion.pastManagers[slot - 1].reason}
                         </p>
                       )}
@@ -531,10 +533,10 @@ export default function References() {
                   </div>
                   <FieldStyle label="Dates (approx)" placeholder="2022 – 2024" value={form.dates} onChange={v => setForm(f => ({ ...f, dates: v }))} />
 
-                  <div className="border-t border-white/[0.06] pt-4">
+                  <div className="border-t border-[#0E0E1A]/[0.08] pt-4">
                     <div className="flex items-start justify-between mb-4">
-                      <p className="text-white/35 text-xs font-bold uppercase tracking-wider">Direct manager</p>
-                      <p className="text-white/20 text-xs">At least one contact method required</p>
+                      <p className="text-[#8A8A99] text-xs font-bold uppercase tracking-wider">Direct manager</p>
+                      <p className="text-[#B0B0BC] text-xs">At least one contact method required</p>
                     </div>
                     <div className="space-y-3">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -542,15 +544,15 @@ export default function References() {
                         <FieldStyle label="Their job title" placeholder="VP Operations" value={form.managerTitle} onChange={v => setForm(f => ({ ...f, managerTitle: v }))} />
                       </div>
                       <FieldStyle label="WhatsApp / Phone number (primary)" placeholder="+971 50 123 4567" value={form.managerPhone} onChange={v => setForm(f => ({ ...f, managerPhone: v }))} type="tel">
-                        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', marginTop: 5 }}>We try WhatsApp first — if they&apos;re not on it, we fall back to SMS automatically.</p>
+                        <p style={{ fontSize: 11, color: '#B0B0BC', marginTop: 5 }}>We try WhatsApp first — if they&apos;re not on it, we fall back to SMS automatically.</p>
                       </FieldStyle>
                       <FieldStyle label="Work email (secondary)" placeholder="sarah@company.com" value={form.managerEmail} onChange={v => setForm(f => ({ ...f, managerEmail: v }))} type="email">
-                        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', marginTop: 5 }}>Sent alongside WhatsApp — they click whichever they see first.</p>
+                        <p style={{ fontSize: 11, color: '#B0B0BC', marginTop: 5 }}>Sent alongside WhatsApp — they click whichever they see first.</p>
                       </FieldStyle>
                     </div>
                   </div>
 
-                  {err && <p className="text-[#FB7185] text-xs bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3">{err}</p>}
+                  {err && <p className="text-[#E11D48] text-xs bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3">{err}</p>}
 
                   <button
                     onClick={() => sendRequest(slot as 1 | 2)}
@@ -561,7 +563,7 @@ export default function References() {
                   </button>
 
                   {sent && (
-                    <p className="text-white/25 text-xs text-center">
+                    <p className="text-[#8A8A99] text-xs text-center">
                       Email sent to {form.managerName}. Once they respond, they&apos;ll nominate a colleague and stakeholder — we&apos;ll contact those people independently.
                     </p>
                   )}
@@ -571,7 +573,7 @@ export default function References() {
           )
         })}
 
-        <p className="text-white/20 text-xs text-center leading-relaxed max-w-md mx-auto">
+        <p className="text-[#B0B0BC] text-xs text-center leading-relaxed max-w-md mx-auto">
           References are independent — you won&apos;t be told who the colleague and stakeholder are, and you can&apos;t see their responses. The count and summary appear on your public profile.
         </p>
       </div>

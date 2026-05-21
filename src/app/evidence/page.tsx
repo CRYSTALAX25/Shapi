@@ -88,44 +88,45 @@ export default function Evidence() {
   const allDone = activeUploads.length > 0 && activeUploads.every(u => u.status !== 'uploading')
 
   return (
-    <div className="min-h-screen bg-[#060609]">
+    <div className="min-h-screen bg-white">
       <style>{`
         .gradient-border-card {
-          background: linear-gradient(#060609, #060609) padding-box,
+          background: linear-gradient(#ffffff, #ffffff) padding-box,
                       linear-gradient(135deg, rgba(34,211,238,0.18), rgba(139,92,246,0.18)) border-box;
           border: 1px solid transparent;
+          box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05);
         }
         .drop-active {
-          background: linear-gradient(#060609, #060609) padding-box,
+          background: linear-gradient(#ffffff, #ffffff) padding-box,
                       linear-gradient(135deg, rgba(34,211,238,0.5), rgba(139,92,246,0.5)) border-box !important;
         }
         .evidence-thumb:hover .evidence-overlay { opacity: 1; }
       `}</style>
 
       <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(34,211,238,0.07) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
       }} />
 
-      <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-white/[0.05]">
+      <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-[#0E0E1A]/[0.08]">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
           background: 'linear-gradient(135deg, #A78BFA, #22D3EE)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
-        <Link href="/dashboard" className="text-white/40 text-sm hover:text-white/70 transition-colors">← Dashboard</Link>
+        <Link href="/dashboard" className="text-[#5A5A6E] text-sm hover:text-[#3F3F4E] transition-colors">← Dashboard</Link>
       </nav>
 
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-10 pb-20">
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-white mb-2">Add work evidence.</h1>
-          <p className="text-white/40 text-sm leading-relaxed">
+          <h1 className="text-3xl font-black text-[#0E0E1A] mb-2">Add work evidence.</h1>
+          <p className="text-[#5A5A6E] text-sm leading-relaxed">
             The more proof you add, the stronger your verified profile. This is what separates you from everyone else with a similar CV.
           </p>
         </div>
 
         {/* What counts */}
         <div className="gradient-border-card rounded-2xl p-5 mb-6">
-          <p className="text-white/60 text-xs font-bold uppercase tracking-wider mb-3">What counts as evidence</p>
+          <p className="text-[#3F3F4E] text-xs font-bold uppercase tracking-wider mb-3">What counts as evidence</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
               { icon: '📸', label: 'Site or jobsite photos', sub: 'EXIF metadata confirms time & place' },
@@ -133,11 +134,11 @@ export default function Evidence() {
               { icon: '🏆', label: 'Awards & certificates', sub: 'Training completions, compliance' },
               { icon: '📰', label: 'Press or published work', sub: 'Mentions, articles, reports' },
             ].map((item, i) => (
-              <div key={i} className="flex items-start gap-3 bg-white/[0.03] rounded-xl p-3">
+              <div key={i} className="flex items-start gap-3 bg-[#0E0E1A]/[0.04] rounded-xl p-3">
                 <span className="text-lg">{item.icon}</span>
                 <div>
-                  <p className="text-white/70 text-sm font-semibold">{item.label}</p>
-                  <p className="text-white/30 text-xs">{item.sub}</p>
+                  <p className="text-[#3F3F4E] text-sm font-semibold">{item.label}</p>
+                  <p className="text-[#8A8A99] text-xs">{item.sub}</p>
                 </div>
               </div>
             ))}
@@ -150,16 +151,16 @@ export default function Evidence() {
           onDragLeave={() => setDragging(false)}
           onDrop={e => { e.preventDefault(); setDragging(false); if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files) }}
           onClick={() => fileRef.current?.click()}
-          className={`gradient-border-card rounded-2xl p-14 text-center cursor-pointer mb-5 transition-all ${dragging ? 'drop-active scale-[1.01]' : 'hover:bg-white/[0.02]'}`}
+          className={`gradient-border-card rounded-2xl p-14 text-center cursor-pointer mb-5 transition-all ${dragging ? 'drop-active scale-[1.01]' : 'hover:bg-[#0E0E1A]/[0.03]'}`}
         >
           <div className="w-14 h-14 rounded-xl bg-[#FB7185]/10 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-7 h-7 text-[#FB7185]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-7 h-7 text-[#E11D48]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
             </svg>
           </div>
-          <p className="text-white font-bold mb-1">Drop files here or click to browse</p>
-          <p className="text-sm text-white/30">JPG · PNG · PDF · Max 10MB each · Multiple files OK</p>
+          <p className="text-[#0E0E1A] font-bold mb-1">Drop files here or click to browse</p>
+          <p className="text-sm text-[#8A8A99]">JPG · PNG · PDF · Max 10MB each · Multiple files OK</p>
           <input
             ref={fileRef}
             type="file"
@@ -177,25 +178,25 @@ export default function Evidence() {
               <div key={i} className="gradient-border-card rounded-xl px-5 py-4 flex items-center gap-4">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
                   u.status === 'done' ? 'bg-emerald-500/20' :
-                  u.status === 'error' ? 'bg-[#FB7185]/20' : 'bg-white/[0.05]'
+                  u.status === 'error' ? 'bg-[#FB7185]/20' : 'bg-[#0E0E1A]/[0.04]'
                 }`}>
                   {u.status === 'uploading' && (
-                    <div className="w-3 h-3 rounded-full border-2 border-white/30 border-t-white/80 animate-spin" />
+                    <div className="w-3 h-3 rounded-full border-2 border-[#0E0E1A]/20 border-t-[#0E0E1A]/60 animate-spin" />
                   )}
                   {u.status === 'done' && (
-                    <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                     </svg>
                   )}
                   {u.status === 'error' && (
-                    <svg className="w-4 h-4 text-[#FB7185]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-[#E11D48]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white/80 text-sm font-medium truncate">{u.name}</p>
-                  <p className="text-white/30 text-xs">
+                  <p className="text-[#0E0E1A] text-sm font-medium truncate">{u.name}</p>
+                  <p className="text-[#8A8A99] text-xs">
                     {fmt(u.size)} · {u.status === 'uploading' ? 'Uploading...' : u.status === 'done' ? 'Saved ✓' : 'Failed — try again'}
                   </p>
                 </div>
@@ -207,16 +208,16 @@ export default function Evidence() {
         {/* Saved evidence gallery */}
         {loadingSaved ? (
           <div className="text-center py-10">
-            <div className="w-5 h-5 rounded-full border-2 border-white/20 border-t-white/60 animate-spin mx-auto" />
+            <div className="w-5 h-5 rounded-full border-2 border-[#0E0E1A]/20 border-t-[#0E0E1A]/60 animate-spin mx-auto" />
           </div>
         ) : saved.length > 0 ? (
           <div className="mb-8">
-            <p className="text-white/40 text-xs font-bold uppercase tracking-wider mb-4">
+            <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-4">
               Saved evidence — {saved.length} file{saved.length !== 1 ? 's' : ''}
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {saved.map(item => (
-                <div key={item.id} className="evidence-thumb relative rounded-xl overflow-hidden aspect-square bg-white/[0.04] border border-white/[0.07] group cursor-default">
+                <div key={item.id} className="evidence-thumb relative rounded-xl overflow-hidden aspect-square bg-[#0E0E1A]/[0.04] border border-[#0E0E1A]/[0.08] group cursor-default">
                   {/* Thumbnail */}
                   {isImage(item.file_type) && item.url ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -227,11 +228,11 @@ export default function Evidence() {
                     />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center gap-2">
-                      <svg className="w-8 h-8 text-[#FB7185]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-8 h-8 text-[#E11D48]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                           d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                       </svg>
-                      <span className="text-white/30 text-xs font-medium">PDF</span>
+                      <span className="text-[#8A8A99] text-xs font-medium">PDF</span>
                     </div>
                   )}
 
@@ -277,7 +278,7 @@ export default function Evidence() {
           </div>
         ) : !loadingSaved && activeUploads.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-white/20 text-sm">No evidence uploaded yet — drop your first file above.</p>
+            <p className="text-[#B0B0BC] text-sm">No evidence uploaded yet — drop your first file above.</p>
           </div>
         ) : null}
 

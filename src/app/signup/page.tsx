@@ -68,9 +68,9 @@ function SignUpForm() {
 
   if (sent) {
     return (
-      <div className="min-h-screen bg-[#060609] flex items-center justify-center px-6">
+      <div className="min-h-screen bg-white flex items-center justify-center px-6">
         <div className="fixed inset-0 pointer-events-none" style={{
-          backgroundImage: 'radial-gradient(circle, rgba(34,211,238,0.08) 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
           backgroundSize: '44px 44px',
         }} />
         <div className="relative z-10 max-w-md w-full text-center">
@@ -79,9 +79,9 @@ function SignUpForm() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h1 className="text-2xl font-black text-white mb-3">Check your email</h1>
-          <p className="text-white/40 leading-relaxed text-sm">
-            We sent a confirmation link to <span className="text-white font-semibold">{email}</span>. Click it to activate your account and start building your profile.
+          <h1 className="text-2xl font-black text-[#0E0E1A] mb-3">Check your email</h1>
+          <p className="text-[#5A5A6E] leading-relaxed text-sm">
+            We sent a confirmation link to <span className="text-[#0E0E1A] font-semibold">{email}</span>. Click it to activate your account and start building your profile.
           </p>
         </div>
       </div>
@@ -89,23 +89,24 @@ function SignUpForm() {
   }
 
   return (
-    <div className="min-h-screen bg-[#060609] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-white flex items-center justify-center px-6">
       <style>{`
         @keyframes gradientShift {
           0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
         }
         .gradient-border-card {
-          background: linear-gradient(#060609, #060609) padding-box,
+          background: linear-gradient(#ffffff, #ffffff) padding-box,
                       linear-gradient(135deg, rgba(34,211,238,0.2), rgba(139,92,246,0.2)) border-box;
           border: 1px solid transparent;
+          box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05);
           transition: all 0.25s ease;
         }
       `}</style>
 
       {/* Dot grid */}
       <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(34,211,238,0.08) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
       }} />
 
@@ -125,13 +126,13 @@ function SignUpForm() {
           }}>shapi</Link>
           {companyInvite ? (
             <>
-              <h1 className="text-2xl font-black text-white mt-6 mb-2">You&apos;ve been invited</h1>
-              <p className="text-white/35 text-sm">Create your account to join your team on Shapi</p>
+              <h1 className="text-2xl font-black text-[#0E0E1A] mt-6 mb-2">You&apos;ve been invited</h1>
+              <p className="text-[#8A8A99] text-sm">Create your account to join your team on Shapi</p>
             </>
           ) : (
             <>
-              <h1 className="text-2xl font-black text-white mt-6 mb-2">Create your account</h1>
-              <p className="text-white/35 text-sm">Start building your verified profile</p>
+              <h1 className="text-2xl font-black text-[#0E0E1A] mt-6 mb-2">Create your account</h1>
+              <p className="text-[#8A8A99] text-sm">Start building your verified profile</p>
             </>
           )}
         </div>
@@ -139,14 +140,14 @@ function SignUpForm() {
         <form onSubmit={handleSubmit} className="space-y-3">
           {/* Type toggle — hidden if arriving via company invite */}
           {!companyInvite && (
-            <div className="flex gap-2 bg-white/[0.04] border border-white/[0.08] p-1.5 rounded-full">
+            <div className="flex gap-2 bg-[#0E0E1A]/[0.04] border border-[#0E0E1A]/[0.08] p-1.5 rounded-full">
               <button
                 type="button"
                 onClick={() => setType('candidate')}
                 className={`flex-1 py-2.5 rounded-full text-sm font-bold transition-all ${
                   type === 'candidate'
                     ? 'bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#060609]'
-                    : 'text-white/40 hover:text-white/70'
+                    : 'text-[#5A5A6E] hover:text-[#3F3F4E]'
                 }`}
               >
                 I&apos;m a candidate
@@ -157,7 +158,7 @@ function SignUpForm() {
                 className={`flex-1 py-2.5 rounded-full text-sm font-bold transition-all ${
                   type === 'company'
                     ? 'bg-gradient-to-r from-[#FB7185] to-[#A78BFA] text-[#060609]'
-                    : 'text-white/40 hover:text-white/70'
+                    : 'text-[#5A5A6E] hover:text-[#3F3F4E]'
                 }`}
               >
                 I&apos;m hiring
@@ -171,7 +172,7 @@ function SignUpForm() {
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
-            className="gradient-border-card w-full px-5 py-4 rounded-2xl text-white placeholder-white/25 focus:outline-none text-sm bg-transparent"
+            className="gradient-border-card w-full px-5 py-4 rounded-2xl text-[#0E0E1A] placeholder-[#9A9AA8] focus:outline-none text-sm bg-transparent"
           />
 
           <input
@@ -181,7 +182,7 @@ function SignUpForm() {
             onChange={e => setPassword(e.target.value)}
             required
             minLength={8}
-            className="gradient-border-card w-full px-5 py-4 rounded-2xl text-white placeholder-white/25 focus:outline-none text-sm bg-transparent"
+            className="gradient-border-card w-full px-5 py-4 rounded-2xl text-[#0E0E1A] placeholder-[#9A9AA8] focus:outline-none text-sm bg-transparent"
           />
 
           {/* How did you hear about us */}
@@ -189,7 +190,7 @@ function SignUpForm() {
             value={referralSource}
             onChange={e => setReferralSource(e.target.value)}
             className="gradient-border-card w-full px-5 py-4 rounded-2xl text-sm bg-transparent focus:outline-none"
-            style={{ color: referralSource ? '#fff' : 'rgba(255,255,255,0.25)' }}
+            style={{ color: referralSource ? '#0E0E1A' : '#9A9AA8' }}
           >
             <option value="" style={{ color: '#000' }}>How did you hear about us?</option>
             <option value="friend_referral" style={{ color: '#000' }}>Friend or colleague</option>
@@ -210,11 +211,11 @@ function SignUpForm() {
               onChange={e => setAgreedToTerms(e.target.checked)}
               className="mt-0.5 w-4 h-4 flex-shrink-0 accent-[#22D3EE]"
             />
-            <span className="text-white/45 text-xs leading-relaxed">
+            <span className="text-[#5A5A6E] text-xs leading-relaxed">
               I agree to the{' '}
-              <Link href="/terms" target="_blank" className="text-[#22D3EE] hover:underline">Terms of Service</Link>{' '}
+              <Link href="/terms" target="_blank" className="text-[#0891B2] hover:underline">Terms of Service</Link>{' '}
               and{' '}
-              <Link href="/privacy" target="_blank" className="text-[#22D3EE] hover:underline">Privacy Policy</Link>.
+              <Link href="/privacy" target="_blank" className="text-[#0891B2] hover:underline">Privacy Policy</Link>.
             </span>
           </label>
 
@@ -225,19 +226,19 @@ function SignUpForm() {
               onChange={e => setMarketingOptIn(e.target.checked)}
               className="mt-0.5 w-4 h-4 flex-shrink-0 accent-[#22D3EE]"
             />
-            <span className="text-white/45 text-xs leading-relaxed">
-              Send me product updates and job-market insights. <span className="text-white/25">(Optional — unsubscribe anytime.)</span>
+            <span className="text-[#5A5A6E] text-xs leading-relaxed">
+              Send me product updates and job-market insights. <span className="text-[#8A8A99]">(Optional — unsubscribe anytime.)</span>
             </span>
           </label>
 
           {error && (
-            <p className="text-[#FB7185] text-xs bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3">
+            <p className="text-[#E11D48] text-xs bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3">
               {error}
             </p>
           )}
 
           {!type && (
-            <p className="text-white/25 text-xs text-center">Select candidate or hiring above first</p>
+            <p className="text-[#8A8A99] text-xs text-center">Select candidate or hiring above first</p>
           )}
 
           <button
@@ -248,9 +249,9 @@ function SignUpForm() {
             {loading ? 'Creating account...' : 'Create account →'}
           </button>
 
-          <p className="text-center text-xs text-white/30 pt-1">
+          <p className="text-center text-xs text-[#8A8A99] pt-1">
             Already have an account?{' '}
-            <Link href="/login" className="text-[#22D3EE] font-semibold hover:opacity-80 transition-opacity">Sign in</Link>
+            <Link href="/login" className="text-[#0891B2] font-semibold hover:opacity-80 transition-opacity">Sign in</Link>
           </p>
         </form>
       </div>
@@ -261,8 +262,8 @@ function SignUpForm() {
 export default function SignUp() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#060609] flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-[#22D3EE] animate-spin" />
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-[#0E0E1A]/[0.08] border-t-[#22D3EE] animate-spin" />
       </div>
     }>
       <SignUpForm />

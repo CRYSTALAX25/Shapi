@@ -75,10 +75,10 @@ function scoreCandidate(candidate: Candidate, role: Role): number {
 }
 
 function matchLabel(score: number) {
-  if (score >= 75) return { label: 'Strong match', colour: 'bg-emerald-500/15 text-emerald-400' }
-  if (score >= 50) return { label: 'Good match', colour: 'bg-[#22D3EE]/10 text-[#22D3EE]' }
-  if (score >= 30) return { label: 'Possible', colour: 'bg-[#A78BFA]/10 text-[#A78BFA]' }
-  return { label: 'Low match', colour: 'bg-white/[0.07] text-white/35' }
+  if (score >= 75) return { label: 'Strong match', colour: 'bg-emerald-500/15 text-emerald-600' }
+  if (score >= 50) return { label: 'Good match', colour: 'bg-[#22D3EE]/10 text-[#0891B2]' }
+  if (score >= 30) return { label: 'Possible', colour: 'bg-[#A78BFA]/10 text-[#7C3AED]' }
+  return { label: 'Low match', colour: 'bg-[#0E0E1A]/[0.04] text-[#8A8A99]' }
 }
 
 export default async function CompanyDashboard({ searchParams }: { searchParams: Promise<{ role?: string }> }) {
@@ -152,54 +152,56 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   const count = candidates.length
 
   const aiTierColour: Record<string, string> = {
-    user: 'bg-[#22D3EE]/10 text-[#22D3EE]',
-    integrator: 'bg-[#A78BFA]/10 text-[#A78BFA]',
-    builder: 'bg-[#FB7185]/10 text-[#FB7185]',
+    user: 'bg-[#22D3EE]/10 text-[#0891B2]',
+    integrator: 'bg-[#A78BFA]/10 text-[#7C3AED]',
+    builder: 'bg-[#FB7185]/10 text-[#E11D48]',
   }
 
   return (
-    <div className="min-h-screen bg-[#060609]">
+    <div className="min-h-screen bg-white">
       <style>{`
         @keyframes gradientShift {
           0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
         }
         .gradient-border-card {
-          background: linear-gradient(#0d0d14, #0d0d14) padding-box,
+          background: linear-gradient(#ffffff, #ffffff) padding-box,
                       linear-gradient(135deg, rgba(34,211,238,0.12), rgba(139,92,246,0.12)) border-box;
           border: 1px solid transparent;
+          box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05);
         }
         .card-hover:hover {
-          background: linear-gradient(#0d0d14, #0d0d14) padding-box,
+          background: linear-gradient(#ffffff, #ffffff) padding-box,
                       linear-gradient(135deg, rgba(34,211,238,0.25), rgba(139,92,246,0.25)) border-box;
+          box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05);
         }
         .role-tab {
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.08);
+          background: rgba(14,14,26,0.04);
+          border: 1px solid rgba(14,14,26,0.08);
           border-radius: 12px;
           padding: 8px 14px;
           font-size: 13px;
           font-weight: 600;
-          color: rgba(255,255,255,0.4);
+          color: rgba(90,90,110,1);
           transition: all 0.15s;
           white-space: nowrap;
         }
-        .role-tab:hover { color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.18); }
+        .role-tab:hover { color: rgba(63,63,78,1); border-color: rgba(14,14,26,0.18); }
         .role-tab.active {
-          background: linear-gradient(#0d0d14, #0d0d14) padding-box,
+          background: linear-gradient(#ffffff, #ffffff) padding-box,
                       linear-gradient(135deg, #22D3EE, #A78BFA) border-box;
           border: 1px solid transparent;
-          color: white;
+          color: #0E0E1A;
         }
       `}</style>
 
       <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(34,211,238,0.06) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
       }} />
 
       {/* Nav */}
-      <nav className="relative z-10 px-6 py-4 border-b border-white/[0.06]">
+      <nav className="relative z-10 px-6 py-4 border-b border-[#0E0E1A]/[0.08]">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Link href="/" className="font-black text-xl tracking-tighter" style={{
             background: 'linear-gradient(135deg, #A78BFA, #22D3EE)',
@@ -208,7 +210,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
             backgroundClip: 'text',
           }}>shapi</Link>
           <div className="flex items-center gap-6">
-            <span className="text-white/30 text-sm">{companyName}</span>
+            <span className="text-[#8A8A99] text-sm">{companyName}</span>
             {!isPaid && (
               <Link href="/company/pricing"
                 className="bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#060609] text-xs font-black px-4 py-2 rounded-full hover:opacity-90 transition-opacity">
@@ -216,7 +218,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
               </Link>
             )}
             <form action="/api/auth/signout" method="post">
-              <button className="text-white/30 text-sm hover:text-white/60 transition-colors">Sign out</button>
+              <button className="text-[#8A8A99] text-sm hover:text-[#3F3F4E] transition-colors">Sign out</button>
             </form>
           </div>
         </div>
@@ -227,8 +229,8 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
         {/* Header */}
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-black text-white mb-1">{companyName}</h1>
-            <p className="text-white/40 text-sm">
+            <h1 className="text-3xl font-black text-[#0E0E1A] mb-1">{companyName}</h1>
+            <p className="text-[#5A5A6E] text-sm">
               {isPaid ? 'Full access · View profiles, contact directly' : 'Subscribe to unlock full profiles'}
             </p>
           </div>
@@ -243,33 +245,33 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
           <div className="gradient-border-card rounded-2xl p-5 mb-5">
             <div className="flex items-start justify-between gap-4 mb-3">
               <div>
-                <p className="text-white/35 text-[10px] font-bold uppercase tracking-widest mb-1">Company intelligence</p>
-                <p className="text-white/70 text-sm leading-relaxed">{companyData.description as string}</p>
+                <p className="text-[#8A8A99] text-[10px] font-bold uppercase tracking-widest mb-1">Company intelligence</p>
+                <p className="text-[#3F3F4E] text-sm leading-relaxed">{companyData.description as string}</p>
               </div>
               {!!companyData.glassdoor_rating && (
                 <div className="flex-shrink-0 text-center bg-[#22D3EE]/10 rounded-xl px-4 py-3">
-                  <div className="text-2xl font-black text-[#22D3EE]">{String(companyData.glassdoor_rating)}</div>
-                  <div className="text-white/30 text-[10px]">Glassdoor</div>
+                  <div className="text-2xl font-black text-[#0891B2]">{String(companyData.glassdoor_rating)}</div>
+                  <div className="text-[#8A8A99] text-[10px]">Glassdoor</div>
                 </div>
               )}
             </div>
             <div className="flex flex-wrap gap-2">
-              {!!companyData.industry && <span className="bg-white/[0.05] text-white/50 text-xs px-3 py-1 rounded-full">{String(companyData.industry)}</span>}
-              {!!companyData.size && <span className="bg-white/[0.05] text-white/50 text-xs px-3 py-1 rounded-full">{String(companyData.size)} employees</span>}
-              {!!companyData.headquarters && <span className="bg-white/[0.05] text-white/50 text-xs px-3 py-1 rounded-full">📍 {String(companyData.headquarters)}</span>}
+              {!!companyData.industry && <span className="bg-[#0E0E1A]/[0.04] text-[#5A5A6E] text-xs px-3 py-1 rounded-full">{String(companyData.industry)}</span>}
+              {!!companyData.size && <span className="bg-[#0E0E1A]/[0.04] text-[#5A5A6E] text-xs px-3 py-1 rounded-full">{String(companyData.size)} employees</span>}
+              {!!companyData.headquarters && <span className="bg-[#0E0E1A]/[0.04] text-[#5A5A6E] text-xs px-3 py-1 rounded-full">📍 {String(companyData.headquarters)}</span>}
               {!!companyData.reddit_sentiment && (
                 <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
-                  companyData.reddit_sentiment === 'positive' ? 'bg-emerald-500/15 text-emerald-400' :
-                  companyData.reddit_sentiment === 'negative' ? 'bg-[#FB7185]/15 text-[#FB7185]' :
-                  'bg-white/[0.05] text-white/40'
+                  companyData.reddit_sentiment === 'positive' ? 'bg-emerald-500/15 text-emerald-600' :
+                  companyData.reddit_sentiment === 'negative' ? 'bg-[#FB7185]/15 text-[#E11D48]' :
+                  'bg-[#0E0E1A]/[0.04] text-[#5A5A6E]'
                 }`}>Reddit: {String(companyData.reddit_sentiment)}</span>
               )}
             </div>
             {Array.isArray(companyData.recent_news) && companyData.recent_news.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-white/[0.06]">
-                <p className="text-white/25 text-[10px] uppercase tracking-wider mb-1">Recent news</p>
+              <div className="mt-3 pt-3 border-t border-[#0E0E1A]/[0.08]">
+                <p className="text-[#8A8A99] text-[10px] uppercase tracking-wider mb-1">Recent news</p>
                 {(companyData.recent_news as string[]).map((n, i) => (
-                  <p key={i} className="text-white/40 text-xs py-0.5">· {n}</p>
+                  <p key={i} className="text-[#5A5A6E] text-xs py-0.5">· {n}</p>
                 ))}
               </div>
             )}
@@ -280,7 +282,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
         {allRoles.length > 0 && (
           <div className="mb-6">
             <div className="flex items-center gap-3 mb-3 flex-wrap">
-              <p className="text-white/35 text-xs font-bold uppercase tracking-wider flex-shrink-0">Matching for</p>
+              <p className="text-[#8A8A99] text-xs font-bold uppercase tracking-wider flex-shrink-0">Matching for</p>
               <div className="flex gap-2 flex-wrap">
                 {activeRoles.map(role => (
                   <Link
@@ -289,7 +291,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                     className={`role-tab ${selectedRoleId === role.id ? 'active' : ''}`}
                   >
                     {role.title}
-                    {role.department && <span className="text-white/30 font-normal ml-1">· {role.department}</span>}
+                    {role.department && <span className="text-[#8A8A99] font-normal ml-1">· {role.department}</span>}
                   </Link>
                 ))}
                 {allRoles.filter(r => r.status !== 'active').map(role => (
@@ -299,12 +301,12 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                     className={`role-tab ${selectedRoleId === role.id ? 'active' : ''}`}
                   >
                     {role.title}
-                    <span className="text-white/25 font-normal ml-1">· {role.status}</span>
+                    <span className="text-[#8A8A99] font-normal ml-1">· {role.status}</span>
                   </Link>
                 ))}
               </div>
               <Link href="/company/roles/new"
-                className="role-tab text-white/25 hover:text-white/50">
+                className="role-tab text-[#8A8A99] hover:text-[#5A5A6E]">
                 + New role
               </Link>
             </div>
@@ -312,17 +314,17 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
             {selectedRole && (
               <div className="gradient-border-card rounded-xl px-4 py-3 flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-white font-bold text-sm">{selectedRole.title}</p>
-                  <p className="text-white/35 text-xs">
+                  <p className="text-[#0E0E1A] font-bold text-sm">{selectedRole.title}</p>
+                  <p className="text-[#8A8A99] text-xs">
                     {[selectedRole.department, selectedRole.location].filter(Boolean).join(' · ')}
                     {selectedRole.salary_min && selectedRole.salary_max && (
-                      <span className="text-[#22D3EE] ml-2">
+                      <span className="text-[#0891B2] ml-2">
                         {selectedRole.salary_currency} {selectedRole.salary_min.toLocaleString()}–{selectedRole.salary_max.toLocaleString()}
                       </span>
                     )}
                   </p>
                 </div>
-                <p className="text-white/25 text-xs flex-shrink-0">
+                <p className="text-[#8A8A99] text-xs flex-shrink-0">
                   {count} candidate{count !== 1 ? 's' : ''} scored
                 </p>
               </div>
@@ -334,8 +336,8 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
         {allRoles.length === 0 && (
           <div className="gradient-border-card rounded-2xl p-6 mb-6 flex items-center justify-between gap-6">
             <div>
-              <p className="text-white font-bold mb-1">Post a role to see matched candidates</p>
-              <p className="text-white/35 text-sm">Once you post a role, we rank all verified candidates by how well they match it.</p>
+              <p className="text-[#0E0E1A] font-bold mb-1">Post a role to see matched candidates</p>
+              <p className="text-[#8A8A99] text-sm">Once you post a role, we rank all verified candidates by how well they match it.</p>
             </div>
             <Link href="/company/roles/new"
               className="flex-shrink-0 bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] px-5 py-3 rounded-full font-black text-sm text-[#060609] hover:opacity-90 transition-opacity">
@@ -367,8 +369,8 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
         {count === 0 ? (
           <div className="gradient-border-card rounded-2xl p-16 text-center flex flex-col items-center">
             <ShapiCharacter mood="idle" size={72} className="mb-6" />
-            <p className="text-white/60 font-bold text-lg mb-2">No verified candidates yet</p>
-            <p className="text-white/25 text-sm">We&apos;re onboarding candidates now — check back soon.</p>
+            <p className="text-[#3F3F4E] font-bold text-lg mb-2">No verified candidates yet</p>
+            <p className="text-[#8A8A99] text-sm">We&apos;re onboarding candidates now — check back soon.</p>
           </div>
         ) : (
           <div className="grid gap-4">
@@ -383,21 +385,21 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1 flex-wrap">
-                        <h3 className={`font-black text-lg ${isPaid ? 'text-white' : 'text-white blur-sm select-none'}`}>
+                        <h3 className={`font-black text-lg ${isPaid ? 'text-[#0E0E1A]' : 'text-[#0E0E1A] blur-sm select-none'}`}>
                           {isPaid ? (c.full_name || 'Candidate') : 'Verified Candidate'}
                         </h3>
                         {c.completion_pct >= 60 && (
-                          <span className="bg-[#22D3EE]/10 text-[#22D3EE] text-xs font-bold px-2.5 py-1 rounded-full">
+                          <span className="bg-[#22D3EE]/10 text-[#0891B2] text-xs font-bold px-2.5 py-1 rounded-full">
                             ✓ Verified
                           </span>
                         )}
                         {hasDeepDive && (
-                          <span className="bg-[#A78BFA]/10 text-[#A78BFA] text-xs font-bold px-2.5 py-1 rounded-full">
+                          <span className="bg-[#A78BFA]/10 text-[#7C3AED] text-xs font-bold px-2.5 py-1 rounded-full">
                             Deep profile
                           </span>
                         )}
                         {c.ai_tier && (
-                          <span className={`text-xs font-bold px-2.5 py-1 rounded-full capitalize ${aiTierColour[c.ai_tier] || 'bg-white/10 text-white/50'}`}>
+                          <span className={`text-xs font-bold px-2.5 py-1 rounded-full capitalize ${aiTierColour[c.ai_tier] || 'bg-[#0E0E1A]/[0.04] text-[#5A5A6E]'}`}>
                             AI {c.ai_tier}
                           </span>
                         )}
@@ -407,28 +409,28 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                           </span>
                         )}
                       </div>
-                      <p className={`text-sm mb-1 ${isPaid ? 'text-white/60' : 'text-white/60 blur-sm select-none'}`}>
+                      <p className={`text-sm mb-1 ${isPaid ? 'text-[#3F3F4E]' : 'text-[#3F3F4E] blur-sm select-none'}`}>
                         {isPaid ? (c.headline || '—') : 'Senior Professional · 8+ years'}
                       </p>
                       {c.location && (
-                        <p className={`text-xs mb-3 ${isPaid ? 'text-white/35' : 'text-white/35 blur-sm select-none'}`}>
+                        <p className={`text-xs mb-3 ${isPaid ? 'text-[#8A8A99]' : 'text-[#8A8A99] blur-sm select-none'}`}>
                           📍 {isPaid ? c.location : 'Dubai, UAE'}
                         </p>
                       )}
                       {c.skills && c.skills.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-3">
                           {c.skills.slice(0, 5).map((skill, i) => (
-                            <span key={i} className="bg-white/[0.05] text-white/50 text-xs px-3 py-1 rounded-full">
+                            <span key={i} className="bg-[#0E0E1A]/[0.04] text-[#5A5A6E] text-xs px-3 py-1 rounded-full">
                               {skill}
                             </span>
                           ))}
                           {c.skills.length > 5 && (
-                            <span className="text-white/25 text-xs py-1">+{c.skills.length - 5} more</span>
+                            <span className="text-[#8A8A99] text-xs py-1">+{c.skills.length - 5} more</span>
                           )}
                         </div>
                       )}
                       {isPaid && c.summary && (
-                        <p className="text-white/35 text-xs leading-relaxed line-clamp-2">{c.summary}</p>
+                        <p className="text-[#8A8A99] text-xs leading-relaxed line-clamp-2">{c.summary}</p>
                       )}
                     </div>
 
@@ -444,7 +446,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                             WebkitTextFillColor: 'transparent',
                             backgroundClip: 'text',
                           }}>{ms}%</div>
-                          <div className="text-white/25 text-xs">match</div>
+                          <div className="text-[#8A8A99] text-xs">match</div>
                         </div>
                       ) : (
                         <div className="text-right">
@@ -454,7 +456,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                             WebkitTextFillColor: 'transparent',
                             backgroundClip: 'text',
                           }}>{c.completion_pct}%</div>
-                          <div className="text-white/25 text-xs">complete</div>
+                          <div className="text-[#8A8A99] text-xs">complete</div>
                         </div>
                       )}
                       {isPaid && (
@@ -474,9 +476,9 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                   </div>
 
                   {!isPaid && (
-                    <div className="mt-4 pt-4 border-t border-white/[0.06] flex items-center justify-between">
-                      <p className="text-xs text-white/25">Subscribe to view full profile, references & contact</p>
-                      <Link href="/company/pricing" className="text-xs text-[#22D3EE] font-bold hover:opacity-80">
+                    <div className="mt-4 pt-4 border-t border-[#0E0E1A]/[0.08] flex items-center justify-between">
+                      <p className="text-xs text-[#8A8A99]">Subscribe to view full profile, references & contact</p>
+                      <Link href="/company/pricing" className="text-xs text-[#0891B2] font-bold hover:opacity-80">
                         Unlock →
                       </Link>
                     </div>
@@ -491,20 +493,20 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
         <div className="gradient-border-card rounded-2xl p-5 mt-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-white font-bold text-sm">Team access</p>
-              <p className="text-white/30 text-xs mt-0.5">Invite colleagues to view candidates and manage roles</p>
+              <p className="text-[#0E0E1A] font-bold text-sm">Team access</p>
+              <p className="text-[#8A8A99] text-xs mt-0.5">Invite colleagues to view candidates and manage roles</p>
             </div>
           </div>
 
           {teamMembers.length > 0 && (
             <div className="space-y-2 mb-4">
               {teamMembers.map(m => (
-                <div key={m.id} className="flex items-center justify-between px-3 py-2 bg-white/[0.03] rounded-xl">
-                  <span className="text-white/60 text-sm">{m.email}</span>
+                <div key={m.id} className="flex items-center justify-between px-3 py-2 bg-[#0E0E1A]/[0.04] rounded-xl">
+                  <span className="text-[#3F3F4E] text-sm">{m.email}</span>
                   <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                     m.accepted_at
-                      ? 'bg-emerald-500/15 text-emerald-400'
-                      : 'bg-white/[0.07] text-white/30'
+                      ? 'bg-emerald-500/15 text-emerald-600'
+                      : 'bg-[#0E0E1A]/[0.04] text-[#8A8A99]'
                   }`}>
                     {m.accepted_at ? 'Active' : 'Invited'}
                   </span>
@@ -519,7 +521,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
               type="email"
               required
               placeholder="colleague@company.com"
-              className="flex-1 bg-white/[0.04] border border-white/[0.09] rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/20 outline-none focus:border-[#22D3EE]/40"
+              className="flex-1 bg-[#0E0E1A]/[0.04] border border-[#0E0E1A]/[0.08] rounded-xl px-4 py-2.5 text-sm text-[#0E0E1A] placeholder-[#9A9AA8] outline-none focus:border-[#22D3EE]/40"
             />
             <button type="submit"
               className="flex-shrink-0 bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#060609] text-xs font-black px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity">

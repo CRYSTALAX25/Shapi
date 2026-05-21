@@ -25,9 +25,9 @@ export default function ResetPassword() {
 
   if (sent) {
     return (
-      <div className="min-h-screen bg-[#060609] flex items-center justify-center px-6">
+      <div className="min-h-screen bg-white flex items-center justify-center px-6">
         <div className="fixed inset-0 pointer-events-none" style={{
-          backgroundImage: 'radial-gradient(circle, rgba(34,211,238,0.08) 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
           backgroundSize: '44px 44px',
         }} />
         <div className="relative z-10 max-w-md w-full text-center">
@@ -36,11 +36,11 @@ export default function ResetPassword() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h1 className="text-2xl font-black text-white mb-3">Check your email</h1>
-          <p className="text-white/40 text-sm leading-relaxed">
-            We sent a reset link to <span className="text-white font-semibold">{email}</span>. Click it to set a new password.
+          <h1 className="text-2xl font-black text-[#0E0E1A] mb-3">Check your email</h1>
+          <p className="text-[#5A5A6E] text-sm leading-relaxed">
+            We sent a reset link to <span className="text-[#0E0E1A] font-semibold">{email}</span>. Click it to set a new password.
           </p>
-          <Link href="/login" className="inline-block mt-6 text-[#22D3EE] text-sm font-semibold hover:opacity-80">
+          <Link href="/login" className="inline-block mt-6 text-[#0891B2] text-sm font-semibold hover:opacity-80">
             Back to sign in
           </Link>
         </div>
@@ -49,21 +49,22 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen bg-[#060609] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-white flex items-center justify-center px-6">
       <style>{`
         @keyframes gradientShift {
           0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
         }
         .gradient-border-card {
-          background: linear-gradient(#060609, #060609) padding-box,
+          background: linear-gradient(#ffffff, #ffffff) padding-box,
                       linear-gradient(135deg, rgba(34,211,238,0.2), rgba(139,92,246,0.2)) border-box;
           border: 1px solid transparent;
+          box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05);
         }
       `}</style>
 
       <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(34,211,238,0.08) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
       }} />
 
@@ -77,8 +78,8 @@ export default function ResetPassword() {
             backgroundClip: 'text',
             animation: 'gradientShift 5s ease infinite',
           }}>shapi</Link>
-          <h1 className="text-2xl font-black text-white mt-6 mb-2">Reset your password</h1>
-          <p className="text-white/35 text-sm">We&apos;ll email you a link to set a new one</p>
+          <h1 className="text-2xl font-black text-[#0E0E1A] mt-6 mb-2">Reset your password</h1>
+          <p className="text-[#8A8A99] text-sm">We&apos;ll email you a link to set a new one</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -88,11 +89,11 @@ export default function ResetPassword() {
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
-            className="gradient-border-card w-full px-5 py-4 rounded-2xl text-white placeholder-white/25 focus:outline-none text-sm bg-transparent"
+            className="gradient-border-card w-full px-5 py-4 rounded-2xl text-[#0E0E1A] placeholder-[#9A9AA8] focus:outline-none text-sm bg-transparent"
           />
 
           {error && (
-            <p className="text-[#FB7185] text-xs bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3">
+            <p className="text-[#E11D48] text-xs bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3">
               {error}
             </p>
           )}
@@ -105,8 +106,8 @@ export default function ResetPassword() {
             {loading ? 'Sending...' : 'Send reset link →'}
           </button>
 
-          <p className="text-center text-xs text-white/30 pt-1">
-            <Link href="/login" className="text-[#22D3EE] font-semibold hover:opacity-80">Back to sign in</Link>
+          <p className="text-center text-xs text-[#8A8A99] pt-1">
+            <Link href="/login" className="text-[#0891B2] font-semibold hover:opacity-80">Back to sign in</Link>
           </p>
         </form>
       </div>

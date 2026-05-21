@@ -30,27 +30,28 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[#060609] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-white flex items-center justify-center px-6">
       <style>{`
         @keyframes gradientShift {
           0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
         }
         .gradient-border-card {
-          background: linear-gradient(#060609, #060609) padding-box,
+          background: linear-gradient(#ffffff, #ffffff) padding-box,
                       linear-gradient(135deg, rgba(34,211,238,0.2), rgba(139,92,246,0.2)) border-box;
           border: 1px solid transparent;
+          box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05);
           transition: all 0.25s ease;
         }
         input:focus {
-          background: linear-gradient(#060609, #060609) padding-box,
+          background: linear-gradient(#ffffff, #ffffff) padding-box,
                       linear-gradient(135deg, rgba(34,211,238,0.5), rgba(139,92,246,0.5)) border-box !important;
         }
       `}</style>
 
       {/* Dot grid */}
       <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(34,211,238,0.08) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
       }} />
 
@@ -69,8 +70,8 @@ export default function Login() {
             backgroundClip: 'text',
             animation: 'gradientShift 5s ease infinite',
           }}>shapi</Link>
-          <h1 className="text-2xl font-black text-white mt-6 mb-2">Welcome back</h1>
-          <p className="text-white/35 text-sm">Sign in to your Shapi account</p>
+          <h1 className="text-2xl font-black text-[#0E0E1A] mt-6 mb-2">Welcome back</h1>
+          <p className="text-[#8A8A99] text-sm">Sign in to your Shapi account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -80,7 +81,7 @@ export default function Login() {
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
-            className="gradient-border-card w-full px-5 py-4 rounded-2xl text-white placeholder-white/25 focus:outline-none text-sm bg-transparent"
+            className="gradient-border-card w-full px-5 py-4 rounded-2xl text-[#0E0E1A] placeholder-[#9A9AA8] focus:outline-none text-sm bg-transparent"
           />
 
           <input
@@ -89,11 +90,11 @@ export default function Login() {
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
-            className="gradient-border-card w-full px-5 py-4 rounded-2xl text-white placeholder-white/25 focus:outline-none text-sm bg-transparent"
+            className="gradient-border-card w-full px-5 py-4 rounded-2xl text-[#0E0E1A] placeholder-[#9A9AA8] focus:outline-none text-sm bg-transparent"
           />
 
           {error && (
-            <p className="text-[#FB7185] text-xs bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3">
+            <p className="text-[#E11D48] text-xs bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3">
               {error}
             </p>
           )}
@@ -107,8 +108,8 @@ export default function Login() {
           </button>
 
           <div className="flex justify-between text-xs pt-1">
-            <Link href="/signup" className="text-[#22D3EE] font-semibold hover:opacity-80 transition-opacity">Create account</Link>
-            <Link href="/reset-password" className="text-white/30 hover:text-white/60 transition-colors">Forgot password?</Link>
+            <Link href="/signup" className="text-[#0891B2] font-semibold hover:opacity-80 transition-opacity">Create account</Link>
+            <Link href="/reset-password" className="text-[#8A8A99] hover:text-[#3F3F4E] transition-colors">Forgot password?</Link>
           </div>
         </form>
       </div>
