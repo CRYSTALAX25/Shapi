@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { SUPPORTED_INDUSTRIES, INDUSTRY_META } from '@/lib/industry-briefs'
 
 type WorkEntry = { title: string; company: string; start: string; end: string; achievements: string }
 type LanguageEntry = { language: string; level: string }
@@ -88,6 +89,8 @@ export default function EditProfile() {
   const [primaryMax, setPrimaryMax] = useState('')
   const [pivotBands, setPivotBands] = useState<PivotBand[]>([])
   const [openToEngagement, setOpenToEngagement] = useState<string[]>([])
+  const [targetRolesRaw, setTargetRolesRaw] = useState('')
+  const [targetIndustries, setTargetIndustries] = useState<string[]>([])
 
   useEffect(() => {
     fetch('/api/profile/get')
@@ -122,6 +125,8 @@ export default function EditProfile() {
         )
         setJobSearchStatus(data.job_search_status || 'open')
         setOpenToEngagement(Array.isArray(data.open_to_engagement) ? data.open_to_engagement : [])
+        setTargetRolesRaw(Array.isArray(data.target_roles) ? data.target_roles.join(', ') : '')
+        setTargetIndustries(Array.isArray(data.target_industries) ? data.target_industries : [])
         const se = data.salary_expectations
         if (se && typeof se === 'object') {
           setSalCurrency(se.currency || 'AED')
@@ -203,6 +208,8 @@ export default function EditProfile() {
       body: JSON.stringify({
         job_search_status: jobSearchStatus,
         open_to_engagement: openToEngagement,
+        target_roles: targetRolesRaw.split(',').map(s => s.trim()).filter(Boolean),
+        target_industries: targetIndustries,
         salary_expectations: salaryExpectations,
         full_name: fullName.trim() || null,
         headline: headline.trim() || null,
@@ -696,6 +703,40 @@ export default function EditProfile() {
               })}
             </div>
             <p className="text-[#8A8A99] text-xs mt-2">Which kinds of work you&apos;ll consider. Helps us match you to the right roles.</p>
+          </div>
+
+          {/* Looking for — roles + industries */}
+          <div>
+            <label>Roles you&apos;re looking for</label>
+            <input className="field" value={targetRolesRaw} onChange={e => setTargetRolesRaw(e.target.value)}
+              placeholder="e.g. Head of Operations, Chief of Staff, COO" />
+            {targetRolesRaw && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {targetRolesRaw.split(',').map(s => s.trim()).filter(Boolean).map((s, i) => (
+                  <span key={i} className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(6,182,212,0.10)', color: '#0891B2' }}>{s}</span>
+                ))}
+              </div>
+            )}
+          </div>
+          <div>
+            <label>Target industries</label>
+            <p className="text-[#8A8A99] text-xs mb-2">We&apos;ll surface you for these — and lead with the matching CV when a company in that field views you.</p>
+            <div className="flex flex-wrap gap-2">
+              {SUPPORTED_INDUSTRIES.map(ind => {
+                const on = targetIndustries.includes(ind)
+                const meta = INDUSTRY_META[ind]
+                return (
+                  <button key={ind} type="button"
+                    onClick={() => setTargetIndustries(prev => on ? prev.filter(x => x !== ind) : [...prev, ind])}
+                    className="text-sm font-bold px-3 py-1.5 rounded-full transition-all"
+                    style={on
+                      ? { background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.45)', color: '#7C3AED' }
+                      : { background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)', color: '#5A5A6E' }}>
+                    {meta.emoji} {meta.label}
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           {/* Salary settings */}

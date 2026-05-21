@@ -20,6 +20,7 @@ type Candidate = {
   verification_tier: string | null
   salary_expectations: unknown
   open_to_engagement: string[] | null
+  target_roles: string[] | null
   match_score?: number
   match_reasons?: string[]
 }
@@ -84,7 +85,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   const admin = createAdminClient()
   const { data: rawCandidates } = await admin
     .from('profiles')
-    .select('id, full_name, headline, location, skills, ai_tier, completion_pct, summary, whatsapp_chat, industry, verification_tier, salary_expectations, open_to_engagement')
+    .select('id, full_name, headline, location, skills, ai_tier, completion_pct, summary, whatsapp_chat, industry, verification_tier, salary_expectations, open_to_engagement, target_roles')
     .eq('type', 'candidate')
     .gte('completion_pct', 20)
     .order('completion_pct', { ascending: false })

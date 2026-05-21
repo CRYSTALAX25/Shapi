@@ -22,7 +22,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work, work_style, linkedin_url, github_url, website_url, portfolio_url, job_search_status, salary_expectations, open_to_engagement')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work, work_style, linkedin_url, github_url, website_url, portfolio_url, job_search_status, salary_expectations, open_to_engagement, target_roles, target_industries')
     .eq('id', user.id)
     .single()
 
@@ -281,6 +281,9 @@ export default async function ProfilePage() {
           const sm = status ? statusMeta[status] : null
           const openTo = Array.isArray(profile.open_to_engagement) ? profile.open_to_engagement as string[] : []
           const engLabel: Record<string, string> = { permanent: 'Permanent', contract: 'Contract', temp: 'Temp / Shift' }
+          const targetRoles = Array.isArray(profile.target_roles) ? profile.target_roles as string[] : []
+          const targetIndustries = Array.isArray(profile.target_industries) ? profile.target_industries as string[] : []
+          const indLabel: Record<string, string> = { finance: 'Finance', tech: 'Tech', creative: 'Media & Creative', healthcare: 'Healthcare', legal: 'Legal', marketing: 'Marketing', operations: 'Operations', hospitality: 'Hospitality', education: 'Education', sales: 'Sales' }
           const cur = se?.currency || ''
           const per = se?.period === 'year' ? '/yr' : '/mo'
           const band = (b?: { min?: number; max?: number } | null) =>
@@ -289,7 +292,7 @@ export default async function ProfilePage() {
               : null
           const primaryBand = band(se?.primary)
           const pivots = (se?.pivots || []).filter(p => p.track || p.min != null || p.max != null)
-          if (!sm && !primaryBand && pivots.length === 0 && openTo.length === 0) {
+          if (!sm && !primaryBand && pivots.length === 0 && openTo.length === 0 && targetRoles.length === 0 && targetIndustries.length === 0) {
             return (
               <div className="gradient-border-card rounded-2xl p-5 mb-4 flex items-center justify-between gap-4">
                 <p className="text-[#5A5A6E] text-sm">Set your availability and salary expectations so we can match you.</p>
@@ -317,6 +320,19 @@ export default async function ProfilePage() {
                     {openTo.map((e, i) => (
                       <span key={i} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.12)', color: '#7C3AED' }}>{engLabel[e] || e}</span>
                     ))}
+                  </div>
+                )}
+                {(targetRoles.length > 0 || targetIndustries.length > 0) && (
+                  <div>
+                    <p className="text-[#8A8A99] text-[11px] font-bold uppercase tracking-wider mb-1.5">Looking for</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {targetRoles.map((r, i) => (
+                        <span key={`r${i}`} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(6,182,212,0.10)', color: '#0891B2' }}>{r}</span>
+                      ))}
+                      {targetIndustries.map((ind, i) => (
+                        <span key={`i${i}`} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(124,58,237,0.10)', color: '#7C3AED' }}>{indLabel[ind] || ind}</span>
+                      ))}
+                    </div>
                   </div>
                 )}
                 {primaryBand && (

@@ -111,6 +111,7 @@ export type MatchCandidate = {
     pivots?: Array<{ min?: number | null; max?: number | null }> | null
   } | null
   open_to_engagement?: string[] | null
+  target_roles?: string[] | null
 }
 
 export type MatchRole = {
@@ -182,6 +183,13 @@ export function scoreCandidateForRole(candidate: MatchCandidate, role: MatchRole
   const floor = candidateAnnualFloor(candidate)
   if (floor != null && role.salary_max != null && role.salary_max >= floor) {
     score += 10; reasons.push('Salary in range')
+  }
+
+  // Target-role fit (max 8) — candidate explicitly wants this kind of role
+  const targetRoles = (candidate.target_roles || []).map(r => r.toLowerCase().trim()).filter(Boolean)
+  const roleTitleText = `${role.title || ''} ${role.department || ''}`.toLowerCase()
+  if (targetRoles.some(tr => roleTitleText.includes(tr) || tr.split(/\s+/).some(w => w.length > 3 && roleTitleText.includes(w)))) {
+    score += 8; reasons.push('Matches a role they want')
   }
 
   // Engagement-type fit (max 8)

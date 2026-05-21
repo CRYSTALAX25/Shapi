@@ -42,7 +42,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
   const m = uuidMatch(id)
   let baseQuery = admin
     .from('profiles')
-    .select('id, full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, completion_pct, profile_live, industry, linkedin_url, github_url, website_url, portfolio_url, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work, work_style, verification_tier, verification_report')
+    .select('id, full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, completion_pct, profile_live, industry, linkedin_url, github_url, website_url, portfolio_url, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work, work_style, verification_tier, verification_report, target_roles, target_industries')
   baseQuery = 'full' in m ? baseQuery.eq('id', m.full) : baseQuery.gte('id', m.lo).lte('id', m.hi)
   // Candidates may have type=null (signup doesn't always set it). Exclude only
   // company accounts; show candidate + untyped profiles.
@@ -166,6 +166,27 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
           </div>
 
           {c.summary && <p className="text-[#3F3F4E] text-sm leading-relaxed">{c.summary}</p>}
+
+          {/* Looking for — target roles + industries */}
+          {(() => {
+            const tRoles = Array.isArray(c.target_roles) ? c.target_roles as string[] : []
+            const tInds = Array.isArray(c.target_industries) ? c.target_industries as string[] : []
+            if (tRoles.length === 0 && tInds.length === 0) return null
+            const indLabel: Record<string, string> = { finance: 'Finance', tech: 'Tech', creative: 'Media & Creative', healthcare: 'Healthcare', legal: 'Legal', marketing: 'Marketing', operations: 'Operations', hospitality: 'Hospitality', education: 'Education', sales: 'Sales' }
+            return (
+              <div className="mt-4 rounded-xl p-4" style={{ background: 'rgba(6,182,212,0.06)', border: '1px solid rgba(6,182,212,0.18)' }}>
+                <p className="text-[#0891B2] text-[11px] font-bold uppercase tracking-wider mb-2">Looking for</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {tRoles.map((r, i) => (
+                    <span key={`r${i}`} className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(6,182,212,0.12)', color: '#0891B2' }}>{r}</span>
+                  ))}
+                  {tInds.map((ind, i) => (
+                    <span key={`i${i}`} className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(124,58,237,0.12)', color: '#7C3AED' }}>{indLabel[ind] || ind}</span>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
 
           {/* Profile links */}
           {(c.linkedin_url || c.github_url || c.website_url || c.portfolio_url) && (
