@@ -106,6 +106,27 @@ credentials.** Self-reported intent, verified by behaviour. Strong fundraising l
   - UAE nuance: capture **total package** (base + housing + transport, tax-free), not just base.
   - Position salary as *transparency* (trust), not the headline — match on salary fit so we never
     show mismatched pairs.
+  - **[IDEA] "What you're worth" benchmark** (like Jack & Jill's free Salary Benchmark tool).
+    Free top-of-funnel magnet (SEO + lead gen) that shows a fair band by role/level/location and
+    **auto-suggests the candidate's salary bands** (fixes awkward self-pricing). Our edge:
+    benchmark against **verified** data + our placement outcomes (the moat), and make it
+    **pivot-aware** — "proven field worth $X; pivot field at your stage worth $Y" (nobody does
+    this). v1 = AI/market estimate, clearly labelled, "gets smarter as our verified data grows";
+    proprietary comp dataset builds over time from placements. Status: [LATER] for launch is fine
+    — captured per-track expectations already shipped.
+
+## 4b. Company-side flow & two-sided interview prep [IDEA, added 2026-05-21]
+Vision (Ana): **match → WhatsApp convo starts → interview booking → interview prep**, with prep
+sent to BOTH sides.
+- **Two-sided interview prep is differentiated** (most platforms prep only the candidate):
+  - Candidate gets: company brief + trust score, likely questions, what to emphasise (from their
+    verified profile).
+  - Hiring manager gets: a **candidate brief from verified data** — verified strengths, reference
+    highlights, suggested probing questions (incl. areas the AI cross-check flagged), and the
+    salary band. Higher-signal interviews, saves manager prep time, uses the moat.
+  - Privacy: share the cross-check *summary* + suggested questions, never referee verbatims/identities.
+- Flow built WhatsApp-native; booking via simple slots/scheduling. Sequence this into the company
+  build (after JD-via-WhatsApp + dashboard). See BACKLOG.md.
 - **Responsiveness & follow-through tracking (both sides).**
   - Track time-to-reply, ghost/no-show rate, and behaviour vs stated intent (e.g. "actively
     looking" but ignores all matches → not really active; downgrade/nudge).
