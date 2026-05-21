@@ -4,6 +4,11 @@
 Shapi (shapi.io) — two-sided verified job matching platform. Founder: Ana O. Barber.
 Tagline: "Shape what's next." UAE-first launch May 2026.
 
+## Reference docs (read these for context)
+- `STRATEGY.md` — positioning, pricing model + launch psychology, leakage fix, temp+perm, payments (facilitator), engagement ideas, tech moat, fundraising narrative, open questions. **Keep updated as decisions are made.**
+- `COMPETITORS.md` — competitor landscape, pricing (them vs us), business models, where we're genuinely differentiated. **Update when competitor/pricing facts change.**
+- `BACKLOG.md` — deferred features (post-launch). `BRAND.md` — visual kit.
+
 ## Never ask for permission on
 - Writing/editing code files
 - Running builds and pushing to GitHub
