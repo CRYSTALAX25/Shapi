@@ -65,6 +65,7 @@ export default function Home() {
           <span className="text-[10px] font-bold text-[#8A8A99] bg-[#0E0E1A]/[0.04] border border-[#0E0E1A]/[0.08] px-2 py-0.5 rounded-full uppercase tracking-wider">beta</span>
         </div>
         <div className="flex items-center gap-6">
+          <Link href="/worth" className="text-[#5A5A6E] text-sm hover:text-[#0E0E1A] transition-colors hidden sm:block">What you&apos;re worth</Link>
           <Link href="#pricing" className="text-[#5A5A6E] text-sm hover:text-[#0E0E1A] transition-colors hidden sm:block">Pricing</Link>
           <Link href="/blog" className="text-[#5A5A6E] text-sm hover:text-[#0E0E1A] transition-colors hidden sm:block">Blog</Link>
           <Link href="/login" className="text-[#5A5A6E] text-sm hover:text-[#0E0E1A] transition-colors">Sign in</Link>
@@ -422,6 +423,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5">
           <span className="font-black text-xl tracking-tighter grad-text">shapi</span>
           <div className="flex items-center gap-6 text-sm text-[#8A8A99]">
+            <Link href="/worth" className="hover:text-[#0E0E1A] transition-colors">What you&apos;re worth</Link>
             <Link href="#pricing" className="hover:text-[#0E0E1A] transition-colors">Pricing</Link>
             <Link href="/blog" className="hover:text-[#0E0E1A] transition-colors">Blog</Link>
             <Link href="/privacy" className="hover:text-[#0E0E1A] transition-colors">Privacy</Link>
