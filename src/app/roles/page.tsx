@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import RoleInterestButton from './RoleInterestButton'
 import { getPrestigeForCompany, topAccolade } from '@/lib/company-prestige'
+import { companyTrustRatings } from '@/lib/trust'
 
 type Role = {
   id: string
@@ -52,12 +53,14 @@ export default async function RolesBoard() {
     .select('id, company_name, full_name, company_data')
     .in('id', companyIds)
 
-  const companyMap: Record<string, { name: string; glassdoor?: number }> = {}
+  const trustMap = await companyTrustRatings(admin, companyIds)
+  const companyMap: Record<string, { name: string; glassdoor?: number; trust?: { avg: number; count: number } }> = {}
   for (const c of companies || []) {
     const cd = c.company_data as Record<string, unknown> | null
     companyMap[c.id] = {
       name: c.company_name || c.full_name || 'Company',
       glassdoor: cd?.glassdoor_rating as number | undefined,
+      trust: trustMap.get(c.id),
     }
   }
 
@@ -192,6 +195,9 @@ export default async function RolesBoard() {
                           const score = prestige?.glassdoor ?? company.glassdoor
                           return score ? <span>⭐ {score} Glassdoor</span> : null
                         })()}
+                        {company.trust && company.trust.count > 0 && (
+                          <span className="font-bold" style={{ color: '#059669' }}>✓ {company.trust.avg}/5 Shapi trust ({company.trust.count})</span>
+                        )}
                         <span>Posted {new Date(role.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
                       </div>
                       {role.salary_visible && role.salary_min && role.salary_max && (

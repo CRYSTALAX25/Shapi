@@ -274,24 +274,43 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
               </Link>
             </div>
 
-            {selectedRole && (
-              <div className="gradient-border-card rounded-xl px-4 py-3 flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-[#0E0E1A] font-bold text-sm">{selectedRole.title}</p>
-                  <p className="text-[#8A8A99] text-xs">
-                    {[selectedRole.department, selectedRole.location].filter(Boolean).join(' · ')}
-                    {selectedRole.salary_min && selectedRole.salary_max && (
-                      <span className="text-[#0891B2] ml-2">
-                        {selectedRole.salary_currency} {selectedRole.salary_min.toLocaleString()}–{selectedRole.salary_max.toLocaleString()}
-                      </span>
-                    )}
-                  </p>
-                </div>
-                <p className="text-[#8A8A99] text-xs flex-shrink-0">
-                  {count} candidate{count !== 1 ? 's' : ''} scored
-                </p>
-              </div>
-            )}
+            {selectedRole && (() => {
+              const ageDays = Math.floor((Date.now() - new Date(selectedRole.created_at).getTime()) / 86400000)
+              const shortlistedCount = shortlistedIds.size
+              const stale = ageDays >= 21 && shortlistedCount < 2
+              return (
+                <>
+                  <div className="gradient-border-card rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-[#0E0E1A] font-bold text-sm">{selectedRole.title}</p>
+                      <p className="text-[#8A8A99] text-xs">
+                        {[selectedRole.department, selectedRole.location].filter(Boolean).join(' · ')}
+                        {selectedRole.salary_min && selectedRole.salary_max && (
+                          <span className="text-[#0891B2] ml-2">
+                            {selectedRole.salary_currency} {selectedRole.salary_min.toLocaleString()}–{selectedRole.salary_max.toLocaleString()}
+                          </span>
+                        )}
+                        <span className="ml-2">· Posted {ageDays === 0 ? 'today' : `${ageDays} day${ageDays !== 1 ? 's' : ''} ago`}</span>
+                      </p>
+                    </div>
+                    <p className="text-[#8A8A99] text-xs flex-shrink-0">
+                      {count} candidate{count !== 1 ? 's' : ''} scored · {shortlistedCount} shortlisted
+                    </p>
+                  </div>
+
+                  {/* Job health nudge — Shapi proactively offers help on stale roles */}
+                  {stale && (
+                    <div className="rounded-xl px-4 py-3 mt-2" style={{ background: 'rgba(217,119,6,0.08)', border: '1px solid rgba(217,119,6,0.25)' }}>
+                      <p className="text-sm font-bold" style={{ color: '#B45309' }}>⏳ This role&apos;s been open {ageDays} days with little traction.</p>
+                      <p className="text-[#5A5A6E] text-xs mt-1 leading-relaxed">
+                        Common fixes: salary below market for the level, the must-haves are too strict, or the JD is too narrow.
+                        Want a hand? <a href="mailto:hello@shapi.io?subject=Help with my role" className="font-bold" style={{ color: '#B45309' }}>Ask Shapi to review it →</a>
+                      </p>
+                    </div>
+                  )}
+                </>
+              )
+            })()}
           </div>
         )}
 

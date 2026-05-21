@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import PipelineBoard from './PipelineBoard'
+import { candidateReliabilityRatings } from '@/lib/trust'
 
 export default async function CompanyPipeline({ searchParams }: { searchParams: Promise<{ role?: string }> }) {
   const supabase = await createClient()
@@ -48,7 +49,8 @@ export default async function CompanyPipeline({ searchParams }: { searchParams: 
       .eq('role_id', selectedRoleId)
       .eq('author', 'company')
     const fbMap = new Map((fbRows || []).map(f => [f.candidate_id, f]))
-    apps = (appRows || []).map(a => ({ ...a, candidate: cmap.get(a.candidate_id) || null, interview: ivMap.get(a.candidate_id) || null, feedback: fbMap.get(a.candidate_id) || null }))
+    const relMap = await candidateReliabilityRatings(admin, candidateIds)
+    apps = (appRows || []).map(a => ({ ...a, candidate: cmap.get(a.candidate_id) || null, interview: ivMap.get(a.candidate_id) || null, feedback: fbMap.get(a.candidate_id) || null, reliability: relMap.get(a.candidate_id) || null }))
   }
 
   return (

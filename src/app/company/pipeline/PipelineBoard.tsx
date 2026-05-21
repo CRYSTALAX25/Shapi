@@ -24,6 +24,7 @@ type App = {
   candidate: Candidate | null
   interview: Interview | null
   feedback: Feedback | null
+  reliability: { avg: number; count: number } | null
 }
 
 const PLATFORM_LABEL: Record<string, string> = { google_meet: 'Google Meet', zoom: 'Zoom', teams: 'Teams', in_person: 'In person', other: 'Video' }
@@ -112,6 +113,9 @@ export default function PipelineBoard({ roleId, roleTitle, applications }: { rol
                       <div className="min-w-0">
                         <p className="text-[#0E0E1A] font-bold text-sm truncate">{idx === 0 && score != null ? '🥇 ' : ''}{c?.full_name || 'Candidate'}</p>
                         <p className="text-[#8A8A99] text-[11px] truncate">{c?.headline || '—'}</p>
+                        {a.reliability && a.reliability.count > 0 && (
+                          <p className="text-[10px] font-bold mt-0.5" style={{ color: '#059669' }}>✓ {a.reliability.avg}/5 interview rating ({a.reliability.count})</p>
+                        )}
                       </div>
                       {score != null && (
                         <span className="flex-shrink-0 text-xs font-black px-2 py-0.5 rounded-full" style={{ background: 'rgba(124,58,237,0.12)', color: '#7C3AED' }}>{score}</span>
