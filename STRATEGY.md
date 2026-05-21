@@ -127,6 +127,12 @@ sent to BOTH sides.
   - Privacy: share the cross-check *summary* + suggested questions, never referee verbatims/identities.
 - Flow built WhatsApp-native; booking via simple slots/scheduling. Sequence this into the company
   build (after JD-via-WhatsApp + dashboard). See BACKLOG.md.
+- **In-platform interview booking + "Join call" buttons** (Google Meet / Zoom / Teams) — keep
+  everything in Shapi (controls relationship + data, powers responsiveness tracking, reduces
+  leakage). Don't build video infra — generate/attach the client's preferred meeting link
+  (calendar API later; manual/generated link now) and show a "Join" button to both at the right
+  time. Skip FaceTime (Apple-only) — use a generic "video link". This is the "more software than
+  app" direction Ana wants.
 - **Responsiveness & follow-through tracking (both sides).**
   - Track time-to-reply, ghost/no-show rate, and behaviour vs stated intent (e.g. "actively
     looking" but ignores all matches → not really active; downgrade/nudge).
@@ -144,9 +150,21 @@ sent to BOTH sides.
 
 ---
 
-## 6. Enterprise / API
+## 6. Enterprise / API / white-label
 - **[LOCKED] API is private, Enterprise-only** — NOT a public/open API. Enterprise = private API
   access + ATS integration + bulk verification + white-label + custom SLAs.
+- **[DECISION] White-label to recruitment agencies = Phase-2/3 expansion revenue, NOT the launch
+  wedge.** Ana raised selling Shapi as white-label software to recruiters. It's lucrative and
+  real, but:
+  - Lead with the **marketplace** — it's the venture-scale, defensible, fundable story and keeps
+    the data moat in ONE network (Shapi). White-labeling fragments the verified-data network
+    across tenants and turns us into a tooling vendor.
+  - Recruiters are partly who Shapi disrupts; selling them picks-and-shovels is smart *later*,
+    once the verification engine is proven.
+  - Investor framing: "marketplace now (owns the moat), white-label / private API as expansion
+    revenue later." White-label already lives in the Enterprise tier — consistent.
+  - Build to a **B2B software quality bar** regardless (reliable, clean) — it makes both the
+    marketplace and a future white-label viable. ("More software than app" is the right mindset.)
 
 ---
 
