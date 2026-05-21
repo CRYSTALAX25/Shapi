@@ -37,7 +37,7 @@ export default function CompanyPricing() {
           <p className="text-[#5A5A6E] text-lg max-w-xl mx-auto">
             Every candidate is independently verified — work history, skills, and references. No CVs to sift through.
           </p>
-          <p className="text-sm font-bold mt-5" style={{ color: '#7C3AED' }}>★ 30-day free trial · Founding Partners lock 50% off for 12 months</p>
+          <p className="text-sm font-bold mt-5" style={{ color: '#7C3AED' }}>★ 30-day free trial · Founding Partners get 50% off for 3 months</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 mb-12">
@@ -48,7 +48,7 @@ export default function CompanyPricing() {
               <span className="text-4xl font-black text-[#0E0E1A]">$149</span>
               <span className="text-[#8A8A99] mb-1">/month</span>
             </div>
-            <p className="text-sm text-[#8A8A99] mb-6"><span className="line-through">$299/mo</span> standard · founding rate, 12 mo</p>
+            <p className="text-sm text-[#8A8A99] mb-6"><span className="line-through">$299/mo</span> standard · founding rate, 3 mo</p>
 
             <div className="space-y-3 mb-8">
               {[
@@ -85,7 +85,7 @@ export default function CompanyPricing() {
               <span className="text-4xl font-black text-white">$399</span>
               <span className="text-white/50 mb-1">/month</span>
             </div>
-            <p className="text-sm text-white/50 mb-6"><span className="line-through">$799/mo</span> standard · founding rate, 12 mo</p>
+            <p className="text-sm text-white/50 mb-6"><span className="line-through">$799/mo</span> standard · founding rate, 3 mo</p>
 
             <div className="space-y-3 mb-8">
               {[

@@ -23,12 +23,17 @@ COMPETITORS.md). Sell trust, not chat.
   **company trust score** (keeps the "paid on time" promise without us holding wages).
 - **[LOCKED] Subscription-first**, monthly/yearly, billed upfront — so we operate on dependable
   recurring revenue and never "chase" placement money (Ana's Essential Staff scar).
-- **[RECOMMENDED] Launch pricing (companies):**
-  - 30-day **free trial**, then **Starter $299/mo · Growth $799/mo · Enterprise Custom**.
-  - **Founding Partner offer:** first ~25 companies get **50% off for 12 months, locked**
-    ($149 / $399), with the standard price struck through (anchoring).
-  - **No placement fee at launch** (it's the thing companies most want to dodge, and we can't
-    police it yet).
+- **[LOCKED] Launch pricing (companies)** — live on site + Stripe (2026-05-21):
+  - 30-day **free trial** (`trial_period_days: 30`), then **Starter $299/mo · Growth $799/mo ·
+    Enterprise Custom**.
+  - **Founding Partner offer:** **50% off for 3 months** ($149 / $399 for 3mo), shown with
+    standard price struck through (anchoring). Implemented as a Stripe coupon `founding50_3mo`
+    (percent_off 50, repeating 3mo) applied on the standard price, so it auto-reverts. (Was
+    12mo; shortened to 3mo on 2026-05-21 — base price is already very low.)
+  - **No placement fee at launch** ("no placement fees, no per-hire costs").
+  - ⚠️ The "first 25 companies" cap is currently **marketing framing only** — the coupon is
+    applied to ALL company checkouts during the founding period. Add a real cap (count check)
+    or retire the coupon when we want to stop offering it.
 - **[RECOMMENDED] Candidates:** free to start; keep CV Kit $25 / CV Pro $59 one-time, but
   **comp the Pro fee for the founding / friends-&-family cohort** to seed candidate supply
   (subsidize the scarce side of the marketplace).

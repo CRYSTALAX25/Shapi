@@ -351,7 +351,7 @@ export default function Home() {
           <h3 className="text-xl font-black">For companies</h3>
           <span className="text-[#8A8A99] text-sm">30-day free trial. Cancel anytime.</span>
         </div>
-        <p className="text-sm font-bold mb-6" style={{ color: '#7C3AED' }}>★ Founding Partners: the first 25 companies lock 50% off for 12 months.</p>
+        <p className="text-sm font-bold mb-6" style={{ color: '#7C3AED' }}>★ Founding Partners: the first 25 companies get 50% off for 3 months.</p>
         <div className="grid md:grid-cols-3 gap-5">
           {[
             { name: 'Starter', standard: '$299', founding: '$149', per: '/mo', custom: false, popular: false, color: '#06B6D4',
@@ -373,7 +373,7 @@ export default function Home() {
                 <div className="mb-6">
                   <p className="text-4xl font-black">{tier.founding}<span className={`text-base font-bold ${tier.popular ? 'text-white/50' : 'text-[#8A8A99]'}`}>{tier.per}</span></p>
                   <p className={`text-xs mt-1 ${tier.popular ? 'text-white/55' : 'text-[#8A8A99]'}`}>
-                    <span className="line-through">{tier.standard}{tier.per}</span> standard · founding rate, 12 mo
+                    <span className="line-through">{tier.standard}{tier.per}</span> standard · founding rate, 3 mo
                   </p>
                 </div>
               )}
