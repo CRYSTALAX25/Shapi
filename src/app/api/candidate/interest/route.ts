@@ -66,6 +66,23 @@ export async function POST(request: Request) {
     }
   }
 
+  // Mirror into the pipeline so it shows in the candidate's tracker (and the
+  // company's pipeline once they engage). Candidate-initiated = 'matched';
+  // bumps to 'shortlisted' if the company already shortlisted them (mutual).
+  try {
+    const adminApp = createAdminClient()
+    const { data: roleRow } = await adminApp.from('roles').select('company_id').eq('id', role_id).single()
+    if (roleRow) {
+      const { data: existingApp } = await adminApp
+        .from('applications').select('id, stage').eq('candidate_id', user.id).eq('role_id', role_id).maybeSingle()
+      if (!existingApp) {
+        await adminApp.from('applications').insert({ candidate_id: user.id, role_id, company_id: roleRow.company_id, stage: mutual ? 'shortlisted' : 'matched' })
+      } else if (mutual && existingApp.stage === 'matched') {
+        await adminApp.from('applications').update({ stage: 'shortlisted' }).eq('id', existingApp.id)
+      }
+    }
+  } catch { /* pipeline mirror is best-effort */ }
+
   return NextResponse.json({ success: true, mutual })
 }
 

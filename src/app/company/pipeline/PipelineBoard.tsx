@@ -6,6 +6,7 @@ import Link from 'next/link'
 
 const COMPANY_PARAMS = ['Skills & experience', 'Communication', 'Culture / team fit', 'Motivation & drive', 'Growth potential']
 const STAGES = [
+  { key: 'matched', label: 'Interested', color: '#8B5CF6' },
   { key: 'shortlisted', label: 'Shortlisted', color: '#06B6D4' },
   { key: 'interviewing', label: 'Interviewing', color: '#7C3AED' },
   { key: 'offer', label: 'Offer', color: '#D97706' },
