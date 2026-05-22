@@ -180,6 +180,7 @@ export default function PipelineBoard({ roleId, roleTitle, applications }: { rol
                           {fb ? 'Edit feedback' : 'Feedback'}
                         </button>
                         <Link href={`/candidates/${a.candidate_id}`} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(14,14,26,0.04)', color: '#3F3F4E' }}>View</Link>
+                        <Link href={`/company/prep/${roleId}/${a.candidate_id}`} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(124,58,237,0.10)', color: '#7C3AED' }}>Prep brief</Link>
                         <select
                           value={a.stage}
                           disabled={busy === a.candidate_id}
