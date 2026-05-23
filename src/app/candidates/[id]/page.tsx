@@ -32,6 +32,27 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
 
   if (!c) redirect('/company/dashboard')
 
+  const { data: refRows } = await admin
+    .from('candidate_references').select('ref_type, extracted_skills').eq('candidate_id', id).eq('status', 'completed')
+  const refCount = (refRows || []).length
+  const refSkills = [...new Set((refRows || []).flatMap(r => Array.isArray(r.extracted_skills) ? r.extracted_skills : []))].slice(0, 10)
+  const report = (c.verification_report as {
+    claims_verified?: string[]; top_skills?: string[]; tone_summary?: string; summary_en?: string
+    conflicts?: Array<{ topic: string; note: string }>
+  } | null) || null
+  const tierMeta: Record<string, { label: string; color: string }> = {
+    premium: { label: 'Premium Verified', color: '#D97706' },
+    strong: { label: 'Strongly Verified', color: '#059669' },
+    basic: { label: 'Verified', color: '#0891B2' },
+  }
+  const tier = tierMeta[(c.verification_tier as string) || '']
+  const se = c.salary_expectations as { currency?: string; period?: string; primary?: { min?: number; max?: number } } | null
+  const salaryBand = se?.primary && (se.primary.min != null || se.primary.max != null)
+    ? `${se.currency || ''} ${se.primary.min?.toLocaleString() ?? '—'}${se.primary.max != null ? `–${se.primary.max.toLocaleString()}` : '+'}/${se.period === 'year' ? 'yr' : 'mo'}`
+    : null
+  const targetRoles: string[] = Array.isArray(c.target_roles) ? c.target_roles : []
+  const targetIndustries: string[] = Array.isArray(c.target_industries) ? c.target_industries : []
+
   const skills: string[] = Array.isArray(c.skills) ? c.skills : []
   const workHistory: WorkEntry[] = Array.isArray(c.work_history) ? c.work_history : []
   const chatMessages: Array<{role: string; content: string}> = Array.isArray(c.whatsapp_chat) ? c.whatsapp_chat : []
@@ -87,6 +108,9 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
           </div>
 
           <div className="flex flex-wrap gap-2 mb-4">
+            {tier && (
+              <span className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: `${tier.color}1f`, color: tier.color }}>✓ {tier.label}</span>
+            )}
             {c.ai_tier && (
               <span className="bg-[#A78BFA]/15 text-[#7C3AED] text-xs font-bold px-3 py-1.5 rounded-full">
                 {aiTierLabel[c.ai_tier] || c.ai_tier}
@@ -97,9 +121,22 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
                 {c.industry}
               </span>
             )}
+            {salaryBand && (
+              <span className="bg-[#0E0E1A]/[0.04] text-[#0891B2] text-xs font-bold px-3 py-1.5 rounded-full">💰 {salaryBand}</span>
+            )}
           </div>
 
           {c.summary && <p className="text-[#3F3F4E] text-sm leading-relaxed">{c.summary}</p>}
+
+          {(targetRoles.length > 0 || targetIndustries.length > 0) && (
+            <div className="mt-4">
+              <p className="text-[#8A8A99] text-[11px] font-bold uppercase tracking-wider mb-1.5">Looking for</p>
+              <div className="flex flex-wrap gap-1.5">
+                {targetRoles.map((r, i) => <span key={`r${i}`} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(6,182,212,0.10)', color: '#0891B2' }}>{r}</span>)}
+                {targetIndustries.map((ind, i) => <span key={`i${i}`} className="text-[11px] font-bold px-2 py-0.5 rounded-full capitalize" style={{ background: 'rgba(124,58,237,0.10)', color: '#7C3AED' }}>{ind}</span>)}
+              </div>
+            </div>
+          )}
 
           {/* Contact */}
           {c.whatsapp_number && (
@@ -115,6 +152,31 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* Left — work + chat */}
           <div className="md:col-span-2 space-y-5">
+
+            {/* AI cross-check — the verification moat */}
+            {report && (report.summary_en || (report.claims_verified?.length ?? 0) > 0) && (
+              <div className="rounded-2xl p-6" style={{ background: '#fff', border: '1px solid transparent', backgroundImage: 'linear-gradient(#fff,#fff), linear-gradient(135deg,rgba(52,211,153,0.4),rgba(34,211,238,0.3))', backgroundOrigin: 'border-box', backgroundClip: 'padding-box, border-box', boxShadow: '0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05)' }}>
+                <div className="flex items-center gap-2.5 mb-3">
+                  <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#34D399,#22D3EE)' }} />
+                  <h2 className="text-[#0E0E1A] font-black text-lg tracking-tight">AI Cross-Check</h2>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(16,185,129,0.15)', color: '#059669' }}>✓ across {refCount} reference{refCount !== 1 ? 's' : ''}</span>
+                </div>
+                {report.summary_en && <p className="text-[#3F3F4E] text-sm leading-relaxed mb-3 ml-4">{report.summary_en}</p>}
+                {(report.claims_verified?.length ?? 0) > 0 && (
+                  <div className="ml-4 mb-3">
+                    <p className="text-[#059669] text-[11px] font-bold uppercase tracking-wider mb-1.5">✓ Independently confirmed</p>
+                    <ul className="space-y-1">{report.claims_verified!.slice(0, 5).map((cl, i) => <li key={i} className="text-[#3F3F4E] text-xs leading-relaxed">· {cl}</li>)}</ul>
+                  </div>
+                )}
+                {(report.conflicts?.length ?? 0) > 0 && (
+                  <div className="ml-4 pt-2 border-t border-[#0E0E1A]/[0.06]">
+                    <p className="text-[#B45309] text-[11px] font-bold uppercase tracking-wider mb-1">⚠ Differing perspectives</p>
+                    {report.conflicts!.map((cf, i) => <p key={i} className="text-[#5A5A6E] text-xs">{cf.topic}: {cf.note}</p>)}
+                  </div>
+                )}
+                {report.tone_summary && <p className="text-[#8A8A99] text-[11px] mt-2 ml-4 italic">Tone: {report.tone_summary}</p>}
+              </div>
+            )}
 
             {workHistory.length > 0 && (
               <div className="gradient-border-card rounded-2xl p-6">
@@ -174,7 +236,7 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
                 {[
                   { label: 'CV parsed', done: c.cv_parsed },
                   { label: 'WhatsApp interview', done: chatMessages.length > 4 },
-                  { label: 'Reference checked', done: false },
+                  { label: `${refCount} reference${refCount !== 1 ? 's' : ''} checked`, done: refCount > 0 },
                   { label: 'Profile live', done: c.profile_live },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">

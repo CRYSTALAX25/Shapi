@@ -95,7 +95,7 @@ export default async function CompanyPipeline({ searchParams }: { searchParams: 
         )}
 
         {selectedRole && (
-          <PipelineBoard roleId={selectedRole.id} roleTitle={selectedRole.title} applications={apps} />
+          <PipelineBoard roleId={selectedRole.id} roleTitle={selectedRole.title} applications={apps as Parameters<typeof PipelineBoard>[0]['applications']} />
         )}
       </div>
     </div>

@@ -3,15 +3,9 @@
 //   Candidate reliability = companies' ratings OF a candidate (author='company')
 // RLS scopes interview_feedback by author, so these must run with the admin client.
 
-type AdminLike = {
-  from: (t: string) => {
-    select: (c: string) => {
-      eq: (c: string, v: string) => {
-        in: (c: string, v: string[]) => { not: (c: string, op: string, v: null) => Promise<{ data: Array<Record<string, unknown>> | null }> }
-      }
-    }
-  }
-}
+// Loose admin type — avoids Supabase's deep generic instantiation here.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AdminLike = { from: (table: string) => any }
 
 export type RatingAgg = { avg: number; count: number }
 

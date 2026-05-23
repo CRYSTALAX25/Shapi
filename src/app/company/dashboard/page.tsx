@@ -120,7 +120,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   }
 
   return (
-    <div className="min-h-screen bg-[#F1F2F7]">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(180deg, #FCEEF0 0%, #FBEFF1 30%, #F6F2F7 100%)' }}>
       <style>{`
         @keyframes gradientShift {
           0%, 100% { background-position: 0% 50%; }
@@ -162,26 +162,24 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
         backgroundSize: '44px 44px',
       }} />
 
-      {/* Nav */}
-      <nav className="relative z-10 px-6 py-4 border-b border-[#0E0E1A]/[0.08]">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="font-black text-xl tracking-tighter" style={{
-            background: 'linear-gradient(135deg, #A78BFA, #22D3EE)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}>shapi</Link>
+      {/* Nav — company "red world" band */}
+      <nav className="relative z-10" style={{ background: 'linear-gradient(120deg, #F43F5E 0%, #E11D48 45%, #7C3AED 100%)' }}>
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <ShapiCharacter mood="happy" size={30} />
+            <span className="font-black text-xl tracking-tighter text-white">shapi</span>
+          </Link>
           <div className="flex items-center gap-6">
-            <Link href="/company/pipeline" className="text-[#5A5A6E] text-sm font-bold hover:text-[#0E0E1A] transition-colors">Pipeline →</Link>
-            <span className="text-[#8A8A99] text-sm">{companyName}</span>
+            <Link href="/company/pipeline" className="text-white/85 text-sm font-bold hover:text-white transition-colors">Pipeline →</Link>
+            <span className="text-white/60 text-sm hidden sm:block">{companyName}</span>
             {!isPaid && (
               <Link href="/company/pricing"
-                className="bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#060609] text-xs font-black px-4 py-2 rounded-full hover:opacity-90 transition-opacity">
+                className="bg-white text-[#E11D48] text-xs font-black px-4 py-2 rounded-full hover:bg-white/90 transition-colors">
                 Upgrade
               </Link>
             )}
             <form action="/api/auth/signout" method="post">
-              <button className="text-[#8A8A99] text-sm hover:text-[#3F3F4E] transition-colors">Sign out</button>
+              <button className="text-white/60 text-sm hover:text-white transition-colors">Sign out</button>
             </form>
           </div>
         </div>

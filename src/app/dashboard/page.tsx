@@ -172,7 +172,7 @@ export default async function Dashboard() {
     : `I'm working through your profile. Keep an eye on WhatsApp — I may have a few more questions.`
 
   return (
-    <div className="min-h-screen bg-[#F1F2F7] text-[#0E0E1A]">
+    <div className="min-h-screen text-[#0E0E1A]" style={{ background: 'linear-gradient(180deg, #E7F4FA 0%, #EEF5FB 30%, #F3F5FB 100%)' }}>
       <style>{`
         @keyframes gradientShift {
           0%, 100% { background-position: 0% 50%; }
@@ -206,29 +206,25 @@ export default async function Dashboard() {
         backgroundSize: '44px 44px',
       }} />
 
-      {/* Nav */}
-      <nav className="relative z-20 px-6 py-5 flex items-center justify-between max-w-6xl mx-auto border-b border-[#0E0E1A]/[0.08]">
-        <Link href="/" className="animated-gradient font-black text-xl tracking-tighter">shapi</Link>
-        <div className="flex items-center gap-5">
-          <span className="text-sm text-[#8A8A99] hidden sm:block">{user.email}</span>
-          {type === 'candidate' && (
-            <>
-              <Link href="/roles" className="text-sm text-[#5A5A6E] hover:text-[#3F3F4E] transition-colors hidden md:block">Roles</Link>
-              <Link href="/applications" className="text-sm text-[#5A5A6E] hover:text-[#3F3F4E] transition-colors hidden md:block">My applications</Link>
-              <Link href="/active" className="text-sm text-[#5A5A6E] hover:text-[#3F3F4E] transition-colors hidden md:block">Active</Link>
-              <Link href="/profile" className="text-sm text-[#0891B2] font-semibold hover:opacity-80 transition-opacity">
-                View profile →
-              </Link>
-            </>
-          )}
-          {type === 'company' && (
-            <Link href="/company/dashboard" className="text-sm text-[#0891B2] font-semibold hover:opacity-80 transition-opacity">
-              Browse candidates →
+      {/* Nav — candidate "blue world" band */}
+      <nav className="relative z-20" style={{ background: 'linear-gradient(120deg, #06B6D4 0%, #0891B2 45%, #6D28D9 100%)' }}>
+        <div className="px-6 py-4 flex items-center justify-between max-w-6xl mx-auto">
+          <Link href="/" className="flex items-center gap-2">
+            <ShapiCharacter mood="happy" size={30} />
+            <span className="font-black text-xl tracking-tighter text-white">shapi</span>
+          </Link>
+          <div className="flex items-center gap-5">
+            <span className="text-sm text-white/60 hidden sm:block">{user.email}</span>
+            <Link href="/roles" className="text-sm text-white/80 hover:text-white transition-colors hidden md:block">Roles</Link>
+            <Link href="/applications" className="text-sm text-white/80 hover:text-white transition-colors hidden md:block">My applications</Link>
+            <Link href="/active" className="text-sm text-white/80 hover:text-white transition-colors hidden md:block">Active</Link>
+            <Link href="/profile" className="text-sm bg-white/15 hover:bg-white/25 text-white font-bold px-4 py-1.5 rounded-full transition-colors">
+              View profile →
             </Link>
-          )}
-          <form action="/api/auth/signout" method="post">
-            <button className="text-sm text-[#8A8A99] hover:text-[#3F3F4E] transition-colors">Sign out</button>
-          </form>
+            <form action="/api/auth/signout" method="post">
+              <button className="text-sm text-white/60 hover:text-white transition-colors">Sign out</button>
+            </form>
+          </div>
         </div>
       </nav>
 
@@ -237,11 +233,12 @@ export default async function Dashboard() {
         {/* ─── CANDIDATE VIEW ─── */}
         {type === 'candidate' && (
           <>
-            {/* Shapi greeting banner */}
-            <div className="gradient-border-card rounded-2xl p-5 mb-6 flex items-center gap-5">
-              <ShapiCharacter mood={shapiMood} size={84} className="flex-shrink-0" />
+            {/* Shapi greeting banner — colored hero with the star front and centre */}
+            <div className="rounded-2xl p-6 mb-6 flex items-center gap-5"
+              style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.12), rgba(109,40,217,0.08))', border: '1px solid rgba(6,182,212,0.28)', boxShadow: '0 10px 30px rgba(6,182,212,0.12)' }}>
+              <ShapiCharacter mood={shapiMood} size={92} className="flex-shrink-0" />
               <div>
-                <p className="text-[#8A8A99] text-[10px] font-bold uppercase tracking-widest mb-1">Shapi says</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#0891B2' }}>Shapi says</p>
                 <p className="text-[#0E0E1A] text-sm leading-relaxed font-medium">{shapiMessage}</p>
               </div>
               {!profile?.cv_parsed && (
