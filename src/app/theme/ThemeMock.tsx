@@ -119,7 +119,8 @@ export default function ThemeMock({ t }: { t: ThemeTokens }) {
 
         <div className="flex items-center justify-center gap-4 pt-2 text-sm">
           <Link href="/theme/dark" style={{ color: t.textMuted }}>Dark</Link>
-          <Link href="/theme/warm" style={{ color: t.textMuted }}>Warm</Link>
+          <Link href="/theme/warm" style={{ color: t.textMuted }}>Warm·Teal</Link>
+          <Link href="/theme/warmv" style={{ color: t.textMuted }}>Warm·Violet</Link>
           <Link href="/theme/mono" style={{ color: t.textMuted }}>Mono</Link>
           <Link href="/theme" style={{ color: t.accent, fontWeight: 700 }}>Compare all →</Link>
         </div>
