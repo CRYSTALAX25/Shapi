@@ -163,6 +163,26 @@ The hiring loop, kept inside Shapi so we always know what's going on:
     complaint; nobody surfaces this today.
   - Connects to intent: behaviour *validates* the self-reported active/passive status.
 
+## 4d. "Be first" differentiators to build [IDEA, added 2026-05-23]
+Features that make Shapi *first*, not just present. Build these to widen the moat:
+1. **Verification Passport** — turn the AI cross-check into a *portable, candidate-owned*
+   verified identity: a shareable "Verified by Shapi" score/badge the candidate reuses across
+   employers (QR/short link, re-verifiable). Closest thing to a true first — nobody owns
+   candidate-side portable verification. [HIGH]
+2. **"Salary as advertised" verification** — confirm companies actually pay what the role
+   advertised (hired candidate confirms) → feeds the company trust score. Nobody does this; it
+   pairs with "paid on time". [HIGH]
+3. **All-WhatsApp two-sided hiring loop** — JD intake, CV building, interview booking + reminders,
+   and post-interview feedback all over WhatsApp, for MENA blue+white collar. A genuine regional
+   first. Needs the Twilio upgrade. [HIGH, gated on Twilio]
+4. **Engagement trust layer** — responsiveness + follow-through scoring (time-to-reply, ghost
+   rate) feeding candidate reliability + company responsiveness. "We verify how you show up."
+   See [[strategy-docs]] §4a. [MED]
+5. **Pivot-verified career transition** — verified transferable-skills credentialing for
+   AI-displaced workers (build on the roadmap + /worth pivot bands). [MED]
+6. **Two-sided verified interview prep** — manager brief shipped; extend with the candidate-side
+   prep + make it the signature pre-interview artifact. [MED]
+
 ## 5. Tech moat
 - The **data** is the moat, not the features. Every independent reference, cross-check, company
   rating, and **hire outcome** (did they stay? how rated?) is proprietary → trains a real
