@@ -200,12 +200,6 @@ export default async function Dashboard() {
         }
       `}</style>
 
-      {/* Dot grid */}
-      <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
-        backgroundSize: '44px 44px',
-      }} />
-
       {/* Nav — candidate "blue world" band */}
       <nav className="relative z-20" style={{ background: 'linear-gradient(120deg, #06B6D4 0%, #0891B2 45%, #6D28D9 100%)' }}>
         <div className="px-6 py-4 flex items-center justify-between max-w-6xl mx-auto">
@@ -228,78 +222,65 @@ export default async function Dashboard() {
         </div>
       </nav>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-6 pt-12 pb-24">
+      <div className="relative z-10 max-w-6xl mx-auto px-6 pt-8 pb-24">
 
         {/* ─── CANDIDATE VIEW ─── */}
         {type === 'candidate' && (
           <>
-            {/* Shapi greeting banner — colored hero with the star front and centre */}
-            <div className="rounded-2xl p-6 mb-6 flex items-center gap-5"
-              style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.12), rgba(109,40,217,0.08))', border: '1px solid rgba(6,182,212,0.28)', boxShadow: '0 10px 30px rgba(6,182,212,0.12)' }}>
-              <ShapiCharacter mood={shapiMood} size={92} className="flex-shrink-0" />
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#0891B2' }}>Shapi says</p>
-                <p className="text-[#0E0E1A] text-sm leading-relaxed font-medium">{shapiMessage}</p>
-              </div>
-              {!profile?.cv_parsed && (
-                <Link href="/upload-cv"
-                  className="ml-auto flex-shrink-0 bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] px-4 py-2 rounded-full text-xs font-black text-[#060609] hover:opacity-90 transition-opacity">
-                  Start →
-                </Link>
-              )}
-            </div>
-
             {/* Header */}
-            <div className="mb-8">
+            <div className="mb-5">
               <h1 className="text-3xl font-black text-[#0E0E1A] mb-1">
                 Welcome{completion > 0 ? ' back' : ''}{firstName ? `, ${firstName}` : ''}.
               </h1>
-              {/* Sub-headline only when there's a real headline to show; otherwise the
-                  progress card below carries the "what's next" message. Avoids duplicate
-                  "your profile is being built" text. */}
               {profile?.headline && (
                 <p className="text-[#8A8A99] text-sm">{profile.headline}</p>
               )}
             </div>
 
-            {/* Progress card */}
-            <div className="gradient-border-card rounded-2xl p-7 mb-5">
-              <div className="flex items-center gap-6">
-                {/* Ring */}
-                <div className="relative flex-shrink-0 w-20 h-20">
-                  <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
-                    <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(14,14,26,0.08)" strokeWidth="7" />
-                    <circle
-                      cx="40" cy="40" r="34" fill="none"
-                      stroke="url(#progGrad)" strokeWidth="7" strokeLinecap="round"
-                      strokeDasharray={circumference}
-                      strokeDashoffset={dashOffset}
-                    />
-                    <defs>
-                      <linearGradient id="progGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#22D3EE" />
-                        <stop offset="100%" stopColor="#A78BFA" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-sm font-black text-[#0E0E1A]">{completion}%</span>
-                  </div>
+            {/* Hero row — guide + progress side by side, key info up top */}
+            <div className="grid lg:grid-cols-2 gap-4 mb-5 items-stretch">
+              {/* Shapi guide */}
+              <div className="rounded-2xl p-6 flex items-center gap-5"
+                style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.12), rgba(109,40,217,0.08))', border: '1px solid rgba(6,182,212,0.28)', boxShadow: '0 10px 30px rgba(6,182,212,0.12)' }}>
+                <ShapiCharacter mood={shapiMood} size={84} className="flex-shrink-0" />
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#0891B2' }}>Shapi says</p>
+                  <p className="text-[#0E0E1A] text-sm leading-relaxed font-medium">{shapiMessage}</p>
                 </div>
-
-                {/* % only — Start CTA lives in the Shapi-says card above, not duplicated here */}
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-xl font-black text-[#0E0E1A] mb-0">
-                    {completion}% complete
-                  </h2>
-                </div>
+                {!profile?.cv_parsed && (
+                  <Link href="/upload-cv"
+                    className="ml-auto flex-shrink-0 bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] px-4 py-2 rounded-full text-xs font-black text-[#060609] hover:opacity-90 transition-opacity">
+                    Start →
+                  </Link>
+                )}
               </div>
 
-              <div className="mt-5 h-1 bg-[#0E0E1A]/[0.04] rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all" style={{
-                  width: `${completion}%`,
-                  background: 'linear-gradient(90deg, #22D3EE, #A78BFA)',
-                }} />
+              {/* Progress */}
+              <div className="gradient-border-card rounded-2xl p-6 flex flex-col justify-center">
+                <div className="flex items-center gap-6">
+                  <div className="relative flex-shrink-0 w-20 h-20">
+                    <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+                      <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(14,14,26,0.08)" strokeWidth="7" />
+                      <circle cx="40" cy="40" r="34" fill="none" stroke="url(#progGrad)" strokeWidth="7" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={dashOffset} />
+                      <defs>
+                        <linearGradient id="progGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor="#22D3EE" />
+                          <stop offset="100%" stopColor="#A78BFA" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-sm font-black text-[#0E0E1A]">{completion}%</span>
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-xl font-black text-[#0E0E1A] mb-0">{completion}% complete</h2>
+                    <p className="text-[#8A8A99] text-xs mt-1">Profile strength</p>
+                  </div>
+                </div>
+                <div className="mt-4 h-1 bg-[#0E0E1A]/[0.04] rounded-full overflow-hidden">
+                  <div className="h-full rounded-full transition-all" style={{ width: `${completion}%`, background: 'linear-gradient(90deg, #22D3EE, #A78BFA)' }} />
+                </div>
               </div>
             </div>
 
@@ -355,7 +336,7 @@ export default async function Dashboard() {
             </div>
 
             {/* Status grid */}
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
               {/* CV */}
               {profile?.cv_parsed ? (
@@ -430,7 +411,7 @@ export default async function Dashboard() {
 
               {/* CV Kit CTA — only if not yet purchased */}
               {!cvKitPurchased && profile?.cv_parsed && (
-                <Link href="/pay" className="gradient-border-card rounded-2xl p-6 block hover:bg-[#0E0E1A]/[0.03] md:col-span-2" style={{
+                <Link href="/pay" className="gradient-border-card rounded-2xl p-6 block hover:bg-[#0E0E1A]/[0.03] sm:col-span-2 lg:col-span-3" style={{
                   background: 'linear-gradient(#ffffff,#ffffff) padding-box, linear-gradient(135deg,rgba(167,139,250,0.3),rgba(34,211,238,0.2)) border-box',
                   border: '1px solid transparent',
                   boxShadow: '0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05)',
@@ -593,7 +574,7 @@ export default async function Dashboard() {
 
               {/* Concierge queue — today's AI-drafted outreach */}
               {isConcierge && (
-              <div className="md:col-span-2 rounded-2xl p-6" style={{
+              <div className="sm:col-span-2 lg:col-span-3 rounded-2xl p-6" style={{
                 background: 'linear-gradient(#ffffff,#ffffff) padding-box, linear-gradient(135deg,rgba(251,191,36,0.35),rgba(251,113,133,0.25)) border-box',
                 border: '1px solid transparent',
                 boxShadow: '0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05)',
@@ -657,7 +638,7 @@ export default async function Dashboard() {
 
               {/* Matches / shortlisted signal — only Roles Board */}
               {isRolesBoard && (
-              <div className={`gradient-border-card rounded-2xl p-6 md:col-span-2 ${shortlistedByCount === 0 ? 'opacity-50' : ''}`}>
+              <div className={`gradient-border-card rounded-2xl p-6 sm:col-span-2 lg:col-span-3 ${shortlistedByCount === 0 ? 'opacity-50' : ''}`}>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-[#8A8A99] text-xs font-bold uppercase tracking-wider mb-1">Company signals</p>
