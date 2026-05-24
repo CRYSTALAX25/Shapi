@@ -61,12 +61,13 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
   const completedRefs = refRows || []
   const refCount = completedRefs.length
 
-  // Completed courses (verified learning) to show on the company-facing profile
+  // Courses (verified learning) for the company-facing profile — completed AND in-progress,
+  // so clients see everything the candidate has done plus what they're actively working on.
   const { data: courseRows } = await admin
     .from('candidate_courses')
-    .select('course_name, platform, verification_status, credential_url, sponsored_by')
+    .select('course_name, platform, verification_status, credential_url, sponsored_by, status')
     .eq('candidate_id', c.id)
-    .eq('status', 'completed')
+    .in('status', ['completed', 'in_progress'])
     .order('updated_at', { ascending: false })
   const completedCourses = courseRows || []
   // Merge all extracted skills from references, deduplicate, cap at 10
@@ -471,6 +472,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
                       <div key={i} className="flex items-center justify-between gap-2 bg-[#0E0E1A]/[0.04] rounded-lg px-3 py-2">
                         <span className="text-[#3F3F4E] text-xs">{cc.course_name}{cc.platform ? <span className="text-[#8A8A99]"> · {cc.platform}</span> : null}</span>
                         <span className="flex items-center gap-1.5 flex-shrink-0">
+                          {cc.status === 'in_progress' && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.12)', color: '#0891B2' }}>● In progress</span>}
                           {cc.sponsored_by && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.15)', color: '#D97706' }}>🏢 {cc.sponsored_by}</span>}
                           {verified
                             ? <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#059669' }}>✓ Verified</span>

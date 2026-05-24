@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import CVDownloadButton from '@/components/CVDownloadButton'
 import ShapiCharacter from '@/components/ShapiCharacter'
 import SkillRadar, { SkillSummary } from '@/components/SkillRadar'
 import ContinuousLearning from '@/components/ContinuousLearning'
@@ -554,10 +553,6 @@ export default async function ProfilePage() {
     </>
   )
 
-  const cvPanel = (
-    <CVDownloadButton cvParsed={!!profile.cv_parsed} cvKitPurchased={cvKitPurchased} cvTier={profile.cv_tier as string | null} />
-  )
-
   return (
     <div className="min-h-screen bg-[#0E0E13]">
       <style>{`
@@ -577,7 +572,7 @@ export default async function ProfilePage() {
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-[320px_1fr] gap-6 items-start">
           {identityPanel}
-          <ProfileTabs labels={['Overview', 'Verification', 'Experience', 'Career', 'Learning', 'Events', 'Assessments', 'CV']} panels={[overviewPanel, verificationPanel, experiencePanel, careerPanel, learningPanel, eventsPanel, testsPanel, cvPanel]} />
+          <ProfileTabs labels={['Overview', 'Verification', 'Experience', 'Career', 'Learning', 'Events', 'Assessments']} panels={[overviewPanel, verificationPanel, experiencePanel, careerPanel, learningPanel, eventsPanel, testsPanel]} />
         </div>
       </div>
     </div>

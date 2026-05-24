@@ -79,17 +79,36 @@ export default function ContinuousLearning({
   // Tracked courses (from /upskill) with verification status — shown on profile
   type TrackedCourse = { id: string; course_name: string; platform: string | null; status: string; verification_status: string; credential_url: string | null; sponsored_by?: string | null }
   const [trackedCourses, setTrackedCourses] = useState<TrackedCourse[]>([])
+  // Per-event tracked status (booked/attended/not_attended), keyed by lowercased event name.
+  const [eventState, setEventState] = useState<Record<string, { status: string; event_url: string | null }>>({})
 
-  // Load tracked courses so the profile reflects verified learning.
-  // (Event tracking lives on /upskill — single source — so we don't pull it here.)
+  // Load tracked courses + event statuses so the profile reflects learning & events inline.
   useEffect(() => {
     fetch('/api/upskill')
       .then(r => r.json())
       .then(d => {
         setTrackedCourses(Array.isArray(d.courses) ? d.courses : [])
+        const evMap: Record<string, { status: string; event_url: string | null }> = {}
+        ;(Array.isArray(d.events) ? d.events : []).forEach((e: { name?: string; status?: string; event_url?: string | null }) => {
+          if (e.name) evMap[e.name.toLowerCase()] = { status: e.status || 'interested', event_url: e.event_url ?? null }
+        })
+        setEventState(evMap)
       })
       .catch(() => {})
   }, [])
+
+  const updateEventStatus = async (e: EventRec, status: string) => {
+    const key = e.name.toLowerCase()
+    const event_url = eventState[key]?.event_url || e.official_url || null
+    setEventState(prev => ({ ...prev, [key]: { status, event_url } }))
+    try {
+      await fetch('/api/upskill/event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_name: e.name, event_when: e.when, event_where: e.where, event_url, status }),
+      })
+    } catch {}
+  }
 
   const generateRoadmap = async () => {
     setGenerating(true)
@@ -145,26 +164,14 @@ export default function ContinuousLearning({
     return <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase" style={{ color: c.color, background: c.bg }}>{p}</span>
   }
 
-  return (
-    <div className="gradient-border-card rounded-2xl p-6">
-      <div className="flex items-start justify-between mb-1">
-        <div className="flex items-center gap-2.5">
-          <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#A78BFA)' }} />
-          <h2 className="text-[#F4F4F7] font-black text-xl tracking-tight">{view === 'career' ? 'Career roadmap' : view === 'learning' ? 'Learning' : view === 'events' ? 'Events' : 'Continuous Learning'}</h2>
-        </div>
-        {isPro && (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.12)', color: '#A78BFA' }}>Pro ✓</span>
-        )}
-      </div>
-      <p className="text-[#7E7E8E] text-xs mb-5 ml-4">{view === 'career' ? 'Where you’re headed — resilience and pivot paths.' : view === 'learning' ? 'Sharpen your current field — and learn for your pivot.' : view === 'events' ? 'Industry events worth attending.' : 'What you’ve done — and where to grow next.'}</p>
-
-      {/* ─── HALF 1: PASSIVE (Learning) ─── */}
-      {showLearning && !hasAny && trackedCourses.length === 0 && (
-        <p className="text-[#7E7E8E] text-sm mb-6">No certifications, events, talks, OSS, or courses detected on your CV yet. Add them via your profile to strengthen credibility.</p>
+  // "What you've already done" — certs, courses, talks, OSS, past events.
+  // Inline for the combined view; collapsed at the bottom for the Learning view, so the
+  // candidate's profile leads with what to improve, not a recap of what they already know.
+  const passiveContent = (
+    <>
+      {!hasAny && trackedCourses.length === 0 && (
+        <p className="text-[#7E7E8E] text-sm mb-2">No certifications, events, talks, OSS, or courses detected on your CV yet. Add them via your profile to strengthen credibility.</p>
       )}
-
-      {showLearning && (<>
-      {/* Tracked courses from /upskill — with verification marks */}
       {trackedCourses.length > 0 && (
         <div className="mb-5">
           <div className="flex items-center justify-between mb-2">
@@ -193,7 +200,6 @@ export default function ContinuousLearning({
           </div>
         </div>
       )}
-
       {(data?.certifications?.length ?? 0) > 0 && (
         <div className="mb-5">
           <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-2">Certifications</p>
@@ -206,7 +212,6 @@ export default function ContinuousLearning({
           </div>
         </div>
       )}
-
       {(data?.events?.length ?? 0) > 0 && (
         <div className="mb-5">
           <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-2">Events attended</p>
@@ -219,7 +224,6 @@ export default function ContinuousLearning({
           </div>
         </div>
       )}
-
       {(data?.talks?.length ?? 0) > 0 && (
         <div className="mb-5">
           <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-2">Talks given</p>
@@ -228,7 +232,6 @@ export default function ContinuousLearning({
           ))}
         </div>
       )}
-
       {(data?.courses?.length ?? 0) > 0 && (
         <div className="mb-5">
           <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-2">Courses</p>
@@ -241,7 +244,6 @@ export default function ContinuousLearning({
           </div>
         </div>
       )}
-
       {(data?.oss?.length ?? 0) > 0 && (
         <div className="mb-5">
           <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-2">Open source</p>
@@ -250,7 +252,25 @@ export default function ContinuousLearning({
           ))}
         </div>
       )}
-      </>)}
+    </>
+  )
+
+  return (
+    <div className="gradient-border-card rounded-2xl p-6">
+      <div className="flex items-start justify-between mb-1">
+        <div className="flex items-center gap-2.5">
+          <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#A78BFA)' }} />
+          <h2 className="text-[#F4F4F7] font-black text-xl tracking-tight">{view === 'career' ? 'Career roadmap' : view === 'learning' ? 'Learning' : view === 'events' ? 'Events' : 'Continuous Learning'}</h2>
+        </div>
+        {isPro && (
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.12)', color: '#A78BFA' }}>Pro ✓</span>
+        )}
+      </div>
+      <p className="text-[#7E7E8E] text-xs mb-5 ml-4">{view === 'career' ? 'Where you’re headed — resilience and pivot paths.' : view === 'learning' ? 'Sharpen your current field — and learn for your pivot.' : view === 'events' ? 'Industry events worth attending.' : 'What you’ve done — and where to grow next.'}</p>
+
+      {/* ─── HALF 1: "what you've done" — inline only for the combined view.
+           In the dedicated Learning view it moves to a collapsed section at the bottom. ─── */}
+      {view === 'all' && passiveContent}
 
       {/* ─── HALF 2: CAREER ROADMAP (Pro only) ─── */}
       <div className={view === 'all' ? 'mt-8 pt-6 border-t border-white/[0.08]' : ''}>
@@ -393,28 +413,51 @@ export default function ContinuousLearning({
               </div>
             )}
 
-            {/* Events to attend — full tracking lives on /upskill (single source).
-                Full ticket-finding + Booked/Attended tracking lives on /upskill. */}
+            {/* Events to attend — buy tickets + track status inline (no detour to /upskill) */}
             {showEvents && rm.events_to_attend?.length > 0 && (
               <div className="space-y-2">
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2">
-                    <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#FBBF24,#FB7185)' }} />
-                    <h3 className="text-[#F4F4F7] text-base font-black">📅 Recommended events</h3>
-                  </div>
-                  <Link href="/upskill?back=events" className="text-[#FBBF24] text-xs font-bold flex-shrink-0 hover:underline">Find tickets / track →</Link>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#FBBF24,#FB7185)' }} />
+                  <h3 className="text-[#F4F4F7] text-base font-black">📅 Recommended events</h3>
                 </div>
-                {rm.events_to_attend.map((e, i) => (
-                  <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.15)' }}>
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <p className="text-[#F4F4F7] font-bold text-sm">{e.name}</p>
-                      {priorityChip(e.priority)}
+                <p className="text-[#7E7E8E] text-xs mb-2 ml-3">Buy tickets, then mark whether you purchased + attended.</p>
+                {rm.events_to_attend.map((e, i) => {
+                  const key = e.name.toLowerCase()
+                  const cur = eventState[key]?.status || 'interested'
+                  const ticketUrl = e.official_url || eventState[key]?.event_url || `https://www.google.com/search?q=${encodeURIComponent(`${e.name} ${e.where || ''} tickets`)}`
+                  const opts = [
+                    { key: 'booked', label: '🎟 Purchased', on: 'rgba(34,211,238,0.15)', onText: '#22D3EE' },
+                    { key: 'attended', label: '✓ Attended', on: 'rgba(52,211,153,0.15)', onText: '#34D399' },
+                    { key: 'not_attended', label: 'Didn’t attend', on: 'rgba(255,255,255,0.08)', onText: '#A6A6B4' },
+                  ]
+                  return (
+                    <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.15)' }}>
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <p className="text-[#F4F4F7] font-bold text-sm">{e.name}</p>
+                        {priorityChip(e.priority)}
+                      </div>
+                      <p className="text-[#A6A6B4] text-xs">{[e.when, e.where].filter(Boolean).join(' · ')}</p>
+                      {e.why && <p className="text-[#7E7E8E] text-[11px] mt-1 leading-relaxed">{e.why}</p>}
+                      <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+                        <a href={ticketUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-black px-3 py-1.5 rounded-full" style={{ background: 'linear-gradient(135deg,#FBBF24,#FB7185)', color: '#060609' }}>Buy tickets ↗</a>
+                        {opts.map(opt => {
+                          const active = cur === opt.key
+                          return (
+                            <button key={opt.key} onClick={() => updateEventStatus(e, active ? 'interested' : opt.key)}
+                              className="text-[11px] font-bold px-2.5 py-1.5 rounded-full transition-colors"
+                              style={{
+                                background: active ? opt.on : 'rgba(255,255,255,0.05)',
+                                color: active ? opt.onText : '#7E7E8E',
+                                border: `1px solid ${active ? 'transparent' : 'rgba(255,255,255,0.08)'}`,
+                              }}>
+                              {opt.label}
+                            </button>
+                          )
+                        })}
+                      </div>
                     </div>
-                    <p className="text-[#A6A6B4] text-xs">{[e.when, e.where].filter(Boolean).join(' · ')}</p>
-                    {e.why && <p className="text-[#7E7E8E] text-[11px] mt-1 leading-relaxed">{e.why}</p>}
-                    {e.official_url && <a href={e.official_url} target="_blank" rel="noopener noreferrer" className="text-[#22D3EE] text-xs font-bold mt-1 inline-block">Official site ↗</a>}
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
             {showEvents && !rm.events_to_attend?.length && (
@@ -427,6 +470,17 @@ export default function ContinuousLearning({
           </div>
         )}
       </div>
+
+      {/* Learning view: "what you've done" lives here, collapsed — focus stays on what to improve */}
+      {view === 'learning' && (
+        <details className="group mt-6 pt-6 border-t border-white/[0.08]">
+          <summary className="flex items-center justify-between cursor-pointer list-none">
+            <span className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">What you’ve already done</span>
+            <span className="text-[#7E7E8E] text-xs transition-transform group-open:rotate-180">▾</span>
+          </summary>
+          <div className="mt-4">{passiveContent}</div>
+        </details>
+      )}
     </div>
   )
 }
