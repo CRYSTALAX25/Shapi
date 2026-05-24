@@ -5,13 +5,13 @@
 
 import Link from 'next/link'
 
-// Radiant cool blue gradient — cyan ↔ sky ↔ blue, gently shifts colour, no purple/pink.
+// Subtle steel-blue gradient — soft, gently shifts colour, no neon.
 function WarmStops() {
   return (
     <>
-      <stop offset="0%" stopColor="#67E8F9"><animate attributeName="stop-color" values="#67E8F9;#38BDF8;#22D3EE;#67E8F9" dur="7s" repeatCount="indefinite" /></stop>
-      <stop offset="50%" stopColor="#22D3EE"><animate attributeName="stop-color" values="#22D3EE;#60A5FA;#38BDF8;#22D3EE" dur="7s" repeatCount="indefinite" /></stop>
-      <stop offset="100%" stopColor="#38BDF8"><animate attributeName="stop-color" values="#38BDF8;#22D3EE;#60A5FA;#38BDF8" dur="7s" repeatCount="indefinite" /></stop>
+      <stop offset="0%" stopColor="#A6C2E8"><animate attributeName="stop-color" values="#A6C2E8;#8BB0E0;#C2D3EE;#A6C2E8" dur="7s" repeatCount="indefinite" /></stop>
+      <stop offset="50%" stopColor="#8BB0E0"><animate attributeName="stop-color" values="#8BB0E0;#C2D3EE;#A6C2E8;#8BB0E0" dur="7s" repeatCount="indefinite" /></stop>
+      <stop offset="100%" stopColor="#C2D3EE"><animate attributeName="stop-color" values="#C2D3EE;#A6C2E8;#8BB0E0;#C2D3EE" dur="7s" repeatCount="indefinite" /></stop>
     </>
   )
 }
@@ -78,7 +78,7 @@ function HeroStar({ size = 150 }: { size?: number }) {
   const star = 'M60 8 L81 39 L112 60 L81 81 L60 112 L39 81 L8 60 L39 39 Z'
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
-      <div className="absolute inset-0 rounded-full" style={{ background: 'radial-gradient(circle, rgba(34,211,238,0.45) 0%, transparent 68%)', animation: 'mGlow 3s ease-in-out infinite' }} />
+      <div className="absolute inset-0 rounded-full" style={{ background: 'radial-gradient(circle, rgba(139,176,224,0.4) 0%, transparent 68%)', animation: 'mGlow 3s ease-in-out infinite' }} />
       <svg width={size} height={size} viewBox="0 0 120 120" style={{ position: 'relative' }}>
         <defs><linearGradient id={id} x1="20" y1="10" x2="100" y2="110" gradientUnits="userSpaceOnUse">
           <WarmStops />
@@ -89,7 +89,7 @@ function HeroStar({ size = 150 }: { size?: number }) {
           <Face />
         </g>
         <g style={{ animation: 'mSpin 7s linear infinite', transformOrigin: '60px 60px' }}>
-          <path d="M60 6 L63 13 L70 16 L63 19 L60 26 L57 19 L50 16 L57 13 Z" fill="#67E8F9" />
+          <path d="M60 6 L63 13 L70 16 L63 19 L60 26 L57 19 L50 16 L57 13 Z" fill="#C2D3EE" />
         </g>
       </svg>
     </div>
