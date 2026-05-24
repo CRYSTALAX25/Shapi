@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { providersByTier, courseSearchUrl, FINANCING_OPTIONS } from '@/lib/upskill'
 
 type SkillGap = { skill: string; priority?: string; why?: string; suggested_courses?: Array<{ name: string; platform?: string }> }
-type RoadmapEvent = { name: string; when?: string; where?: string; why?: string; priority?: string; status?: string; official_url?: string | null }
 type Course = {
   id: string
   skill: string | null
@@ -30,7 +29,6 @@ function UpskillContent() {
   const [isPro, setIsPro] = useState<boolean | null>(null)
   const [gaps, setGaps] = useState<SkillGap[]>([])
   const [courses, setCourses] = useState<Course[]>([])
-  const [events, setEvents] = useState<RoadmapEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [addOpen, setAddOpen] = useState(false)
 
@@ -41,28 +39,11 @@ function UpskillContent() {
         setIsPro(!!d.isPro)
         setGaps(d.skill_gaps || [])
         setCourses(d.courses || [])
-        setEvents(d.events || [])
       })
       .catch(() => {})
       .finally(() => setLoading(false))
   }
   useEffect(() => { load() }, [])
-
-  // Prefer the official event site (stable root domain); fall back to a search.
-  const eventLink = (ev: RoadmapEvent) =>
-    (ev.official_url && /^https?:\/\//i.test(ev.official_url))
-      ? ev.official_url
-      : `https://www.google.com/search?q=${encodeURIComponent(ev.name + ' ' + (ev.where || '') + ' official site')}`
-
-  const setEventStatus = async (ev: RoadmapEvent, status: string) => {
-    const event_url = eventLink(ev)
-    // optimistic
-    setEvents(prev => prev.map(e => e.name === ev.name ? { ...e, status } : e))
-    await fetch('/api/upskill/event', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event_name: ev.name, event_when: ev.when, event_where: ev.where, event_url, status }),
-    })
-  }
 
   const trackCourse = async (payload: Record<string, unknown>) => {
     await fetch('/api/upskill/course', {
@@ -222,56 +203,6 @@ function UpskillContent() {
             ))}
           </div>
         </div>
-
-        {/* Events to attend */}
-        {events.length > 0 && (
-          <div className="gradient-border-card rounded-2xl p-5 mb-8">
-            <p className="text-[#7C3AED] text-xs font-bold uppercase tracking-wider mb-1">📅 Events to attend</p>
-            <p className="text-[#5A5A6E] text-xs mb-4">Recommended for your field. Find tickets, then track whether you booked + attended.</p>
-            <div className="space-y-2.5">
-              {events.map((ev, i) => {
-                const ticketUrl = eventLink(ev)
-                const isOfficial = !!(ev.official_url && /^https?:\/\//i.test(ev.official_url))
-                const st = ev.status || 'interested'
-                return (
-                  <div key={i} className="bg-[#0E0E1A]/[0.04] rounded-xl p-3">
-                    <div className="flex items-start justify-between gap-3 mb-1">
-                      <div className="min-w-0">
-                        <p className="text-[#0E0E1A] text-sm font-bold">{ev.name}</p>
-                        <p className="text-[#5A5A6E] text-xs">{[ev.when, ev.where].filter(Boolean).join(' · ')}</p>
-                      </div>
-                      <a href={ticketUrl} target="_blank" rel="noopener noreferrer" className="text-[#0891B2] text-xs font-bold flex-shrink-0 hover:underline">{isOfficial ? 'Official site ↗' : 'Find event ↗'}</a>
-                    </div>
-                    {ev.why && <p className="text-[#8A8A99] text-[11px] mb-2">{ev.why}</p>}
-                    <div className="flex gap-1.5 flex-wrap">
-                      {([
-                        { key: 'booked', label: '🎟 Booked' },
-                        { key: 'attended', label: '✓ Attended' },
-                        { key: 'not_attended', label: 'Didn’t attend' },
-                      ] as const).map(opt => {
-                        const active = st === opt.key
-                        return (
-                          <button key={opt.key} onClick={() => setEventStatus(ev, active ? 'interested' : opt.key)}
-                            className="text-[11px] font-bold px-2.5 py-1 rounded-full transition-colors"
-                            style={{
-                              background: active
-                                ? (opt.key === 'attended' ? 'rgba(52,211,153,0.15)' : opt.key === 'booked' ? 'rgba(34,211,238,0.12)' : 'rgba(14,14,26,0.04)')
-                                : 'rgba(14,14,26,0.04)',
-                              color: active
-                                ? (opt.key === 'attended' ? '#059669' : opt.key === 'booked' ? '#0891B2' : '#3F3F4E')
-                                : '#5A5A6E',
-                            }}>
-                            {opt.label}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
 
         {/* My courses */}
         <div className="gradient-border-card rounded-2xl p-5">

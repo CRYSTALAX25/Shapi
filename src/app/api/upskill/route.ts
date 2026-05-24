@@ -28,24 +28,37 @@ export async function GET() {
     .eq('candidate_id', user.id)
     .order('created_at', { ascending: false })
 
-  // Overlay the candidate's tracked status onto each roadmap event
+  // Pull all of the candidate's event rows (select * so it's resilient whether or
+  // not the photo_url/is_custom migration has been applied yet).
   const { data: eventRows } = await supabase
     .from('candidate_events')
-    .select('event_name, status, event_url')
+    .select('*')
     .eq('candidate_id', user.id)
   const eventStatus: Record<string, { status: string; event_url: string | null }> = {}
   for (const e of eventRows || []) {
     eventStatus[(e.event_name as string).toLowerCase()] = { status: e.status as string, event_url: (e.event_url as string) ?? null }
   }
+  // Recommended events from the roadmap, with the candidate's status overlaid.
   const events = (roadmap?.events_to_attend ?? []).map(e => ({
     ...e,
     status: eventStatus[e.name.toLowerCase()]?.status || 'interested',
   }))
+  // Events the candidate added themselves (attended, optional proof photo).
+  const custom_events = (eventRows || [])
+    .filter(e => e.is_custom)
+    .map(e => ({
+      name: e.event_name as string,
+      when: (e.event_when as string) ?? null,
+      where: (e.event_where as string) ?? null,
+      status: (e.status as string) ?? 'attended',
+      photo_url: (e.photo_url as string) ?? null,
+    }))
 
   return NextResponse.json({
     isPro,
     skill_gaps: roadmap?.skills_gaps ?? [],
     courses: courses ?? [],
     events,
+    custom_events,
   })
 }

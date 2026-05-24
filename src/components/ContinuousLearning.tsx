@@ -6,7 +6,6 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { courseSearchUrl } from '@/lib/upskill'
 
 // A first-step often maps to a Shapi feature: a course step → /upskill, a
 // role-targeting step → /roles. Return a contextual link only when it fits
@@ -81,9 +80,13 @@ export default function ContinuousLearning({
   const [trackedCourses, setTrackedCourses] = useState<TrackedCourse[]>([])
   // Per-event tracked status (booked/attended/not_attended), keyed by lowercased event name.
   const [eventState, setEventState] = useState<Record<string, { status: string; event_url: string | null }>>({})
+  // Events the candidate added themselves (attended, with optional proof photo).
+  type CustomEvent = { name: string; when?: string | null; where?: string | null; photo_url?: string | null }
+  const [customEvents, setCustomEvents] = useState<CustomEvent[]>([])
+  const [addEventOpen, setAddEventOpen] = useState(false)
 
-  // Load tracked courses + event statuses so the profile reflects learning & events inline.
-  useEffect(() => {
+  // Load tracked courses + event statuses + self-added events so the profile reflects them inline.
+  const loadUpskill = () => {
     fetch('/api/upskill')
       .then(r => r.json())
       .then(d => {
@@ -93,9 +96,21 @@ export default function ContinuousLearning({
           if (e.name) evMap[e.name.toLowerCase()] = { status: e.status || 'interested', event_url: e.event_url ?? null }
         })
         setEventState(evMap)
+        setCustomEvents(Array.isArray(d.custom_events) ? d.custom_events : [])
       })
       .catch(() => {})
-  }, [])
+  }
+  useEffect(() => { loadUpskill() }, [])
+
+  const deleteCustomEvent = async (name: string) => {
+    setCustomEvents(prev => prev.filter(e => e.name !== name))
+    try {
+      await fetch('/api/upskill/event', {
+        method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_name: name }),
+      })
+    } catch {}
+  }
 
   const updateEventStatus = async (e: EventRec, status: string) => {
     const key = e.name.toLowerCase()
@@ -311,12 +326,9 @@ export default function ContinuousLearning({
             {/* Skills gaps — Learning */}
             {showLearning && rm.skills_gaps?.length > 0 && (
               <div className="mb-6">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#5FB7C7,#5FB795)' }} />
-                    <h3 className="text-[#F4F4F7] text-base font-black">🎯 Sharpen your current field</h3>
-                  </div>
-                  <Link href="/upskill" className="text-[#5FB7C7] text-xs font-bold hover:underline">Browse courses →</Link>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#5FB7C7,#5FB795)' }} />
+                  <h3 className="text-[#F4F4F7] text-base font-black">🎯 Sharpen your current field</h3>
                 </div>
                 <p className="text-[#7E7E8E] text-xs mb-3 -mt-1">Skills that strengthen the experience you already have.</p>
                 <div className="space-y-2">
@@ -363,10 +375,15 @@ export default function ContinuousLearning({
                         <p className="text-[#F4F4F7] font-bold text-sm">To move into {p.to_role}{p.to_industry ? <span className="text-[#7E7E8E] font-normal"> · {p.to_industry}</span> : null}</p>
                         <span className="text-[#7E7E8E] text-xs transition-transform group-open:rotate-180">▾</span>
                       </summary>
-                      <div className="px-3 pb-3 flex flex-wrap gap-1.5">
-                        {p.gaps_to_close.map((g, j) => (
-                          <a key={j} href={courseSearchUrl('Coursera', g)} target="_blank" rel="noopener noreferrer" className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: '#C4B5FD', border: '1px solid rgba(255,255,255,0.08)' }}>{g} ↗</a>
-                        ))}
+                      <div className="px-3 pb-3">
+                        <div className="flex flex-wrap gap-1.5 mb-2">
+                          {p.gaps_to_close.map((g, j) => (
+                            <Link key={j} href={`/upskill?skill=${encodeURIComponent(g)}#financing`} className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: '#C4B5FD', border: '1px solid rgba(255,255,255,0.08)' }}>{g} →</Link>
+                          ))}
+                        </div>
+                        <Link href={`/upskill?skill=${encodeURIComponent(p.gaps_to_close[0])}#financing`} className="text-[#9D8AD6] text-xs font-bold hover:underline">
+                          Free / paid / financing options →
+                        </Link>
                       </div>
                     </details>
                   ))}
@@ -471,6 +488,37 @@ export default function ContinuousLearning({
         )}
       </div>
 
+      {/* Events view: events the candidate attended (with proof photos) — for everyone, Pro or not */}
+      {showEvents && (
+        <div className={view === 'events' ? 'mt-6' : 'mt-6 pt-6 border-t border-white/[0.08]'}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#5FB795,#5FB7C7)' }} />
+              <h3 className="text-[#F4F4F7] text-base font-black">📸 Events you’ve attended</h3>
+            </div>
+            <button onClick={() => setAddEventOpen(o => !o)} className="text-[#5FB7C7] text-xs font-bold hover:underline">{addEventOpen ? 'Close' : '+ Add an event'}</button>
+          </div>
+          {addEventOpen && <AddAttendedEvent onDone={() => { setAddEventOpen(false); loadUpskill() }} />}
+          {customEvents.length > 0 ? (
+            <div className="space-y-2">
+              {customEvents.map((ev, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(95,183,149,0.10)', border: '1px solid rgba(95,183,149,0.18)' }}>
+                  {ev.photo_url && <img src={ev.photo_url} alt={ev.name} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[#F4F4F7] font-bold text-sm truncate">{ev.name}</p>
+                    {(ev.when || ev.where) && <p className="text-[#A6A6B4] text-xs">{[ev.when, ev.where].filter(Boolean).join(' · ')}</p>}
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: 'rgba(95,183,149,0.15)', color: '#5FB795' }}>✓ Attended</span>
+                  <button onClick={() => deleteCustomEvent(ev.name)} className="text-[#7E7E8E] hover:text-[#E08494] text-xs flex-shrink-0" aria-label="Remove">✕</button>
+                </div>
+              ))}
+            </div>
+          ) : !addEventOpen && (
+            <p className="text-[#7E7E8E] text-xs">Add conferences, meetups or talks you’ve attended — with a photo of you there as proof.</p>
+          )}
+        </div>
+      )}
+
       {/* Learning view: "what you've done" lives here, collapsed — focus stays on what to improve */}
       {view === 'learning' && (
         <details className="group mt-6 pt-6 border-t border-white/[0.08]">
@@ -481,6 +529,62 @@ export default function ContinuousLearning({
           <div className="mt-4">{passiveContent}</div>
         </details>
       )}
+    </div>
+  )
+}
+
+// Form to log an event the candidate personally attended, with an optional proof
+// photo (uploaded to the public event-photos bucket, then saved as a custom event).
+function AddAttendedEvent({ onDone }: { onDone: () => void }) {
+  const [name, setName] = useState('')
+  const [where, setWhere] = useState('')
+  const [when, setWhen] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [err, setErr] = useState('')
+
+  const inputCls = 'w-full rounded-lg px-3 py-2 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#5FB7C7]/40'
+  const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }
+
+  const submit = async () => {
+    if (!name.trim()) return
+    setSaving(true); setErr('')
+    try {
+      let photo_url: string | null = null
+      if (file) {
+        const fd = new FormData(); fd.append('file', file)
+        const up = await fetch('/api/upskill/event/photo', { method: 'POST', body: fd })
+        const ud = await up.json().catch(() => ({}))
+        if (!up.ok) { setErr(ud.error || 'Photo upload failed'); setSaving(false); return }
+        photo_url = ud.url
+      }
+      const res = await fetch('/api/upskill/event', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_name: name.trim(), event_when: when.trim(), event_where: where.trim(), status: 'attended', is_custom: true, photo_url }),
+      })
+      if (!res.ok) { const d = await res.json().catch(() => ({})); setErr(d.error || 'Could not save'); setSaving(false); return }
+      onDone()
+    } catch {
+      setErr('Something went wrong — try again'); setSaving(false)
+    }
+  }
+
+  return (
+    <div className="rounded-xl p-4 mb-3 space-y-3" style={inputStyle}>
+      <input value={name} onChange={e => setName(e.target.value)} placeholder="Event name (e.g. GITEX Global 2026)" className={inputCls} style={inputStyle} />
+      <div className="grid grid-cols-2 gap-2">
+        <input value={where} onChange={e => setWhere(e.target.value)} placeholder="Where (Dubai)" className={inputCls} style={inputStyle} />
+        <input value={when} onChange={e => setWhen(e.target.value)} placeholder="When (May 2026)" className={inputCls} style={inputStyle} />
+      </div>
+      <div>
+        <p className="text-[#A6A6B4] text-xs font-bold mb-1">Photo of you there (optional — adds proof)</p>
+        <input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] ?? null)}
+          className="block w-full text-xs text-[#A6A6B4] file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[#5FB7C7]/15 file:text-[#5FB7C7]" />
+      </div>
+      {err && <p className="text-[#E08494] text-xs">{err}</p>}
+      <button onClick={submit} disabled={saving || !name.trim()} className="w-full py-2.5 rounded-lg font-black text-sm disabled:opacity-40" style={{ background: 'linear-gradient(135deg,#5FB7C7,#9D8AD6)', color: '#060609' }}>
+        {saving ? 'Saving…' : 'Add attended event'}
+      </button>
     </div>
   )
 }
