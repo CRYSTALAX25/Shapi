@@ -1,0 +1,29 @@
+'use client'
+
+import { useState } from 'react'
+import type { ReactNode } from 'react'
+
+// Segmented tabs for the profile — server-rendered panels passed in as props,
+// shown one at a time so the page is clicks, not a long scroll.
+export default function ProfileTabs({ labels, panels }: { labels: string[]; panels: ReactNode[] }) {
+  const [active, setActive] = useState(0)
+  return (
+    <div>
+      <div className="inline-flex gap-1 p-1 rounded-full mb-5" style={{ background: 'rgba(14,14,26,0.05)', border: '1px solid rgba(14,14,26,0.06)' }}>
+        {labels.map((l, i) => (
+          <button
+            key={l}
+            onClick={() => setActive(i)}
+            className="px-4 py-2 rounded-full text-sm font-bold transition-all"
+            style={active === i
+              ? { background: 'linear-gradient(135deg,#22D3EE,#A78BFA)', color: '#060609' }
+              : { color: '#5A5A6E', background: 'transparent' }}
+          >
+            {l}
+          </button>
+        ))}
+      </div>
+      <div className="space-y-4">{panels[active]}</div>
+    </div>
+  )
+}
