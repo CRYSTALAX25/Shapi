@@ -6,6 +6,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { courseSearchUrl } from '@/lib/upskill'
 
 // A first-step often maps to a Shapi feature: a course step → /upskill, a
 // role-targeting step → /roles. Return a contextual link only when it fits
@@ -343,15 +344,27 @@ export default function ContinuousLearning({
                       </summary>
                       <div className="px-3 pb-3">
                         <p className="text-[#A6A6B4] text-xs mb-2">{g.why}</p>
-                        {g.suggested_courses && g.suggested_courses.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mb-2">
-                            {g.suggested_courses.map((c, j) => (
-                              <span key={j} className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(95,183,199,0.12)', color: '#5FB7C7' }}>{c.name} · {c.platform}</span>
-                            ))}
-                          </div>
-                        )}
+                        {(() => {
+                          const recs = (g.suggested_courses && g.suggested_courses.length > 0)
+                            ? g.suggested_courses
+                            : [{ name: g.skill, platform: 'Coursera' }]
+                          return (
+                            <>
+                              <p className="text-[#9D8AD6] text-[10px] font-bold uppercase tracking-wider mb-1.5">⭐ Shapi recommends</p>
+                              <div className="space-y-1.5 mb-2">
+                                {recs.map((c, j) => (
+                                  <a key={j} href={courseSearchUrl(c.platform, c.name)} target="_blank" rel="noopener noreferrer"
+                                    className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 transition-colors hover:opacity-90" style={{ background: 'rgba(95,183,199,0.10)' }}>
+                                    <span className="text-[#F4F4F7] text-xs font-bold">{c.name}{c.platform ? <span className="text-[#7E7E8E] font-normal"> · {c.platform}</span> : null}</span>
+                                    <span className="text-[#5FB7C7] text-xs font-bold flex-shrink-0">Open ↗</span>
+                                  </a>
+                                ))}
+                              </div>
+                            </>
+                          )
+                        })()}
                         <Link href={`/upskill?skill=${encodeURIComponent(g.skill)}#financing`} className="text-[#9D8AD6] text-xs font-bold hover:underline">
-                          Free / paid / financing options →
+                          More courses · free / paid / financing →
                         </Link>
                       </div>
                     </details>
