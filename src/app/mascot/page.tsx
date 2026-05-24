@@ -5,7 +5,16 @@
 
 import Link from 'next/link'
 
-const GRAD = ['#06B6D4', '#7C3AED'] // brand cyan → violet
+// Radiant warm gradient — leads pink/red, gently shifts colour, no flat blue/purple.
+function WarmStops() {
+  return (
+    <>
+      <stop offset="0%" stopColor="#FB7185"><animate attributeName="stop-color" values="#FB7185;#EC4899;#F43F5E;#FB7185" dur="7s" repeatCount="indefinite" /></stop>
+      <stop offset="50%" stopColor="#F43F5E"><animate attributeName="stop-color" values="#F43F5E;#FB7185;#EC4899;#F43F5E" dur="7s" repeatCount="indefinite" /></stop>
+      <stop offset="100%" stopColor="#EC4899"><animate attributeName="stop-color" values="#EC4899;#F43F5E;#FB7185;#EC4899" dur="7s" repeatCount="indefinite" /></stop>
+    </>
+  )
+}
 
 // Big expressive face shared by all variants (viewBox 0..120, centred ~60,60).
 function Face({ cx = 60, eyeY = 60, scale = 1 }: { cx?: number; eyeY?: number; scale?: number }) {
@@ -33,7 +42,7 @@ function BoldStar({ size = 150 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 120 120">
       <defs><linearGradient id={id} x1="20" y1="10" x2="100" y2="110" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor={GRAD[0]} /><stop offset="100%" stopColor={GRAD[1]} />
+        <WarmStops />
       </linearGradient></defs>
       <path d={star} fill={`url(#${id})`} stroke={`url(#${id})`} strokeWidth="14" strokeLinejoin="round" />
       <path d="M60 22 L74 46 L98 60 L74 74 L60 98 L46 74 L22 60 L46 46 Z" fill="#fff" fillOpacity="0.12" />
@@ -49,7 +58,7 @@ function BlobStar({ size = 150 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 120 120">
       <defs><linearGradient id={id} x1="20" y1="10" x2="100" y2="110" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor={GRAD[0]} /><stop offset="100%" stopColor={GRAD[1]} />
+        <WarmStops />
       </linearGradient></defs>
       {/* little arms */}
       <g style={{ animation: 'mWaveL 2.4s ease-in-out infinite', transformOrigin: '26px 70px' }}>
@@ -69,10 +78,10 @@ function HeroStar({ size = 150 }: { size?: number }) {
   const star = 'M60 8 L81 39 L112 60 L81 81 L60 112 L39 81 L8 60 L39 39 Z'
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
-      <div className="absolute inset-0 rounded-full" style={{ background: `radial-gradient(circle, ${GRAD[1]}55 0%, transparent 68%)`, animation: 'mGlow 3s ease-in-out infinite' }} />
+      <div className="absolute inset-0 rounded-full" style={{ background: 'radial-gradient(circle, rgba(244,63,94,0.45) 0%, transparent 68%)', animation: 'mGlow 3s ease-in-out infinite' }} />
       <svg width={size} height={size} viewBox="0 0 120 120" style={{ position: 'relative' }}>
         <defs><linearGradient id={id} x1="20" y1="10" x2="100" y2="110" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#67E8F9" /><stop offset="55%" stopColor="#A78BFA" /><stop offset="100%" stopColor={GRAD[1]} />
+          <WarmStops />
         </linearGradient></defs>
         <g style={{ animation: 'mBreathe 3.5s ease-in-out infinite', transformOrigin: '60px 60px' }}>
           <path d={star} fill={`url(#${id})`} stroke={`url(#${id})`} strokeWidth="12" strokeLinejoin="round" />
@@ -80,7 +89,7 @@ function HeroStar({ size = 150 }: { size?: number }) {
           <Face />
         </g>
         <g style={{ animation: 'mSpin 7s linear infinite', transformOrigin: '60px 60px' }}>
-          <path d="M60 6 L63 13 L70 16 L63 19 L60 26 L57 19 L50 16 L57 13 Z" fill="#67E8F9" />
+          <path d="M60 6 L63 13 L70 16 L63 19 L60 26 L57 19 L50 16 L57 13 Z" fill="#FB7185" />
         </g>
       </svg>
     </div>
