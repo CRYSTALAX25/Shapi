@@ -301,23 +301,28 @@ export default function ContinuousLearning({
                 <p className="text-[#7E7E8E] text-xs mb-3 -mt-1">Skills that strengthen the experience you already have.</p>
                 <div className="space-y-2">
                   {rm.skills_gaps.map((g, i) => (
-                    <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="text-[#F4F4F7] font-bold text-sm">{g.skill}</p>
-                        {priorityChip(g.priority)}
-                      </div>
-                      <p className="text-[#A6A6B4] text-xs mb-2">{g.why}</p>
-                      {g.suggested_courses && g.suggested_courses.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mb-2">
-                          {g.suggested_courses.map((c, j) => (
-                            <span key={j} className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.12)', color: '#22D3EE' }}>{c.name} · {c.platform}</span>
-                          ))}
+                    <details key={i} className="group rounded-xl" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <summary className="flex items-center justify-between cursor-pointer list-none p-3">
+                        <div className="flex items-center gap-2">
+                          <p className="text-[#F4F4F7] font-bold text-sm">{g.skill}</p>
+                          {priorityChip(g.priority)}
                         </div>
-                      )}
-                      <Link href={`/upskill?skill=${encodeURIComponent(g.skill)}#financing`} className="text-[#A78BFA] text-xs font-bold hover:underline">
-                        Free / paid / financing options →
-                      </Link>
-                    </div>
+                        <span className="text-[#7E7E8E] text-xs transition-transform group-open:rotate-180">▾</span>
+                      </summary>
+                      <div className="px-3 pb-3">
+                        <p className="text-[#A6A6B4] text-xs mb-2">{g.why}</p>
+                        {g.suggested_courses && g.suggested_courses.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mb-2">
+                            {g.suggested_courses.map((c, j) => (
+                              <span key={j} className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.12)', color: '#22D3EE' }}>{c.name} · {c.platform}</span>
+                            ))}
+                          </div>
+                        )}
+                        <Link href={`/upskill?skill=${encodeURIComponent(g.skill)}#financing`} className="text-[#A78BFA] text-xs font-bold hover:underline">
+                          Free / paid / financing options →
+                        </Link>
+                      </div>
+                    </details>
                   ))}
                 </div>
               </div>
@@ -333,14 +338,17 @@ export default function ContinuousLearning({
                 <p className="text-[#7E7E8E] text-xs mb-3 ml-3">What to learn to move into a new field.</p>
                 <div className="space-y-2">
                   {rm.pivot_paths.filter(p => p.gaps_to_close?.length > 0).map((p, i) => (
-                    <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.15)' }}>
-                      <p className="text-[#F4F4F7] font-bold text-sm mb-2">To move into {p.to_role}{p.to_industry ? <span className="text-[#7E7E8E] font-normal"> · {p.to_industry}</span> : null}</p>
-                      <div className="flex flex-wrap gap-1.5">
+                    <details key={i} className="group rounded-xl" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <summary className="flex items-center justify-between cursor-pointer list-none p-3">
+                        <p className="text-[#F4F4F7] font-bold text-sm">To move into {p.to_role}{p.to_industry ? <span className="text-[#7E7E8E] font-normal"> · {p.to_industry}</span> : null}</p>
+                        <span className="text-[#7E7E8E] text-xs transition-transform group-open:rotate-180">▾</span>
+                      </summary>
+                      <div className="px-3 pb-3 flex flex-wrap gap-1.5">
                         {p.gaps_to_close.map((g, j) => (
-                          <a key={j} href={courseSearchUrl('Coursera', g)} target="_blank" rel="noopener noreferrer" className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(124,58,237,0.10)', color: '#A78BFA' }}>{g} ↗</a>
+                          <a key={j} href={courseSearchUrl('Coursera', g)} target="_blank" rel="noopener noreferrer" className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: '#C4B5FD', border: '1px solid rgba(255,255,255,0.08)' }}>{g} ↗</a>
                         ))}
                       </div>
-                    </div>
+                    </details>
                   ))}
                 </div>
               </div>
@@ -394,7 +402,7 @@ export default function ContinuousLearning({
                     <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#FBBF24,#FB7185)' }} />
                     <h3 className="text-[#F4F4F7] text-base font-black">📅 Recommended events</h3>
                   </div>
-                  <Link href="/upskill" className="text-[#FBBF24] text-xs font-bold flex-shrink-0 hover:underline">Find tickets / track →</Link>
+                  <Link href="/upskill?back=events" className="text-[#FBBF24] text-xs font-bold flex-shrink-0 hover:underline">Find tickets / track →</Link>
                 </div>
                 {rm.events_to_attend.map((e, i) => (
                   <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.15)' }}>

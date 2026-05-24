@@ -25,6 +25,7 @@ function UpskillContent() {
   const router = useRouter()
   const params = useSearchParams()
   const focusSkill = params.get('skill')
+  const backTab = params.get('back') || 'learning'
 
   const [isPro, setIsPro] = useState<boolean | null>(null)
   const [gaps, setGaps] = useState<SkillGap[]>([])
@@ -104,7 +105,7 @@ function UpskillContent() {
 
       <nav className="relative z-10 px-6 py-4 border-b border-[#0E0E1A]/[0.08] flex items-center justify-between max-w-4xl mx-auto">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#A78BFA,#22D3EE)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
-        <Link href="/profile?tab=learning" className="text-[#8A8A99] text-sm hover:text-[#3F3F4E]">← Profile</Link>
+        <Link href={`/profile?tab=${backTab}`} className="text-[#8A8A99] text-sm hover:text-[#3F3F4E]">← Profile</Link>
       </nav>
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 pt-8 pb-20">

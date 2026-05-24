@@ -40,6 +40,8 @@ export default async function ProfilePage() {
   const workHistory: WorkEntry[] = Array.isArray(profile.work_history) ? profile.work_history : []
   const isLive = profile.profile_live
   const cvKitPurchased = !!profile.cv_kit_purchased
+  // Pro purchase also grants Kit access
+  const hasCvAccess = cvKitPurchased || profile.cv_tier === 'pro'
 
   const refScore = await computeJobCompletionScore(user.id)
   let completion = 0
@@ -116,9 +118,13 @@ export default async function ProfilePage() {
           )
         })()}
 
-        {/* Actions */}
+        {/* Actions — Pro/Kit see only the Kit; others get a universal download */}
         <div className="space-y-2">
-          <a href="/profile/print" target="_blank" className="block text-center bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#060609] text-xs font-black py-2.5 rounded-xl hover:opacity-90 transition-opacity">Download CV ↓</a>
+          {hasCvAccess ? (
+            <a href="/cv-ready" className="block text-center bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#060609] text-xs font-black py-2.5 rounded-xl hover:opacity-90 transition-opacity">Open CV Kit →</a>
+          ) : (
+            <a href="/profile/print" target="_blank" className="block text-center bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] text-[#060609] text-xs font-black py-2.5 rounded-xl hover:opacity-90 transition-opacity">Download CV ↓</a>
+          )}
           <div className="grid grid-cols-2 gap-2">
             <Link href="/profile/edit" className="text-center text-[#A6A6B4] text-xs font-bold py-2 rounded-xl border border-white/[0.08] hover:border-white/20 transition-colors">Edit</Link>
             <a href={`/p/${user.id.slice(0, 8)}`} target="_blank" rel="noopener noreferrer" className="text-center text-[#22D3EE] text-xs font-bold py-2 rounded-xl border border-[#22D3EE]/30 hover:border-[#22D3EE]/60 transition-colors">View public</a>
@@ -549,12 +555,7 @@ export default async function ProfilePage() {
   )
 
   const cvPanel = (
-    <>
-      <CVDownloadButton cvParsed={!!profile.cv_parsed} cvKitPurchased={cvKitPurchased} cvTier={profile.cv_tier as string | null} />
-      <div className="gradient-border-card rounded-2xl p-5">
-        <p className="text-[#A6A6B4] text-xs leading-relaxed">📄 <strong className="text-[#F4F4F7]">Download CV</strong> gives your <strong className="text-[#F4F4F7]">universal CV</strong> (all industries). Open the Kit above for language- and industry-targeted versions to send to specific companies.</p>
-      </div>
-    </>
+    <CVDownloadButton cvParsed={!!profile.cv_parsed} cvKitPurchased={cvKitPurchased} cvTier={profile.cv_tier as string | null} />
   )
 
   return (
