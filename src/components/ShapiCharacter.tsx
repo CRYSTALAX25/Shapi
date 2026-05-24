@@ -26,12 +26,12 @@ export default function ShapiCharacter({ mood = 'idle', size = 80, className = '
   const gradId = `shapiStar-${uid}`
   const blurId = `shapiBlur-${uid}`
 
-  // Default glow leads warm (rose/pink), not blue.
+  // Default glow is cool blue/cyan (no purple/pink).
   const defaultGlow: Record<Mood, string> = {
-    idle: 'rgba(251,113,133,0.42)',
-    thinking: 'rgba(236,72,153,0.48)',
-    happy: 'rgba(244,63,94,0.55)',
-    listening: 'rgba(251,113,133,0.42)',
+    idle: 'rgba(34,211,238,0.42)',
+    thinking: 'rgba(56,189,248,0.50)',
+    happy: 'rgba(34,211,238,0.58)',
+    listening: 'rgba(96,165,250,0.42)',
   }
   const glowColor = tint?.glow || defaultGlow[mood]
   // Ring spins faster while "thinking" (actively searching for direction).
@@ -42,15 +42,15 @@ export default function ShapiCharacter({ mood = 'idle', size = 80, className = '
   const eyeY = mood === 'thinking' ? 47.5 : 49
   const eyeR = mood === 'happy' ? 4.3 : 4
 
-  // Default fill is a RADIANT warm gradient (pink → red → magenta) that gently
-  // shifts colour — no flat blue/purple. A tint, when passed, stays static.
+  // Default fill is a RADIANT cool blue gradient (cyan ↔ sky ↔ blue) that gently
+  // shifts colour — no purple/pink. A tint, when passed, stays static.
   const animated = !tint
   const stops = tint
     ? [{ o: '0%', c: tint.from }, { o: '100%', c: tint.to }]
     : [
-        { o: '0%', c: '#FB7185', vals: '#FB7185;#EC4899;#F43F5E;#FB7185' },
-        { o: '50%', c: '#F43F5E', vals: '#F43F5E;#FB7185;#EC4899;#F43F5E' },
-        { o: '100%', c: '#EC4899', vals: '#EC4899;#F43F5E;#FB7185;#EC4899' },
+        { o: '0%', c: '#67E8F9', vals: '#67E8F9;#38BDF8;#22D3EE;#67E8F9' },
+        { o: '50%', c: '#22D3EE', vals: '#22D3EE;#60A5FA;#38BDF8;#22D3EE' },
+        { o: '100%', c: '#38BDF8', vals: '#38BDF8;#22D3EE;#60A5FA;#38BDF8' },
       ]
 
   return (
@@ -95,7 +95,7 @@ export default function ShapiCharacter({ mood = 'idle', size = 80, className = '
             return <line key={deg} x1={x1} y1={y1} x2={x2} y2={y2} stroke={`url(#${gradId})`} strokeWidth="2.2" strokeOpacity="0.55" strokeLinecap="round" />
           })}
           {/* Orbiting sparkle on the ring — constant gentle motion */}
-          <circle cx="50" cy="5" r="2.2" fill={tint?.from || '#FB7185'} />
+          <circle cx="50" cy="5" r="2.2" fill={tint?.from || '#67E8F9'} />
         </g>
 
         {/* The North Star — gently breathing */}
@@ -124,7 +124,7 @@ export default function ShapiCharacter({ mood = 'idle', size = 80, className = '
         {/* Happy: a second twinkle that counter-orbits */}
         {mood === 'happy' && (
           <g style={{ animation: 'shapiSpinR 6s linear infinite', transformOrigin: '50px 50px' }}>
-            <path d="M50 12 L52 18 L58 20 L52 22 L50 28 L48 22 L42 20 L48 18 Z" fill={tint?.from || '#FB7185'} />
+            <path d="M50 12 L52 18 L58 20 L52 22 L50 28 L48 22 L42 20 L48 18 Z" fill={tint?.from || '#67E8F9'} />
           </g>
         )}
       </svg>
