@@ -1,12 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
 
 // Segmented tabs for the profile — server-rendered panels passed in as props,
 // shown one at a time so the page is clicks, not a long scroll.
 export default function ProfileTabs({ labels, panels }: { labels: string[]; panels: ReactNode[] }) {
   const [active, setActive] = useState(0)
+
+  // Allow deep-linking to a tab via ?tab=verification (used by back-links).
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get('tab')
+    if (!t) return
+    const i = labels.findIndex(l => l.toLowerCase() === t.toLowerCase())
+    if (i >= 0) setActive(i)
+  }, [labels])
   return (
     <div>
       <div className="inline-flex gap-1 p-1 rounded-full mb-5" style={{ background: 'rgba(14,14,26,0.05)', border: '1px solid rgba(14,14,26,0.06)' }}>

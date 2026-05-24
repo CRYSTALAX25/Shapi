@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import CVDownloadButton from '@/components/CVDownloadButton'
 import ShapiCharacter from '@/components/ShapiCharacter'
-import SkillRadar from '@/components/SkillRadar'
+import SkillRadar, { SkillSummary } from '@/components/SkillRadar'
 import ContinuousLearning from '@/components/ContinuousLearning'
 import ProfileTabs from './ProfileTabs'
 import { computeJobCompletionScore } from '@/lib/references'
@@ -218,16 +218,16 @@ export default async function ProfilePage() {
         </div>
       )}
 
-      {/* Skill fingerprint */}
+      {/* Skill fingerprint — compact snapshot (full version lives in Tests) */}
       {profile.skill_quadrant && (
         <div className="gradient-border-card rounded-2xl p-6">
-          <div className="flex items-center gap-2.5 mb-4">
-            <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#A78BFA)' }} />
-            <h2 className="text-[#0E0E1A] font-black text-xl tracking-tight">Skill Fingerprint</h2>
+          <div className="flex items-center justify-between gap-2.5 mb-4">
+            <div className="flex items-center gap-2.5">
+              <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#A78BFA)' }} />
+              <h2 className="text-[#0E0E1A] font-black text-xl tracking-tight">Skill Fingerprint</h2>
+            </div>
           </div>
-          <div className="flex justify-center">
-            <SkillRadar data={profile.skill_quadrant as { hands: number; heart: number; head: number; spark: number; reasoning?: string }} />
-          </div>
+          <SkillSummary data={profile.skill_quadrant as { hands: number; heart: number; head: number; spark: number; reasoning?: string }} />
         </div>
       )}
     </>
@@ -258,28 +258,42 @@ export default async function ProfilePage() {
               <h2 className="text-[#0E0E1A] font-black text-xl tracking-tight">AI Cross-Check</h2>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#059669' }}>◆ across all references</span>
             </div>
-            {report.summary_en && <p className="text-[#3F3F4E] text-sm leading-relaxed mb-4 ml-4">{report.summary_en}</p>}
-            <div className="grid sm:grid-cols-2 gap-4 ml-4">
+            {report.summary_en && <p className="text-[#3F3F4E] text-sm leading-relaxed mb-4">{report.summary_en}</p>}
+            <div className="grid sm:grid-cols-2 gap-3">
               {(report.claims_verified?.length ?? 0) > 0 && (
-                <div>
-                  <p className="text-[#059669] text-[11px] font-bold uppercase tracking-wider mb-2">✓ Independently confirmed</p>
-                  <ul className="space-y-1">{report.claims_verified!.map((c, i) => <li key={i} className="text-[#3F3F4E] text-xs leading-relaxed">· {c}</li>)}</ul>
+                <div className="rounded-xl p-4" style={{ background: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.22)' }}>
+                  <p className="text-[#059669] text-[11px] font-bold uppercase tracking-wider mb-2.5">✓ Independently confirmed</p>
+                  <ul className="space-y-2">
+                    {report.claims_verified!.map((c, i) => (
+                      <li key={i} className="flex gap-2 text-[#3F3F4E] text-xs leading-relaxed">
+                        <svg className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-[#059669]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                        <span>{c}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
               {(report.top_skills?.length ?? 0) > 0 && (
-                <div>
-                  <p className="text-[#0891B2] text-[11px] font-bold uppercase tracking-wider mb-2">Most-cited strengths</p>
-                  <div className="flex flex-wrap gap-1.5">{report.top_skills!.map((s, i) => <span key={i} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.1)', color: '#0891B2' }}>{s}</span>)}</div>
+                <div className="rounded-xl p-4" style={{ background: 'rgba(6,182,212,0.07)', border: '1px solid rgba(6,182,212,0.22)' }}>
+                  <p className="text-[#0891B2] text-[11px] font-bold uppercase tracking-wider mb-2.5">Most-cited strengths</p>
+                  <div className="flex flex-wrap gap-1.5">{report.top_skills!.map((s, i) => <span key={i} className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(6,182,212,0.14)', color: '#0891B2' }}>{s}</span>)}</div>
                 </div>
               )}
             </div>
             {(report.conflicts?.length ?? 0) > 0 && (
-              <div className="ml-4 mt-4 pt-3 border-t border-[#0E0E1A]/[0.08]">
-                <p className="text-[#D97706] text-[11px] font-bold uppercase tracking-wider mb-2">⚠ Differing perspectives</p>
-                {report.conflicts!.map((c, i) => <div key={i} className="mb-2"><p className="text-[#3F3F4E] text-xs font-bold">{c.topic}</p><p className="text-[#5A5A6E] text-[11px] leading-relaxed">{c.note}</p></div>)}
+              <div className="mt-3 rounded-xl p-4" style={{ background: 'rgba(217,119,6,0.06)', border: '1px solid rgba(217,119,6,0.18)' }}>
+                <p className="text-[#B45309] text-[11px] font-bold uppercase tracking-wider mb-2.5">⚖ Differing perspectives <span className="text-[#8A8A99] normal-case font-medium">— flagged, not hidden</span></p>
+                <div className="space-y-2.5">
+                  {report.conflicts!.map((c, i) => (
+                    <div key={i} className="flex gap-2.5">
+                      <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full mt-1.5" style={{ background: '#D97706' }} />
+                      <div><p className="text-[#3F3F4E] text-xs font-bold">{c.topic}</p><p className="text-[#5A5A6E] text-[11px] leading-relaxed">{c.note}</p></div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
-            {report.tone_summary && <p className="text-[#8A8A99] text-[11px] mt-3 ml-4 italic">Overall tone: {report.tone_summary}</p>}
+            {report.tone_summary && <p className="text-[#8A8A99] text-[11px] mt-3 italic">Overall tone: {report.tone_summary}</p>}
           </div>
         )
       })()}
@@ -388,7 +402,7 @@ export default async function ProfilePage() {
             {workHistory.map((job, i) => (
               <div key={i} className={i > 0 ? 'pt-6 border-t border-[#0E0E1A]/[0.08]' : ''}>
                 <div className="flex items-start justify-between gap-2 mb-1">
-                  <div><p className="text-[#0E0E1A] font-bold">{job.title || '—'}</p><p className="text-[#5A5A6E] text-sm">{job.company || '—'}</p></div>
+                  <div><p className="text-[#0E0E1A] font-bold">{job.title || '—'}</p><p className="text-sm font-semibold" style={{ color: '#0891B2' }}>{job.company || '—'}</p></div>
                   <p className="text-[#8A8A99] text-xs text-right flex-shrink-0">{job.start}{job.end ? ` – ${job.end}` : ''}</p>
                 </div>
                 {job.achievements && <p className="text-[#5A5A6E] text-sm leading-relaxed mt-2">{job.achievements}</p>}
@@ -436,14 +450,36 @@ export default async function ProfilePage() {
   )
 
   // ─── CAREER ───
+  const learningPanel = (
+    <ContinuousLearning view="learning"
+      data={(profile.continuous_learning as Parameters<typeof ContinuousLearning>[0]['data']) ?? null}
+      roadmap={(profile.career_recommendations as Parameters<typeof ContinuousLearning>[0]['roadmap']) ?? null}
+      isPro={profile.cv_tier === 'pro'}
+      resilienceScore={(profile.ai_resilience_score as number | null) ?? null}
+    />
+  )
+
   const careerPanel = (
+    <ContinuousLearning view="career"
+      data={(profile.continuous_learning as Parameters<typeof ContinuousLearning>[0]['data']) ?? null}
+      roadmap={(profile.career_recommendations as Parameters<typeof ContinuousLearning>[0]['roadmap']) ?? null}
+      isPro={profile.cv_tier === 'pro'}
+      resilienceScore={(profile.ai_resilience_score as number | null) ?? null}
+    />
+  )
+
+  const testsPanel = (
     <>
-      <ContinuousLearning
-        data={(profile.continuous_learning as Parameters<typeof ContinuousLearning>[0]['data']) ?? null}
-        roadmap={(profile.career_recommendations as Parameters<typeof ContinuousLearning>[0]['roadmap']) ?? null}
-        isPro={profile.cv_tier === 'pro'}
-        resilienceScore={(profile.ai_resilience_score as number | null) ?? null}
-      />
+      {profile.skill_quadrant && (
+        <div className="gradient-border-card rounded-2xl p-6">
+          <div className="flex items-center gap-2.5 mb-4">
+            <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#A78BFA)' }} />
+            <h2 className="text-[#0E0E1A] font-black text-xl tracking-tight">Skill Fingerprint</h2>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#EDE9FE', color: '#7C3AED' }}>◆ Shapi-assessed</span>
+          </div>
+          <div className="flex justify-center"><SkillRadar data={profile.skill_quadrant as { hands: number; heart: number; head: number; spark: number; reasoning?: string }} /></div>
+        </div>
+      )}
 
       {/* Work style */}
       {(() => {
@@ -489,8 +525,15 @@ export default async function ProfilePage() {
         )
       })()}
 
-      {/* CV download card */}
+    </>
+  )
+
+  const cvPanel = (
+    <>
       <CVDownloadButton cvParsed={!!profile.cv_parsed} cvKitPurchased={cvKitPurchased} cvTier={profile.cv_tier as string | null} />
+      <div className="gradient-border-card rounded-2xl p-5">
+        <p className="text-[#5A5A6E] text-xs leading-relaxed">📄 <strong className="text-[#0E0E1A]">Download CV</strong> gives your <strong className="text-[#0E0E1A]">universal CV</strong> (all industries). Open the Kit above for language- and industry-targeted versions to send to specific companies.</p>
+      </div>
     </>
   )
 
@@ -513,7 +556,7 @@ export default async function ProfilePage() {
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-[320px_1fr] gap-6 items-start">
           {identityPanel}
-          <ProfileTabs labels={['Overview', 'Verification', 'Experience', 'Career']} panels={[overviewPanel, verificationPanel, experiencePanel, careerPanel]} />
+          <ProfileTabs labels={['Overview', 'Verification', 'Experience', 'Career', 'Learning', 'Tests', 'CV']} panels={[overviewPanel, verificationPanel, experiencePanel, careerPanel, learningPanel, testsPanel, cvPanel]} />
         </div>
       </div>
     </div>

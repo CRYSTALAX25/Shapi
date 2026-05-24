@@ -113,7 +113,7 @@ export default function Evidence() {
           background: 'linear-gradient(135deg, #A78BFA, #22D3EE)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
-        <Link href="/dashboard" className="text-[#5A5A6E] text-sm hover:text-[#3F3F4E] transition-colors">← Dashboard</Link>
+        <Link href="/profile?tab=verification" className="text-[#5A5A6E] text-sm hover:text-[#3F3F4E] transition-colors">← Profile</Link>
       </nav>
 
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-10 pb-20">

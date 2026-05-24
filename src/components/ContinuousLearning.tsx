@@ -60,12 +60,17 @@ export default function ContinuousLearning({
   roadmap,
   isPro,
   resilienceScore,
+  view = 'all',
 }: {
   data: ContinuousLearningData | null
   roadmap: Roadmap | null
   isPro: boolean
   resilienceScore: number | null
+  // 'career' = roadmap (resilience + pivot roles); 'learning' = courses done + advised; 'all' = both
+  view?: 'all' | 'career' | 'learning'
 }) {
+  const showLearning = view === 'all' || view === 'learning'
+  const showCareer = view === 'all' || view === 'career'
   const [generating, setGenerating] = useState(false)
   const [localRoadmap, setLocalRoadmap] = useState<Roadmap | null>(roadmap)
   const [error, setError] = useState('')
@@ -143,19 +148,20 @@ export default function ContinuousLearning({
       <div className="flex items-start justify-between mb-1">
         <div className="flex items-center gap-2.5">
           <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#A78BFA)' }} />
-          <h2 className="text-[#0E0E1A] font-black text-xl tracking-tight">Continuous Learning</h2>
+          <h2 className="text-[#0E0E1A] font-black text-xl tracking-tight">{view === 'career' ? 'Career roadmap' : view === 'learning' ? 'Learning' : 'Continuous Learning'}</h2>
         </div>
         {isPro && (
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.10)', color: '#7C3AED' }}>Pro ✓</span>
         )}
       </div>
-      <p className="text-[#8A8A99] text-xs mb-5 ml-4">What you&apos;ve done — and where to grow next.</p>
+      <p className="text-[#8A8A99] text-xs mb-5 ml-4">{view === 'career' ? 'Where you’re headed — resilience and pivot paths.' : view === 'learning' ? 'What you’ve done — and what to learn next.' : 'What you’ve done — and where to grow next.'}</p>
 
-      {/* ─── HALF 1: PASSIVE ─── */}
-      {!hasAny && trackedCourses.length === 0 && (
+      {/* ─── HALF 1: PASSIVE (Learning) ─── */}
+      {showLearning && !hasAny && trackedCourses.length === 0 && (
         <p className="text-[#8A8A99] text-sm mb-6">No certifications, events, talks, OSS, or courses detected on your CV yet. Add them via your profile to strengthen credibility.</p>
       )}
 
+      {showLearning && (<>
       {/* Tracked courses from /upskill — with verification marks */}
       {trackedCourses.length > 0 && (
         <div className="mb-5">
@@ -242,9 +248,10 @@ export default function ContinuousLearning({
           ))}
         </div>
       )}
+      </>)}
 
       {/* ─── HALF 2: CAREER ROADMAP (Pro only) ─── */}
-      <div className="mt-8 pt-6 border-t border-[#0E0E1A]/[0.08]">
+      <div className={view === 'all' ? 'mt-8 pt-6 border-t border-[#0E0E1A]/[0.08]' : ''}>
         {!isPro && (
           <div className="rounded-2xl p-5" style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.2)' }}>
             <p className="text-[#7C3AED] text-xs font-bold uppercase tracking-wider mb-2">🔒 Career Roadmap — Pro feature</p>
@@ -268,7 +275,8 @@ export default function ContinuousLearning({
 
         {isPro && rm && (
           <div>
-            {/* AI Resilience Score */}
+            {/* AI Resilience Score — Career */}
+            {showCareer && (
             <div className="flex items-center gap-4 mb-6 p-4 rounded-2xl" style={{ background: r.bg, border: `1px solid ${r.color}33` }}>
               <div className="text-4xl font-black" style={{ color: r.color }}>{resilienceScore ?? rm.ai_resilience_score}</div>
               <div className="flex-1">
@@ -276,9 +284,10 @@ export default function ContinuousLearning({
                 <p className="text-[#5A5A6E] text-xs leading-relaxed mt-1">{rm.resilience_reasoning}</p>
               </div>
             </div>
+            )}
 
-            {/* Skills gaps */}
-            {rm.skills_gaps?.length > 0 && (
+            {/* Skills gaps — Learning */}
+            {showLearning && rm.skills_gaps?.length > 0 && (
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
@@ -311,8 +320,8 @@ export default function ContinuousLearning({
               </div>
             )}
 
-            {/* Pivot paths */}
-            {rm.pivot_paths?.length > 0 && (
+            {/* Pivot paths — Career */}
+            {showCareer && rm.pivot_paths?.length > 0 && (
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#A78BFA,#FB7185)' }} />
@@ -365,7 +374,7 @@ export default function ContinuousLearning({
 
             {/* Events to attend — full tracking lives on /upskill (single source).
                 Here we just show a compact pointer so the roadmap stays clean. */}
-            {rm.events_to_attend?.length > 0 && (
+            {showLearning && rm.events_to_attend?.length > 0 && (
               <div className="mb-2 p-3 rounded-xl flex items-center justify-between gap-3" style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.15)' }}>
                 <div>
                   <p className="text-[#0E0E1A] font-bold text-sm">📅 {rm.events_to_attend.length} events recommended for you</p>
