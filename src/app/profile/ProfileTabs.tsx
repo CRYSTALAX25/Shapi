@@ -17,7 +17,7 @@ export default function ProfileTabs({ labels, panels }: { labels: string[]; pane
   }, [labels])
   return (
     <div>
-      <div className="flex flex-wrap gap-1 p-1 rounded-2xl mb-5" style={{ background: 'rgba(14,14,26,0.05)', border: '1px solid rgba(14,14,26,0.06)' }}>
+      <div className="flex flex-wrap gap-1 p-1 rounded-2xl mb-5" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
         {labels.map((l, i) => (
           <button
             key={l}
@@ -25,7 +25,7 @@ export default function ProfileTabs({ labels, panels }: { labels: string[]; pane
             className="px-4 py-2 rounded-full text-sm font-bold transition-all"
             style={active === i
               ? { background: 'linear-gradient(135deg,#22D3EE,#A78BFA)', color: '#060609' }
-              : { color: '#5A5A6E', background: 'transparent' }}
+              : { color: '#A6A6B4', background: 'transparent' }}
           >
             {l}
           </button>

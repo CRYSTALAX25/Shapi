@@ -172,7 +172,7 @@ export default async function Dashboard() {
     : `I'm working through your profile. Keep an eye on WhatsApp — I may have a few more questions.`
 
   return (
-    <div className="min-h-screen text-[#0E0E1A]" style={{ background: 'linear-gradient(180deg, #E7F4FA 0%, #EEF5FB 30%, #F3F5FB 100%)' }}>
+    <div className="min-h-screen text-[#F4F4F7]" style={{ background: '#0E0E13' }}>
       <style>{`
         @keyframes gradientShift {
           0%, 100% { background-position: 0% 50%; }
@@ -187,21 +187,21 @@ export default async function Dashboard() {
           animation: gradientShift 5s ease infinite;
         }
         .gradient-border-card {
-          background: linear-gradient(#ffffff, #ffffff) padding-box,
+          background: linear-gradient(#16161F, #16161F) padding-box,
                       linear-gradient(135deg, rgba(34,211,238,0.18), rgba(139,92,246,0.18)) border-box;
           border: 1px solid transparent;
           transition: all 0.25s ease;
-          box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05);
+          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .gradient-border-card:hover {
-          background: linear-gradient(#ffffff, #ffffff) padding-box,
+          background: linear-gradient(#16161F, #16161F) padding-box,
                       linear-gradient(135deg, rgba(34,211,238,0.5), rgba(139,92,246,0.5)) border-box;
-          box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05);
+          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
       `}</style>
 
       {/* Nav — candidate "blue world" band */}
-      <nav className="relative z-20" style={{ background: 'linear-gradient(120deg, #06B6D4 0%, #0891B2 45%, #6D28D9 100%)' }}>
+      <nav className="relative z-20" style={{ background: '#14141C', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div className="px-6 py-4 flex items-center justify-between max-w-6xl mx-auto">
           <Link href="/" className="flex items-center gap-2">
             <ShapiCharacter mood="happy" size={30} />
@@ -229,11 +229,11 @@ export default async function Dashboard() {
           <>
             {/* Header */}
             <div className="mb-5">
-              <h1 className="text-3xl font-black text-[#0E0E1A] mb-1">
+              <h1 className="text-3xl font-black text-[#F4F4F7] mb-1">
                 Welcome{completion > 0 ? ' back' : ''}{firstName ? `, ${firstName}` : ''}.
               </h1>
               {profile?.headline && (
-                <p className="text-[#8A8A99] text-sm">{profile.headline}</p>
+                <p className="text-[#7E7E8E] text-sm">{profile.headline}</p>
               )}
             </div>
 
@@ -244,8 +244,8 @@ export default async function Dashboard() {
                 style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.12), rgba(109,40,217,0.08))', border: '1px solid rgba(6,182,212,0.28)', boxShadow: '0 10px 30px rgba(6,182,212,0.12)' }}>
                 <ShapiCharacter mood={shapiMood} size={84} className="flex-shrink-0" />
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#0891B2' }}>Shapi says</p>
-                  <p className="text-[#0E0E1A] text-sm leading-relaxed font-medium">{shapiMessage}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#22D3EE' }}>Shapi says</p>
+                  <p className="text-[#F4F4F7] text-sm leading-relaxed font-medium">{shapiMessage}</p>
                 </div>
                 {!profile?.cv_parsed && (
                   <Link href="/upload-cv"
@@ -260,7 +260,7 @@ export default async function Dashboard() {
                 <div className="flex items-center gap-6">
                   <div className="relative flex-shrink-0 w-20 h-20">
                     <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
-                      <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(14,14,26,0.08)" strokeWidth="7" />
+                      <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.10)" strokeWidth="7" />
                       <circle cx="40" cy="40" r="34" fill="none" stroke="url(#progGrad)" strokeWidth="7" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={dashOffset} />
                       <defs>
                         <linearGradient id="progGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -270,15 +270,15 @@ export default async function Dashboard() {
                       </defs>
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-sm font-black text-[#0E0E1A]">{completion}%</span>
+                      <span className="text-sm font-black text-[#F4F4F7]">{completion}%</span>
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h2 className="text-xl font-black text-[#0E0E1A] mb-0">{completion}% complete</h2>
-                    <p className="text-[#8A8A99] text-xs mt-1">Profile strength</p>
+                    <h2 className="text-xl font-black text-[#F4F4F7] mb-0">{completion}% complete</h2>
+                    <p className="text-[#7E7E8E] text-xs mt-1">Profile strength</p>
                   </div>
                 </div>
-                <div className="mt-4 h-1 bg-[#0E0E1A]/[0.04] rounded-full overflow-hidden">
+                <div className="mt-4 h-1 bg-white/[0.06] rounded-full overflow-hidden">
                   <div className="h-full rounded-full transition-all" style={{ width: `${completion}%`, background: 'linear-gradient(90deg, #22D3EE, #A78BFA)' }} />
                 </div>
               </div>
@@ -287,30 +287,30 @@ export default async function Dashboard() {
             {/* WhatsApp tips — surfaces hidden intent commands so candidates know what to say */}
             {profile?.whatsapp_number && (
               <details className="gradient-border-card rounded-2xl p-4 mb-5">
-                <summary className="cursor-pointer flex items-center gap-2 text-[#3F3F4E] text-sm font-bold list-none">
+                <summary className="cursor-pointer flex items-center gap-2 text-[#C7C7D1] text-sm font-bold list-none">
                   <span>💡</span>
                   <span>Things you can say in WhatsApp anytime</span>
-                  <span className="ml-auto text-[#8A8A99] text-xs">tap to view</span>
+                  <span className="ml-auto text-[#7E7E8E] text-xs">tap to view</span>
                 </summary>
-                <div className="mt-3 pt-3 border-t border-[#0E0E1A]/[0.08] space-y-3">
+                <div className="mt-3 pt-3 border-t border-white/[0.08] space-y-3">
                   <div>
-                    <p className="text-[#5A5A6E] text-[11px] font-bold uppercase tracking-wider mb-1.5">In any interview</p>
-                    <ul className="text-[#3F3F4E] text-xs leading-relaxed space-y-1.5 pl-1">
-                      <li><span className="font-bold text-[#0891B2]">&quot;skip&quot;</span> / <span className="font-bold text-[#0891B2]">&quot;next&quot;</span> — move to the next question</li>
-                      <li><span className="font-bold text-[#0891B2]">&quot;repeat that&quot;</span> — re-ask the previous question</li>
-                      <li><span className="font-bold text-[#0891B2]">&quot;done&quot;</span> / <span className="font-bold text-[#0891B2]">&quot;pause&quot;</span> — finish or pause (your answers are saved)</li>
-                      <li><span className="font-bold text-[#0891B2]">&quot;start over&quot;</span> — wipe + begin the main interview fresh</li>
-                      <li><span className="font-bold text-[#0891B2]">&quot;I don&apos;t know&quot;</span> — totally fine, we&apos;ll move on</li>
+                    <p className="text-[#A6A6B4] text-[11px] font-bold uppercase tracking-wider mb-1.5">In any interview</p>
+                    <ul className="text-[#C7C7D1] text-xs leading-relaxed space-y-1.5 pl-1">
+                      <li><span className="font-bold text-[#22D3EE]">&quot;skip&quot;</span> / <span className="font-bold text-[#22D3EE]">&quot;next&quot;</span> — move to the next question</li>
+                      <li><span className="font-bold text-[#22D3EE]">&quot;repeat that&quot;</span> — re-ask the previous question</li>
+                      <li><span className="font-bold text-[#22D3EE]">&quot;done&quot;</span> / <span className="font-bold text-[#22D3EE]">&quot;pause&quot;</span> — finish or pause (your answers are saved)</li>
+                      <li><span className="font-bold text-[#22D3EE]">&quot;start over&quot;</span> — wipe + begin the main interview fresh</li>
+                      <li><span className="font-bold text-[#22D3EE]">&quot;I don&apos;t know&quot;</span> — totally fine, we&apos;ll move on</li>
                     </ul>
                   </div>
                   <div>
-                    <p className="text-[#5A5A6E] text-[11px] font-bold uppercase tracking-wider mb-1.5">Anytime, just text</p>
-                    <ul className="text-[#3F3F4E] text-xs leading-relaxed space-y-1.5 pl-1">
-                      <li><span className="font-bold text-[#7C3AED]">&quot;voice&quot;</span> — record a voice sample in each language you speak</li>
-                      <li><span className="font-bold text-[#7C3AED]">&quot;references&quot;</span> — see your reference requests + status</li>
+                    <p className="text-[#A6A6B4] text-[11px] font-bold uppercase tracking-wider mb-1.5">Anytime, just text</p>
+                    <ul className="text-[#C7C7D1] text-xs leading-relaxed space-y-1.5 pl-1">
+                      <li><span className="font-bold text-[#A78BFA]">&quot;voice&quot;</span> — record a voice sample in each language you speak</li>
+                      <li><span className="font-bold text-[#A78BFA]">&quot;references&quot;</span> — see your reference requests + status</li>
                     </ul>
                   </div>
-                  <p className="text-[#5A5A6E] text-xs leading-relaxed pt-1">
+                  <p className="text-[#A6A6B4] text-xs leading-relaxed pt-1">
                     🎙 <strong>Voice notes work in any language</strong> — Arabic, Tagalog, Spanish, Hindi, whatever&apos;s easier. We transcribe + respond in the same language.
                   </p>
                 </div>
@@ -319,19 +319,19 @@ export default async function Dashboard() {
 
             {/* ── Tier label ── */}
             <div className="mb-3 flex items-center gap-2">
-              <span className="text-[#B0B0BC] text-xs font-bold uppercase tracking-wider">Your plan:</span>
+              <span className="text-[#5C5C6A] text-xs font-bold uppercase tracking-wider">Your plan:</span>
               {isConcierge ? (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.18)', color: '#D97706' }}>Active Concierge</span>
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.18)', color: '#FBBF24' }}>Active Concierge</span>
               ) : isActive ? (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(251,113,133,0.15)', color: '#E11D48' }}>Shapi Active</span>
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(251,113,133,0.15)', color: '#FB7185' }}>Shapi Active</span>
               ) : isRolesBoard ? (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.12)', color: '#0891B2' }}>Open Roles Board</span>
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.12)', color: '#22D3EE' }}>Open Roles Board</span>
               ) : profile?.cv_tier === 'pro' ? (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.18)', color: '#7C3AED' }}>CV Pro</span>
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.18)', color: '#A78BFA' }}>CV Pro</span>
               ) : cvKitPurchased ? (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.12)', color: '#7C3AED' }}>CV Kit</span>
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.12)', color: '#A78BFA' }}>CV Kit</span>
               ) : (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(14,14,26,0.04)', color: '#8A8A99' }}>Free</span>
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#7E7E8E' }}>Free</span>
               )}
             </div>
 
@@ -343,33 +343,33 @@ export default async function Dashboard() {
                 <div className="gradient-border-card rounded-2xl p-6">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-0.5">
-                        <h3 className="font-bold text-[#0E0E1A] text-sm">CV uploaded & parsed</h3>
-                        <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-600 px-2 py-0.5 rounded-full">Done</span>
+                        <h3 className="font-bold text-[#F4F4F7] text-sm">CV uploaded & parsed</h3>
+                        <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">Done</span>
                       </div>
-                      <p className="text-[#8A8A99] text-xs">Skills extracted. Profile building in progress.</p>
+                      <p className="text-[#7E7E8E] text-xs">Skills extracted. Profile building in progress.</p>
                     </div>
                   </div>
                 </div>
               ) : (
-                <Link href="/upload-cv" className="gradient-border-card rounded-2xl p-6 block hover:bg-[#0E0E1A]/[0.03]">
+                <Link href="/upload-cv" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05]">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-[#22D3EE]/15 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-5 h-5 text-[#0891B2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-[#22D3EE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-0.5">
-                        <h3 className="font-bold text-[#0E0E1A] text-sm">Upload your CV</h3>
+                        <h3 className="font-bold text-[#F4F4F7] text-sm">Upload your CV</h3>
                         <span className="text-[10px] font-bold bg-[#22D3EE]/15 text[#22D3EE] px-2 py-0.5 rounded-full">Start here →</span>
                       </div>
-                      <p className="text-[#8A8A99] text-xs">Drop it and we build your profile. 3 minutes.</p>
+                      <p className="text-[#7E7E8E] text-xs">Drop it and we build your profile. 3 minutes.</p>
                     </div>
                   </div>
                 </Link>
@@ -380,16 +380,16 @@ export default async function Dashboard() {
                 <div className="gradient-border-card rounded-2xl p-6">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-0.5">
-                        <h3 className="font-bold text-[#0E0E1A] text-sm">WhatsApp connected</h3>
-                        <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-600 px-2 py-0.5 rounded-full">Active</span>
+                        <h3 className="font-bold text-[#F4F4F7] text-sm">WhatsApp connected</h3>
+                        <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">Active</span>
                       </div>
-                      <p className="text-[#8A8A99] text-xs">{profile.whatsapp_number} — expect a message from us.</p>
+                      <p className="text-[#7E7E8E] text-xs">{profile.whatsapp_number} — expect a message from us.</p>
                     </div>
                   </div>
                 </div>
@@ -397,13 +397,13 @@ export default async function Dashboard() {
                 <div className="gradient-border-card rounded-2xl p-6 opacity-50">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-[#A78BFA]/15 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-5 h-5 text-[#7C3AED]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-[#A78BFA]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-bold text-[#0E0E1A] text-sm mb-0.5">WhatsApp deep-dive</h3>
-                      <p className="text-[#8A8A99] text-xs">Complete CV upload to add your number.</p>
+                      <h3 className="font-bold text-[#F4F4F7] text-sm mb-0.5">WhatsApp deep-dive</h3>
+                      <p className="text-[#7E7E8E] text-xs">Complete CV upload to add your number.</p>
                     </div>
                   </div>
                 </div>
@@ -411,60 +411,60 @@ export default async function Dashboard() {
 
               {/* CV Kit CTA — only if not yet purchased */}
               {!cvKitPurchased && profile?.cv_parsed && (
-                <Link href="/pay" className="gradient-border-card rounded-2xl p-6 block hover:bg-[#0E0E1A]/[0.03] sm:col-span-2 lg:col-span-3" style={{
-                  background: 'linear-gradient(#ffffff,#ffffff) padding-box, linear-gradient(135deg,rgba(167,139,250,0.3),rgba(34,211,238,0.2)) border-box',
+                <Link href="/pay" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05] sm:col-span-2 lg:col-span-3" style={{
+                  background: 'linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg,rgba(167,139,250,0.3),rgba(34,211,238,0.2)) border-box',
                   border: '1px solid transparent',
-                  boxShadow: '0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05)',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)',
                 }}>
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-bold text-[#0E0E1A] text-sm">Get your enhanced CV</h3>
-                        <span className="text-[10px] font-bold bg-[#A78BFA]/15 text-[#7C3AED] px-2 py-0.5 rounded-full">From $25 one-time</span>
+                        <h3 className="font-bold text-[#F4F4F7] text-sm">Get your enhanced CV</h3>
+                        <span className="text-[10px] font-bold bg-[#A78BFA]/15 text-[#A78BFA] px-2 py-0.5 rounded-full">From $25 one-time</span>
                       </div>
-                      <p className="text-[#8A8A99] text-xs">English + native language version, industry-optimised, send to WhatsApp or email.</p>
+                      <p className="text-[#7E7E8E] text-xs">English + native language version, industry-optimised, send to WhatsApp or email.</p>
                     </div>
-                    <span className="text-[#7C3AED] font-black text-sm flex-shrink-0">Unlock →</span>
+                    <span className="text-[#A78BFA] font-black text-sm flex-shrink-0">Unlock →</span>
                   </div>
                 </Link>
               )}
 
               {/* CV Kit done */}
               {cvKitPurchased && (
-                <Link href="/cv-ready" className="gradient-border-card rounded-2xl p-6 block hover:bg-[#0E0E1A]/[0.03]">
+                <Link href="/cv-ready" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05]">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-0.5">
-                        <h3 className="font-bold text-[#0E0E1A] text-sm">CV Kit</h3>
-                        <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-600 px-2 py-0.5 rounded-full">Ready ✓</span>
+                        <h3 className="font-bold text-[#F4F4F7] text-sm">CV Kit</h3>
+                        <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">Ready ✓</span>
                       </div>
-                      <p className="text-[#8A8A99] text-xs">Your enhanced CV is ready — download or send it.</p>
+                      <p className="text-[#7E7E8E] text-xs">Your enhanced CV is ready — download or send it.</p>
                     </div>
                   </div>
                 </Link>
               )}
 
               {/* Independent verification — visible for ALL candidates (references are part of the standard 75→100% completion) */}
-              <Link href="/profile/references" className="gradient-border-card rounded-2xl p-6 block hover:bg-[#0E0E1A]/[0.03]">
+              <Link href="/profile/references" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05]">
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${refScore.jobsComplete === 2 ? 'bg-emerald-500/15' : refScore.jobsComplete === 1 ? 'bg-amber-500/15' : 'bg-[#0E0E1A]/[0.04]'}`}>
-                    <svg className={`w-5 h-5 ${refScore.jobsComplete === 2 ? 'text-emerald-600' : refScore.jobsComplete === 1 ? 'text-amber-600' : 'text-[#8A8A99]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${refScore.jobsComplete === 2 ? 'bg-emerald-500/15' : refScore.jobsComplete === 1 ? 'bg-amber-500/15' : 'bg-white/[0.05]'}`}>
+                    <svg className={`w-5 h-5 ${refScore.jobsComplete === 2 ? 'text-emerald-400' : refScore.jobsComplete === 1 ? 'text-amber-400' : 'text-[#7E7E8E]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={refScore.jobsComplete === 2 ? 2 : 1.5} d={refScore.jobsComplete === 2 ? 'M5 13l4 4L19 7' : 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'} />
                     </svg>
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <h3 className="font-bold text-[#0E0E1A] text-sm">Independent verification</h3>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${refScore.jobsComplete === 2 ? 'bg-emerald-500/15 text-emerald-600' : refScore.jobsComplete === 1 ? 'bg-amber-500/15 text-amber-600' : 'bg-[#0E0E1A]/[0.04] text-[#8A8A99]'}`}>
+                      <h3 className="font-bold text-[#F4F4F7] text-sm">Independent verification</h3>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${refScore.jobsComplete === 2 ? 'bg-emerald-500/15 text-emerald-400' : refScore.jobsComplete === 1 ? 'bg-amber-500/15 text-amber-400' : 'bg-white/[0.05] text-[#7E7E8E]'}`}>
                         {refScore.jobsComplete} of 2 jobs ✓
                       </span>
                     </div>
-                    <p className="text-[#8A8A99] text-xs">
+                    <p className="text-[#7E7E8E] text-xs">
                       {refScore.jobsComplete === 2
                         ? 'Both jobs verified — manager + colleague + stakeholder each.'
                         : refScore.jobsComplete === 1
@@ -476,29 +476,29 @@ export default async function Dashboard() {
               </Link>
 
               {/* Work evidence — visible for ALL candidates */}
-              <Link href="/evidence" className="gradient-border-card rounded-2xl p-6 block hover:bg-[#0E0E1A]/[0.03]">
+              <Link href="/evidence" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05]">
                 <div className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${evidenceCount > 0 ? 'bg-emerald-500/15' : 'bg-[#FB7185]/15'}`}>
                     {evidenceCount > 0 ? (
-                      <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     ) : (
-                      <svg className="w-5 h-5 text-[#E11D48]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-[#FB7185]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     )}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <h3 className="font-bold text-[#0E0E1A] text-sm">Work evidence</h3>
+                      <h3 className="font-bold text-[#F4F4F7] text-sm">Work evidence</h3>
                       {evidenceCount > 0 ? (
-                        <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-600 px-2 py-0.5 rounded-full">{evidenceCount} file{evidenceCount !== 1 ? 's' : ''} ✓</span>
+                        <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">{evidenceCount} file{evidenceCount !== 1 ? 's' : ''} ✓</span>
                       ) : (
-                        <span className="text-[10px] font-bold bg-[#FB7185]/15 text-[#E11D48] px-2 py-0.5 rounded-full">Add now</span>
+                        <span className="text-[10px] font-bold bg-[#FB7185]/15 text-[#FB7185] px-2 py-0.5 rounded-full">Add now</span>
                       )}
                     </div>
-                    <p className="text-[#8A8A99] text-xs">{evidenceCount > 0 ? 'Photos and docs uploaded — adds weight to your profile.' : 'Photos and docs that prove your experience.'}</p>
+                    <p className="text-[#7E7E8E] text-xs">{evidenceCount > 0 ? 'Photos and docs uploaded — adds weight to your profile.' : 'Photos and docs that prove your experience.'}</p>
                   </div>
                 </div>
               </Link>
@@ -508,27 +508,27 @@ export default async function Dashboard() {
                 const rtw = Array.isArray(profile?.right_to_work) ? (profile!.right_to_work as Array<{ region?: string }>).filter(r => r.region) : []
                 const has = rtw.length > 0
                 return (
-                  <Link href="/profile/edit" className="gradient-border-card rounded-2xl p-6 block hover:bg-[#0E0E1A]/[0.03] transition-colors">
+                  <Link href="/profile/edit" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05] transition-colors">
                     <div className="flex items-center gap-4">
                       <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${has ? 'bg-emerald-500/15' : 'bg-[#22D3EE]/15'}`}>
                         {has ? (
-                          <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
                         ) : (
-                          <svg className="w-5 h-5 text-[#0891B2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5 text-[#22D3EE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                         )}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <h3 className="font-bold text-[#0E0E1A] text-sm">Right to work</h3>
+                          <h3 className="font-bold text-[#F4F4F7] text-sm">Right to work</h3>
                           {has
-                            ? <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-600 px-2 py-0.5 rounded-full">{rtw.length} added ✓</span>
-                            : <span className="text-[10px] font-bold bg-[#22D3EE]/15 text-[#0891B2] px-2 py-0.5 rounded-full">Add now</span>}
+                            ? <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">{rtw.length} added ✓</span>
+                            : <span className="text-[10px] font-bold bg-[#22D3EE]/15 text-[#22D3EE] px-2 py-0.5 rounded-full">Add now</span>}
                         </div>
-                        <p className="text-[#8A8A99] text-xs">{has ? rtw.map(r => r.region).slice(0, 3).join(' · ') : 'Where you’re authorised to work — a key signal for employers.'}</p>
+                        <p className="text-[#7E7E8E] text-xs">{has ? rtw.map(r => r.region).slice(0, 3).join(' · ') : 'Where you’re authorised to work — a key signal for employers.'}</p>
                       </div>
                     </div>
                   </Link>
@@ -536,37 +536,37 @@ export default async function Dashboard() {
               })()}
 
               {/* Courses / learning */}
-              <Link href="/upskill" className="gradient-border-card rounded-2xl p-6 block hover:bg-[#0E0E1A]/[0.03] transition-colors">
+              <Link href="/upskill" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05] transition-colors">
                 <div className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${(coursesInProgress + coursesCompleted) > 0 ? 'bg-emerald-500/15' : 'bg-[#A78BFA]/15'}`}>
                     <span className="text-lg">🎓</span>
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <h3 className="font-bold text-[#0E0E1A] text-sm">Courses & learning</h3>
+                      <h3 className="font-bold text-[#F4F4F7] text-sm">Courses & learning</h3>
                       {(coursesInProgress + coursesCompleted) > 0
-                        ? <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-600 px-2 py-0.5 rounded-full">{coursesCompleted} done · {coursesInProgress} learning</span>
-                        : <span className="text-[10px] font-bold bg-[#A78BFA]/15 text-[#7C3AED] px-2 py-0.5 rounded-full">Browse</span>}
+                        ? <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">{coursesCompleted} done · {coursesInProgress} learning</span>
+                        : <span className="text-[10px] font-bold bg-[#A78BFA]/15 text-[#A78BFA] px-2 py-0.5 rounded-full">Browse</span>}
                     </div>
-                    <p className="text-[#8A8A99] text-xs">{(coursesInProgress + coursesCompleted) > 0 ? 'Verified learning shows companies real growth.' : 'Close your skill gaps — free, paid or financed.'}</p>
+                    <p className="text-[#7E7E8E] text-xs">{(coursesInProgress + coursesCompleted) > 0 ? 'Verified learning shows companies real growth.' : 'Close your skill gaps — free, paid or financed.'}</p>
                   </div>
                 </div>
               </Link>
 
               {/* Work style */}
-              <Link href="/work-style" className="gradient-border-card rounded-2xl p-6 block hover:bg-[#0E0E1A]/[0.03] transition-colors">
+              <Link href="/work-style" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05] transition-colors">
                 <div className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${profile?.work_style ? 'bg-emerald-500/15' : 'bg-[#FB7185]/15'}`}>
                     <span className="text-lg">🧭</span>
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <h3 className="font-bold text-[#0E0E1A] text-sm">Work style</h3>
+                      <h3 className="font-bold text-[#F4F4F7] text-sm">Work style</h3>
                       {profile?.work_style
-                        ? <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-600 px-2 py-0.5 rounded-full">Done ✓</span>
-                        : <span className="text-[10px] font-bold bg-[#FB7185]/15 text-[#E11D48] px-2 py-0.5 rounded-full">2 min</span>}
+                        ? <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">Done ✓</span>
+                        : <span className="text-[10px] font-bold bg-[#FB7185]/15 text-[#FB7185] px-2 py-0.5 rounded-full">2 min</span>}
                     </div>
-                    <p className="text-[#8A8A99] text-xs">{profile?.work_style ? 'How you prefer to work — shown to companies.' : 'Quick check — how you work best (team vs solo, etc.).'}</p>
+                    <p className="text-[#7E7E8E] text-xs">{profile?.work_style ? 'How you prefer to work — shown to companies.' : 'Quick check — how you work best (team vs solo, etc.).'}</p>
                   </div>
                 </div>
               </Link>
@@ -575,22 +575,22 @@ export default async function Dashboard() {
               {/* Concierge queue — today's AI-drafted outreach */}
               {isConcierge && (
               <div className="sm:col-span-2 lg:col-span-3 rounded-2xl p-6" style={{
-                background: 'linear-gradient(#ffffff,#ffffff) padding-box, linear-gradient(135deg,rgba(251,191,36,0.35),rgba(251,113,133,0.25)) border-box',
+                background: 'linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg,rgba(251,191,36,0.35),rgba(251,113,133,0.25)) border-box',
                 border: '1px solid transparent',
-                boxShadow: '0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05)',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)',
               }}>
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
-                    <p className="text-[#D97706] text-xs font-bold uppercase tracking-wider mb-1">Concierge · today's shortlist</p>
-                    <h3 className="font-black text-[#0E0E1A] text-lg">
+                    <p className="text-[#FBBF24] text-xs font-bold uppercase tracking-wider mb-1">Concierge · today's shortlist</p>
+                    <h3 className="font-black text-[#F4F4F7] text-lg">
                       {conciergeDrafts.length > 0
                         ? `${conciergeDrafts.length} role${conciergeDrafts.length === 1 ? '' : 's'} matched · ready to send`
                         : 'No new matches today'}
                     </h3>
-                    <p className="text-[#5A5A6E] text-xs mt-1">AI scans open roles every morning and drafts personalised intros — you review, approve, send.</p>
+                    <p className="text-[#A6A6B4] text-xs mt-1">AI scans open roles every morning and drafts personalised intros — you review, approve, send.</p>
                   </div>
                   <form action="/api/concierge/scan" method="POST">
-                    <button type="submit" className="text-[#D97706] text-xs font-bold border border-[#FBBF24]/30 hover:border-[#FBBF24]/60 px-3 py-1.5 rounded-full transition-colors">
+                    <button type="submit" className="text-[#FBBF24] text-xs font-bold border border-[#FBBF24]/30 hover:border-[#FBBF24]/60 px-3 py-1.5 rounded-full transition-colors">
                       Refresh now
                     </button>
                   </form>
@@ -600,36 +600,36 @@ export default async function Dashboard() {
                     {conciergeDrafts.slice(0, 3).map(draft => {
                       const role = conciergeRoleMap[draft.role_id]
                       return (
-                        <div key={draft.id} className="bg-[#0E0E1A]/[0.04] rounded-xl p-3 border border-[#0E0E1A]/[0.08]">
+                        <div key={draft.id} className="bg-white/[0.05] rounded-xl p-3 border border-white/[0.08]">
                           <div className="flex items-center justify-between mb-1">
                             <div>
-                              <p className="text-[#0E0E1A] text-sm font-bold">{role?.title || 'Role'}</p>
-                              <p className="text-[#5A5A6E] text-xs">{role?.company_name || ''}</p>
+                              <p className="text-[#F4F4F7] text-sm font-bold">{role?.title || 'Role'}</p>
+                              <p className="text-[#A6A6B4] text-xs">{role?.company_name || ''}</p>
                             </div>
-                            <span className="text-[#D97706] text-xs font-black">{draft.match_score}%</span>
+                            <span className="text-[#FBBF24] text-xs font-black">{draft.match_score}%</span>
                           </div>
                           {draft.draft_subject && (
-                            <p className="text-[#5A5A6E] text-xs mt-2 italic">&ldquo;{draft.draft_subject}&rdquo;</p>
+                            <p className="text-[#A6A6B4] text-xs mt-2 italic">&ldquo;{draft.draft_subject}&rdquo;</p>
                           )}
-                          <p className="text-[#8A8A99] text-[11px] mt-1 line-clamp-2">{draft.draft_body.slice(0, 220)}</p>
+                          <p className="text-[#7E7E8E] text-[11px] mt-1 line-clamp-2">{draft.draft_body.slice(0, 220)}</p>
                           <div className="flex items-center justify-between mt-2">
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                              draft.status === 'sent' ? 'bg-emerald-500/15 text-emerald-600' :
-                              draft.status === 'approved' ? 'bg-[#22D3EE]/15 text-[#0891B2]' :
-                              draft.status === 'auto_send' ? 'bg-[#FBBF24]/15 text-[#D97706]' :
-                              'bg-[#0E0E1A]/[0.04] text-[#5A5A6E]'
+                              draft.status === 'sent' ? 'bg-emerald-500/15 text-emerald-400' :
+                              draft.status === 'approved' ? 'bg-[#22D3EE]/15 text-[#22D3EE]' :
+                              draft.status === 'auto_send' ? 'bg-[#FBBF24]/15 text-[#FBBF24]' :
+                              'bg-white/[0.05] text-[#A6A6B4]'
                             }`}>
                               {draft.status.replace('_', ' ')}
                             </span>
                             {draft.match_reasons && draft.match_reasons.length > 0 && (
-                              <span className="text-[#8A8A99] text-[10px]">{draft.match_reasons[0]}</span>
+                              <span className="text-[#7E7E8E] text-[10px]">{draft.match_reasons[0]}</span>
                             )}
                           </div>
                         </div>
                       )
                     })}
                     {conciergeDrafts.length > 3 && (
-                      <p className="text-[#8A8A99] text-[11px] text-center">+ {conciergeDrafts.length - 3} more in queue</p>
+                      <p className="text-[#7E7E8E] text-[11px] text-center">+ {conciergeDrafts.length - 3} more in queue</p>
                     )}
                   </div>
                 )}
@@ -641,19 +641,19 @@ export default async function Dashboard() {
               <div className={`gradient-border-card rounded-2xl p-6 sm:col-span-2 lg:col-span-3 ${shortlistedByCount === 0 ? 'opacity-50' : ''}`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[#8A8A99] text-xs font-bold uppercase tracking-wider mb-1">Company signals</p>
-                    <h3 className="font-bold text-[#0E0E1A] mb-1">
+                    <p className="text-[#7E7E8E] text-xs font-bold uppercase tracking-wider mb-1">Company signals</p>
+                    <h3 className="font-bold text-[#F4F4F7] mb-1">
                       {shortlistedByCount > 0
                         ? `${shortlistedByCount} compan${shortlistedByCount === 1 ? 'y has' : 'ies have'} shortlisted you`
                         : 'Complete your profile to unlock matches'}
                     </h3>
-                    <p className="text-[#8A8A99] text-xs">
+                    <p className="text-[#7E7E8E] text-xs">
                       {shortlistedByCount > 0
                         ? `You've expressed interest in ${interestedRolesCount} role${interestedRolesCount !== 1 ? 's' : ''}. Mutual matches trigger introductions.`
                         : 'Once verified, matched companies can view and reach out to you.'}
                     </p>
                   </div>
-                  <div className="text-5xl font-black" style={{ color: shortlistedByCount > 0 ? '#0891B2' : 'rgba(14,14,26,0.10)' }}>
+                  <div className="text-5xl font-black" style={{ color: shortlistedByCount > 0 ? '#22D3EE' : 'rgba(255,255,255,0.10)' }}>
                     {shortlistedByCount}
                   </div>
                 </div>
@@ -664,27 +664,27 @@ export default async function Dashboard() {
 
             {/* ─── Open Roles Board ─── */}
             <div className="mt-4">
-              <Link href="/roles" className="gradient-border-card rounded-2xl p-6 flex items-center justify-between hover:bg-[#0E0E1A]/[0.03] transition-all">
+              <Link href="/roles" className="gradient-border-card rounded-2xl p-6 flex items-center justify-between hover:bg-white/[0.05] transition-all">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                     style={{ background: 'linear-gradient(135deg, rgba(34,211,238,0.15), rgba(139,92,246,0.15))' }}>
-                    <svg className="w-5 h-5 text-[#0891B2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-[#22D3EE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-bold text-[#0E0E1A] text-sm mb-0.5">Open roles board</h3>
-                    <p className="text-[#8A8A99] text-xs">Browse verified company roles ranked by your match score.</p>
+                    <h3 className="font-bold text-[#F4F4F7] text-sm mb-0.5">Open roles board</h3>
+                    <p className="text-[#7E7E8E] text-xs">Browse verified company roles ranked by your match score.</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   {interestedRolesCount > 0 && (
                     <span className="text-xs font-bold px-2.5 py-1 rounded-full"
-                      style={{ background: 'rgba(34,211,238,0.12)', color: '#0891B2' }}>
+                      style={{ background: 'rgba(34,211,238,0.12)', color: '#22D3EE' }}>
                       {interestedRolesCount} interested
                     </span>
                   )}
-                  <svg className="w-4 h-4 text-[#8A8A99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-[#7E7E8E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
@@ -702,15 +702,15 @@ export default async function Dashboard() {
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-xs font-bold px-2.5 py-1 rounded-full"
-                        style={{ background: 'rgba(251,113,133,0.2)', color: '#E11D48' }}>
+                        style={{ background: 'rgba(251,113,133,0.2)', color: '#FB7185' }}>
                         NEW
                       </span>
-                      <h3 className="font-bold text-[#0E0E1A]">Shapi Active</h3>
+                      <h3 className="font-bold text-[#F4F4F7]">Shapi Active</h3>
                     </div>
-                    <p className="text-[#5A5A6E] text-sm mb-3">
+                    <p className="text-[#A6A6B4] text-sm mb-3">
                       Scan for jobs, draft personalised outreach, track applications, prep for interviews — all in one place.
                     </p>
-                    <div className="flex items-center gap-4 text-xs text-[#8A8A99]">
+                    <div className="flex items-center gap-4 text-xs text-[#7E7E8E]">
                       <span>🔍 Job scanner</span>
                       <span>✉️ Email drafter</span>
                       <span>📋 Application tracker</span>
@@ -719,12 +719,12 @@ export default async function Dashboard() {
                   </div>
                   <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-4">
                     {activeApplicationsCount > 0 && (
-                      <span className="text-2xl font-black" style={{ color: '#E11D48' }}>{activeApplicationsCount}</span>
+                      <span className="text-2xl font-black" style={{ color: '#FB7185' }}>{activeApplicationsCount}</span>
                     )}
                     {activeApplicationsCount > 0 && (
-                      <span className="text-[#8A8A99] text-[10px]">applications</span>
+                      <span className="text-[#7E7E8E] text-[10px]">applications</span>
                     )}
-                    <svg className="w-5 h-5 text-[#8A8A99] mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-[#7E7E8E] mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </div>
@@ -738,43 +738,43 @@ export default async function Dashboard() {
         {type === 'company' && (
           <>
             <div className="mb-8">
-              <h1 className="text-3xl font-black text-[#0E0E1A] mb-1">
+              <h1 className="text-3xl font-black text-[#F4F4F7] mb-1">
                 Welcome{completion > 0 ? ' back' : ''}{firstName ? `, ${firstName}` : ''}.
               </h1>
-              <p className="text-[#8A8A99] text-sm">Post jobs, review verified candidates, manage your pipeline.</p>
+              <p className="text-[#7E7E8E] text-sm">Post jobs, review verified candidates, manage your pipeline.</p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
-              <Link href="/company/onboarding" className="gradient-border-card rounded-2xl p-7 block hover:bg-[#0E0E1A]/[0.03]">
+              <Link href="/company/onboarding" className="gradient-border-card rounded-2xl p-7 block hover:bg-white/[0.05]">
                 <div className="w-11 h-11 rounded-xl bg-[#22D3EE]/15 flex items-center justify-center mb-5">
-                  <svg className="w-5 h-5 text-[#0891B2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-[#22D3EE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
                   </svg>
                 </div>
-                <h3 className="font-bold text-[#0E0E1A] mb-1">Post a role</h3>
-                <p className="text-[#5A5A6E] text-sm">Add a job and start receiving verified candidate matches.</p>
+                <h3 className="font-bold text-[#F4F4F7] mb-1">Post a role</h3>
+                <p className="text-[#A6A6B4] text-sm">Add a job and start receiving verified candidate matches.</p>
               </Link>
 
-              <Link href="/company/dashboard" className="gradient-border-card rounded-2xl p-7 block hover:bg-[#0E0E1A]/[0.03]">
+              <Link href="/company/dashboard" className="gradient-border-card rounded-2xl p-7 block hover:bg-white/[0.05]">
                 <div className="w-11 h-11 rounded-xl bg-[#A78BFA]/15 flex items-center justify-center mb-5">
-                  <svg className="w-5 h-5 text-[#7C3AED]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-[#A78BFA]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
-                <h3 className="font-bold text-[#0E0E1A] mb-1">Browse verified candidates</h3>
-                <p className="text-[#5A5A6E] text-sm">View candidates matched to your roles.</p>
+                <h3 className="font-bold text-[#F4F4F7] mb-1">Browse verified candidates</h3>
+                <p className="text-[#A6A6B4] text-sm">View candidates matched to your roles.</p>
               </Link>
 
               {profile?.subscription_status === 'active' ? (
                 <div className="gradient-border-card rounded-2xl p-7 md:col-span-2">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-[#8A8A99] text-xs font-bold uppercase tracking-wider mb-1">Subscription</p>
-                      <h3 className="font-bold text-[#0E0E1A]">{profile.subscription_tier === 'growth' ? 'Growth' : 'Starter'} plan active</h3>
-                      <p className="text-[#8A8A99] text-xs mt-1">Full access to candidate profiles and outreach.</p>
+                      <p className="text-[#7E7E8E] text-xs font-bold uppercase tracking-wider mb-1">Subscription</p>
+                      <h3 className="font-bold text-[#F4F4F7]">{profile.subscription_tier === 'growth' ? 'Growth' : 'Starter'} plan active</h3>
+                      <p className="text-[#7E7E8E] text-xs mt-1">Full access to candidate profiles and outreach.</p>
                     </div>
                     <div className="w-11 h-11 rounded-xl bg-emerald-500/15 flex items-center justify-center">
-                      <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>

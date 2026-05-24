@@ -128,18 +128,18 @@ export default function ContinuousLearning({
   const rm = localRoadmap
 
   const resilienceColor = (score: number | null) => {
-    if (score === null) return { color: '#5A5A6E', label: '—', bg: 'rgba(14,14,26,0.04)' }
-    if (score >= 7) return { color: '#059669', label: 'Low risk', bg: 'rgba(52,211,153,0.10)' }
-    if (score >= 4) return { color: '#D97706', label: 'Medium risk', bg: 'rgba(251,191,36,0.10)' }
-    return { color: '#E11D48', label: 'High risk', bg: 'rgba(251,113,133,0.10)' }
+    if (score === null) return { color: '#A6A6B4', label: '—', bg: 'rgba(255,255,255,0.05)' }
+    if (score >= 7) return { color: '#34D399', label: 'Low risk', bg: 'rgba(52,211,153,0.10)' }
+    if (score >= 4) return { color: '#FBBF24', label: 'Medium risk', bg: 'rgba(251,191,36,0.10)' }
+    return { color: '#FB7185', label: 'High risk', bg: 'rgba(251,113,133,0.10)' }
   }
   const r = resilienceColor(resilienceScore)
 
   const priorityChip = (p: string) => {
     const map: Record<string, { color: string; bg: string }> = {
-      high: { color: '#E11D48', bg: 'rgba(251,113,133,0.12)' },
-      medium: { color: '#D97706', bg: 'rgba(251,191,36,0.12)' },
-      low: { color: '#5A5A6E', bg: 'rgba(14,14,26,0.04)' },
+      high: { color: '#FB7185', bg: 'rgba(251,113,133,0.12)' },
+      medium: { color: '#FBBF24', bg: 'rgba(251,191,36,0.12)' },
+      low: { color: '#A6A6B4', bg: 'rgba(255,255,255,0.05)' },
     }
     const c = map[p] || map.low
     return <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase" style={{ color: c.color, background: c.bg }}>{p}</span>
@@ -150,17 +150,17 @@ export default function ContinuousLearning({
       <div className="flex items-start justify-between mb-1">
         <div className="flex items-center gap-2.5">
           <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#A78BFA)' }} />
-          <h2 className="text-[#0E0E1A] font-black text-xl tracking-tight">{view === 'career' ? 'Career roadmap' : view === 'learning' ? 'Learning' : view === 'events' ? 'Events' : 'Continuous Learning'}</h2>
+          <h2 className="text-[#F4F4F7] font-black text-xl tracking-tight">{view === 'career' ? 'Career roadmap' : view === 'learning' ? 'Learning' : view === 'events' ? 'Events' : 'Continuous Learning'}</h2>
         </div>
         {isPro && (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.10)', color: '#7C3AED' }}>Pro ✓</span>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.12)', color: '#A78BFA' }}>Pro ✓</span>
         )}
       </div>
-      <p className="text-[#8A8A99] text-xs mb-5 ml-4">{view === 'career' ? 'Where you’re headed — resilience and pivot paths.' : view === 'learning' ? 'Sharpen your current field — and learn for your pivot.' : view === 'events' ? 'Industry events worth attending.' : 'What you’ve done — and where to grow next.'}</p>
+      <p className="text-[#7E7E8E] text-xs mb-5 ml-4">{view === 'career' ? 'Where you’re headed — resilience and pivot paths.' : view === 'learning' ? 'Sharpen your current field — and learn for your pivot.' : view === 'events' ? 'Industry events worth attending.' : 'What you’ve done — and where to grow next.'}</p>
 
       {/* ─── HALF 1: PASSIVE (Learning) ─── */}
       {showLearning && !hasAny && trackedCourses.length === 0 && (
-        <p className="text-[#8A8A99] text-sm mb-6">No certifications, events, talks, OSS, or courses detected on your CV yet. Add them via your profile to strengthen credibility.</p>
+        <p className="text-[#7E7E8E] text-sm mb-6">No certifications, events, talks, OSS, or courses detected on your CV yet. Add them via your profile to strengthen credibility.</p>
       )}
 
       {showLearning && (<>
@@ -168,24 +168,24 @@ export default function ContinuousLearning({
       {trackedCourses.length > 0 && (
         <div className="mb-5">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider">Courses & Learning</p>
-            <Link href="/upskill" className="text-[#0891B2] text-xs font-bold hover:underline">Manage →</Link>
+            <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">Courses & Learning</p>
+            <Link href="/upskill" className="text-[#22D3EE] text-xs font-bold hover:underline">Manage →</Link>
           </div>
           <div className="space-y-1.5">
             {trackedCourses.map(c => {
               const verified = c.verification_status === 'verified'
               return (
-                <div key={c.id} className="flex items-center justify-between gap-2 bg-[#0E0E1A]/[0.04] rounded-lg px-3 py-2">
-                  <span className="text-[#0E0E1A] text-xs">
-                    {c.course_name}{c.platform ? <span className="text-[#8A8A99]"> · {c.platform}</span> : null}
-                    {c.status === 'completed' ? <span className="text-[#8A8A99]"> · done</span> : c.status === 'in_progress' ? <span className="text-[#8A8A99]"> · in progress</span> : null}
+                <div key={c.id} className="flex items-center justify-between gap-2 bg-white/[0.05] rounded-lg px-3 py-2">
+                  <span className="text-[#F4F4F7] text-xs">
+                    {c.course_name}{c.platform ? <span className="text-[#7E7E8E]"> · {c.platform}</span> : null}
+                    {c.status === 'completed' ? <span className="text-[#7E7E8E]"> · done</span> : c.status === 'in_progress' ? <span className="text-[#7E7E8E]"> · in progress</span> : null}
                   </span>
                   <span className="flex items-center gap-1.5 flex-shrink-0">
-                    {c.sponsored_by && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.15)', color: '#D97706' }}>🏢 {c.sponsored_by}</span>}
+                    {c.sponsored_by && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.15)', color: '#FBBF24' }}>🏢 {c.sponsored_by}</span>}
                     {verified
-                      ? <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#059669' }}>✓ Verified</span>
-                      : <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(14,14,26,0.04)', color: '#5A5A6E' }}>○ Self-reported</span>}
-                    {c.credential_url && <a href={c.credential_url} target="_blank" rel="noopener noreferrer" className="text-[#0891B2] text-[10px] font-bold">cert ↗</a>}
+                      ? <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#34D399' }}>✓ Verified</span>
+                      : <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#A6A6B4' }}>○ Self-reported</span>}
+                    {c.credential_url && <a href={c.credential_url} target="_blank" rel="noopener noreferrer" className="text-[#22D3EE] text-[10px] font-bold">cert ↗</a>}
                   </span>
                 </div>
               )
@@ -196,10 +196,10 @@ export default function ContinuousLearning({
 
       {(data?.certifications?.length ?? 0) > 0 && (
         <div className="mb-5">
-          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-2">Certifications</p>
+          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-2">Certifications</p>
           <div className="flex flex-wrap gap-2">
             {data!.certifications!.map((c, i) => (
-              <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(34,211,238,0.08)', color: '#0891B2', border: '1px solid rgba(34,211,238,0.15)' }}>
+              <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(34,211,238,0.12)', color: '#22D3EE', border: '1px solid rgba(34,211,238,0.15)' }}>
                 🎖 {c.name}{c.issuer ? ` · ${c.issuer}` : ''}{c.year ? ` (${c.year})` : ''}
               </span>
             ))}
@@ -209,10 +209,10 @@ export default function ContinuousLearning({
 
       {(data?.events?.length ?? 0) > 0 && (
         <div className="mb-5">
-          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-2">Events attended</p>
+          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-2">Events attended</p>
           <div className="flex flex-wrap gap-2">
             {data!.events!.map((e, i) => (
-              <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(167,139,250,0.08)', color: '#7C3AED', border: '1px solid rgba(167,139,250,0.15)' }}>
+              <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(167,139,250,0.12)', color: '#A78BFA', border: '1px solid rgba(167,139,250,0.15)' }}>
                 {e.role === 'speaker' ? '🎤' : e.role === 'organizer' ? '🎟' : '📍'} {e.name}{e.year ? ` (${e.year})` : ''}
               </span>
             ))}
@@ -222,19 +222,19 @@ export default function ContinuousLearning({
 
       {(data?.talks?.length ?? 0) > 0 && (
         <div className="mb-5">
-          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-2">Talks given</p>
+          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-2">Talks given</p>
           {data!.talks!.map((t, i) => (
-            <p key={i} className="text-[#3F3F4E] text-sm mb-1">🎤 <strong>{t.title}</strong> · {t.venue}{t.year ? ` (${t.year})` : ''}</p>
+            <p key={i} className="text-[#C7C7D1] text-sm mb-1">🎤 <strong>{t.title}</strong> · {t.venue}{t.year ? ` (${t.year})` : ''}</p>
           ))}
         </div>
       )}
 
       {(data?.courses?.length ?? 0) > 0 && (
         <div className="mb-5">
-          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-2">Courses</p>
+          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-2">Courses</p>
           <div className="flex flex-wrap gap-2">
             {data!.courses!.map((c, i) => (
-              <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(14,14,26,0.04)', color: '#3F3F4E' }}>
+              <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#C7C7D1' }}>
                 📚 {c.name}{c.platform ? ` · ${c.platform}` : ''}{c.year ? ` (${c.year})` : ''}
               </span>
             ))}
@@ -244,21 +244,21 @@ export default function ContinuousLearning({
 
       {(data?.oss?.length ?? 0) > 0 && (
         <div className="mb-5">
-          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-2">Open source</p>
+          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-2">Open source</p>
           {data!.oss!.map((o, i) => (
-            <p key={i} className="text-[#3F3F4E] text-sm">💻 <a href={o.repo_url} target="_blank" rel="noreferrer" className="text-[#0891B2] hover:underline">{o.repo_url}</a>{o.role ? ` · ${o.role}` : ''}{o.stars ? ` · ⭐ ${o.stars}` : ''}</p>
+            <p key={i} className="text-[#C7C7D1] text-sm">💻 <a href={o.repo_url} target="_blank" rel="noreferrer" className="text-[#22D3EE] hover:underline">{o.repo_url}</a>{o.role ? ` · ${o.role}` : ''}{o.stars ? ` · ⭐ ${o.stars}` : ''}</p>
           ))}
         </div>
       )}
       </>)}
 
       {/* ─── HALF 2: CAREER ROADMAP (Pro only) ─── */}
-      <div className={view === 'all' ? 'mt-8 pt-6 border-t border-[#0E0E1A]/[0.08]' : ''}>
+      <div className={view === 'all' ? 'mt-8 pt-6 border-t border-white/[0.08]' : ''}>
         {!isPro && (
-          <div className="rounded-2xl p-5" style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.2)' }}>
-            <p className="text-[#7C3AED] text-xs font-bold uppercase tracking-wider mb-2">🔒 Career Roadmap — Pro feature</p>
-            <p className="text-[#3F3F4E] text-sm mb-1">Get a personalised AI-resilience score for your current role + 3-5 skills to learn next + 2-3 pivot paths + relevant events to attend.</p>
-            <p className="text-[#8A8A99] text-xs mb-4">Built from your work history, AI-displacement trends, and your target industries.</p>
+          <div className="rounded-2xl p-5" style={{ background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.2)' }}>
+            <p className="text-[#A78BFA] text-xs font-bold uppercase tracking-wider mb-2">🔒 Career Roadmap — Pro feature</p>
+            <p className="text-[#C7C7D1] text-sm mb-1">Get a personalised AI-resilience score for your current role + 3-5 skills to learn next + 2-3 pivot paths + relevant events to attend.</p>
+            <p className="text-[#7E7E8E] text-xs mb-4">Built from your work history, AI-displacement trends, and your target industries.</p>
             <Link href="/pay" className="inline-block px-5 py-2.5 rounded-full font-black text-sm" style={{ background: 'linear-gradient(135deg,#A78BFA,#22D3EE)', color: '#060609' }}>
               Upgrade to Pro →
             </Link>
@@ -267,11 +267,11 @@ export default function ContinuousLearning({
 
         {isPro && !rm && (
           <div>
-            <p className="text-[#5A5A6E] text-sm mb-3">Generate your personalised Career Roadmap — Shapi analyses your work history + AI-displacement trends to recommend exactly what to learn next.</p>
+            <p className="text-[#A6A6B4] text-sm mb-3">Generate your personalised Career Roadmap — Shapi analyses your work history + AI-displacement trends to recommend exactly what to learn next.</p>
             <button onClick={generateRoadmap} disabled={generating} className="px-5 py-2.5 rounded-full font-black text-sm transition-opacity disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#A78BFA,#22D3EE)', color: '#060609' }}>
               {generating ? 'Generating…' : '✨ Generate my roadmap'}
             </button>
-            {error && <p className="text-[#E11D48] text-xs mt-3">{error}</p>}
+            {error && <p className="text-[#FB7185] text-xs mt-3">{error}</p>}
           </div>
         )}
 
@@ -283,7 +283,7 @@ export default function ContinuousLearning({
               <div className="text-4xl font-black" style={{ color: r.color }}>{resilienceScore ?? rm.ai_resilience_score}</div>
               <div className="flex-1">
                 <p className="text-xs font-bold uppercase tracking-wider" style={{ color: r.color }}>AI resilience · {r.label}</p>
-                <p className="text-[#5A5A6E] text-xs leading-relaxed mt-1">{rm.resilience_reasoning}</p>
+                <p className="text-[#A6A6B4] text-xs leading-relaxed mt-1">{rm.resilience_reasoning}</p>
               </div>
             </div>
             )}
@@ -294,27 +294,27 @@ export default function ContinuousLearning({
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#34D399)' }} />
-                    <h3 className="text-[#0E0E1A] text-base font-black">🎯 Sharpen your current field</h3>
+                    <h3 className="text-[#F4F4F7] text-base font-black">🎯 Sharpen your current field</h3>
                   </div>
-                  <Link href="/upskill" className="text-[#0891B2] text-xs font-bold hover:underline">Browse courses →</Link>
+                  <Link href="/upskill" className="text-[#22D3EE] text-xs font-bold hover:underline">Browse courses →</Link>
                 </div>
-                <p className="text-[#8A8A99] text-xs mb-3 -mt-1">Skills that strengthen the experience you already have.</p>
+                <p className="text-[#7E7E8E] text-xs mb-3 -mt-1">Skills that strengthen the experience you already have.</p>
                 <div className="space-y-2">
                   {rm.skills_gaps.map((g, i) => (
-                    <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)' }}>
+                    <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
                       <div className="flex items-center justify-between mb-1">
-                        <p className="text-[#0E0E1A] font-bold text-sm">{g.skill}</p>
+                        <p className="text-[#F4F4F7] font-bold text-sm">{g.skill}</p>
                         {priorityChip(g.priority)}
                       </div>
-                      <p className="text-[#5A5A6E] text-xs mb-2">{g.why}</p>
+                      <p className="text-[#A6A6B4] text-xs mb-2">{g.why}</p>
                       {g.suggested_courses && g.suggested_courses.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 mb-2">
                           {g.suggested_courses.map((c, j) => (
-                            <span key={j} className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.06)', color: '#0891B2' }}>{c.name} · {c.platform}</span>
+                            <span key={j} className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(34,211,238,0.12)', color: '#22D3EE' }}>{c.name} · {c.platform}</span>
                           ))}
                         </div>
                       )}
-                      <Link href={`/upskill?skill=${encodeURIComponent(g.skill)}#financing`} className="text-[#7C3AED] text-xs font-bold hover:underline">
+                      <Link href={`/upskill?skill=${encodeURIComponent(g.skill)}#financing`} className="text-[#A78BFA] text-xs font-bold hover:underline">
                         Free / paid / financing options →
                       </Link>
                     </div>
@@ -328,16 +328,16 @@ export default function ContinuousLearning({
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#A78BFA,#FB7185)' }} />
-                  <h3 className="text-[#0E0E1A] text-base font-black">↗️ Learn for your pivot</h3>
+                  <h3 className="text-[#F4F4F7] text-base font-black">↗️ Learn for your pivot</h3>
                 </div>
-                <p className="text-[#8A8A99] text-xs mb-3 ml-3">What to learn to move into a new field.</p>
+                <p className="text-[#7E7E8E] text-xs mb-3 ml-3">What to learn to move into a new field.</p>
                 <div className="space-y-2">
                   {rm.pivot_paths.filter(p => p.gaps_to_close?.length > 0).map((p, i) => (
-                    <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)' }}>
-                      <p className="text-[#0E0E1A] font-bold text-sm mb-2">To move into {p.to_role}{p.to_industry ? <span className="text-[#8A8A99] font-normal"> · {p.to_industry}</span> : null}</p>
+                    <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.15)' }}>
+                      <p className="text-[#F4F4F7] font-bold text-sm mb-2">To move into {p.to_role}{p.to_industry ? <span className="text-[#7E7E8E] font-normal"> · {p.to_industry}</span> : null}</p>
                       <div className="flex flex-wrap gap-1.5">
                         {p.gaps_to_close.map((g, j) => (
-                          <a key={j} href={courseSearchUrl('Coursera', g)} target="_blank" rel="noopener noreferrer" className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(124,58,237,0.10)', color: '#7C3AED' }}>{g} ↗</a>
+                          <a key={j} href={courseSearchUrl('Coursera', g)} target="_blank" rel="noopener noreferrer" className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(124,58,237,0.10)', color: '#A78BFA' }}>{g} ↗</a>
                         ))}
                       </div>
                     </div>
@@ -351,28 +351,28 @@ export default function ContinuousLearning({
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#A78BFA,#FB7185)' }} />
-                  <h3 className="text-[#0E0E1A] text-base font-black">↗️ Pivot paths to consider</h3>
+                  <h3 className="text-[#F4F4F7] text-base font-black">↗️ Pivot paths to consider</h3>
                 </div>
                 <div className="space-y-3">
                   {rm.pivot_paths.map((p, i) => (
-                    <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)' }}>
-                      <p className="text-[#0E0E1A] font-bold text-sm mb-1">{p.to_role} <span className="text-[#8A8A99] text-xs font-normal">· {p.to_industry}</span></p>
-                      <p className="text-[#5A5A6E] text-xs mb-3 leading-relaxed">{p.why}</p>
+                    <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.15)' }}>
+                      <p className="text-[#F4F4F7] font-bold text-sm mb-1">{p.to_role} <span className="text-[#7E7E8E] text-xs font-normal">· {p.to_industry}</span></p>
+                      <p className="text-[#A6A6B4] text-xs mb-3 leading-relaxed">{p.why}</p>
                       <div className="text-xs">
-                        <p className="text-emerald-600 font-bold mb-1">✓ Transferable strengths</p>
-                        <p className="text-[#5A5A6E]">{p.transferable_skills.join(' · ')}</p>
-                        {p.gaps_to_close?.length > 0 && <p className="text-[#8A8A99] text-[10px] mt-2">What to learn for this pivot → see the <span className="font-bold text-[#7C3AED]">Learning</span> tab.</p>}
+                        <p className="text-emerald-400 font-bold mb-1">✓ Transferable strengths</p>
+                        <p className="text-[#A6A6B4]">{p.transferable_skills.join(' · ')}</p>
+                        {p.gaps_to_close?.length > 0 && <p className="text-[#7E7E8E] text-[10px] mt-2">What to learn for this pivot → see the <span className="font-bold text-[#A78BFA]">Learning</span> tab.</p>}
                       </div>
                       {p.first_actions?.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-[#0E0E1A]/[0.08]">
-                          <p className="text-[#0891B2] text-xs font-bold mb-1">First steps</p>
-                          <ol className="text-[#5A5A6E] text-xs space-y-1.5 list-decimal list-inside">
+                        <div className="mt-3 pt-3 border-t border-white/[0.08]">
+                          <p className="text-[#22D3EE] text-xs font-bold mb-1">First steps</p>
+                          <ol className="text-[#A6A6B4] text-xs space-y-1.5 list-decimal list-inside">
                             {p.first_actions.map((a, j) => {
                               const link = stepLink(a)
                               return (
                                 <li key={j}>
                                   {a}
-                                  {link && <Link href={link.href} className="text-[#7C3AED] font-bold hover:underline ml-1.5 whitespace-nowrap">{link.label}</Link>}
+                                  {link && <Link href={link.href} className="text-[#A78BFA] font-bold hover:underline ml-1.5 whitespace-nowrap">{link.label}</Link>}
                                 </li>
                               )
                             })}
@@ -392,28 +392,28 @@ export default function ContinuousLearning({
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
                     <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#FBBF24,#FB7185)' }} />
-                    <h3 className="text-[#0E0E1A] text-base font-black">📅 Recommended events</h3>
+                    <h3 className="text-[#F4F4F7] text-base font-black">📅 Recommended events</h3>
                   </div>
-                  <Link href="/upskill" className="text-[#D97706] text-xs font-bold flex-shrink-0 hover:underline">Find tickets / track →</Link>
+                  <Link href="/upskill" className="text-[#FBBF24] text-xs font-bold flex-shrink-0 hover:underline">Find tickets / track →</Link>
                 </div>
                 {rm.events_to_attend.map((e, i) => (
-                  <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.15)' }}>
+                  <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.15)' }}>
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <p className="text-[#0E0E1A] font-bold text-sm">{e.name}</p>
+                      <p className="text-[#F4F4F7] font-bold text-sm">{e.name}</p>
                       {priorityChip(e.priority)}
                     </div>
-                    <p className="text-[#5A5A6E] text-xs">{[e.when, e.where].filter(Boolean).join(' · ')}</p>
-                    {e.why && <p className="text-[#8A8A99] text-[11px] mt-1 leading-relaxed">{e.why}</p>}
-                    {e.official_url && <a href={e.official_url} target="_blank" rel="noopener noreferrer" className="text-[#0891B2] text-xs font-bold mt-1 inline-block">Official site ↗</a>}
+                    <p className="text-[#A6A6B4] text-xs">{[e.when, e.where].filter(Boolean).join(' · ')}</p>
+                    {e.why && <p className="text-[#7E7E8E] text-[11px] mt-1 leading-relaxed">{e.why}</p>}
+                    {e.official_url && <a href={e.official_url} target="_blank" rel="noopener noreferrer" className="text-[#22D3EE] text-xs font-bold mt-1 inline-block">Official site ↗</a>}
                   </div>
                 ))}
               </div>
             )}
             {showEvents && !rm.events_to_attend?.length && (
-              <p className="text-[#8A8A99] text-sm">No events recommended yet — generate your roadmap to get tailored event suggestions.</p>
+              <p className="text-[#7E7E8E] text-sm">No events recommended yet — generate your roadmap to get tailored event suggestions.</p>
             )}
 
-            <button onClick={generateRoadmap} disabled={generating} className="mt-4 text-xs text-[#8A8A99] hover:text-[#3F3F4E] transition-colors">
+            <button onClick={generateRoadmap} disabled={generating} className="mt-4 text-xs text-[#7E7E8E] hover:text-[#C7C7D1] transition-colors">
               {generating ? 'Regenerating…' : '↻ Regenerate roadmap'}
             </button>
           </div>
