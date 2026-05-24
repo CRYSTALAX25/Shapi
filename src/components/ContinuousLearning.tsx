@@ -327,11 +327,14 @@ export default function ContinuousLearning({
             {/* Skills gaps — Learning */}
             {showLearning && rm.skills_gaps?.length > 0 && (
               <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#5FB7C7,#5FB795)' }} />
-                  <h3 className="text-[#F4F4F7] text-base font-black">🎯 Sharpen your current field</h3>
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#5FB7C7,#5FB795)' }} />
+                    <h3 className="text-[#F4F4F7] text-base font-black">🎯 Sharpen your current field</h3>
+                  </div>
+                  <Link href="/upskill" className="text-[#5FB7C7] text-xs font-bold hover:underline flex-shrink-0">Browse courses →</Link>
                 </div>
-                <p className="text-[#7E7E8E] text-xs mb-3 -mt-1">Skills that strengthen the experience you already have.</p>
+                <p className="text-[#7E7E8E] text-xs mb-3">Skills that strengthen the experience you already have.</p>
                 <div className="space-y-2">
                   {rm.skills_gaps.map((g, i) => (
                     <details key={i} className="group rounded-xl" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -376,9 +379,12 @@ export default function ContinuousLearning({
             {/* Learn for your pivot — Learning */}
             {showLearning && rm.pivot_paths?.some(p => p.gaps_to_close?.length > 0) && (
               <div className="mb-6">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#9D8AD6,#E08494)' }} />
-                  <h3 className="text-[#F4F4F7] text-base font-black">↗️ Learn for your pivot</h3>
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#9D8AD6,#E08494)' }} />
+                    <h3 className="text-[#F4F4F7] text-base font-black">↗️ Learn for your pivot</h3>
+                  </div>
+                  <Link href="/upskill" className="text-[#9D8AD6] text-xs font-bold hover:underline flex-shrink-0">Browse courses →</Link>
                 </div>
                 <p className="text-[#7E7E8E] text-xs mb-3 ml-3">What to learn to move into a new field.</p>
                 <div className="space-y-2">
@@ -389,13 +395,18 @@ export default function ContinuousLearning({
                         <span className="text-[#7E7E8E] text-xs transition-transform group-open:rotate-180">▾</span>
                       </summary>
                       <div className="px-3 pb-3">
-                        <div className="flex flex-wrap gap-1.5 mb-2">
+                        <p className="text-[#9D8AD6] text-[10px] font-bold uppercase tracking-wider mb-1.5">⭐ Shapi recommends</p>
+                        <div className="space-y-1.5 mb-2">
                           {p.gaps_to_close.map((g, j) => (
-                            <Link key={j} href={`/upskill?skill=${encodeURIComponent(g)}#financing`} className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: '#C4B5FD', border: '1px solid rgba(255,255,255,0.08)' }}>{g} →</Link>
+                            <a key={j} href={courseSearchUrl('Coursera', g)} target="_blank" rel="noopener noreferrer"
+                              className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 hover:opacity-90" style={{ background: 'rgba(157,138,214,0.12)' }}>
+                              <span className="text-[#F4F4F7] text-xs font-bold">{g}<span className="text-[#7E7E8E] font-normal"> · Coursera</span></span>
+                              <span className="text-[#9D8AD6] text-xs font-bold flex-shrink-0">Open ↗</span>
+                            </a>
                           ))}
                         </div>
                         <Link href={`/upskill?skill=${encodeURIComponent(p.gaps_to_close[0])}#financing`} className="text-[#9D8AD6] text-xs font-bold hover:underline">
-                          Free / paid / financing options →
+                          More courses · free / paid / financing →
                         </Link>
                       </div>
                     </details>
@@ -469,7 +480,7 @@ export default function ContinuousLearning({
                       <p className="text-[#A6A6B4] text-xs">{[e.when, e.where].filter(Boolean).join(' · ')}</p>
                       {e.why && <p className="text-[#7E7E8E] text-[11px] mt-1 leading-relaxed">{e.why}</p>}
                       <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
-                        <a href={ticketUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-black px-3 py-1.5 rounded-full" style={{ background: 'linear-gradient(135deg,#E3B556,#E08494)', color: '#060609' }}>Buy tickets ↗</a>
+                        <a href={ticketUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-black px-3 py-1.5 rounded-full" style={{ background: 'linear-gradient(135deg,#5FB7C7,#9D8AD6)', color: '#060609' }}>Buy tickets ↗</a>
                         {opts.map(opt => {
                           const active = cur === opt.key
                           return (
