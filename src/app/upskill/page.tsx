@@ -104,7 +104,7 @@ function UpskillContent() {
 
       <nav className="relative z-10 px-6 py-4 border-b border-[#0E0E1A]/[0.08] flex items-center justify-between max-w-4xl mx-auto">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#A78BFA,#22D3EE)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
-        <Link href="/profile" className="text-[#8A8A99] text-sm hover:text-[#3F3F4E]">Profile</Link>
+        <Link href="/profile?tab=learning" className="text-[#8A8A99] text-sm hover:text-[#3F3F4E]">← Profile</Link>
       </nav>
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 pt-8 pb-20">
@@ -208,7 +208,7 @@ function UpskillContent() {
         )}
 
         {/* Financing */}
-        <div className="gradient-border-card rounded-2xl p-5 mb-8">
+        <div id="financing" className="gradient-border-card rounded-2xl p-5 mb-8 scroll-mt-24">
           <p className="text-[#D97706] text-xs font-bold uppercase tracking-wider mb-1">💳 Financing — don&apos;t let cost stop you</p>
           <p className="text-[#5A5A6E] text-xs mb-4">Routes to take a paid course without paying upfront.</p>
           <div className="grid md:grid-cols-2 gap-3">

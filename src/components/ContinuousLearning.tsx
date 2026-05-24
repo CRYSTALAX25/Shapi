@@ -66,11 +66,13 @@ export default function ContinuousLearning({
   roadmap: Roadmap | null
   isPro: boolean
   resilienceScore: number | null
-  // 'career' = roadmap (resilience + pivot roles); 'learning' = courses done + advised; 'all' = both
-  view?: 'all' | 'career' | 'learning'
+  // 'career' = resilience + pivot roles; 'learning' = courses done + advised;
+  // 'events' = recommended events; 'all' = everything
+  view?: 'all' | 'career' | 'learning' | 'events'
 }) {
   const showLearning = view === 'all' || view === 'learning'
   const showCareer = view === 'all' || view === 'career'
+  const showEvents = view === 'all' || view === 'events'
   const [generating, setGenerating] = useState(false)
   const [localRoadmap, setLocalRoadmap] = useState<Roadmap | null>(roadmap)
   const [error, setError] = useState('')
@@ -148,13 +150,13 @@ export default function ContinuousLearning({
       <div className="flex items-start justify-between mb-1">
         <div className="flex items-center gap-2.5">
           <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#A78BFA)' }} />
-          <h2 className="text-[#0E0E1A] font-black text-xl tracking-tight">{view === 'career' ? 'Career roadmap' : view === 'learning' ? 'Learning' : 'Continuous Learning'}</h2>
+          <h2 className="text-[#0E0E1A] font-black text-xl tracking-tight">{view === 'career' ? 'Career roadmap' : view === 'learning' ? 'Learning' : view === 'events' ? 'Events' : 'Continuous Learning'}</h2>
         </div>
         {isPro && (
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.10)', color: '#7C3AED' }}>Pro ✓</span>
         )}
       </div>
-      <p className="text-[#8A8A99] text-xs mb-5 ml-4">{view === 'career' ? 'Where you’re headed — resilience and pivot paths.' : view === 'learning' ? 'What you’ve done — and what to learn next.' : 'What you’ve done — and where to grow next.'}</p>
+      <p className="text-[#8A8A99] text-xs mb-5 ml-4">{view === 'career' ? 'Where you’re headed — resilience and pivot paths.' : view === 'learning' ? 'Sharpen your current field — and learn for your pivot.' : view === 'events' ? 'Industry events worth attending.' : 'What you’ve done — and where to grow next.'}</p>
 
       {/* ─── HALF 1: PASSIVE (Learning) ─── */}
       {showLearning && !hasAny && trackedCourses.length === 0 && (
@@ -292,10 +294,11 @@ export default function ContinuousLearning({
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#34D399)' }} />
-                    <h3 className="text-[#0E0E1A] text-base font-black">🎯 Skills to learn next</h3>
+                    <h3 className="text-[#0E0E1A] text-base font-black">🎯 Sharpen your current field</h3>
                   </div>
                   <Link href="/upskill" className="text-[#0891B2] text-xs font-bold hover:underline">Browse courses →</Link>
                 </div>
+                <p className="text-[#8A8A99] text-xs mb-3 -mt-1">Skills that strengthen the experience you already have.</p>
                 <div className="space-y-2">
                   {rm.skills_gaps.map((g, i) => (
                     <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)' }}>
@@ -311,9 +314,32 @@ export default function ContinuousLearning({
                           ))}
                         </div>
                       )}
-                      <Link href={`/upskill?skill=${encodeURIComponent(g.skill)}`} className="text-[#7C3AED] text-xs font-bold hover:underline">
+                      <Link href={`/upskill?skill=${encodeURIComponent(g.skill)}#financing`} className="text-[#7C3AED] text-xs font-bold hover:underline">
                         Free / paid / financing options →
                       </Link>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Learn for your pivot — Learning */}
+            {showLearning && rm.pivot_paths?.some(p => p.gaps_to_close?.length > 0) && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#A78BFA,#FB7185)' }} />
+                  <h3 className="text-[#0E0E1A] text-base font-black">↗️ Learn for your pivot</h3>
+                </div>
+                <p className="text-[#8A8A99] text-xs mb-3 ml-3">What to learn to move into a new field.</p>
+                <div className="space-y-2">
+                  {rm.pivot_paths.filter(p => p.gaps_to_close?.length > 0).map((p, i) => (
+                    <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)' }}>
+                      <p className="text-[#0E0E1A] font-bold text-sm mb-2">To move into {p.to_role}{p.to_industry ? <span className="text-[#8A8A99] font-normal"> · {p.to_industry}</span> : null}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {p.gaps_to_close.map((g, j) => (
+                          <a key={j} href={courseSearchUrl('Coursera', g)} target="_blank" rel="noopener noreferrer" className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(124,58,237,0.10)', color: '#7C3AED' }}>{g} ↗</a>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -332,23 +358,10 @@ export default function ContinuousLearning({
                     <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)' }}>
                       <p className="text-[#0E0E1A] font-bold text-sm mb-1">{p.to_role} <span className="text-[#8A8A99] text-xs font-normal">· {p.to_industry}</span></p>
                       <p className="text-[#5A5A6E] text-xs mb-3 leading-relaxed">{p.why}</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                        <div>
-                          <p className="text-emerald-600 font-bold mb-1">✓ Transferable</p>
-                          <p className="text-[#5A5A6E]">{p.transferable_skills.join(' · ')}</p>
-                        </div>
-                        <div>
-                          <p className="text-[#D97706] font-bold mb-1">⌛ Gaps to close</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {p.gaps_to_close.map((g, j) => (
-                              <a key={j} href={courseSearchUrl('Coursera', g)} target="_blank" rel="noopener noreferrer"
-                                className="text-[#3F3F4E] hover:text-[#0891B2] underline decoration-dotted underline-offset-2 transition-colors">
-                                {g}
-                              </a>
-                            ))}
-                          </div>
-                          <p className="text-[#8A8A99] text-[10px] mt-1">tap a gap → courses for it ↗</p>
-                        </div>
+                      <div className="text-xs">
+                        <p className="text-emerald-600 font-bold mb-1">✓ Transferable strengths</p>
+                        <p className="text-[#5A5A6E]">{p.transferable_skills.join(' · ')}</p>
+                        {p.gaps_to_close?.length > 0 && <p className="text-[#8A8A99] text-[10px] mt-2">What to learn for this pivot → see the <span className="font-bold text-[#7C3AED]">Learning</span> tab.</p>}
                       </div>
                       {p.first_actions?.length > 0 && (
                         <div className="mt-3 pt-3 border-t border-[#0E0E1A]/[0.08]">
@@ -373,15 +386,31 @@ export default function ContinuousLearning({
             )}
 
             {/* Events to attend — full tracking lives on /upskill (single source).
-                Here we just show a compact pointer so the roadmap stays clean. */}
-            {showLearning && rm.events_to_attend?.length > 0 && (
-              <div className="mb-2 p-3 rounded-xl flex items-center justify-between gap-3" style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.15)' }}>
-                <div>
-                  <p className="text-[#0E0E1A] font-bold text-sm">📅 {rm.events_to_attend.length} events recommended for you</p>
-                  <p className="text-[#5A5A6E] text-xs mt-0.5">Find tickets + track Booked / Attended on Upskill.</p>
+                Full ticket-finding + Booked/Attended tracking lives on /upskill. */}
+            {showEvents && rm.events_to_attend?.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#FBBF24,#FB7185)' }} />
+                    <h3 className="text-[#0E0E1A] text-base font-black">📅 Recommended events</h3>
+                  </div>
+                  <Link href="/upskill" className="text-[#D97706] text-xs font-bold flex-shrink-0 hover:underline">Find tickets / track →</Link>
                 </div>
-                <Link href="/upskill" className="text-[#D97706] text-xs font-bold flex-shrink-0 hover:underline">Manage →</Link>
+                {rm.events_to_attend.map((e, i) => (
+                  <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.15)' }}>
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <p className="text-[#0E0E1A] font-bold text-sm">{e.name}</p>
+                      {priorityChip(e.priority)}
+                    </div>
+                    <p className="text-[#5A5A6E] text-xs">{[e.when, e.where].filter(Boolean).join(' · ')}</p>
+                    {e.why && <p className="text-[#8A8A99] text-[11px] mt-1 leading-relaxed">{e.why}</p>}
+                    {e.official_url && <a href={e.official_url} target="_blank" rel="noopener noreferrer" className="text-[#0891B2] text-xs font-bold mt-1 inline-block">Official site ↗</a>}
+                  </div>
+                ))}
               </div>
+            )}
+            {showEvents && !rm.events_to_attend?.length && (
+              <p className="text-[#8A8A99] text-sm">No events recommended yet — generate your roadmap to get tailored event suggestions.</p>
             )}
 
             <button onClick={generateRoadmap} disabled={generating} className="mt-4 text-xs text-[#8A8A99] hover:text-[#3F3F4E] transition-colors">

@@ -17,7 +17,7 @@ export default function ProfileTabs({ labels, panels }: { labels: string[]; pane
   }, [labels])
   return (
     <div>
-      <div className="inline-flex gap-1 p-1 rounded-full mb-5" style={{ background: 'rgba(14,14,26,0.05)', border: '1px solid rgba(14,14,26,0.06)' }}>
+      <div className="flex flex-wrap gap-1 p-1 rounded-2xl mb-5" style={{ background: 'rgba(14,14,26,0.05)', border: '1px solid rgba(14,14,26,0.06)' }}>
         {labels.map((l, i) => (
           <button
             key={l}

@@ -468,15 +468,26 @@ export default async function ProfilePage() {
     />
   )
 
+  const eventsPanel = (
+    <ContinuousLearning view="events"
+      data={(profile.continuous_learning as Parameters<typeof ContinuousLearning>[0]['data']) ?? null}
+      roadmap={(profile.career_recommendations as Parameters<typeof ContinuousLearning>[0]['roadmap']) ?? null}
+      isPro={profile.cv_tier === 'pro'}
+      resilienceScore={(profile.ai_resilience_score as number | null) ?? null}
+    />
+  )
+
   const testsPanel = (
     <>
+      {/* Skill Fingerprint — Shapi-assessed (derived, not retaken) */}
       {profile.skill_quadrant && (
         <div className="gradient-border-card rounded-2xl p-6">
-          <div className="flex items-center gap-2.5 mb-4">
+          <div className="flex items-center gap-2.5 mb-1">
             <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#A78BFA)' }} />
             <h2 className="text-[#0E0E1A] font-black text-xl tracking-tight">Skill Fingerprint</h2>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#EDE9FE', color: '#7C3AED' }}>◆ Shapi-assessed</span>
           </div>
+          <p className="text-[#8A8A99] text-xs mb-4 ml-4">Derived from your CV + conversation — it sharpens automatically as you add detail. Not a quiz you retake.</p>
           <div className="flex justify-center"><SkillRadar data={profile.skill_quadrant as { hands: number; heart: number; head: number; spark: number; reasoning?: string }} /></div>
         </div>
       )}
@@ -506,8 +517,8 @@ export default async function ProfilePage() {
             <div className="flex items-center gap-2.5 mb-4">
               <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#22D3EE,#A78BFA)' }} />
               <h2 className="text-[#0E0E1A] font-black text-xl tracking-tight">Work Style</h2>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#EDE9FE', color: '#7C3AED' }}>◆ Shapi-assessed</span>
-              <a href="/work-style" className="ml-auto text-[#8A8A99] text-xs hover:text-[#3F3F4E]">Retake</a>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(6,182,212,0.12)', color: '#0891B2' }}>✎ Self-assessment</span>
+              <a href="/work-style" className="ml-auto text-[#8A8A99] text-xs font-bold hover:text-[#3F3F4E]">Retake →</a>
             </div>
             <div className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
               {dims.map(d => {
@@ -525,6 +536,15 @@ export default async function ProfilePage() {
         )
       })()}
 
+      {/* Aptitude — verified test, coming soon */}
+      <div className="gradient-border-card rounded-2xl p-6">
+        <div className="flex items-center gap-2.5 mb-1">
+          <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#FBBF24,#FB7185)' }} />
+          <h2 className="text-[#0E0E1A] font-black text-xl tracking-tight">Aptitude test</h2>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.15)', color: '#D97706' }}>✓ Verified · coming soon</span>
+        </div>
+        <p className="text-[#8A8A99] text-xs ml-4">A proctored, one-shot aptitude test employers can trust — not a practice quiz you re-sit. Launching soon.</p>
+      </div>
     </>
   )
 
@@ -556,7 +576,7 @@ export default async function ProfilePage() {
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-[320px_1fr] gap-6 items-start">
           {identityPanel}
-          <ProfileTabs labels={['Overview', 'Verification', 'Experience', 'Career', 'Learning', 'Tests', 'CV']} panels={[overviewPanel, verificationPanel, experiencePanel, careerPanel, learningPanel, testsPanel, cvPanel]} />
+          <ProfileTabs labels={['Overview', 'Verification', 'Experience', 'Career', 'Learning', 'Events', 'Assessments', 'CV']} panels={[overviewPanel, verificationPanel, experiencePanel, careerPanel, learningPanel, eventsPanel, testsPanel, cvPanel]} />
         </div>
       </div>
     </div>
