@@ -16,9 +16,12 @@ interface ShapiCharacterProps {
   // Optional theme tint — overrides the default brand gradient + glow so the
   // star can live in any colour world.
   tint?: { from: string; to: string; glow?: string }
+  // Give the star a cute face (eyes, blink, smile) so it reads as a character.
+  // Auto-hidden at very small sizes to keep tiny UI marks clean.
+  face?: boolean
 }
 
-export default function ShapiCharacter({ mood = 'idle', size = 80, className = '', tint }: ShapiCharacterProps) {
+export default function ShapiCharacter({ mood = 'idle', size = 80, className = '', tint, face = true }: ShapiCharacterProps) {
   const uid = useId().replace(/:/g, '')
   const gradId = `shapiStar-${uid}`
   const blurId = `shapiBlur-${uid}`
@@ -33,6 +36,10 @@ export default function ShapiCharacter({ mood = 'idle', size = 80, className = '
   // Ring spins faster while "thinking" (actively searching for direction).
   const ringSpin = mood === 'thinking' ? 8 : 24
   const starPath = 'M50 6 L60.6 39.4 L94 50 L60.6 60.6 L50 94 L39.4 60.6 L6 50 L39.4 39.4 Z'
+  const showFace = face && size >= 28
+  // Eyes glance up a touch while "thinking"; widen when "happy".
+  const eyeY = mood === 'thinking' ? 47.5 : 49
+  const eyeR = mood === 'happy' ? 4.3 : 4
 
   const stops = tint
     ? [{ o: '0%', c: tint.from }, { o: '100%', c: tint.to }]
@@ -46,6 +53,7 @@ export default function ShapiCharacter({ mood = 'idle', size = 80, className = '
         @keyframes shapiGlow { 0%,100% { opacity:.55; transform: scale(1.3); } 50% { opacity:1; transform: scale(1.6); } }
         @keyframes shapiBreathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
         @keyframes shapiOrbit { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes shapiBlink { 0%,90%,100% { transform: scaleY(1); } 95% { transform: scaleY(0.12); } }
       `}</style>
 
       {/* Pulsing glow */}
@@ -82,7 +90,23 @@ export default function ShapiCharacter({ mood = 'idle', size = 80, className = '
         <g style={{ animation: 'shapiBreathe 3.5s ease-in-out infinite', transformOrigin: '50px 50px' }}>
           <path d={starPath} fill={`url(#${gradId})`} filter={`url(#${blurId})`} />
           <path d="M50 18 L57 43 L82 50 L57 57 L50 82 L43 57 L18 50 L43 43 Z" fill="white" fillOpacity="0.14" />
-          <circle cx="50" cy="50" r="3" fill="white" fillOpacity="0.9" />
+          {!showFace && <circle cx="50" cy="50" r="3" fill="white" fillOpacity="0.9" />}
+          {showFace && (
+            <g>
+              {/* cheeks */}
+              <circle cx="40" cy="54" r="2.4" fill="#FB7185" opacity="0.5" />
+              <circle cx="60" cy="54" r="2.4" fill="#FB7185" opacity="0.5" />
+              {/* eyes (blink) */}
+              <g style={{ animation: 'shapiBlink 4.5s ease-in-out infinite', transformOrigin: `50px ${eyeY}px` }}>
+                <circle cx="42.5" cy={eyeY} r={eyeR} fill="#14142A" />
+                <circle cx="57.5" cy={eyeY} r={eyeR} fill="#14142A" />
+                <circle cx="43.9" cy={eyeY - 1.4} r="1.2" fill="white" />
+                <circle cx="58.9" cy={eyeY - 1.4} r="1.2" fill="white" />
+              </g>
+              {/* smile */}
+              <path d={mood === 'happy' ? 'M42.5 56 Q50 63.5 57.5 56' : 'M44 57 Q50 61 56 57'} stroke="#14142A" strokeWidth="2.3" strokeLinecap="round" fill="none" />
+            </g>
+          )}
         </g>
 
         {/* Happy: a second twinkle that counter-orbits */}

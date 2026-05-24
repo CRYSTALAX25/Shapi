@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import ShapiCharacter from '@/components/ShapiCharacter'
 
 export default function Home() {
   return (
@@ -50,6 +51,13 @@ export default function Home() {
           box-shadow: 0 10px 30px rgba(124,58,237,0.30);
           transform: translateY(-1px);
         }
+        .grad-border-cta {
+          background: linear-gradient(#fff,#fff) padding-box, linear-gradient(135deg,#06B6D4,#7C3AED,#F43F5E) border-box;
+          border: 1.5px solid transparent;
+          color: #0E0E1A;
+          transition: all 0.25s ease;
+        }
+        .grad-border-cta:hover { box-shadow: 0 8px 24px rgba(124,58,237,0.20); transform: translateY(-1px); }
       `}</style>
 
       {/* Dot grid */}
@@ -58,20 +66,23 @@ export default function Home() {
         backgroundSize: '44px 44px',
       }} />
 
-      {/* Nav */}
-      <nav className="relative z-20 px-6 py-5 flex items-center justify-between max-w-7xl mx-auto">
-        <div className="flex items-center gap-2.5">
-          <span className="font-black text-xl tracking-tighter grad-text">shapi</span>
-          <span className="text-[10px] font-bold text-[#8A8A99] bg-[#0E0E1A]/[0.04] border border-[#0E0E1A]/[0.08] px-2 py-0.5 rounded-full uppercase tracking-wider">beta</span>
-        </div>
-        <div className="flex items-center gap-6">
-          <Link href="/worth" className="text-[#5A5A6E] text-sm hover:text-[#0E0E1A] transition-colors hidden sm:block">What you&apos;re worth</Link>
-          <Link href="#pricing" className="text-[#5A5A6E] text-sm hover:text-[#0E0E1A] transition-colors hidden sm:block">Pricing</Link>
-          <Link href="/blog" className="text-[#5A5A6E] text-sm hover:text-[#0E0E1A] transition-colors hidden sm:block">Blog</Link>
-          <Link href="/login" className="text-[#5A5A6E] text-sm hover:text-[#0E0E1A] transition-colors">Sign in</Link>
-          <Link href="/signup" className="btn-primary px-5 py-2.5 rounded-full text-sm font-bold">
-            Get started →
-          </Link>
+      {/* Nav — floating pill island (Holo-style) */}
+      <nav className="relative z-20 px-4 pt-5 max-w-7xl mx-auto">
+        <div className="flex items-center justify-between gap-3 bg-white/90 backdrop-blur-md border border-[#0E0E1A]/[0.08] rounded-full pl-4 pr-2 py-2" style={{ boxShadow: '0 8px 30px rgba(14,14,26,0.07)' }}>
+          <div className="flex items-center gap-2">
+            <ShapiCharacter size={30} />
+            <span className="font-black text-xl tracking-tighter grad-text">shapi</span>
+          </div>
+          <div className="flex items-center gap-5">
+            <Link href="/worth" className="text-[#5A5A6E] text-sm hover:text-[#0E0E1A] transition-colors hidden md:block">What you&apos;re worth</Link>
+            <Link href="#why" className="text-[#5A5A6E] text-sm hover:text-[#0E0E1A] transition-colors hidden md:block">Why Shapi</Link>
+            <Link href="#pricing" className="text-[#5A5A6E] text-sm hover:text-[#0E0E1A] transition-colors hidden sm:block">Pricing</Link>
+            <Link href="/blog" className="text-[#5A5A6E] text-sm hover:text-[#0E0E1A] transition-colors hidden sm:block">Blog</Link>
+            <Link href="/login" className="text-[#5A5A6E] text-sm hover:text-[#0E0E1A] transition-colors">Sign in</Link>
+            <Link href="/signup" className="grad-border-cta px-4 py-2 rounded-full text-sm font-black">
+              Get started →
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -83,6 +94,8 @@ export default function Home() {
         <div className="orb-coral absolute -bottom-20 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(244,63,94,0.12) 0%, transparent 70%)' }} />
 
         <div className="text-center max-w-5xl mx-auto">
+          {/* Mascot */}
+          <div className="flex justify-center mb-5"><ShapiCharacter size={76} mood="happy" /></div>
           {/* Badge */}
           <div className="inline-flex items-center gap-2.5 bg-white border border-[#0E0E1A]/[0.08] px-4 py-2 rounded-full mb-8 shadow-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-[#06B6D4] animate-pulse" />
@@ -110,8 +123,15 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Floating profile card */}
-          <div className="float-card max-w-lg mx-auto">
+          {/* Floating profile card + verification chips (Holo-style) */}
+          <div className="relative max-w-lg mx-auto">
+            <div className="hidden lg:block">
+              <FloatChip text="3 references verified" color="#10B981" pos="-left-24 top-4" />
+              <FloatChip text="AI cross-check passed" color="#7C3AED" pos="-right-28 top-0" />
+              <FloatChip text="Right to work ✓" color="#06B6D4" pos="-left-20 bottom-10" />
+              <FloatChip text="Trust score 94" color="#F43F5E" pos="-right-20 bottom-6" />
+            </div>
+            <div className="float-card">
             <div className="card rounded-2xl p-6 text-left">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -144,6 +164,7 @@ export default function Home() {
                 </div>
                 <div className="text-xs font-bold" style={{ color: '#7C3AED' }}>Profile score: 94%</div>
               </div>
+            </div>
             </div>
           </div>
         </div>
@@ -196,6 +217,63 @@ export default function Home() {
               <p className="text-[#5A5A6E] text-sm leading-relaxed">{item.desc}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Why Shapi — comparison table (Holo-style) */}
+      <section id="why" className="relative z-10 max-w-5xl mx-auto px-6 py-24 scroll-mt-20">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(124,58,237,0.10)', color: '#7C3AED' }}>
+            Why Shapi
+          </div>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter">One platform built on proof.</h2>
+          <p className="text-[#5A5A6E] text-lg mt-4 max-w-2xl mx-auto">Job boards match. Recruiters gatekeep. We verify — independently, for both sides.</p>
+        </div>
+
+        <div className="card rounded-3xl p-4 md:p-6 overflow-x-auto">
+          <table className="w-full min-w-[660px] border-collapse">
+            <thead>
+              <tr>
+                <th className="text-left p-3"></th>
+                <th className="p-3">
+                  <div className="flex flex-col items-center gap-1.5">
+                    <ShapiCharacter size={40} mood="happy" />
+                    <span className="grad-text font-black text-base tracking-tighter">shapi</span>
+                  </div>
+                </th>
+                {['LinkedIn', 'Job boards', 'Recruiters'].map(c => (
+                  <th key={c} className="p-3 text-[#8A8A99] font-bold text-sm">{c}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['Independent reference checks — we choose who', true, false, false, false],
+                ['AI cross-check across all references', true, false, false, false],
+                ['Skills proven by evidence', true, false, false, false],
+                ['Company trust score for candidates', true, false, false, false],
+                ['Right-to-work intelligence by country', true, false, false, false],
+                ['Blue + white collar — voice-note first', true, false, false, false],
+                ['You own your verification report', true, false, false, false],
+                ['No placement / per-hire fees', true, true, true, false],
+              ].map((row, i) => (
+                <tr key={i} style={{ borderTop: '1px solid rgba(14,14,26,0.07)' }}>
+                  <td className="p-3 text-sm text-[#3F3F4E] font-medium">{row[0] as string}</td>
+                  {[1, 2, 3, 4].map(col => (
+                    <td key={col} className="p-3 text-center">
+                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full" style={{
+                        background: row[col] ? (col === 1 ? 'rgba(16,185,129,0.14)' : 'rgba(16,185,129,0.12)') : 'rgba(244,63,94,0.10)',
+                      }}>
+                        {row[col]
+                          ? <svg className="w-3.5 h-3.5" style={{ color: '#10B981' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                          : <svg className="w-3.5 h-3.5" style={{ color: '#F43F5E' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>}
+                      </span>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -394,6 +472,33 @@ export default function Home() {
         </p>
       </section>
 
+      {/* FAQ */}
+      <section className="relative z-10 max-w-3xl mx-auto px-6 pb-24">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter">FAQ</h2>
+        </div>
+        <div className="space-y-3">
+          {[
+            { q: 'Is Shapi free to start?', a: 'Yes. Drop your CV and build your profile for free — AI extracts your experience and a few WhatsApp questions fill the gaps. You only pay when you want the CV Kit, full verification, or career tools.' },
+            { q: 'How are references actually verified?', a: 'We source and contact referees ourselves and keep their answers confidential — you don’t pick what they say. That’s a real reference, not a testimonial you curated.' },
+            { q: 'What is the AI cross-check?', a: 'We read every reference together, confirm what multiple people independently agree on, and flag conflicts honestly. The result is one report you own — proof, not spin.' },
+            { q: 'Do I need a degree?', a: 'No. Shapi is skills-first. We capture right-to-work by country and prove ability through evidence and references — paper qualifications are optional.' },
+            { q: 'Blue collar, or no formal CV — can I still join?', a: 'Absolutely. You can build your whole profile by voice note in your own language. The chef, the supervisor and the director are all taken seriously here.' },
+            { q: 'When does Shapi launch?', a: 'UAE-first in 2026, expanding across the GCC and remote MENA. Early access is open now — get in before public launch.' },
+          ].map((f, i) => (
+            <details key={i} className="group card rounded-2xl px-5 py-4">
+              <summary className="flex items-center justify-between cursor-pointer list-none">
+                <span className="font-bold text-[#0E0E1A] pr-4">{f.q}</span>
+                <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[#7C3AED] transition-transform group-open:rotate-45" style={{ background: 'rgba(124,58,237,0.10)' }}>
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
+                </span>
+              </summary>
+              <p className="text-[#5A5A6E] text-sm leading-relaxed mt-3">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-24">
         <div className="relative overflow-hidden rounded-3xl text-center py-20 px-8" style={{
@@ -433,6 +538,16 @@ export default function Home() {
           <p className="text-[#B0B0BC] text-sm">Shape what&apos;s next. © 2026 Shapi.</p>
         </div>
       </footer>
+    </div>
+  )
+}
+
+function FloatChip({ text, color, pos }: { text: string; color: string; pos: string }) {
+  return (
+    <div className={`float-card absolute z-20 ${pos} bg-white rounded-full pl-2 pr-3 py-1.5 flex items-center gap-2 whitespace-nowrap`}
+      style={{ border: '1px solid rgba(14,14,26,0.08)', boxShadow: '0 8px 24px rgba(14,14,26,0.10)' }}>
+      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
+      <span className="text-xs font-bold text-[#3F3F4E]">{text}</span>
     </div>
   )
 }
