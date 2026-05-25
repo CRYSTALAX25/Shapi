@@ -21,15 +21,17 @@ export async function POST(request: Request) {
   if (!field) return NextResponse.json({ error: 'Tell us the trade or field.' }, { status: 400 })
   if (!country) return NextResponse.json({ error: 'Add your country for accurate guidance.' }, { status: 400 })
 
-  // Pull the user's experience (if signed in) so the fit read is real.
+  // Pull the user's experience + residency/right-to-work (if signed in) so the
+  // fit read AND the ownership/visa eligibility are real.
   let experience = 'not provided (give general guidance)'
+  let residency = 'not provided — ask them, and assume a non-resident foreigner unless told otherwise'
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       const { data: p } = await supabase
         .from('profiles')
-        .select('headline, summary, skills, work_history')
+        .select('headline, summary, skills, work_history, right_to_work, location, native_language')
         .eq('id', user.id)
         .single()
       if (p) {
@@ -38,6 +40,12 @@ export async function POST(request: Request) {
           ? (p.work_history as Array<{ title?: string; company?: string }>).slice(0, 5).map(w => `${w.title || '?'} @ ${w.company || '?'}`).join('; ')
           : ''
         experience = `Headline: ${p.headline || 'n/a'}. Summary: ${(p.summary as string) || 'n/a'}. Skills: ${skills || 'n/a'}. Recent roles: ${roles || 'n/a'}.`
+        const basisLabel: Record<string, string> = { citizen: 'citizen', permanent_resident: 'permanent resident (PR)', work_visa: 'work visa', eu_citizen: 'EU/EEA citizen', need_sponsorship: 'needs sponsorship' }
+        const rtw = Array.isArray(p.right_to_work)
+          ? (p.right_to_work as Array<{ region?: string; basis?: string }>).filter(r => r.region).map(r => `${r.region} (${basisLabel[r.basis || ''] || r.basis || 'status unknown'})`)
+          : []
+        if (rtw.length) residency = rtw.join('; ')
+        else if (p.location) residency = `based in ${p.location} (exact residency status unknown)`
       }
     }
   } catch { /* anonymous — general guidance */ }
@@ -47,11 +55,13 @@ export async function POST(request: Request) {
   const prompt = `You are Shapi, a blunt, practical business advisor. Someone wants to start their own "${field}" business in ${country}. Use their background to judge fit, and give concrete, country-specific guidance.
 
 THEIR BACKGROUND: ${experience}
+THEIR RESIDENCY / RIGHT-TO-WORK: ${residency}
 
 Rules:
 - USE WEB SEARCH to find CURRENT, real figures: the actual setup/licence/registration fees and starting-capital ranges for a "${field}" business in ${country} right now, and the official government/registration body plus its REAL website URL. Base costs and links on what you find — do not guess.
 - Be specific to ${country} — name REAL authorities/bodies you found. Generic = useless.
 - For each entity, give the official organisation name and its real official URL from your search (root or the specific registration page). If you genuinely couldn't find a URL, set "url" to null.
+- OWNERSHIP & VISA (critical): based on THEIR residency status above, determine whether they can own this "${field}" business as a SOLE / 100% owner in ${country}, or whether they need a local partner/sponsor, a specific visa/residency/permit, or must use a free zone (100% foreign ownership) vs mainland (which may require a local partner or service agent). Use web search for ${country}'s current foreign-ownership rules. Be specific to their exact status (citizen vs PR vs work-visa vs non-resident) — e.g. a PR may have different rights than a citizen or a tourist.
 - "fit.score" 0-10 = how well THEIR background suits running this business; be honest.
 
 Return ONLY valid JSON (tight; each string ≤ 24 words):
@@ -60,6 +70,13 @@ Return ONLY valid JSON (tight; each string ≤ 24 words):
   "country": "${country}",
   "currency": "local currency code/symbol",
   "fit": { "score": 0, "verdict": "1-2 honest sentences on their fit", "strengths": ["from their background"], "gaps": ["what they'd need to add"] },
+  "ownership": {
+    "can_sole_own": "yes|no|conditional",
+    "summary": "1-2 sentences SPECIFIC to their residency status (e.g. 'As a Saudi PR you can…')",
+    "visa_or_permit": "the visa/residency/permit needed to set up & operate (or 'your current residency already allows this')",
+    "partner_or_sponsor": "local partner / sponsor / service agent needed? give specifics, or 'not required'",
+    "route": "best ownership route, e.g. 'free zone — 100% foreign ownership' or 'mainland LLC with a local partner'"
+  },
   "pros": ["3-4 pros of this business in ${country}"],
   "cons": ["3-4 real challenges/cons in ${country}"],
   "better_countries": [ { "country": "...", "why": "1 short reason it may do better" } ],
@@ -87,24 +104,34 @@ Keep it practical and ${country}-specific. After searching, output the JSON as y
     try { return JSON.parse(match[0]) as Record<string, unknown> } catch { return null }
   }
 
+  // Live web-search is opt-in (it's slow and can exceed serverless time limits).
+  // Default = fast model-knowledge pass (returns in seconds, framed as indicative).
+  const live = body.live === true
+
   try {
     let content: Array<{ type: string; text?: string }>
-    try {
-      // Live mode: let Claude search the web for current costs + official URLs.
+    if (live) {
+      try {
+        const response = await anthropic.messages.create({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 3000,
+          tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 2 } as unknown as Anthropic.Tool],
+          messages: [{ role: 'user', content: prompt }],
+        })
+        content = response.content as Array<{ type: string; text?: string }>
+      } catch (searchErr) {
+        console.warn('[business] web search failed, falling back:', searchErr instanceof Error ? searchErr.message : searchErr)
+        const response = await anthropic.messages.create({
+          model: 'claude-sonnet-4-6', max_tokens: 2400,
+          messages: [{ role: 'user', content: prompt + '\n\n(No web search — give your best indicative figures and say so in the disclaimer.)' }],
+        })
+        content = response.content as Array<{ type: string; text?: string }>
+      }
+    } else {
+      // Fast path — no web search, indicative figures.
       const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 3000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 3 } as unknown as Anthropic.Tool],
-        messages: [{ role: 'user', content: prompt }],
-      })
-      content = response.content as Array<{ type: string; text?: string }>
-    } catch (searchErr) {
-      // Web search not available on this account/plan → fall back to model knowledge.
-      console.warn('[business] web search unavailable, falling back:', searchErr instanceof Error ? searchErr.message : searchErr)
-      const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2600,
-        messages: [{ role: 'user', content: prompt + '\n\n(Web search is unavailable — give your best indicative figures and clearly say so in the disclaimer.)' }],
+        model: 'claude-sonnet-4-6', max_tokens: 2400,
+        messages: [{ role: 'user', content: prompt + '\n\n(Give your best indicative figures from knowledge — do NOT use web search. Keep the disclaimer honest that figures are indicative; the user can tap "live figures" to research current ones.)' }],
       })
       content = response.content as Array<{ type: string; text?: string }>
     }

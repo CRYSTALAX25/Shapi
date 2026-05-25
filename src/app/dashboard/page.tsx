@@ -59,11 +59,9 @@ export default async function Dashboard() {
 
   // Tier detection — Pro purchase ALSO grants CV Kit access (Pro is the upgraded Kit)
   const cvKitPurchased = !!profile?.cv_kit_purchased || profile?.cv_tier === 'pro'
-  // New SKU-split gating: read subscription_product[] via helpers.
-  // Legacy fallback: pre-split candidates had `paid=true` or `subscription_tier` set —
-  // treat them as Roles Board so they don't lose access during the transition.
-  const isRolesBoard = hasOpenRolesBoard(profile) || !!profile?.paid || !!profile?.subscription_tier
-  const isActive = hasActiveProduct(profile) || profile?.subscription_status === 'active'
+  // Strict SKU-split gating: each product needs its OWN subscription. No legacy fallbacks.
+  const isRolesBoard = hasOpenRolesBoard(profile)
+  const isActive = hasActiveProduct(profile)
   const isConcierge = hasConcierge(profile)
 
   const isProfileLive = !!profile?.profile_live
@@ -235,7 +233,44 @@ export default async function Dashboard() {
 
         {/* ─── CANDIDATE VIEW ─── */}
         {type === 'candidate' && (
-          <>
+          <div className="grid lg:grid-cols-[220px_1fr] gap-6">
+
+            {/* ── Sidebar nav (vertical on lg, horizontal pill row on mobile) ── */}
+            <aside className="lg:sticky lg:top-6 self-start">
+              <nav className="flex flex-row overflow-x-auto lg:flex-col gap-1.5 pb-1 lg:pb-0 -mx-1 px-1 lg:mx-0 lg:px-0">
+                {[
+                  { href: '#', label: 'Overview', icon: '🏠', active: true },
+                  { href: '/translate', label: 'Career Translator', icon: '🧭' },
+                  { href: '/upskill', label: 'Course Wallet', icon: '📚' },
+                  { href: '/worth', label: "What you're worth", icon: '💸' },
+                  { href: '/ai-proof', label: 'AI-Proof check', icon: '🛡️' },
+                  { href: '/profile?tab=Career', label: 'Career roadmap', icon: '🗺️' },
+                  { href: '/roles', label: 'Roles', icon: '💼' },
+                  { href: '/applications', label: 'My applications', icon: '📋' },
+                  { href: '/active', label: 'Active', icon: '⚡' },
+                  { href: '/profile', label: 'My profile', icon: '👤' },
+                ].map(item => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className={`flex items-center gap-2.5 flex-shrink-0 rounded-xl px-3 py-2 text-sm font-bold transition-colors whitespace-nowrap ${
+                      item.active
+                        ? 'text-[#6AA8F5]'
+                        : 'text-[#C7C7D1] hover:text-[#6AA8F5]'
+                    }`}
+                    style={item.active
+                      ? { background: 'rgba(106,168,245,0.12)', border: '1px solid rgba(106,168,245,0.28)' }
+                      : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                  >
+                    <span className="text-base leading-none">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </nav>
+            </aside>
+
+            {/* ── Main column ── */}
+            <main className="min-w-0">
             {/* Header */}
             <div className="mb-5">
               <h1 className="text-3xl font-black text-[#F4F4F7] mb-1">
@@ -246,7 +281,7 @@ export default async function Dashboard() {
               )}
             </div>
 
-            {/* Hero row — guide + progress side by side, key info up top */}
+            {/* Compact hero — guide + progress side by side, key info up top */}
             <div className="grid lg:grid-cols-2 gap-4 mb-5 items-stretch">
               {/* Shapi guide */}
               <div className="rounded-2xl p-6 flex items-center gap-5"
@@ -293,79 +328,280 @@ export default async function Dashboard() {
               </div>
             </div>
 
-            {/* Your toolkit — quick access to every Shapi tool */}
-            <div className="mb-5">
-              <p className="text-[#7E7E8E] text-[11px] font-bold uppercase tracking-wider mb-2">Your toolkit</p>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {[
-                  { href: '/translate', icon: '🧭', label: 'Career Translator', desc: 'Map your next move + pay' },
-                  { href: '/upskill', icon: '📚', label: 'Course Wallet', desc: 'Saved courses + progress' },
-                  { href: '/worth', icon: '💸', label: "What you're worth", desc: 'Salary by role & country' },
-                  { href: '/ai-proof', icon: '🛡️', label: 'AI-Proof check', desc: 'Your automation risk' },
-                  { href: '/business', icon: '🏢', label: 'Start a business', desc: 'Pricing + first steps' },
-                  { href: '/profile?tab=Career', icon: '🗺️', label: 'Career roadmap', desc: 'Resilience + pivots' },
-                ].map(t => (
-                  <Link key={t.href} href={t.href} className="gradient-border-card rounded-2xl p-4 hover:bg-white/[0.03] transition-colors">
-                    <div className="text-xl mb-1.5">{t.icon}</div>
-                    <p className="text-[#F4F4F7] font-bold text-sm leading-tight">{t.label}</p>
-                    <p className="text-[#7E7E8E] text-[11px] mt-0.5">{t.desc}</p>
-                  </Link>
-                ))}
+            {/* ── Your plan ── subscribed products + upsells for the rest ── */}
+            <div className="gradient-border-card rounded-2xl p-5 mb-5">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-[#5C5C6A] text-xs font-bold uppercase tracking-wider">Your plan</span>
+                {isConcierge ? (
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.18)', color: '#6AA8F5' }}>Active Concierge</span>
+                ) : isActive ? (
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}>Shapi Active</span>
+                ) : isRolesBoard ? (
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>Open Roles Board</span>
+                ) : profile?.cv_tier === 'pro' ? (
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.18)', color: '#6AA8F5' }}>CV Pro</span>
+                ) : cvKitPurchased ? (
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>CV Kit</span>
+                ) : (
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#7E7E8E' }}>Free</span>
+                )}
               </div>
-            </div>
 
-            {/* WhatsApp tips — surfaces hidden intent commands so candidates know what to say */}
-            {profile?.whatsapp_number && (
-              <details className="gradient-border-card rounded-2xl p-4 mb-5">
-                <summary className="cursor-pointer flex items-center gap-2 text-[#C7C7D1] text-sm font-bold list-none">
-                  <span>💡</span>
-                  <span>Things you can say in WhatsApp anytime</span>
-                  <span className="ml-auto text-[#7E7E8E] text-xs">tap to view</span>
-                </summary>
-                <div className="mt-3 pt-3 border-t border-white/[0.08] space-y-3">
-                  <div>
-                    <p className="text-[#A6A6B4] text-[11px] font-bold uppercase tracking-wider mb-1.5">In any interview</p>
-                    <ul className="text-[#C7C7D1] text-xs leading-relaxed space-y-1.5 pl-1">
-                      <li><span className="font-bold text-[#6AA8F5]">&quot;skip&quot;</span> / <span className="font-bold text-[#6AA8F5]">&quot;next&quot;</span> — move to the next question</li>
-                      <li><span className="font-bold text-[#6AA8F5]">&quot;repeat that&quot;</span> — re-ask the previous question</li>
-                      <li><span className="font-bold text-[#6AA8F5]">&quot;done&quot;</span> / <span className="font-bold text-[#6AA8F5]">&quot;pause&quot;</span> — finish or pause (your answers are saved)</li>
-                      <li><span className="font-bold text-[#6AA8F5]">&quot;start over&quot;</span> — wipe + begin the main interview fresh</li>
-                      <li><span className="font-bold text-[#6AA8F5]">&quot;I don&apos;t know&quot;</span> — totally fine, we&apos;ll move on</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <p className="text-[#A6A6B4] text-[11px] font-bold uppercase tracking-wider mb-1.5">Anytime, just text</p>
-                    <ul className="text-[#C7C7D1] text-xs leading-relaxed space-y-1.5 pl-1">
-                      <li><span className="font-bold text-[#6AA8F5]">&quot;voice&quot;</span> — record a voice sample in each language you speak</li>
-                      <li><span className="font-bold text-[#6AA8F5]">&quot;references&quot;</span> — see your reference requests + status</li>
-                    </ul>
-                  </div>
-                  <p className="text-[#A6A6B4] text-xs leading-relaxed pt-1">
-                    🎙 <strong>Voice notes work in any language</strong> — Arabic, Tagalog, Spanish, Hindi, whatever&apos;s easier. We transcribe + respond in the same language.
-                  </p>
+              {/* Subscribed product(s) + what they unlock */}
+              {(isRolesBoard || isActive || isConcierge) && (
+                <div className="space-y-2 mb-3">
+                  {isRolesBoard && (
+                    <div className="flex items-start gap-2.5 rounded-xl p-3" style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.20)' }}>
+                      <span className="text-emerald-400 text-sm font-black mt-0.5">✓</span>
+                      <div>
+                        <p className="text-[#F4F4F7] text-sm font-bold">Open Roles Board</p>
+                        <p className="text-[#A6A6B4] text-xs">Browse verified roles ranked by match score · companies can shortlist you.</p>
+                      </div>
+                    </div>
+                  )}
+                  {isActive && (
+                    <div className="flex items-start gap-2.5 rounded-xl p-3" style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.20)' }}>
+                      <span className="text-emerald-400 text-sm font-black mt-0.5">✓</span>
+                      <div>
+                        <p className="text-[#F4F4F7] text-sm font-bold">Shapi Active</p>
+                        <p className="text-[#A6A6B4] text-xs">Job scanner, email drafter, application tracker, interview prep.</p>
+                      </div>
+                    </div>
+                  )}
+                  {isConcierge && (
+                    <div className="flex items-start gap-2.5 rounded-xl p-3" style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.20)' }}>
+                      <span className="text-emerald-400 text-sm font-black mt-0.5">✓</span>
+                      <div>
+                        <p className="text-[#F4F4F7] text-sm font-bold">Active Concierge</p>
+                        <p className="text-[#A6A6B4] text-xs">AI scans roles daily and drafts personalised intros — you approve and send.</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </details>
-            )}
+              )}
 
-            {/* ── Tier label ── */}
-            <div className="mb-3 flex items-center gap-2">
-              <span className="text-[#5C5C6A] text-xs font-bold uppercase tracking-wider">Your plan:</span>
-              {isConcierge ? (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.18)', color: '#6AA8F5' }}>Active Concierge</span>
-              ) : isActive ? (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}>Shapi Active</span>
-              ) : isRolesBoard ? (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>Open Roles Board</span>
-              ) : profile?.cv_tier === 'pro' ? (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.18)', color: '#6AA8F5' }}>CV Pro</span>
-              ) : cvKitPurchased ? (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>CV Kit</span>
-              ) : (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#7E7E8E' }}>Free</span>
+              {/* Upsells for products NOT subscribed */}
+              {(!isRolesBoard || !isActive || !isConcierge) && (
+                <div className="space-y-2">
+                  {!isRolesBoard && (
+                    <Link href="/pay" className="flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <div>
+                        <p className="text-[#F4F4F7] text-sm font-bold">Open Roles Board <span className="text-[#6AA8F5] font-black">$19/mo</span></p>
+                        <p className="text-[#7E7E8E] text-xs">Browse verified roles + get shortlisted by companies.</p>
+                      </div>
+                      <span className="text-[#6AA8F5] text-xs font-black flex-shrink-0">Subscribe →</span>
+                    </Link>
+                  )}
+                  {!isActive && (
+                    <Link href="/pay" className="flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <div>
+                        <p className="text-[#F4F4F7] text-sm font-bold">Shapi Active <span className="text-[#6AA8F5] font-black">$29/mo</span></p>
+                        <p className="text-[#7E7E8E] text-xs">Scan jobs, draft outreach, track applications, prep interviews.</p>
+                      </div>
+                      <span className="text-[#6AA8F5] text-xs font-black flex-shrink-0">Subscribe →</span>
+                    </Link>
+                  )}
+                  {!isConcierge && (
+                    <Link href="/pay" className="flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <div>
+                        <p className="text-[#F4F4F7] text-sm font-bold">Active Concierge <span className="text-[#6AA8F5] font-black">$79/mo</span></p>
+                        <p className="text-[#7E7E8E] text-xs">AI drafts personalised intros daily — you just approve and send.</p>
+                      </div>
+                      <span className="text-[#6AA8F5] text-xs font-black flex-shrink-0">Subscribe →</span>
+                    </Link>
+                  )}
+                </div>
               )}
             </div>
 
-            {/* Status grid */}
+            {/* Concierge queue — today's AI-drafted outreach (only if subscribed) */}
+            {isConcierge && (
+              <div className="rounded-2xl p-6 mb-5" style={{
+                background: 'linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg,rgba(106,168,245,0.35),rgba(79,143,232,0.25)) border-box',
+                border: '1px solid transparent',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)',
+              }}>
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div>
+                    <p className="text-[#6AA8F5] text-xs font-bold uppercase tracking-wider mb-1">Concierge · today's shortlist</p>
+                    <h3 className="font-black text-[#F4F4F7] text-lg">
+                      {conciergeDrafts.length > 0
+                        ? `${conciergeDrafts.length} role${conciergeDrafts.length === 1 ? '' : 's'} matched · ready to send`
+                        : 'No new matches today'}
+                    </h3>
+                    <p className="text-[#A6A6B4] text-xs mt-1">AI scans open roles every morning and drafts personalised intros — you review, approve, send.</p>
+                    {(conciergeCounts.queued + conciergeCounts.approved + conciergeCounts.sent + conciergeCounts.replied) > 0 && (
+                      <div className="flex items-center gap-2 mt-3 flex-wrap">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/[0.05] text-[#A6A6B4]">{conciergeCounts.queued} queued</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5]">{conciergeCounts.approved} approved</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">{conciergeCounts.sent} sent</span>
+                        {conciergeCounts.replied > 0 && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/20 text-[#6AA8F5]">{conciergeCounts.replied} replied ✓</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <form action="/api/concierge/scan" method="POST">
+                    <button type="submit" className="text-[#6AA8F5] text-xs font-bold border border-[#6AA8F5]/30 hover:border-[#6AA8F5]/60 px-3 py-1.5 rounded-full transition-colors">
+                      Refresh now
+                    </button>
+                  </form>
+                </div>
+                {conciergeDrafts.length > 0 && (
+                  <div className="space-y-3">
+                    {[...conciergeDrafts]
+                      .sort((a, b) => (a.status === 'replied' ? -1 : 0) - (b.status === 'replied' ? -1 : 0))
+                      .slice(0, 3)
+                      .map(draft => {
+                      const role = conciergeRoleMap[draft.role_id]
+                      const replied = draft.status === 'replied'
+                      return (
+                        <div key={draft.id} className={`rounded-xl p-3 border ${
+                          replied
+                            ? 'bg-[#6AA8F5]/[0.08] border-[#6AA8F5]/35'
+                            : 'bg-white/[0.05] border-white/[0.08]'
+                        }`}>
+                          {replied && (
+                            <div className="flex items-center gap-1.5 mb-2">
+                              <span className="text-[#6AA8F5] text-xs font-black">Manager replied ✓ — interview proposed</span>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between mb-1">
+                            <div>
+                              <p className="text-[#F4F4F7] text-sm font-bold">{role?.title || 'Role'}</p>
+                              <p className="text-[#A6A6B4] text-xs">{role?.company_name || ''}</p>
+                            </div>
+                            <span className="text-[#6AA8F5] text-xs font-black">{draft.match_score}%</span>
+                          </div>
+                          {replied && draft.reply_excerpt ? (
+                            <p className="text-[#A6A6B4] text-xs mt-2 italic line-clamp-3">&ldquo;{draft.reply_excerpt}&rdquo;</p>
+                          ) : (
+                            <>
+                              {draft.draft_subject && (
+                                <p className="text-[#A6A6B4] text-xs mt-2 italic">&ldquo;{draft.draft_subject}&rdquo;</p>
+                              )}
+                              <p className="text-[#7E7E8E] text-[11px] mt-1 line-clamp-2">{draft.draft_body.slice(0, 220)}</p>
+                            </>
+                          )}
+                          <div className="flex items-center justify-between mt-2 gap-2">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              draft.status === 'replied' ? 'bg-[#6AA8F5]/20 text-[#6AA8F5]' :
+                              draft.status === 'sent' ? 'bg-emerald-500/15 text-emerald-400' :
+                              draft.status === 'approved' ? 'bg-[#6AA8F5]/15 text-[#6AA8F5]' :
+                              draft.status === 'auto_send' ? 'bg-[#6AA8F5]/15 text-[#6AA8F5]' :
+                              'bg-white/[0.05] text-[#A6A6B4]'
+                            }`}>
+                              {draft.status === 'replied' ? 'replied' : draft.status.replace('_', ' ')}
+                            </span>
+                            {draft.status === 'sent' ? (
+                              <form action="/api/concierge/replied" method="POST">
+                                <input type="hidden" name="draftId" value={draft.id} />
+                                <button type="submit" className="text-[10px] font-bold text-[#6AA8F5] border border-[#6AA8F5]/40 hover:bg-[#6AA8F5]/10 px-2.5 py-1 rounded-full transition-colors">
+                                  ✅ They replied — book me in
+                                </button>
+                              </form>
+                            ) : replied ? (
+                              <Link href="/dashboard" className="text-[10px] font-bold text-[#6AA8F5]">Interview proposed →</Link>
+                            ) : (
+                              draft.match_reasons && draft.match_reasons.length > 0 && (
+                                <span className="text-[#7E7E8E] text-[10px]">{draft.match_reasons[0]}</span>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                    {conciergeDrafts.length > 3 && (
+                      <p className="text-[#7E7E8E] text-[11px] text-center">+ {conciergeDrafts.length - 3} more in queue</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── Status cards WITH progress ── */}
+            <p className="text-[#7E7E8E] text-[11px] font-bold uppercase tracking-wider mb-2">Your status</p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
+
+              {/* Profile completion — % bar */}
+              <Link href="/profile" className="gradient-border-card rounded-2xl p-5 block hover:bg-white/[0.05] transition-colors">
+                <div className="flex items-center justify-between mb-1.5">
+                  <h3 className="font-bold text-[#F4F4F7] text-sm">Profile completion</h3>
+                  <span className="text-[#6AA8F5] text-sm font-black">{completion}%</span>
+                </div>
+                <p className="text-[#7E7E8E] text-xs mb-3">{profileComplete ? 'Complete & live — companies can find you.' : 'Keep going to reach 100% and go live.'}</p>
+                <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                  <div className="h-full rounded-full transition-all" style={{ width: `${completion}%`, background: 'linear-gradient(90deg, #6AA8F5, #4F8FE8)' }} />
+                </div>
+              </Link>
+
+              {/* References — completed vs target (6 = 2 jobs × 3) */}
+              <Link href="/profile/references" className="gradient-border-card rounded-2xl p-5 block hover:bg-white/[0.05] transition-colors">
+                <div className="flex items-center justify-between mb-1.5">
+                  <h3 className="font-bold text-[#F4F4F7] text-sm">References</h3>
+                  <span className={`text-sm font-black ${refScore.jobsComplete === 2 ? 'text-emerald-400' : 'text-[#6AA8F5]'}`}>{completedRefsCount}/6</span>
+                </div>
+                <p className="text-[#7E7E8E] text-xs mb-3">
+                  {refScore.jobsComplete === 2
+                    ? 'Both jobs verified — manager + colleague + stakeholder each.'
+                    : refScore.jobsComplete === 1
+                    ? 'One job verified. Add a second manager to hit 100%.'
+                    : 'Add the manager from your 2 latest jobs — we contact them.'}
+                </p>
+                <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                  <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (completedRefsCount / 6) * 100)}%`, background: refScore.jobsComplete === 2 ? 'linear-gradient(90deg,#34D399,#34D399)' : 'linear-gradient(90deg, #6AA8F5, #4F8FE8)' }} />
+                </div>
+              </Link>
+
+              {/* Courses — in-progress + completed, mini bar */}
+              <Link href="/upskill" className="gradient-border-card rounded-2xl p-5 block hover:bg-white/[0.05] transition-colors">
+                <div className="flex items-center justify-between mb-1.5">
+                  <h3 className="font-bold text-[#F4F4F7] text-sm">Courses</h3>
+                  <span className="text-[#6AA8F5] text-sm font-black">{coursesCompleted} done · {coursesInProgress} learning</span>
+                </div>
+                <p className="text-[#7E7E8E] text-xs mb-3">{(coursesInProgress + coursesCompleted) > 0 ? 'Verified learning shows companies real growth.' : 'Close your skill gaps — free, paid or financed.'}</p>
+                <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                  <div className="h-full rounded-full transition-all" style={{ width: `${(coursesInProgress + coursesCompleted) > 0 ? Math.min(100, (coursesCompleted / (coursesInProgress + coursesCompleted)) * 100) : 0}%`, background: 'linear-gradient(90deg, #6AA8F5, #4F8FE8)' }} />
+                </div>
+              </Link>
+
+              {/* Applications */}
+              <Link href="/applications" className="gradient-border-card rounded-2xl p-5 block hover:bg-white/[0.05] transition-colors">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold text-[#F4F4F7] text-sm">Applications</h3>
+                    <p className="text-[#7E7E8E] text-xs mt-0.5">Active applications in flight.</p>
+                  </div>
+                  <span className="text-3xl font-black" style={{ color: activeApplicationsCount > 0 ? '#6AA8F5' : 'rgba(255,255,255,0.10)' }}>{activeApplicationsCount}</span>
+                </div>
+              </Link>
+
+              {/* Interested / Shortlisted */}
+              <Link href="/roles" className="gradient-border-card rounded-2xl p-5 block hover:bg-white/[0.05] transition-colors">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold text-[#F4F4F7] text-sm">Roles & matches</h3>
+                    <p className="text-[#7E7E8E] text-xs mt-0.5">{interestedRolesCount} interested · {shortlistedByCount} shortlisted you</p>
+                  </div>
+                  <span className="text-3xl font-black" style={{ color: shortlistedByCount > 0 ? '#6AA8F5' : 'rgba(255,255,255,0.10)' }}>{shortlistedByCount}</span>
+                </div>
+              </Link>
+
+              {/* Evidence */}
+              <Link href="/evidence" className="gradient-border-card rounded-2xl p-5 block hover:bg-white/[0.05] transition-colors">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold text-[#F4F4F7] text-sm">Work evidence</h3>
+                    <p className="text-[#7E7E8E] text-xs mt-0.5">{evidenceCount > 0 ? 'Adds weight to your profile.' : 'Photos and docs that prove your experience.'}</p>
+                  </div>
+                  <span className="text-3xl font-black" style={{ color: evidenceCount > 0 ? '#6AA8F5' : 'rgba(255,255,255,0.10)' }}>{evidenceCount}</span>
+                </div>
+              </Link>
+
+            </div>
+
+            {/* ── Setup checklist + secondary cards ── */}
+            <p className="text-[#7E7E8E] text-[11px] font-bold uppercase tracking-wider mb-2">Build your profile</p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
               {/* CV */}
@@ -601,115 +837,11 @@ export default async function Dashboard() {
                 </div>
               </Link>
 
+            </div>
 
-              {/* Concierge queue — today's AI-drafted outreach */}
-              {isConcierge && (
-              <div className="sm:col-span-2 lg:col-span-3 rounded-2xl p-6" style={{
-                background: 'linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg,rgba(106,168,245,0.35),rgba(79,143,232,0.25)) border-box',
-                border: '1px solid transparent',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)',
-              }}>
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div>
-                    <p className="text-[#6AA8F5] text-xs font-bold uppercase tracking-wider mb-1">Concierge · today's shortlist</p>
-                    <h3 className="font-black text-[#F4F4F7] text-lg">
-                      {conciergeDrafts.length > 0
-                        ? `${conciergeDrafts.length} role${conciergeDrafts.length === 1 ? '' : 's'} matched · ready to send`
-                        : 'No new matches today'}
-                    </h3>
-                    <p className="text-[#A6A6B4] text-xs mt-1">AI scans open roles every morning and drafts personalised intros — you review, approve, send.</p>
-                    {(conciergeCounts.queued + conciergeCounts.approved + conciergeCounts.sent + conciergeCounts.replied) > 0 && (
-                      <div className="flex items-center gap-2 mt-3 flex-wrap">
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/[0.05] text-[#A6A6B4]">{conciergeCounts.queued} queued</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5]">{conciergeCounts.approved} approved</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">{conciergeCounts.sent} sent</span>
-                        {conciergeCounts.replied > 0 && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/20 text-[#6AA8F5]">{conciergeCounts.replied} replied ✓</span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <form action="/api/concierge/scan" method="POST">
-                    <button type="submit" className="text-[#6AA8F5] text-xs font-bold border border-[#6AA8F5]/30 hover:border-[#6AA8F5]/60 px-3 py-1.5 rounded-full transition-colors">
-                      Refresh now
-                    </button>
-                  </form>
-                </div>
-                {conciergeDrafts.length > 0 && (
-                  <div className="space-y-3">
-                    {[...conciergeDrafts]
-                      .sort((a, b) => (a.status === 'replied' ? -1 : 0) - (b.status === 'replied' ? -1 : 0))
-                      .slice(0, 3)
-                      .map(draft => {
-                      const role = conciergeRoleMap[draft.role_id]
-                      const replied = draft.status === 'replied'
-                      return (
-                        <div key={draft.id} className={`rounded-xl p-3 border ${
-                          replied
-                            ? 'bg-[#6AA8F5]/[0.08] border-[#6AA8F5]/35'
-                            : 'bg-white/[0.05] border-white/[0.08]'
-                        }`}>
-                          {replied && (
-                            <div className="flex items-center gap-1.5 mb-2">
-                              <span className="text-[#6AA8F5] text-xs font-black">Manager replied ✓ — interview proposed</span>
-                            </div>
-                          )}
-                          <div className="flex items-center justify-between mb-1">
-                            <div>
-                              <p className="text-[#F4F4F7] text-sm font-bold">{role?.title || 'Role'}</p>
-                              <p className="text-[#A6A6B4] text-xs">{role?.company_name || ''}</p>
-                            </div>
-                            <span className="text-[#6AA8F5] text-xs font-black">{draft.match_score}%</span>
-                          </div>
-                          {replied && draft.reply_excerpt ? (
-                            <p className="text-[#A6A6B4] text-xs mt-2 italic line-clamp-3">&ldquo;{draft.reply_excerpt}&rdquo;</p>
-                          ) : (
-                            <>
-                              {draft.draft_subject && (
-                                <p className="text-[#A6A6B4] text-xs mt-2 italic">&ldquo;{draft.draft_subject}&rdquo;</p>
-                              )}
-                              <p className="text-[#7E7E8E] text-[11px] mt-1 line-clamp-2">{draft.draft_body.slice(0, 220)}</p>
-                            </>
-                          )}
-                          <div className="flex items-center justify-between mt-2 gap-2">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                              draft.status === 'replied' ? 'bg-[#6AA8F5]/20 text-[#6AA8F5]' :
-                              draft.status === 'sent' ? 'bg-emerald-500/15 text-emerald-400' :
-                              draft.status === 'approved' ? 'bg-[#6AA8F5]/15 text-[#6AA8F5]' :
-                              draft.status === 'auto_send' ? 'bg-[#6AA8F5]/15 text-[#6AA8F5]' :
-                              'bg-white/[0.05] text-[#A6A6B4]'
-                            }`}>
-                              {draft.status === 'replied' ? 'replied' : draft.status.replace('_', ' ')}
-                            </span>
-                            {draft.status === 'sent' ? (
-                              <form action="/api/concierge/replied" method="POST">
-                                <input type="hidden" name="draftId" value={draft.id} />
-                                <button type="submit" className="text-[10px] font-bold text-[#6AA8F5] border border-[#6AA8F5]/40 hover:bg-[#6AA8F5]/10 px-2.5 py-1 rounded-full transition-colors">
-                                  ✅ They replied — book me in
-                                </button>
-                              </form>
-                            ) : replied ? (
-                              <Link href="/dashboard" className="text-[10px] font-bold text-[#6AA8F5]">Interview proposed →</Link>
-                            ) : (
-                              draft.match_reasons && draft.match_reasons.length > 0 && (
-                                <span className="text-[#7E7E8E] text-[10px]">{draft.match_reasons[0]}</span>
-                              )
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })}
-                    {conciergeDrafts.length > 3 && (
-                      <p className="text-[#7E7E8E] text-[11px] text-center">+ {conciergeDrafts.length - 3} more in queue</p>
-                    )}
-                  </div>
-                )}
-              </div>
-              )}
-
-              {/* Matches / shortlisted signal — only Roles Board */}
-              {isRolesBoard && (
-              <div className={`gradient-border-card rounded-2xl p-6 sm:col-span-2 lg:col-span-3 ${shortlistedByCount === 0 ? 'opacity-50' : ''}`}>
+            {/* Matches / shortlisted signal — only Roles Board */}
+            {isRolesBoard && (
+              <div className={`gradient-border-card rounded-2xl p-6 mt-4 ${shortlistedByCount === 0 ? 'opacity-50' : ''}`}>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-[#7E7E8E] text-xs font-bold uppercase tracking-wider mb-1">Company signals</p>
@@ -729,9 +861,40 @@ export default async function Dashboard() {
                   </div>
                 </div>
               </div>
-              )}
+            )}
 
-            </div>
+            {/* WhatsApp tips — surfaces hidden intent commands so candidates know what to say */}
+            {profile?.whatsapp_number && (
+              <details className="gradient-border-card rounded-2xl p-4 mt-4">
+                <summary className="cursor-pointer flex items-center gap-2 text-[#C7C7D1] text-sm font-bold list-none">
+                  <span>💡</span>
+                  <span>Things you can say in WhatsApp anytime</span>
+                  <span className="ml-auto text-[#7E7E8E] text-xs">tap to view</span>
+                </summary>
+                <div className="mt-3 pt-3 border-t border-white/[0.08] space-y-3">
+                  <div>
+                    <p className="text-[#A6A6B4] text-[11px] font-bold uppercase tracking-wider mb-1.5">In any interview</p>
+                    <ul className="text-[#C7C7D1] text-xs leading-relaxed space-y-1.5 pl-1">
+                      <li><span className="font-bold text-[#6AA8F5]">&quot;skip&quot;</span> / <span className="font-bold text-[#6AA8F5]">&quot;next&quot;</span> — move to the next question</li>
+                      <li><span className="font-bold text-[#6AA8F5]">&quot;repeat that&quot;</span> — re-ask the previous question</li>
+                      <li><span className="font-bold text-[#6AA8F5]">&quot;done&quot;</span> / <span className="font-bold text-[#6AA8F5]">&quot;pause&quot;</span> — finish or pause (your answers are saved)</li>
+                      <li><span className="font-bold text-[#6AA8F5]">&quot;start over&quot;</span> — wipe + begin the main interview fresh</li>
+                      <li><span className="font-bold text-[#6AA8F5]">&quot;I don&apos;t know&quot;</span> — totally fine, we&apos;ll move on</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="text-[#A6A6B4] text-[11px] font-bold uppercase tracking-wider mb-1.5">Anytime, just text</p>
+                    <ul className="text-[#C7C7D1] text-xs leading-relaxed space-y-1.5 pl-1">
+                      <li><span className="font-bold text-[#6AA8F5]">&quot;voice&quot;</span> — record a voice sample in each language you speak</li>
+                      <li><span className="font-bold text-[#6AA8F5]">&quot;references&quot;</span> — see your reference requests + status</li>
+                    </ul>
+                  </div>
+                  <p className="text-[#A6A6B4] text-xs leading-relaxed pt-1">
+                    🎙 <strong>Voice notes work in any language</strong> — Arabic, Tagalog, Spanish, Hindi, whatever&apos;s easier. We transcribe + respond in the same language.
+                  </p>
+                </div>
+              </details>
+            )}
 
             {/* ─── Open Roles Board ─── */}
             <div className="mt-4">
@@ -802,7 +965,8 @@ export default async function Dashboard() {
                 </div>
               </Link>
             </div>
-          </>
+            </main>
+          </div>
         )}
 
         {/* ─── COMPANY VIEW ─── */}

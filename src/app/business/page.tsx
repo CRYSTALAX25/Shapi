@@ -8,6 +8,7 @@ type Entity = { name?: string; what?: string; url?: string | null }
 type Blueprint = {
   field?: string; country?: string; currency?: string
   fit?: { score?: number; verdict?: string; strengths?: string[]; gaps?: string[] }
+  ownership?: { can_sole_own?: string; summary?: string; visa_or_permit?: string; partner_or_sponsor?: string; route?: string }
   pros?: string[]; cons?: string[]
   better_countries?: { country?: string; why?: string }[]
   structures?: string[]; time_estimate?: string
@@ -91,6 +92,30 @@ export default function BusinessBlueprint() {
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
   const [suggested, setSuggested] = useState(false)
+  const [suggestLoading, setSuggestLoading] = useState(false)
+
+  const suggestFigures = async () => {
+    if (!field.trim()) { setErr('Add your trade/field first.'); return }
+    setSuggestLoading(true); setErr('')
+    try {
+      const res = await fetch('/api/business/pricing', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ field, country }),
+      })
+      const raw = await res.text()
+      let d: { suggestion?: { currency?: string; labour?: number; materials?: number; overhead_pct?: number; margin_pct?: number; note?: string } } = {}
+      try { d = JSON.parse(raw) } catch {}
+      const s = d.suggestion
+      if (s) {
+        if (s.labour != null) setLabour(String(s.labour))
+        if (s.materials != null) setMaterials(String(s.materials))
+        if (s.overhead_pct != null) setOverhead(String(s.overhead_pct))
+        if (s.margin_pct != null) setMargin(String(s.margin_pct))
+        if (s.currency && !currencyTouched) setCurrency(s.currency)
+        setSuggested(true)
+      } else { setErr('Could not suggest figures — try again.') }
+    } catch { setErr('Could not suggest figures — try again.') } finally { setSuggestLoading(false) }
+  }
 
   // Prefill country from career/translate; ignore failures (page works logged-out).
   useEffect(() => {
@@ -124,7 +149,7 @@ export default function BusinessBlueprint() {
   const fmt = (n: number) =>
     n.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 0 })
 
-  const getSteps = async () => {
+  const getSteps = async (live = false) => {
     if (!field.trim() || !country.trim()) {
       setErr('Add your trade and country first.')
       return
@@ -133,7 +158,7 @@ export default function BusinessBlueprint() {
     try {
       const res = await fetch('/api/business', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ field, country }),
+        body: JSON.stringify({ field, country, live }),
       })
       // Parse defensively — researching the live web can be slow; a timeout
       // returns an HTML 504, not JSON.
@@ -198,8 +223,12 @@ export default function BusinessBlueprint() {
         <div className="rounded-2xl p-5 mb-6" style={cardStyle}>
           <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-1">🧮 Pricing calculator</p>
           <p className="text-[#7E7E8E] text-xs mb-4">What should you charge per job to stay in business? Type your costs — the quote updates live.</p>
+          <button onClick={suggestFigures} disabled={suggestLoading || !field.trim()}
+            className="mb-4 text-xs font-bold px-3 py-1.5 rounded-full disabled:opacity-40" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5', border: '1px solid rgba(106,168,245,0.25)' }}>
+            {suggestLoading ? 'Thinking…' : `💡 Suggest typical figures${field.trim() ? ` for ${field.trim()}` : ''}`}
+          </button>
           {suggested && (
-            <p className="text-[#6AA8F5] text-xs mb-4 -mt-2">💡 Pre-filled with typical figures for {field || 'this field'}{country ? ` in ${country}` : ''}{bp?.pricing_suggestion?.note ? ` — ${bp.pricing_suggestion.note}` : ''}. Adjust to your real costs.</p>
+            <p className="text-[#6AA8F5] text-xs mb-4 -mt-2">Pre-filled with typical figures for {field || 'this field'}{country ? ` in ${country}` : ''}{bp?.pricing_suggestion?.note ? ` — ${bp.pricing_suggestion.note}` : ''}. Adjust to your real costs.</p>
           )}
 
           <div className="grid sm:grid-cols-2 gap-3">
@@ -312,6 +341,28 @@ export default function BusinessBlueprint() {
                 </div>
               )}
 
+              {/* Ownership & visa — can you own it where you are? */}
+              {bp.ownership && (() => {
+                const o = bp.ownership
+                const can = (o.can_sole_own || '').toLowerCase()
+                const oc = can === 'yes' ? '#6AA8F5' : can === 'no' ? '#F58E9A' : '#FBBF24'
+                const label = can === 'yes' ? 'Sole ownership ✓' : can === 'no' ? 'Local partner required' : 'Conditional'
+                return (
+                  <div className="rounded-xl p-4" style={{ background: `${oc}14`, border: `1px solid ${oc}33` }}>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full" style={{ background: `${oc}26`, color: oc }}>🛂 {label}</span>
+                      <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider">Ownership &amp; visa — {bp.country}</p>
+                    </div>
+                    {o.summary && <p className="text-[#C7C7D1] text-sm leading-relaxed mb-2">{o.summary}</p>}
+                    <div className="space-y-1 text-xs">
+                      {o.route && <p><span className="text-[#7E7E8E] font-bold">Route:</span> <span className="text-[#C7C7D1]">{o.route}</span></p>}
+                      {o.partner_or_sponsor && <p><span className="text-[#7E7E8E] font-bold">Partner/sponsor:</span> <span className="text-[#C7C7D1]">{o.partner_or_sponsor}</span></p>}
+                      {o.visa_or_permit && <p><span className="text-[#7E7E8E] font-bold">Visa/permit:</span> <span className="text-[#C7C7D1]">{o.visa_or_permit}</span></p>}
+                    </div>
+                  </div>
+                )
+              })()}
+
               {/* Pros / cons */}
               {((bp.pros?.length ?? 0) > 0 || (bp.cons?.length ?? 0) > 0) && (
                 <div className="grid sm:grid-cols-2 gap-3">
@@ -412,6 +463,10 @@ export default function BusinessBlueprint() {
               {bp.disclaimer && (
                 <p className="text-[#7E7E8E] text-[11px] leading-relaxed pt-2 border-t border-white/[0.08]">⚠️ {bp.disclaimer}</p>
               )}
+              <button onClick={() => getSteps(true)} disabled={loading}
+                className="text-xs font-bold px-3 py-1.5 rounded-full disabled:opacity-40" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5', border: '1px solid rgba(106,168,245,0.25)' }}>
+                {loading ? 'Researching live figures…' : '🔍 Refresh with live figures (slower)'}
+              </button>
             </div>
             )
           })()}
