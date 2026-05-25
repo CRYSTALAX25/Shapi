@@ -31,3 +31,39 @@ Everything discussed but deliberately deferred until after the **2 June 2026** f
 ## Pricing / packaging (revenue)
 - Verified-RTW and verified-aptitude as premium add-ons employers pay for.
 - Upskilling affiliate/revenue share.
+
+---
+
+# Career-pivot ecosystem — build roadmap (from the 25 May 2026 brand/feature brainstorm)
+
+Decision (Ana, 2026-05-25): **build these, not defer** — sequenced around the 2 June test. Bug audit done first; candidate flow confirmed safe. Legend: ✅ have · 🟡 partial · 🆕 new.
+
+## Positioning anchor (LOCKED)
+- **Cross-collar career navigator for the AI era.** Shapi = "Shaping" + Polaris (North Star). Mission: turn AI anxiety into career agility. The white space competitors miss (FutureFit=B2B/gov, Noxx/Fabric=white-collar tech only, trade boards=static): a **consumer, two-way, blue↔white, all-in-one** map + courses + local jobs + business-starter.
+- **Two tracks (LOCKED):** **Pivot** (high-AI-risk roles → guide *out* into growing fields) vs **Shield** (resilient trades e.g. plumber/electrician/HVAC = "AI-Proof Asset" → *level up* within trade + protect earnings, don't push them out). The roadmap engine must branch on this. Plumber ≠ someone to "save".
+- **Cross-collar is two-way but asymmetric:** White→Blue (burnout/AI/tangible) is common; Blue→White only into *specialised* roles that need the trade knowledge (estimator, technical sales, safety inspector, trainer) — never generic admin. Win by industry-*adjacent* moves, not total restarts.
+
+## Tier 1 — build before / around launch
+- 🆕 **Career Translator** — From [current role] → To [target role] screen: **salary dip + 3-yr forecast**, recommended roadmap with **course durations**, Pivot-vs-Shield branch, "Find an employer" vs "Open my own business" CTAs. Flagship. (We have pivot_paths + /worth + upskill — assemble into one tool.)
+- 🆕 **Course durations + study-pace tracks** — show ⏱️hours + 📅weeks at chosen pace; toggle **Sprint / Steady / Bite-size**. Removes "back to school" fear.
+- 🆕 **Pivot vs Shield in the roadmap** — branch the career-roadmap prompt/UI so resilient trades get "level-up/protect" not "pivot-out"; award **"AI-Proof Asset" badge** for low-risk trades.
+- 🆕 **AI-Proof Status Report (lead magnet)** — public/free: input job title (or CV) → automation-risk + preview of 3 fastest pivots; full timeline/courses gated behind free signup. Growth engine for first 1,000 users.
+
+## Tier 2 — fast-follow
+- 🆕 **"Ask Shapi" concierge** — persistent in-app AI chat on every page, drawing on internal data (salary, courses, business steps, country-specific). We have WhatsApp + cv-builder chat; this is on-platform + omnipresent.
+- 🆕 **Entrepreneurship blueprint** ("Open my own business") — country-agnostic: licensing check, **pricing calculator** ((labour+materials+overhead)×margin), customer-acquisition steps. Ask-Shapi answers country specifics.
+- 🆕 **Adaptability Score** — how fast a candidate learns (course completion speed + engagement); surface on company-facing profile alongside Verified Human Skills.
+- 🟡 **Smart Course Wallet** enhancements — **like/save** courses; explicit **cost tiers: Free / Paid / Subsidised (Government-location-driven · Employer-sponsored-job-driven)**; (we already have links + free/paid/financing + cert-link verification + tracked courses + sponsored_by badge).
+- 🆕 **Employer ping on course completion** — when a candidate verifies a cert matching an open role, notify the employer ("X just completed Y — review now"). Ties course wallet → matching.
+- 🆕 **Train-to-Hire tag + "Pivot Jobs" filter** — employers flag roles accepting transitioning workers w/ on-job training; candidates toggle a pivot-friendly view.
+
+## Tier 3 — polish / retention / brand
+- 🆕 **Shapi mascot persona** — name the North Star **"Shapi"** as the guide voice; taglines "Find your true north" / "Shape your next horizon". Mascot direction being picked at `/mascot`. Weave Shapi voice into onboarding, match alerts, celebrations (shooting-star on interview booked).
+- 🆕 **Welcome email sequence** (3-part, Shapi-voiced) — Day 0 welcome + Skill Shape-Check; Day 2 pivot map; Day 5 social proof + who's hiring.
+- 🆕 **Constellation progress tracker** — gamified milestone path (profile → references → interview) lighting up stars; "Star Fragments" for course completion.
+- 🆕 **Cert OCR auto-verification** — OCR uploaded certificate (name/title/date) to auto-award the verified badge (currently manual link-presence). Overlaps existing "course auto-verification" backlog item.
+- 🆕 **Native "Cross-Collar Transition Guide"** micro-course (3 modules) — only if we move beyond curating external links to hosting content.
+
+## Go-to-market (not code — for the launch plan)
+- **Hyper-local first** for marketplace liquidity: one metro with both corporate + construction density; Month 1 onboard 15–20 trade employers (free 6-mo posts, accept pivot candidates); Month 2 open candidate supply; Month 3 case studies → adjacent cities. (NB current plan is UAE-first / friends & family 2 June.)
+- **Viral hooks:** "Desk burnout vs trade security" split-screen reels; "skill translation myth-buster" posts; Employer-paid Upskilling Bounty ("study 5h/wk for a month → guaranteed interview with [Employer]").
