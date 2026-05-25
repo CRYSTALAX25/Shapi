@@ -12,7 +12,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import Anthropic from '@anthropic-ai/sdk'
 
-export const maxDuration = 45
+export const maxDuration = 60
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}))
@@ -49,9 +49,9 @@ export async function POST(request: Request) {
 THEIR BACKGROUND: ${experience}
 
 Rules:
-- Be specific to ${country} — name REAL authorities/bodies. Generic = useless.
-- Costs are INDICATIVE only (you have no live data). Give realistic local-currency RANGES and never imply they're exact/current.
-- For each entity to register with or use, give the official organisation name and, ONLY IF you are confident, its official website ROOT domain (e.g. "https://www.companieshouse.gov.uk"). If unsure of the exact domain, set "url" to null — do NOT guess a deep link.
+- USE WEB SEARCH to find CURRENT, real figures: the actual setup/licence/registration fees and starting-capital ranges for a "${field}" business in ${country} right now, and the official government/registration body plus its REAL website URL. Base costs and links on what you find — do not guess.
+- Be specific to ${country} — name REAL authorities/bodies you found. Generic = useless.
+- For each entity, give the official organisation name and its real official URL from your search (root or the specific registration page). If you genuinely couldn't find a URL, set "url" to null.
 - "fit.score" 0-10 = how well THEIR background suits running this business; be honest.
 
 Return ONLY valid JSON (tight; each string ≤ 24 words):
@@ -74,20 +74,42 @@ Return ONLY valid JSON (tight; each string ≤ 24 words):
   "launch_plan": [ { "phase": "Phase name", "steps": ["concrete step", "concrete step"] } ],
   "contacts": ["specific types of people/orgs to connect with first"],
   "entities": [ { "name": "official body/resource name", "what": "why you go here", "url": "https://official-root OR null" } ],
-  "disclaimer": "Figures are indicative — confirm current costs/rules on the official sources linked above."
+  "disclaimer": "Based on current sources found via web search — fees/rules can still change, so confirm on the official links above."
 }
-Keep it practical and ${country}-specific.`
+Keep it practical and ${country}-specific. After searching, output the JSON as your final message.`
+
+  // Join all text blocks (with web search there are tool/result blocks too).
+  const extractJson = (content: Array<{ type: string; text?: string }>): Record<string, unknown> | null => {
+    const text = content.filter(b => b.type === 'text').map(b => b.text || '').join('\n')
+    const match = text.match(/\{[\s\S]*\}/)
+    if (!match) return null
+    try { return JSON.parse(match[0]) as Record<string, unknown> } catch { return null }
+  }
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 2600,
-      messages: [{ role: 'user', content: prompt }],
-    })
-    const text = response.content[0]?.type === 'text' ? response.content[0].text : ''
-    const match = text.match(/\{[\s\S]*\}/)
-    if (!match) return NextResponse.json({ error: 'Could not build that blueprint — try again.' }, { status: 500 })
-    const blueprint = JSON.parse(match[0]) as Record<string, unknown>
+    let content: Array<{ type: string; text?: string }>
+    try {
+      // Live mode: let Claude search the web for current costs + official URLs.
+      const response = await anthropic.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 3000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 } as unknown as Anthropic.Tool],
+        messages: [{ role: 'user', content: prompt }],
+      })
+      content = response.content as Array<{ type: string; text?: string }>
+    } catch (searchErr) {
+      // Web search not available on this account/plan → fall back to model knowledge.
+      console.warn('[business] web search unavailable, falling back:', searchErr instanceof Error ? searchErr.message : searchErr)
+      const response = await anthropic.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2600,
+        messages: [{ role: 'user', content: prompt + '\n\n(Web search is unavailable — give your best indicative figures and clearly say so in the disclaimer.)' }],
+      })
+      content = response.content as Array<{ type: string; text?: string }>
+    }
+
+    const blueprint = extractJson(content)
+    if (!blueprint) return NextResponse.json({ error: 'Could not build that blueprint — try again.' }, { status: 500 })
     return NextResponse.json({ success: true, blueprint })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
