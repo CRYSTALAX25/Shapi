@@ -293,13 +293,13 @@ white collar, WhatsApp-native**, expanding from once-a-year perm into high-frequ
   subscription, Shapi funds $1 of free upskilling" makes it a **business revenue commitment**,
   not solicited charity → avoids fundraising-permit/registered-entity requirements. **Never use
   the words "donate / donation / charity" in product copy.**
-- **[RECOMMENDED] Pay the course provider directly (or reimburse the certificate fee on
+- **[LOCKED] Pay the course provider directly (or reimburse the certificate fee on
   completion) — never give cash to candidates.** Guarantees the money does what it says +
   removes fraud/welfare-scrutiny risk.
-- **[RECOMMENDED] "Course of their choice" — but inside a job-relevant frame.** They pick freely
+- **[LOCKED] "Course of their choice" — but inside a job-relevant frame.** They pick freely
   **from the skills Career Translator says lead to a real role for them.** Keeps it generous but
-  strategic (career ladder, not handout).
-- **[RECOMMENDED] Fund only courses that produce a *verifiable* credential** (fountain-of-truth
+  strategic (career ladder, not handout). _(Confirmed by Ana 2026-05-25.)_
+- **[LOCKED] Fund only courses that produce a *verifiable* credential** (fountain-of-truth
   DNA) → every funded course ends in provable proof on their profile → feeds the placement
   engine. Double impact: upskills someone *and* strengthens Shapi's supply side.
 
