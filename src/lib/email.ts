@@ -385,6 +385,114 @@ export async function sendConciergeOutreach(opts: {
   })
 }
 
+// ── 9. Candidate: new Concierge outreach drafts to review ───────────────────
+// Fired by the Concierge scan when ≥1 new 'pending_approval' draft is created
+// for a candidate. Nudges them to review & approve in their dashboard.
+
+export async function sendConciergeNudge(opts: {
+  to: string
+  name: string
+  count: number
+}) {
+  const { to, name, count } = opts
+  const firstName = name?.split(' ')[0] || 'there'
+  const dashboardUrl = `${SITE}/dashboard`
+  const roleWord = count === 1 ? 'role' : 'roles'
+
+  const html = emailShell(`
+    ${h1(`${firstName}, ${count} new ${roleWord} worth a look.`)}
+    ${p(`Your Shapi Concierge scanned today&apos;s openings and drafted personalised intros for <strong style="color:#22D3EE">${count} ${roleWord}</strong> that fit your profile. Each one&apos;s ready — review and approve before it goes out.`)}
+    ${p(`You&apos;ve got ${count} new ${roleWord} worth a look — review &amp; approve in your Shapi dashboard.`)}
+    ${btn('Review your drafts →', dashboardUrl)}
+    ${divider()}
+    ${p(`<span style="font-size:13px;color:rgba(255,255,255,0.3)">Nothing is sent until you approve it. You can edit, approve, or skip each draft.</span>`)}
+  `)
+
+  await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: `${count} new ${roleWord} worth a look on Shapi`,
+    html,
+  })
+}
+
+// ── 10. Candidate: a hiring manager replied to Concierge outreach ───────────
+// Fired when a manager replies to an AI-Concierge intro. Nudges the candidate
+// to get booked and forwards the reply text if we captured it. By the time this
+// sends, we've already auto-proposed an interview in the pipeline.
+
+export async function sendConciergeReplyAlert(opts: {
+  to: string
+  name: string
+  roleName: string
+  companyName: string
+  replyText?: string
+}) {
+  const { to, name, roleName, companyName, replyText } = opts
+  const firstName = name?.split(' ')[0] || 'there'
+  const dashboardUrl = `${SITE}/dashboard`
+  const safeReply = replyText
+    ? String(replyText)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\r\n|\r|\n/g, '<br>')
+        .slice(0, 1200)
+    : ''
+
+  const html = emailShell(`
+    ${h1(`${firstName}, a hiring manager replied. 🎉`)}
+    ${p(`Good news — the team at <strong style="color:rgba(255,255,255,0.8)">${companyName}</strong> just replied about the <strong style="color:rgba(255,255,255,0.8)">${roleName}</strong> role your Concierge reached out about.`)}
+    ${safeReply ? `
+    <div style="background:rgba(106,168,245,0.06);border:1px solid rgba(106,168,245,0.18);border-radius:10px;padding:14px 18px;margin:0 0 20px">
+      <p style="color:rgba(106,168,245,0.85);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin:0 0 8px">What they said</p>
+      <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.6;margin:0">${safeReply}</p>
+    </div>` : ''}
+    ${p(`We&apos;ve already proposed an interview in your Shapi pipeline. Let&apos;s get you booked — open your dashboard to confirm a time.`)}
+    ${btn(`Let&apos;s get you booked →`, dashboardUrl)}
+    ${divider()}
+    ${p(`<span style="font-size:13px;color:rgba(255,255,255,0.3)">Reply fast while you&apos;re top of mind. Most interviews are booked within a day of the manager replying.</span>`)}
+  `)
+
+  await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: `A hiring manager replied about ${roleName} — let's get you booked`,
+    html,
+  })
+}
+
+// ── 11. Company: candidate is ready to book an interview ────────────────────
+// Fired when a candidate's Concierge outreach gets a reply (manual or inbound).
+// Tells the company the candidate is ready and links the pipeline.
+
+export async function sendConciergeReadyToBookEmail(opts: {
+  to: string
+  companyName: string
+  candidateName: string
+  roleName: string
+}) {
+  const { to, candidateName, roleName } = opts
+  const who = candidateName?.trim() || 'A verified candidate'
+  const pipelineUrl = `${SITE}/company/pipeline`
+
+  const html = emailShell(`
+    ${h1(`${who} is ready to book — ${roleName}`)}
+    ${p(`Following up on the reply to ${who}&apos;s Shapi outreach for your <strong style="color:rgba(255,255,255,0.8)">${roleName}</strong> role — they&apos;re ready to schedule an interview.`)}
+    ${p(`We&apos;ve added them to your pipeline with a proposed interview. Pick a time and send the invite straight from there.`)}
+    ${btn('Open your pipeline →', pipelineUrl)}
+    ${divider()}
+    ${p(`<span style="font-size:13px;color:rgba(255,255,255,0.3)">Every Shapi candidate is independently verified before they can reach you — references, work history, and skills are checked.</span>`)}
+  `)
+
+  await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: `${who} is ready to interview for ${roleName}`,
+    html,
+  })
+}
+
 // ── 7. Candidate: CV links sent to their own email ──────────────────────────
 
 export async function sendCVLinksEmail(opts: {

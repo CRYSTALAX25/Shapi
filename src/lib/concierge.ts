@@ -6,9 +6,16 @@
 // in `concierge_queue` with status='pending_approval' (or 'auto_send' if
 // the candidate opted in to autonomous mode).
 
+import { randomBytes } from 'crypto'
 import Anthropic from '@anthropic-ai/sdk'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { sendConciergeOutreach } from '@/lib/email'
+import {
+  sendConciergeOutreach,
+  sendConciergeNudge,
+  sendConciergeReplyAlert,
+  sendConciergeReadyToBookEmail,
+} from '@/lib/email'
+import { sendWhatsApp } from '@/lib/whatsapp'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -171,7 +178,7 @@ export async function runConciergeScanForCandidate(candidateId: string): Promise
 
   const { data: profile } = await admin
     .from('profiles')
-    .select('id, full_name, headline, location, summary, skills, work_history, industry, concierge_auto_send, concierge_paused_until')
+    .select('id, full_name, headline, location, summary, skills, work_history, industry, concierge_auto_send, concierge_paused_until, whatsapp_number')
     .eq('id', candidateId)
     .single()
   if (!profile) return { scanned: 0, drafted: 0, reason: 'profile not found' }
@@ -224,6 +231,7 @@ export async function runConciergeScanForCandidate(candidateId: string): Promise
   }
 
   let drafted = 0
+  let newPendingApproval = 0  // NEW drafts that need the candidate's review
   for (const s of scored) {
     const companyName = companyMap[s.role.company_id] || 'Company'
     const draft = await draftIntro(profile as Profile, s.role, companyName)
@@ -239,8 +247,46 @@ export async function runConciergeScanForCandidate(candidateId: string): Promise
       draft_body: draft.body,
       status,
     })
-    if (!error) drafted++
-    else console.error('[concierge] insert failed:', error)
+    if (!error) {
+      drafted++
+      if (status === 'pending_approval') newPendingApproval++
+    } else {
+      console.error('[concierge] insert failed:', error)
+    }
+  }
+
+  // Nudge the candidate once per run when ≥1 NEW draft awaits their approval.
+  // Never block / fail the scan if the nudge fails — wrap everything in try/catch.
+  if (newPendingApproval > 0) {
+    try {
+      const { data: authUser } = await admin.auth.admin.getUserById(candidateId)
+      const email = authUser?.user?.email
+      const name = (profile.full_name as string) || ''
+
+      if (email) {
+        try {
+          await sendConciergeNudge({ to: email, name, count: newPendingApproval })
+        } catch (err) {
+          console.error('[concierge] nudge email failed:', err)
+        }
+      }
+
+      const whatsapp = (profile.whatsapp_number as string | null) || null
+      if (whatsapp) {
+        try {
+          const firstName = name.split(' ')[0] || 'there'
+          const roleWord = newPendingApproval === 1 ? 'role' : 'roles'
+          await sendWhatsApp(
+            whatsapp,
+            `Hi ${firstName} 👋 Your Shapi Concierge found ${newPendingApproval} new ${roleWord} worth a look — review & approve in your dashboard: https://shapi.io/dashboard`,
+          )
+        } catch (err) {
+          console.error('[concierge] nudge whatsapp failed:', err)
+        }
+      }
+    } catch (err) {
+      console.error('[concierge] nudge step failed:', err)
+    }
   }
 
   await admin.from('profiles')
@@ -332,7 +378,25 @@ export async function sendApprovedConciergeDraft(draft: QueueRow): Promise<Conci
   }
 
   const candidateName = (candidateProfile?.full_name as string) || ''
-  const replyTo = candidateAuth?.user?.email || undefined
+
+  // Reply-to is env-gated. In CAPTURE mode (INBOUND_EMAIL_DOMAIN set) we mint a
+  // reply_token and route replies to reply+<token>@<domain> so /api/inbound/email
+  // can match the reply back to this draft and auto-book. Otherwise we keep the
+  // legacy behaviour: replies go straight to the candidate's own inbox.
+  const inboundDomain = process.env.INBOUND_EMAIL_DOMAIN
+  let replyTo = candidateAuth?.user?.email || undefined
+  if (inboundDomain) {
+    const token = randomBytes(16).toString('hex')
+    const { error: tokErr } = await admin
+      .from('concierge_queue')
+      .update({ reply_token: token })
+      .eq('id', draft.id)
+    if (!tokErr) {
+      replyTo = `reply+${token}@${inboundDomain}`
+    } else {
+      console.error('[concierge] reply_token store failed, falling back to candidate email:', tokErr)
+    }
+  }
 
   try {
     await sendConciergeOutreach({
@@ -402,4 +466,162 @@ export async function sendPendingConciergeOutreach(limit = 25): Promise<{
     else failed++
   }
   return { picked: rows.length, sent, skipped, failed, results }
+}
+
+// ── Reply capture + auto-booking ────────────────────────────────────────────
+// One shared handler for BOTH triggers (manual "they replied" button and the
+// automated inbound-email webhook). Given a draft id, it:
+//   1. Marks the row 'replied' (+ replied_at, reply_excerpt).
+//   2. Notifies the CANDIDATE (email + WhatsApp) that a manager replied.
+//   3. Auto-INITIATES an interview row (status 'scheduled', no time yet) and
+//      stores its id on the draft. ('scheduled' is the interviews table's
+//      earliest stage — the company sets the time later from the pipeline.)
+//   4. Notifies the COMPANY that the candidate is ready to book.
+// Idempotent: if the row is already 'replied' or already has an interview_id,
+// it no-ops (returns ok:true, already:true).
+
+export type ConciergeReplyResult =
+  | { ok: true; draftId: string; interviewId: string | null; already?: boolean }
+  | { ok: false; draftId: string; reason: string }
+
+export async function handleConciergeReply(
+  draftId: string,
+  replyText?: string,
+): Promise<ConciergeReplyResult> {
+  const admin = createAdminClient()
+
+  const { data: draft } = await admin
+    .from('concierge_queue')
+    .select('id, candidate_id, role_id, draft_subject, status, replied_at, interview_id')
+    .eq('id', draftId)
+    .single()
+  if (!draft) return { ok: false, draftId, reason: 'draft not found' }
+
+  // Idempotency guard — already processed.
+  if (draft.status === 'replied' || draft.replied_at || draft.interview_id) {
+    return { ok: true, draftId, interviewId: (draft.interview_id as string) || null, already: true }
+  }
+
+  const excerpt = replyText ? String(replyText).trim().slice(0, 300) : null
+
+  // 1. Flip to 'replied'. Scope to the not-yet-replied state to avoid races.
+  const { error: updErr } = await admin
+    .from('concierge_queue')
+    .update({
+      status: 'replied',
+      replied_at: new Date().toISOString(),
+      reply_excerpt: excerpt,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', draft.id)
+    .is('replied_at', null)
+  if (updErr) {
+    console.error('[concierge] reply status update failed:', updErr)
+    return { ok: false, draftId, reason: 'status update failed' }
+  }
+
+  // Resolve role, company, candidate context.
+  const { data: role } = await admin
+    .from('roles')
+    .select('id, title, company_id')
+    .eq('id', draft.role_id)
+    .single()
+
+  const companyId = (role?.company_id as string) || null
+  const roleTitle = (role?.title as string) || 'a role'
+
+  const [{ data: candidateProfile }, { data: candidateAuth }, companyAuthRes] = await Promise.all([
+    admin.from('profiles').select('full_name, whatsapp_number').eq('id', draft.candidate_id).single(),
+    admin.auth.admin.getUserById(draft.candidate_id),
+    companyId ? admin.auth.admin.getUserById(companyId) : Promise.resolve({ data: null }),
+  ])
+
+  const candidateName = (candidateProfile?.full_name as string) || ''
+  const candidatePhone = (candidateProfile?.whatsapp_number as string) || ''
+  const candidateEmail = candidateAuth?.user?.email || ''
+
+  let companyName = 'the hiring team'
+  let companyEmail = ''
+  if (companyId) {
+    const companyAuth = (companyAuthRes as { data: { user?: { email?: string } } | null }).data
+    companyEmail = companyAuth?.user?.email || ''
+    const { data: companyProfile } = await admin
+      .from('profiles')
+      .select('company_name, full_name')
+      .eq('id', companyId)
+      .single()
+    companyName = (companyProfile?.company_name as string) || (companyProfile?.full_name as string) || companyName
+  }
+
+  // 3. Auto-initiate the interview (earliest stage, no time yet). Idempotent on
+  // (candidate_id, role_id) so a re-run reuses the same interview row.
+  let interviewId: string | null = null
+  if (companyId) {
+    const { data: interview, error: ivErr } = await admin
+      .from('interviews')
+      .upsert(
+        {
+          candidate_id: draft.candidate_id,
+          role_id: draft.role_id,
+          company_id: companyId,
+          status: 'scheduled', // earliest stage; time set later from pipeline
+        },
+        { onConflict: 'candidate_id,role_id' },
+      )
+      .select('id')
+      .single()
+    if (!ivErr && interview) {
+      interviewId = interview.id as string
+      await admin.from('concierge_queue').update({ interview_id: interviewId }).eq('id', draft.id)
+    } else if (ivErr) {
+      console.error('[concierge] interview auto-create failed:', ivErr)
+    }
+  }
+
+  // 2. Notify the candidate (email + WhatsApp).
+  if (candidateEmail) {
+    try {
+      await sendConciergeReplyAlert({
+        to: candidateEmail,
+        name: candidateName,
+        roleName: roleTitle,
+        companyName,
+        replyText,
+      })
+    } catch (err) {
+      console.error('[concierge] candidate reply-alert email failed:', err)
+    }
+  }
+  if (candidatePhoneIsUsable(candidatePhone)) {
+    const waMsg =
+      `Great news${candidateName ? ', ' + candidateName.split(' ')[0] : ''}! ` +
+      `A hiring manager at ${companyName} replied about the ${roleTitle} role — let's get you booked. ` +
+      `Open your Shapi dashboard to confirm a time.` +
+      (replyText ? `\n\nThey said:\n"${String(replyText).trim().slice(0, 280)}"` : '')
+    try {
+      await sendWhatsApp(candidatePhone, waMsg)
+    } catch (err) {
+      console.error('[concierge] candidate reply WhatsApp failed:', err)
+    }
+  }
+
+  // 4. Notify the company that the candidate is ready to book.
+  if (companyEmail) {
+    try {
+      await sendConciergeReadyToBookEmail({
+        to: companyEmail,
+        companyName,
+        candidateName,
+        roleName: roleTitle,
+      })
+    } catch (err) {
+      console.error('[concierge] company ready-to-book email failed:', err)
+    }
+  }
+
+  return { ok: true, draftId, interviewId }
+}
+
+function candidatePhoneIsUsable(phone: string): boolean {
+  return typeof phone === 'string' && phone.replace(/[^0-9]/g, '').length >= 8
 }

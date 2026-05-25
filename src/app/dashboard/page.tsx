@@ -78,21 +78,24 @@ export default async function Dashboard() {
     draft_body: string
     status: string
     created_at: string
+    reply_excerpt: string | null
+    interview_id: string | null
   }
   let conciergeDrafts: ConciergeDraft[] = []
   let conciergeRoleMap: Record<string, { title: string; company_name: string }> = {}
-  const conciergeCounts = { queued: 0, approved: 0, sent: 0 }
+  const conciergeCounts = { queued: 0, approved: 0, sent: 0, replied: 0 }
   if (isConcierge) {
     const { data: drafts } = await supabase
       .from('concierge_queue')
-      .select('id, role_id, match_score, match_reasons, draft_subject, draft_body, status, created_at')
+      .select('id, role_id, match_score, match_reasons, draft_subject, draft_body, status, created_at, reply_excerpt, interview_id')
       .eq('candidate_id', user.id)
-      .in('status', ['pending_approval', 'auto_send', 'approved', 'sent'])
+      .in('status', ['pending_approval', 'auto_send', 'approved', 'sent', 'replied'])
       .order('created_at', { ascending: false })
       .limit(10)
     conciergeDrafts = (drafts as ConciergeDraft[]) || []
     for (const d of conciergeDrafts) {
-      if (d.status === 'sent') conciergeCounts.sent++
+      if (d.status === 'replied') conciergeCounts.replied++
+      else if (d.status === 'sent') conciergeCounts.sent++
       else if (d.status === 'approved') conciergeCounts.approved++
       else conciergeCounts.queued++ // pending_approval / auto_send
     }
@@ -615,11 +618,14 @@ export default async function Dashboard() {
                         : 'No new matches today'}
                     </h3>
                     <p className="text-[#A6A6B4] text-xs mt-1">AI scans open roles every morning and drafts personalised intros — you review, approve, send.</p>
-                    {(conciergeCounts.queued + conciergeCounts.approved + conciergeCounts.sent) > 0 && (
-                      <div className="flex items-center gap-2 mt-3">
+                    {(conciergeCounts.queued + conciergeCounts.approved + conciergeCounts.sent + conciergeCounts.replied) > 0 && (
+                      <div className="flex items-center gap-2 mt-3 flex-wrap">
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/[0.05] text-[#A6A6B4]">{conciergeCounts.queued} queued</span>
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5]">{conciergeCounts.approved} approved</span>
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">{conciergeCounts.sent} sent</span>
+                        {conciergeCounts.replied > 0 && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/20 text-[#6AA8F5]">{conciergeCounts.replied} replied ✓</span>
+                        )}
                       </div>
                     )}
                   </div>
@@ -631,10 +637,23 @@ export default async function Dashboard() {
                 </div>
                 {conciergeDrafts.length > 0 && (
                   <div className="space-y-3">
-                    {conciergeDrafts.slice(0, 3).map(draft => {
+                    {[...conciergeDrafts]
+                      .sort((a, b) => (a.status === 'replied' ? -1 : 0) - (b.status === 'replied' ? -1 : 0))
+                      .slice(0, 3)
+                      .map(draft => {
                       const role = conciergeRoleMap[draft.role_id]
+                      const replied = draft.status === 'replied'
                       return (
-                        <div key={draft.id} className="bg-white/[0.05] rounded-xl p-3 border border-white/[0.08]">
+                        <div key={draft.id} className={`rounded-xl p-3 border ${
+                          replied
+                            ? 'bg-[#6AA8F5]/[0.08] border-[#6AA8F5]/35'
+                            : 'bg-white/[0.05] border-white/[0.08]'
+                        }`}>
+                          {replied && (
+                            <div className="flex items-center gap-1.5 mb-2">
+                              <span className="text-[#6AA8F5] text-xs font-black">Manager replied ✓ — interview proposed</span>
+                            </div>
+                          )}
                           <div className="flex items-center justify-between mb-1">
                             <div>
                               <p className="text-[#F4F4F7] text-sm font-bold">{role?.title || 'Role'}</p>
@@ -642,21 +661,39 @@ export default async function Dashboard() {
                             </div>
                             <span className="text-[#6AA8F5] text-xs font-black">{draft.match_score}%</span>
                           </div>
-                          {draft.draft_subject && (
-                            <p className="text-[#A6A6B4] text-xs mt-2 italic">&ldquo;{draft.draft_subject}&rdquo;</p>
+                          {replied && draft.reply_excerpt ? (
+                            <p className="text-[#A6A6B4] text-xs mt-2 italic line-clamp-3">&ldquo;{draft.reply_excerpt}&rdquo;</p>
+                          ) : (
+                            <>
+                              {draft.draft_subject && (
+                                <p className="text-[#A6A6B4] text-xs mt-2 italic">&ldquo;{draft.draft_subject}&rdquo;</p>
+                              )}
+                              <p className="text-[#7E7E8E] text-[11px] mt-1 line-clamp-2">{draft.draft_body.slice(0, 220)}</p>
+                            </>
                           )}
-                          <p className="text-[#7E7E8E] text-[11px] mt-1 line-clamp-2">{draft.draft_body.slice(0, 220)}</p>
-                          <div className="flex items-center justify-between mt-2">
+                          <div className="flex items-center justify-between mt-2 gap-2">
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              draft.status === 'replied' ? 'bg-[#6AA8F5]/20 text-[#6AA8F5]' :
                               draft.status === 'sent' ? 'bg-emerald-500/15 text-emerald-400' :
                               draft.status === 'approved' ? 'bg-[#6AA8F5]/15 text-[#6AA8F5]' :
                               draft.status === 'auto_send' ? 'bg-[#6AA8F5]/15 text-[#6AA8F5]' :
                               'bg-white/[0.05] text-[#A6A6B4]'
                             }`}>
-                              {draft.status.replace('_', ' ')}
+                              {draft.status === 'replied' ? 'replied' : draft.status.replace('_', ' ')}
                             </span>
-                            {draft.match_reasons && draft.match_reasons.length > 0 && (
-                              <span className="text-[#7E7E8E] text-[10px]">{draft.match_reasons[0]}</span>
+                            {draft.status === 'sent' ? (
+                              <form action="/api/concierge/replied" method="POST">
+                                <input type="hidden" name="draftId" value={draft.id} />
+                                <button type="submit" className="text-[10px] font-bold text-[#6AA8F5] border border-[#6AA8F5]/40 hover:bg-[#6AA8F5]/10 px-2.5 py-1 rounded-full transition-colors">
+                                  ✅ They replied — book me in
+                                </button>
+                              </form>
+                            ) : replied ? (
+                              <Link href="/dashboard" className="text-[10px] font-bold text-[#6AA8F5]">Interview proposed →</Link>
+                            ) : (
+                              draft.match_reasons && draft.match_reasons.length > 0 && (
+                                <span className="text-[#7E7E8E] text-[10px]">{draft.match_reasons[0]}</span>
+                              )
                             )}
                           </div>
                         </div>
