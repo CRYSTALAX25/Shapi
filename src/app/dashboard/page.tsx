@@ -27,18 +27,20 @@ export default async function Dashboard() {
   let activeApplicationsCount = 0
   let evidenceCount = 0
   let completedRefsCount = 0
+  let refsTotal = 0
   // Upskilling summary
   let coursesInProgress = 0
   let coursesCompleted = 0
   let eventsBooked = 0
   let eventsAttended = 0
   if (type === 'candidate') {
-    const [interestsRes, shortlistRes, appsRes, evidenceRes, refsRes, coursesRes, eventsRes] = await Promise.all([
+    const [interestsRes, shortlistRes, appsRes, evidenceRes, refsRes, refsTotalRes, coursesRes, eventsRes] = await Promise.all([
       supabase.from('candidate_interests').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('company_shortlists').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('active_applications').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('evidence').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
       supabase.from('candidate_references').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id).eq('status', 'completed'),
+      supabase.from('candidate_references').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('candidate_courses').select('status').eq('candidate_id', user.id),
       supabase.from('candidate_events').select('status').eq('candidate_id', user.id),
     ])
@@ -47,6 +49,7 @@ export default async function Dashboard() {
     activeApplicationsCount = appsRes.count ?? 0
     evidenceCount = evidenceRes.count ?? 0
     completedRefsCount = refsRes.count ?? 0
+    refsTotal = refsTotalRes.count ?? 0
     for (const c of (coursesRes.data ?? [])) {
       if (c.status === 'completed') coursesCompleted++
       else if (c.status === 'in_progress') coursesInProgress++
@@ -129,6 +132,10 @@ export default async function Dashboard() {
   const refScore = type === 'candidate'
     ? await computeJobCompletionScore(user.id)
     : { bonusPct: 0, jobsComplete: 0 as const, job1: { manager: false, colleague: false, stakeholder: false, complete: false }, job2: { manager: false, colleague: false, stakeholder: false, complete: false } }
+  // 6 = the verification target (2 jobs × manager/colleague/stakeholder). If a manager
+  // nominated extra people, refsTotal can exceed 6 — so never let the denominator be
+  // smaller than how many actually responded (avoids nonsense like "9/6").
+  const refsDenom = Math.max(6, refsTotal)
   let completion: number
   if (isRolesBoard) {
     // Roles Board tier: CV + WhatsApp + Evidence + References tiered bonus
@@ -542,7 +549,7 @@ export default async function Dashboard() {
               <Link href="/profile/references" className="gradient-border-card rounded-2xl p-5 block hover:bg-white/[0.05] transition-colors">
                 <div className="flex items-center justify-between mb-1.5">
                   <h3 className="font-bold text-[#F4F4F7] text-sm">References</h3>
-                  <span className={`text-sm font-black ${refScore.jobsComplete === 2 ? 'text-emerald-400' : 'text-[#6AA8F5]'}`}>{completedRefsCount}/6</span>
+                  <span className={`text-sm font-black ${refScore.jobsComplete === 2 ? 'text-emerald-400' : 'text-[#6AA8F5]'}`}>{completedRefsCount}/{refsDenom}</span>
                 </div>
                 <p className="text-[#7E7E8E] text-xs mb-3">
                   {refScore.jobsComplete === 2
@@ -552,7 +559,7 @@ export default async function Dashboard() {
                     : 'Add the manager from your 2 latest jobs — we contact them.'}
                 </p>
                 <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (completedRefsCount / 6) * 100)}%`, background: refScore.jobsComplete === 2 ? 'linear-gradient(90deg,#34D399,#34D399)' : 'linear-gradient(90deg, #6AA8F5, #4F8FE8)' }} />
+                  <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (completedRefsCount / refsDenom) * 100)}%`, background: refScore.jobsComplete === 2 ? 'linear-gradient(90deg,#34D399,#34D399)' : 'linear-gradient(90deg, #6AA8F5, #4F8FE8)' }} />
                 </div>
               </Link>
 

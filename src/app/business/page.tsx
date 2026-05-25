@@ -194,6 +194,12 @@ export default function BusinessBlueprint() {
   const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }
   const labelCls = 'text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider'
   const cardStyle = { background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }
+  // Pre-filled figures show in coral so they read as "Shapi's suggestion — adjust me".
+  const calcInputCls = `${inputCls} ${suggested ? '!text-[#FB7185] font-bold' : ''}`
+  // Digital businesses have no per-job "materials" — relabel to tech-stack costs.
+  const isDigital = /\b(marketplace|platform|app|saas|software|online|e-?commerce|web ?app|website|digital|agency|recruit\w*|tech|startup|subscription|fintech|edtech|healthtech|consult\w*)\b/i.test(field)
+  const labourLabel = isDigital ? 'Team / labour cost (per month)' : 'Labour cost (per job)'
+  const materialsLabel = isDigital ? 'Tech stack & tools (per month, ~1,000 users)' : 'Materials cost (per job)'
 
   return (
     <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7]">
@@ -237,24 +243,24 @@ export default function BusinessBlueprint() {
 
           <div className="grid sm:grid-cols-2 gap-3">
             <div>
-              <label className={labelCls}>Labour cost (per job)</label>
+              <label className={labelCls}>{labourLabel}</label>
               <input value={labour} onChange={e => setLabour(e.target.value)} inputMode="decimal" placeholder="e.g. 200"
-                className={inputCls} style={inputStyle} />
+                className={calcInputCls} style={inputStyle} />
             </div>
             <div>
-              <label className={labelCls}>Materials cost (per job)</label>
-              <input value={materials} onChange={e => setMaterials(e.target.value)} inputMode="decimal" placeholder="e.g. 120"
-                className={inputCls} style={inputStyle} />
+              <label className={labelCls}>{materialsLabel}</label>
+              <input value={materials} onChange={e => setMaterials(e.target.value)} inputMode="decimal" placeholder={isDigital ? 'e.g. 1500' : 'e.g. 120'}
+                className={calcInputCls} style={inputStyle} />
             </div>
             <div>
               <label className={labelCls}>Overhead %</label>
               <input value={overhead} onChange={e => setOverhead(e.target.value)} inputMode="decimal" placeholder="e.g. 20"
-                className={inputCls} style={inputStyle} />
+                className={calcInputCls} style={inputStyle} />
             </div>
             <div>
               <label className={labelCls}>Profit margin %</label>
               <input value={margin} onChange={e => setMargin(e.target.value)} inputMode="decimal" placeholder="e.g. 30"
-                className={inputCls} style={inputStyle} />
+                className={calcInputCls} style={inputStyle} />
             </div>
             <div>
               <label className={labelCls}>Currency label</label>

@@ -17,15 +17,16 @@ export default function ProfileTabs({ labels, panels }: { labels: string[]; pane
   }, [labels])
   return (
     <div>
+      <style>{`.ptab{color:#A6A6B4;transition:color .2s ease}.ptab:hover{color:#FB7185}`}</style>
       <div className="flex flex-wrap gap-1 p-1 rounded-2xl mb-5" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
         {labels.map((l, i) => (
           <button
             key={l}
             onClick={() => setActive(i)}
-            className="px-4 py-2 rounded-full text-sm font-bold transition-all"
+            className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${active === i ? '' : 'ptab'}`}
             style={active === i
               ? { background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', color: '#fff' }
-              : { color: '#A6A6B4', background: 'transparent' }}
+              : { background: 'transparent' }}
           >
             {l}
           </button>

@@ -88,7 +88,7 @@ Return ONLY valid JSON (tight; each string ≤ 24 words):
   "better_countries": [ { "country": "...", "why": "1 short reason it may do better" } ],
   "structures": ["common legal structure(s) used in ${country}"],
   "time_estimate": "e.g. 2-6 weeks to be legally operating",
-  "pricing_suggestion": { "labour": 0, "materials": 0, "overhead_pct": 0, "margin_pct": 0, "note": "typical per-job figures for a ${field} business in ${country} (numbers only, local currency)" },
+  "pricing_suggestion": { "labour": 0, "materials": 0, "overhead_pct": 0, "margin_pct": 0, "note": "typical figures (numbers only, local currency). NEVER 0. For a hands-on business these are per-job; for a DIGITAL/software/marketplace/online/agency business 'materials' = the MONTHLY tech-stack/operating cost (hosting, DB, auth, email/SMS, payment fees, SaaS) for ~1,000 users and 'labour' = monthly team cost — say which in the note" },
   "capital": {
     "lean": { "range": "local-currency range", "covers": "what this gets you" },
     "standard": { "range": "...", "covers": "..." },
