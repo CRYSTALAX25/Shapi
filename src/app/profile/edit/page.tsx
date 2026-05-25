@@ -272,7 +272,7 @@ export default function EditProfile() {
 
       <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-white/[0.08]">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
+          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <div className="flex items-center gap-4">

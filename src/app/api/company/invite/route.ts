@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       html: `
         <div style="font-family:-apple-system,sans-serif;max-width:520px;margin:0 auto;padding:40px 24px;background:#060609;border-radius:16px">
           <p style="font-size:22px;font-weight:900;letter-spacing:-0.5px;margin:0 0 28px;
-            background:linear-gradient(135deg,#A78BFA,#22D3EE);-webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</p>
+            background:linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A);-webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</p>
           <div style="background:#0d0d14;border:1px solid rgba(34,211,238,0.15);border-radius:16px;padding:28px">
             <h1 style="color:#fff;font-size:20px;font-weight:900;margin:0 0 12px">You're invited to ${companyName}</h1>
             <p style="color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;margin:0 0 24px">

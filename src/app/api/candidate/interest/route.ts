@@ -105,7 +105,7 @@ function mutualMatchEmail(perspective: 'candidate' | 'company', selfName: string
 
   return `
     <div style="font-family:-apple-system,sans-serif;max-width:520px;margin:0 auto;padding:32px 20px;background:#060609">
-      <p style="font-size:22px;font-weight:900;margin:0 0 24px;background:linear-gradient(135deg,#A78BFA,#22D3EE);-webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</p>
+      <p style="font-size:22px;font-weight:900;margin:0 0 24px;background:linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A);-webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</p>
       <div style="background:#0d0d14;border:1px solid rgba(34,211,238,0.2);border-radius:16px;padding:28px">
         <div style="font-size:32px;margin-bottom:12px">🤝</div>
         <h1 style="color:#fff;font-size:20px;font-weight:900;margin:0 0 12px">It's a match.</h1>

@@ -23,7 +23,7 @@ export default function CompanyPricing() {
     <div className="min-h-screen bg-[#0E0E13]">
       <nav className="px-6 py-5 flex items-center justify-between max-w-5xl mx-auto border-b border-[rgba(255,255,255,0.08)]">
         <span className="font-black text-2xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
+          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</span>
         <button onClick={() => router.push('/dashboard')} className="text-sm text-[#A6A6B4] hover:text-[#F4F4F7]">

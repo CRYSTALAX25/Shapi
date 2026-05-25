@@ -59,7 +59,7 @@ export default function CVBuilder() {
       {/* Nav */}
       <nav className="px-6 py-4 flex items-center justify-between border-b border-[rgba(255,255,255,0.08)] bg-[#0E0E13]/80 backdrop-blur sticky top-0 z-10">
         <span className="font-bold text-xl tracking-tight" style={{
-          background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
+          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</span>
         <div className="flex items-center gap-4">

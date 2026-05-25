@@ -17,7 +17,7 @@ export default function PrivacyPolicy() {
 
       <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)] max-w-3xl mx-auto flex items-center justify-between">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
+          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <Link href="/terms" className="text-[#A6A6B4] text-sm hover:text-[#C7C7D1] transition-colors">Terms →</Link>

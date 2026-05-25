@@ -28,7 +28,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7]">
       <nav className="px-6 py-5 max-w-3xl mx-auto flex items-center justify-between">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
+          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <Link href="/blog" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7] transition-colors">← All posts</Link>
@@ -64,7 +64,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <footer className="border-t border-[rgba(255,255,255,0.08)] py-8 px-6">
         <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
           <span className="font-black text-lg tracking-tighter" style={{
-            background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
+            background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>shapi</span>
           <div className="flex items-center gap-5 text-[#7E7E8E]">

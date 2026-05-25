@@ -576,7 +576,7 @@ export default async function ProfilePage() {
       `}</style>
 
       <nav className="relative z-10 px-6 py-4 flex items-center justify-between max-w-6xl mx-auto border-b border-white/[0.08]">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #6AA8F5, #4F8FE8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         <Link href="/dashboard" className="text-[#A6A6B4] text-sm hover:text-[#C7C7D1] transition-colors">← Dashboard</Link>
       </nav>
 

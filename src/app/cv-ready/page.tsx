@@ -542,7 +542,7 @@ export default function CVReady() {
       <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)]">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link href="/" className="font-black text-xl tracking-tighter" style={{
-            background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
+            background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>shapi</Link>
           <div className="flex items-center gap-4">

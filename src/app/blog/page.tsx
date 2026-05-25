@@ -15,7 +15,7 @@ export default function BlogIndex() {
     <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7]">
       <nav className="px-6 py-5 max-w-5xl mx-auto flex items-center justify-between">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
+          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <div className="flex items-center gap-6 text-sm">
@@ -55,7 +55,7 @@ export default function BlogIndex() {
       <footer className="border-t border-[rgba(255,255,255,0.08)] py-8 px-6">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
           <span className="font-black text-lg tracking-tighter" style={{
-            background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
+            background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>shapi</span>
           <div className="flex items-center gap-5 text-[#7E7E8E]">

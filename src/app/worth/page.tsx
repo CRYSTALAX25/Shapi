@@ -80,7 +80,7 @@ export default function WorthPage() {
 
       <nav className="relative z-10 px-6 py-5 max-w-3xl mx-auto flex items-center justify-between">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <Link href="/signup" className="text-white text-sm font-bold px-4 py-2 rounded-full" style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}>Get started →</Link>
       </nav>

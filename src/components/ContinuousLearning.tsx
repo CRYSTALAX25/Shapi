@@ -424,7 +424,7 @@ export default function ContinuousLearning({
                 </div>
                 <div className="space-y-3">
                   {rm.pivot_paths.map((p, i) => (
-                    <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(106,168,245,0.10)', border: '1px solid rgba(106,168,245,0.15)' }}>
+                    <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
                       <p className="text-[#F4F4F7] font-bold text-sm mb-1">{p.to_role} <span className="text-[#7E7E8E] text-xs font-normal">· {p.to_industry}</span></p>
                       <p className="text-[#A6A6B4] text-xs mb-3 leading-relaxed">{p.why}</p>
                       <div className="text-xs">
@@ -472,7 +472,7 @@ export default function ContinuousLearning({
                     { key: 'not_attended', label: 'Didn’t attend', on: 'rgba(255,255,255,0.08)', onText: '#A6A6B4' },
                   ]
                   return (
-                    <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.15)' }}>
+                    <div key={i} className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
                       <div className="flex items-center justify-between gap-2 mb-1">
                         <p className="text-[#F4F4F7] font-bold text-sm">{e.name}</p>
                         {priorityChip(e.priority)}
@@ -526,7 +526,7 @@ export default function ContinuousLearning({
           {customEvents.length > 0 ? (
             <div className="space-y-2">
               {customEvents.map((ev, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(106,168,245,0.10)', border: '1px solid rgba(106,168,245,0.18)' }}>
+                <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
                   {ev.photo_url && <img src={ev.photo_url} alt={ev.name} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />}
                   <div className="min-w-0 flex-1">
                     <p className="text-[#F4F4F7] font-bold text-sm truncate">{ev.name}</p>

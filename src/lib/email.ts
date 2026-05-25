@@ -20,7 +20,7 @@ function emailShell(body: string) {
     <!-- Logo -->
     <div style="margin-bottom:32px">
       <span style="font-size:22px;font-weight:900;letter-spacing:-0.5px;
-                   background:linear-gradient(135deg,#A78BFA,#22D3EE);
+                   background:linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A);
                    -webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</span>
     </div>
 

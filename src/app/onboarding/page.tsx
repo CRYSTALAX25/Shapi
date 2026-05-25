@@ -72,7 +72,7 @@ export default function Onboarding() {
     <div className="min-h-screen bg-[#0E0E13]">
       <nav className="px-6 py-5 flex items-center justify-between max-w-4xl mx-auto">
         <span className="font-bold text-2xl tracking-tight" style={{
-          background: 'linear-gradient(135deg, #F08CAE, #6AA8F5, #F58E9A)',
+          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</span>
         <span className="text-[#5C5C6A] text-sm">Step {step + 1} of {steps.length}</span>

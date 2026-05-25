@@ -167,7 +167,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <ShapiCharacter mood="happy" size={30} />
-            <span className="font-black text-xl tracking-tighter text-white">shapi</span>
+            <span className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</span>
           </Link>
           <div className="flex items-center gap-6">
             <Link href="/company/pipeline" className="text-white/85 text-sm font-bold hover:text-white transition-colors">Pipeline →</Link>

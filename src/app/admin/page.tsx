@@ -94,7 +94,7 @@ export default async function AdminPanel() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="font-black text-xl tracking-tighter" style={{
-              background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
+              background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
             }}>shapi</Link>
             <span className="text-[#5C5C6A] text-xs font-bold uppercase tracking-wider px-2 py-1 bg-[#F58E9A]/10 text-[#F58E9A] rounded-full">Admin</span>

@@ -109,7 +109,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
 
       <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between max-w-4xl mx-auto">
         <a href="https://shapi.io" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
+          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</a>
         <span className="text-[#7E7E8E] text-xs">Independently verified profile</span>
@@ -548,7 +548,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
             <div className="gradient-border-card rounded-2xl p-6 text-center">
               <p className="text-[#7E7E8E] text-xs mb-3">Verified by</p>
               <a href="https://shapi.io" className="font-black text-lg tracking-tighter" style={{
-                background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
+                background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
               }}>shapi</a>
               <p className="text-[#7E7E8E] text-xs mt-2">shapi.io · Shape what&apos;s next</p>

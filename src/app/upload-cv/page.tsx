@@ -274,7 +274,7 @@ export default function UploadCV() {
       <div className="max-w-md w-full">
         <div className="text-center mb-10">
           <span className="font-black text-2xl tracking-tighter" style={{
-            background: 'linear-gradient(135deg, #F08CAE, #6AA8F5, #F58E9A)',
+            background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
             backgroundSize: '200% 200%',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
