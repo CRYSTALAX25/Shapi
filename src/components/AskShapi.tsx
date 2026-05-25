@@ -1,8 +1,18 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 type Msg = { role: 'user' | 'assistant'; content: string }
+
+// Don't show the concierge on marketing / auth pages — it's an in-app helper.
+const HIDE_ON = ['/', '/login', '/signup', '/reset-password', '/blog', '/privacy', '/terms']
+function isHidden(path: string | null): boolean {
+  if (!path) return false
+  if (HIDE_ON.includes(path)) return true
+  if (path.startsWith('/blog/')) return true
+  return false
+}
 
 const INTRO: Msg = {
   role: 'assistant',
@@ -28,6 +38,7 @@ export default function AskShapi() {
   const [loading, setLoading] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const pathname = usePathname()
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -38,6 +49,8 @@ export default function AskShapi() {
   useEffect(() => {
     if (open) inputRef.current?.focus()
   }, [open])
+
+  if (isHidden(pathname)) return null
 
   async function send() {
     const text = input.trim()
