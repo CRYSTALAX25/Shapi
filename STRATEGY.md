@@ -1,6 +1,6 @@
 # Shapi — Strategy, Ideas & Decisions
 
-> Living doc — capture everything here so we don't lose ideas. Last updated **21 May 2026**.
+> Living doc — capture everything here so we don't lose ideas. Last updated **25 May 2026**.
 > Sister docs: **COMPETITORS.md** (pricing/model comparison), **BACKLOG.md** (deferred features), **BRAND.md** (visual kit).
 > Status tags: **[LOCKED]** = decided · **[RECOMMENDED]** = my advice, awaiting Ana's final yes · **[IDEA]** = on the table, not decided.
 
@@ -264,3 +264,66 @@ white collar, WhatsApp-native**, expanding from once-a-year perm into high-frequ
 - **Resend** (email) — free tier covers low volume; paid as sends grow.
 - **Supabase** — free tier now; Pro (~$25/mo) when storage/auth/DB grows.
 - **OpenAI Whisper** (voice transcription) — per-minute audio cost when voice notes are used.
+
+---
+
+## 11. Social impact — the Shapi Upskilling Fund (decided 2026-05-25)
+
+> **The "why now":** AI is automating task-by-task, role-by-role. The *first rung* of the
+> white-collar ladder disappears first — AI does the grunt work juniors used to learn from, so
+> young people can't get the experience that made them hireable. Shapi's whole moat (verified
+> *evidence* of capability replacing "years of experience" gatekeeping) is the answer to that
+> gap. The Fund is us putting our money where our mouth is — and it doubles as PR + the
+> fundraising/impact narrative.
+
+### Displacement roadmap (the narrative spine behind Translator / AI-Proof / Pivot / Train-to-Hire)
+- **Now–2027:** routine cognitive/admin work compresses — data entry, basic support, bookkeeping, junior content, first-draft code, paralegal research. Entry-level white-collar thins out.
+- **2027–2030:** mid-skill knowledge work becomes "AI + human" (analysts, marketers, recruiters, designers). Fewer people do more. Trades stay relatively insulated.
+- **2030+:** new categories grow — AI oversight, human-judgment roles, the care/relationship economy, skilled trades.
+- **Key insight:** the disappearing *first job* is the gap Shapi is uniquely built to close for young people.
+
+### Decisions
+- **[LOCKED] In-house, not an external charity.** Shapi runs its own **Upskilling Fund** —
+  a company program, **not** a registered charity.
+- **[LOCKED] Funding source = $1 of every subscription**, baked-in (not opt-in), with a public
+  counter ("Shapi has funded X courses"). Budget is therefore **bounded by revenue** — it can
+  never overspend.
+- **[LOCKED] Legal framing — call it a *Shapi-funded commitment*, NOT a "donation/charity."**
+  In the UAE & KSA, soliciting donations is a *licensed* activity. Framing it as "for every
+  subscription, Shapi funds $1 of free upskilling" makes it a **business revenue commitment**,
+  not solicited charity → avoids fundraising-permit/registered-entity requirements. **Never use
+  the words "donate / donation / charity" in product copy.**
+- **[RECOMMENDED] Pay the course provider directly (or reimburse the certificate fee on
+  completion) — never give cash to candidates.** Guarantees the money does what it says +
+  removes fraud/welfare-scrutiny risk.
+- **[RECOMMENDED] "Course of their choice" — but inside a job-relevant frame.** They pick freely
+  **from the skills Career Translator says lead to a real role for them.** Keeps it generous but
+  strategic (career ladder, not handout).
+- **[RECOMMENDED] Fund only courses that produce a *verifiable* credential** (fountain-of-truth
+  DNA) → every funded course ends in provable proof on their profile → feeds the placement
+  engine. Double impact: upskills someone *and* strengthens Shapi's supply side.
+
+### Selection rubric (the pool → shortlist → pick)
+| Parameter | Signal | Why |
+|---|---|---|
+| **Financial need** | Short self-declared statement (unemployed / no employer sponsorship / income below a line) | Dignity-preserving, light-touch — don't demand bank statements |
+| **Story / motivation** | Written or **voice note** (reuses the blue-collar voice feature) | The human heart of it; great for the impact story |
+| **Commitment** | Must already have a built Shapi profile + an identified skill gap | Filters freebie-hunters; rewards genuine intent |
+| **Employability** | Course maps to a real skill gap / real open role | Makes the spend strategic, not just kind |
+
+- **Anti-abuse:** one funded course per candidate per period; **pay 50% on enrolment / 50% on a
+  completed, verified credential** (skin in the game); don't-complete → not eligible again.
+- **Cadence:** monthly cohort ("this month the Fund covers N courses"). Early on, **Ana
+  hand-picks from an AI-scored shortlist** (AI scores need + employability from profile data;
+  human makes the final call) — on-brand (AI assists, human judges) *and* the best founder PR.
+
+### Phasing around the June 2 launch
+- **At launch (≤ 2 Jun 2026):** ship **only the commitment + public counter** ("$1 of every
+  subscription funds free upskilling — Shapi has funded X courses"). **No application UI** — you
+  can't fund anyone before subscription revenue exists, so it phases naturally. **Do NOT take on
+  any charity-registration / donation-collection compliance pre-launch.**
+- **Phase 2 (3–6 mo post-launch):** open the application flow + first monthly cohort; first
+  cohort can be hand-picked by Ana with zero UI. Route funded training into **Train-to-Hire**
+  where possible (closed loop: fund → verified credential → placement).
+- **Phase 3 (at scale):** consider a registered "Shapi Foundation" only once volume + legal
+  capacity justify the governance overhead.
