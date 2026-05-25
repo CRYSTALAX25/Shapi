@@ -114,50 +114,50 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Floating profile card + verification chips */}
-          <div className="relative max-w-lg mx-auto">
+          {/* Floating verified-profile card — the real product, 2 clean chips up top */}
+          <div className="relative max-w-md mx-auto">
             <div className="hidden lg:block">
-              <FloatChip text="3 references verified" color="#6AA8F5" pos="-left-24 top-4" />
-              <FloatChip text="AI cross-check passed" color="#F08CAE" pos="-right-28 top-0" />
-              <FloatChip text="Right to work ✓" color="#6AA8F5" pos="-left-20 bottom-10" />
-              <FloatChip text="Trust score 94" color="#F58E9A" pos="-right-20 bottom-6" />
+              <FloatChip text="Independently sourced refs" color="#6AA8F5" pos="-left-28 top-2" />
+              <FloatChip text="AI cross-check passed" color="#F08CAE" pos="-right-28 top-8" />
             </div>
             <div className="float-card">
             <div className="card rounded-2xl p-6 text-left">
-              {/* header */}
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-black text-white flex-shrink-0" style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}>A</div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-bold">Ahmed K.</div>
+              {/* identity */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-black text-white flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>A</div>
+                <div className="min-w-0">
+                  <div className="text-base font-black text-[#F4F4F7]">Ahmed K.</div>
                   <div className="text-xs text-[#7E7E8E]">Operations Director · Dubai</div>
                 </div>
-                <div className="flex items-center gap-1.5 rounded-full px-3 py-1 flex-shrink-0" style={{ background: 'rgba(106,168,245,0.14)', border: '1px solid rgba(106,168,245,0.3)' }}>
-                  <svg className="w-3 h-3 text-[#6AA8F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                  <span className="text-[#6AA8F5] text-xs font-bold">Verified</span>
+              </div>
+              {/* profile strength — the one vibrant pop */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="text-2xl font-black" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>94%</div>
+                <div className="flex-1">
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                    <div className="h-full rounded-full" style={{ width: '94%', background: 'linear-gradient(90deg,#6AA8F5,#F08CAE,#F58E9A)' }} />
+                  </div>
+                  <p className="text-[#7E7E8E] text-[10px] mt-1">profile strength</p>
                 </div>
               </div>
-              {/* what Shapi verified — one clear line each */}
-              <div className="space-y-3">
-                {[
-                  ['References', 'Independently checked — not chosen by Ahmed'],
-                  ['Skills', 'Proven by evidence, not just claimed'],
-                  ['Right to work', 'UAE · confirmed'],
-                ].map(([label, sub], i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(106,168,245,0.14)' }}>
-                      <svg className="w-3.5 h-3.5 text-[#6AA8F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                    </span>
-                    <div className="min-w-0">
-                      <span className="text-sm font-bold text-[#F4F4F7]">{label}</span>
-                      <span className="text-xs text-[#7E7E8E]"> — {sub}</span>
-                    </div>
-                  </div>
-                ))}
+              {/* verification badges */}
+              <div className="flex flex-wrap gap-1.5 mb-4">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5]">✓ Live</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5]">Strongly Verified</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5]">AI Integrator</span>
               </div>
-              {/* trust score */}
-              <div className="flex items-center justify-between mt-5 pt-4 border-t border-white/[0.08]">
-                <span className="text-xs text-[#7E7E8E]">Shapi trust score</span>
-                <span className="text-lg font-black" style={{ color: '#6AA8F5' }}>94<span className="text-xs text-[#7E7E8E] font-bold">/100</span></span>
+              {/* right to work */}
+              <div className="mb-4">
+                <p className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider mb-1.5">Right to work</p>
+                <div className="flex flex-wrap gap-1.5">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#C7C7D1' }}>✓ UAE · Citizen</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#C7C7D1' }}>✓ KSA · Work Visa</span>
+                </div>
+              </div>
+              {/* footer */}
+              <div className="flex items-center justify-between pt-3 border-t border-white/[0.08]">
+                <span className="text-xs text-[#7E7E8E]">3 references · independently checked</span>
+                <span className="text-xs font-black" style={{ color: '#6AA8F5' }}>Trust 94</span>
               </div>
             </div>
             </div>
