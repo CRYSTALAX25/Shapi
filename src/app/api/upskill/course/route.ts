@@ -25,7 +25,8 @@ export async function POST(request: Request) {
   const {
     id, skill, course_name, platform, course_url, tier, status,
     credential_url, credential_id, via_shapi,
-  } = body as Record<string, string | boolean | undefined>
+    liked, subsidy_type, subsidy_detail, duration_hours,
+  } = body as Record<string, string | boolean | number | undefined>
 
   if (!id && !course_name) {
     return NextResponse.json({ error: 'course_name required' }, { status: 400 })
@@ -50,6 +51,16 @@ export async function POST(request: Request) {
     via_shapi: via_shapi ?? false,
     completed_at: effectiveStatus === 'completed' ? new Date().toISOString() : null,
     updated_at: new Date().toISOString(),
+  }
+
+  // Course-wallet fields — only attach when explicitly provided so partial
+  // updates (e.g. just toggling "liked") never clobber other saved values.
+  if (liked !== undefined) payload.liked = !!liked
+  if (subsidy_type !== undefined) payload.subsidy_type = (subsidy_type as string) || null
+  if (subsidy_detail !== undefined) payload.subsidy_detail = (subsidy_detail as string) || null
+  if (duration_hours !== undefined) {
+    const n = Number(duration_hours)
+    payload.duration_hours = Number.isFinite(n) && n > 0 ? Math.round(n) : null
   }
 
   if (id) {

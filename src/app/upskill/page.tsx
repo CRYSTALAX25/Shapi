@@ -18,6 +18,26 @@ type Course = {
   credential_url: string | null
   completed_at: string | null
   sponsored_by?: string | null
+  liked?: boolean | null
+  subsidy_type?: 'government' | 'employer' | null
+  subsidy_detail?: string | null
+  duration_hours?: number | null
+}
+
+type CourseFilter = 'all' | 'saved' | 'verified'
+
+// Cost/subsidy label driven by subsidy_type + tier.
+function costLabel(c: Pick<Course, 'tier' | 'subsidy_type' | 'subsidy_detail'>) {
+  if (c.subsidy_type === 'government') {
+    return { icon: '🏛', text: c.subsidy_detail ? `Government-subsidised · ${c.subsidy_detail}` : 'Government-subsidised', color: '#6AA8F5', bg: 'rgba(106,168,245,0.15)' }
+  }
+  if (c.subsidy_type === 'employer') {
+    return { icon: '🏢', text: c.subsidy_detail ? `Employer-sponsored · ${c.subsidy_detail}` : 'Employer-sponsored', color: '#F08CAE', bg: 'rgba(240,140,174,0.15)' }
+  }
+  if (c.tier === 'paid') {
+    return { icon: '🔵', text: 'Paid', color: '#F08CAE', bg: 'rgba(240,140,174,0.12)' }
+  }
+  return { icon: '⚪', text: 'Free', color: '#A6A6B4', bg: 'rgba(255,255,255,0.05)' }
 }
 
 function UpskillContent() {
@@ -31,6 +51,7 @@ function UpskillContent() {
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const [addOpen, setAddOpen] = useState(false)
+  const [filter, setFilter] = useState<CourseFilter>('all')
 
   const load = () => {
     fetch('/api/upskill')
@@ -215,15 +236,43 @@ function UpskillContent() {
 
           {addOpen && <AddCourseForm onAdd={trackCourse} onDone={() => setAddOpen(false)} />}
 
-          {courses.length === 0 ? (
-            <p className="text-[#7E7E8E] text-xs text-center py-4">Nothing tracked yet. Start a course above, or add one you&apos;ve already done.</p>
-          ) : (
-            <div className="space-y-2 mt-3">
-              {courses.map(c => (
-                <CourseRow key={c.id} course={c} onUpdate={trackCourse} onRemove={removeCourse} />
+          {/* Filter row */}
+          {courses.length > 0 && (
+            <div className="flex gap-2 mb-1">
+              {([
+                ['all', 'All'],
+                ['saved', '❤️ Saved'],
+                ['verified', '✓ Verified'],
+              ] as Array<[CourseFilter, string]>).map(([key, label]) => (
+                <button key={key} onClick={() => setFilter(key)}
+                  className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
+                  style={{
+                    background: filter === key ? 'rgba(106,168,245,0.12)' : 'rgba(255,255,255,0.05)',
+                    color: filter === key ? '#6AA8F5' : '#A6A6B4',
+                  }}>{label}</button>
               ))}
             </div>
           )}
+
+          {courses.length === 0 ? (
+            <p className="text-[#7E7E8E] text-xs text-center py-4">Nothing tracked yet. Start a course above, or add one you&apos;ve already done.</p>
+          ) : (() => {
+            const shown = courses.filter(c =>
+              filter === 'saved' ? !!c.liked :
+              filter === 'verified' ? c.verification_status === 'verified' :
+              true
+            )
+            if (shown.length === 0) {
+              return <p className="text-[#7E7E8E] text-xs text-center py-4">No courses match this filter.</p>
+            }
+            return (
+              <div className="space-y-2 mt-3">
+                {shown.map(c => (
+                  <CourseRow key={c.id} course={c} onUpdate={trackCourse} onRemove={removeCourse} />
+                ))}
+              </div>
+            )
+          })()}
         </div>
       </div>
     </div>
@@ -235,12 +284,13 @@ function AddCourseForm({ onAdd, onDone }: { onAdd: (p: Record<string, unknown>) 
   const [platform, setPlatform] = useState('')
   const [status, setStatus] = useState('completed')
   const [credUrl, setCredUrl] = useState('')
+  const [liked, setLiked] = useState(false)
   const [saving, setSaving] = useState(false)
 
-  const submit = async () => {
+  const submit = async (saveToWallet = false) => {
     if (!name.trim()) return
     setSaving(true)
-    await onAdd({ course_name: name, platform, status, credential_url: credUrl, tier: 'paid' })
+    await onAdd({ course_name: name, platform, status, credential_url: credUrl, tier: 'paid', liked: saveToWallet || liked })
     setSaving(false)
     onDone()
   }
@@ -267,17 +317,38 @@ function AddCourseForm({ onAdd, onDone }: { onAdd: (p: Record<string, unknown>) 
           <p className="text-[#7E7E8E] text-[10px] mt-1">Paste the public certificate URL from Coursera/Udemy/Credly etc. Leave blank to keep it self-reported.</p>
         </div>
       )}
-      <button onClick={submit} disabled={saving || !name.trim()}
-        className="w-full py-2.5 rounded-lg font-black text-sm disabled:opacity-40"
-        style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', color: '#fff' }}>
-        {saving ? 'Saving…' : 'Add course'}
-      </button>
+      <label className="flex items-center gap-2 cursor-pointer select-none">
+        <input type="checkbox" checked={liked} onChange={e => setLiked(e.target.checked)} className="accent-[#6AA8F5]" />
+        <span className="text-[#C7C7D1] text-xs">{liked ? '❤️' : '🤍'} Save to my wallet</span>
+      </label>
+      <div className="flex gap-2">
+        <button onClick={() => submit(false)} disabled={saving || !name.trim()}
+          className="flex-1 py-2.5 rounded-lg font-black text-sm disabled:opacity-40"
+          style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', color: '#fff' }}>
+          {saving ? 'Saving…' : 'Add course'}
+        </button>
+        <button onClick={() => submit(true)} disabled={saving || !name.trim()}
+          className="px-4 py-2.5 rounded-lg font-bold text-sm border border-[#6AA8F5]/30 text-[#6AA8F5] hover:border-[#6AA8F5]/60 disabled:opacity-40 transition-colors">
+          ❤️ Save
+        </button>
+      </div>
     </div>
   )
 }
 
 function CourseRow({ course, onUpdate, onRemove }: { course: Course; onUpdate: (p: Record<string, unknown>) => Promise<void>; onRemove: (id: string) => Promise<void> }) {
   const verified = course.verification_status === 'verified'
+  const liked = !!course.liked
+  const cost = costLabel(course)
+  // Carry the course's current context so a partial toggle never clobbers it.
+  const ctx = {
+    id: course.id,
+    course_name: course.course_name,
+    platform: course.platform,
+    status: course.status,
+    tier: course.tier,
+    credential_url: course.credential_url,
+  }
   return (
     <div className="bg-white/[0.05] rounded-xl p-3 flex items-center justify-between gap-3">
       <div className="min-w-0">
@@ -288,6 +359,11 @@ function CourseRow({ course, onUpdate, onRemove }: { course: Course; onUpdate: (
           ) : (
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#A6A6B4' }}>○ Self-reported</span>
           )}
+          {/* Cost / subsidy label */}
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: cost.bg, color: cost.color }}>{cost.icon} {cost.text}</span>
+          {typeof course.duration_hours === 'number' && course.duration_hours > 0 && (
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#A6A6B4' }}>⏱️ {course.duration_hours}h</span>
+          )}
           {course.sponsored_by && (
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.15)', color: '#F08CAE' }}>🏢 Sponsored by {course.sponsored_by}</span>
           )}
@@ -295,8 +371,14 @@ function CourseRow({ course, onUpdate, onRemove }: { course: Course; onUpdate: (
         <p className="text-[#A6A6B4] text-xs">{course.platform || '—'} · {course.status === 'completed' ? 'Completed' : course.status === 'in_progress' ? 'In progress' : 'Interested'}{course.credential_url ? ' · ' : ''}{course.credential_url && <a href={course.credential_url} target="_blank" rel="noopener noreferrer" className="text-[#6AA8F5]">view cert ↗</a>}</p>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
+        <button onClick={() => onUpdate({ ...ctx, liked: !liked })}
+          aria-label={liked ? 'Unsave course' : 'Save course'}
+          title={liked ? 'Saved' : 'Save'}
+          className="text-base leading-none transition-transform hover:scale-110">
+          {liked ? '❤️' : '🤍'}
+        </button>
         {course.status !== 'completed' && (
-          <button onClick={() => onUpdate({ id: course.id, course_name: course.course_name, status: 'completed', credential_url: course.credential_url, platform: course.platform, tier: course.tier })}
+          <button onClick={() => onUpdate({ ...ctx, status: 'completed' })}
             className="text-[#6AA8F5] text-xs font-bold">Mark done</button>
         )}
         <button onClick={() => onRemove(course.id)} className="text-[#7E7E8E] hover:text-[#F58E9A] text-xs">✕</button>

@@ -29,6 +29,7 @@ export default function NewRole() {
   const [currency, setCurrency] = useState('USD')
   const [salaryVisible, setSalaryVisible] = useState(true)
   const [engagementType, setEngagementType] = useState<'permanent' | 'contract' | 'temp'>('permanent')
+  const [acceptsPivot, setAcceptsPivot] = useState(false)
 
   // WhatsApp-style deep questions
   const [problemToSolve, setProblemToSolve] = useState('')
@@ -96,6 +97,7 @@ export default function NewRole() {
         salary_currency: currency,
         salary_visible: salaryVisible,
         engagement_type: engagementType,
+        accepts_pivot_candidates: acceptsPivot,
         problem_to_solve: problemToSolve.trim(),
         ideal_candidate: idealCandidate.trim(),
         team_context: teamContext.trim(),
@@ -280,6 +282,18 @@ export default function NewRole() {
               <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${remote ? 'left-5' : 'left-1'}`} />
             </div>
             <span className="text-[#A6A6B4] text-sm">Remote / hybrid OK</span>
+          </label>
+
+          <label className="flex items-start gap-3 cursor-pointer">
+            <div
+              onClick={() => setAcceptsPivot(!acceptsPivot)}
+              className={`mt-0.5 flex-shrink-0 w-10 h-6 rounded-full transition-colors relative ${acceptsPivot ? 'bg-[#6AA8F5]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
+              <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${acceptsPivot ? 'left-5' : 'left-1'}`} />
+            </div>
+            <span className="text-sm">
+              <span className="text-[#A6A6B4]">🌱 Open to career-changers — we&apos;ll train on the job</span>
+              <span className="block text-[#7E7E8E] text-xs mt-0.5">Train-to-Hire: surfaces this role to pivoters who don&apos;t yet match every requirement.</span>
+            </span>
           </label>
         </div>
 

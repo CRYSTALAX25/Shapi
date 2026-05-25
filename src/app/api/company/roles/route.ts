@@ -22,6 +22,7 @@ export async function POST(request: Request) {
     title, department, location, remote,
     salary_min, salary_max, salary_currency,
     salary_visible, engagement_type,
+    accepts_pivot_candidates,
     // Raw answers from the creation form — Claude turns these into a JD
     problem_to_solve,
     ideal_candidate,
@@ -95,6 +96,7 @@ Return JSON with exactly two keys:
       salary_currency: salary_currency || 'USD',
       salary_visible: salary_visible !== false,
       engagement_type: ['permanent', 'contract', 'temp'].includes(engagement_type) ? engagement_type : 'permanent',
+      accepts_pivot_candidates: accepts_pivot_candidates === true,
       description,
       requirements,
       what_success_looks_like: what_success_looks_like || null,

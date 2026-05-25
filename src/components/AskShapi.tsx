@@ -1,0 +1,285 @@
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
+
+type Msg = { role: 'user' | 'assistant'; content: string }
+
+const INTRO: Msg = {
+  role: 'assistant',
+  content:
+    "Hi, I'm Shapi ✦ — your career guide for the AI era. Ask me about pivots, courses, salaries by country, or starting something of your own.",
+}
+
+// Theme tokens
+const CANVAS = '#0E0E13'
+const PANEL = '#16161F'
+const BORDER = 'rgba(255,255,255,0.08)'
+const FILL = 'rgba(255,255,255,0.05)'
+const TEXT = '#F4F4F7'
+const TEXT_DIM = '#C7C7D1'
+const TEXT_FAINT = '#A6A6B4'
+const BLUE = '#6AA8F5'
+const CTA = 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)'
+
+export default function AskShapi() {
+  const [open, setOpen] = useState(false)
+  const [messages, setMessages] = useState<Msg[]>([INTRO])
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }, [messages, loading, open])
+
+  useEffect(() => {
+    if (open) inputRef.current?.focus()
+  }, [open])
+
+  async function send() {
+    const text = input.trim()
+    if (!text || loading) return
+    const next: Msg[] = [...messages, { role: 'user', content: text }]
+    setMessages(next)
+    setInput('')
+    setLoading(true)
+    try {
+      // Only send real conversation turns (skip the canned intro)
+      const payload = next.filter((m) => m !== INTRO)
+      const res = await fetch('/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: payload }),
+      })
+      const data = await res.json()
+      const reply =
+        data?.reply ||
+        data?.error ||
+        'Something went wrong. Please try again.'
+      setMessages((m) => [...m, { role: 'assistant', content: reply }])
+    } catch {
+      setMessages((m) => [
+        ...m,
+        { role: 'assistant', content: 'Network error — please try again.' },
+      ])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      send()
+    }
+  }
+
+  return (
+    <>
+      {/* Floating button */}
+      {!open && (
+        <button
+          onClick={() => setOpen(true)}
+          aria-label="Ask Shapi"
+          style={{
+            position: 'fixed',
+            right: 20,
+            bottom: 20,
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '12px 18px',
+            borderRadius: 999,
+            border: 'none',
+            color: '#fff',
+            fontWeight: 700,
+            fontSize: 14,
+            cursor: 'pointer',
+            background: CTA,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
+          }}
+        >
+          <span style={{ fontSize: 16, lineHeight: 1 }}>✦</span>
+          Ask Shapi
+        </button>
+      )}
+
+      {/* Chat panel */}
+      {open && (
+        <div
+          role="dialog"
+          aria-label="Ask Shapi chat"
+          className="ask-shapi-panel"
+          style={{
+            position: 'fixed',
+            right: 20,
+            bottom: 20,
+            zIndex: 9999,
+            width: 360,
+            maxWidth: 'calc(100vw - 40px)',
+            height: 520,
+            maxHeight: 'calc(100vh - 40px)',
+            display: 'flex',
+            flexDirection: 'column',
+            background: CANVAS,
+            border: `1px solid ${BORDER}`,
+            borderRadius: 16,
+            overflow: 'hidden',
+            boxShadow: '0 16px 48px rgba(0,0,0,0.55)',
+            fontFamily: 'inherit',
+          }}
+        >
+          {/* Header */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '14px 16px',
+              borderBottom: `1px solid ${BORDER}`,
+              background: PANEL,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ color: BLUE, fontSize: 16 }}>✦</span>
+              <span style={{ color: TEXT, fontWeight: 700, fontSize: 15 }}>
+                Ask Shapi
+              </span>
+            </div>
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Close"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: TEXT_FAINT,
+                fontSize: 20,
+                lineHeight: 1,
+                cursor: 'pointer',
+                padding: 4,
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div
+            ref={scrollRef}
+            style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: 14,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+            }}
+          >
+            {messages.map((m, i) => (
+              <div
+                key={i}
+                style={{
+                  alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+                  maxWidth: '85%',
+                  padding: '9px 12px',
+                  borderRadius: 12,
+                  fontSize: 13.5,
+                  lineHeight: 1.5,
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  color: m.role === 'user' ? '#fff' : TEXT_DIM,
+                  background: m.role === 'user' ? BLUE : FILL,
+                  border:
+                    m.role === 'user' ? 'none' : `1px solid ${BORDER}`,
+                }}
+              >
+                {m.content}
+              </div>
+            ))}
+            {loading && (
+              <div
+                style={{
+                  alignSelf: 'flex-start',
+                  padding: '9px 12px',
+                  borderRadius: 12,
+                  fontSize: 13.5,
+                  color: TEXT_FAINT,
+                  background: FILL,
+                  border: `1px solid ${BORDER}`,
+                }}
+              >
+                Shapi is thinking…
+              </div>
+            )}
+          </div>
+
+          {/* Input */}
+          <div
+            style={{
+              display: 'flex',
+              gap: 8,
+              padding: 12,
+              borderTop: `1px solid ${BORDER}`,
+              background: PANEL,
+            }}
+          >
+            <input
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={onKeyDown}
+              placeholder="Ask about your career…"
+              disabled={loading}
+              style={{
+                flex: 1,
+                background: CANVAS,
+                border: `1px solid ${BORDER}`,
+                borderRadius: 10,
+                padding: '10px 12px',
+                color: TEXT,
+                fontSize: 13.5,
+                outline: 'none',
+              }}
+            />
+            <button
+              onClick={send}
+              disabled={loading || !input.trim()}
+              aria-label="Send"
+              style={{
+                border: 'none',
+                borderRadius: 10,
+                padding: '0 16px',
+                color: '#fff',
+                fontWeight: 700,
+                fontSize: 13.5,
+                cursor: loading || !input.trim() ? 'default' : 'pointer',
+                opacity: loading || !input.trim() ? 0.5 : 1,
+                background: CTA,
+              }}
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile: full-width sheet */}
+      <style>{`
+        @media (max-width: 480px) {
+          .ask-shapi-panel {
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+            height: 88vh !important;
+            border-radius: 16px 16px 0 0 !important;
+          }
+        }
+      `}</style>
+    </>
+  )
+}

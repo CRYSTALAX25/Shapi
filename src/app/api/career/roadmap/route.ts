@@ -132,6 +132,17 @@ What they've already done (continuous learning):
    - 4-6 = medium (some tasks automatable; role still needs human judgement + relationships)
    - 7-10 = low risk (deep expertise + judgement + interpersonal + physical or creative synthesis)
    Be honest and specific to THIS role, not generic. Don't comfort.
+   IMPORTANT: hands-on skilled trades and care roles (plumber, electrician, HVAC tech, carpenter, welder, mechanic, chef, nurse, paramedic, technician, etc.) are AI-PROOF — they require physical presence + judgement + dexterity. Score these 7-10. Never patronise them or imply they need to "escape" their trade.
+
+1b. TRACK + COLLAR — classify the strategy:
+   - track="shield" when ai_resilience_score >= 7 OR the person is clearly in a hands-on resilient trade/care role. Shield = level up, earn more, and protect their position WITHIN the trade. This is the default for resilient roles — do NOT frame them as needing to pivot out.
+   - track="pivot" when ai_resilience_score <= 4 (high displacement risk). Pivot = move toward a more durable role.
+   - track="cross-collar" when the person is clearly moving white↔blue (e.g. an office worker retraining into a trade, or a tradesperson moving into a management/desk role).
+   - collar="blue" for hands-on/physical/trade/site roles; "white" for office/desk/knowledge roles; "mixed" if genuinely both.
+
+1c. VERIFIED HUMAN SKILLS — 3-5 concrete human strengths this person has that AI can't replace (e.g. "on-site fault diagnosis", "calm under pressure", "client trust", "manual dexterity", "judgement in ambiguity"). Specific to their actual work, never generic filler.
+
+1d. SHIELD GROWTH (only meaningful when track="shield") — 2-3 level-up moves to grow earning power WITHIN their trade/field. Each: { title (the move, e.g. "Get gas-safe certified"), why (1 sentence), uplift (concrete payoff, e.g. "+20% pay" or "qualify for supervisor roles") }. For pivot/cross-collar tracks, return an empty array [].
 
 2. SKILLS GAPS — exactly 3 skills they should learn in the next 6-12 months to either:
    (a) make their current career MORE AI-augmented (use AI as a multiplier), OR
@@ -160,6 +171,12 @@ Return ONLY valid JSON in this exact shape:
 {
   "ai_resilience_score": 0,
   "resilience_reasoning": "1-2 sentences",
+  "track": "pivot|shield|cross-collar",
+  "collar": "white|blue|mixed",
+  "verified_human_skills": ["3-5 AI-proof human strengths"],
+  "shield_growth": [
+    { "title": "...", "why": "...", "uplift": "e.g. +20% pay" }
+  ],
   "skills_gaps": [
     { "skill": "...", "priority": "high|medium|low", "why": "...", "suggested_courses": [{"name": "...", "platform": "..."}] }
   ],
@@ -222,6 +239,16 @@ Be specific and honest. Generic advice = useless advice.`
         return g
       })
     }
+
+    // Belt-and-suspenders: derive track from the score if the model omitted/garbled it,
+    // so the UI always knows whether to lead with SHIELD or PIVOT framing.
+    const score = typeof parsed.ai_resilience_score === 'number' ? parsed.ai_resilience_score : null
+    const validTracks = ['pivot', 'shield', 'cross-collar']
+    if (!validTracks.includes(parsed.track as string)) {
+      parsed.track = score !== null && score >= 7 ? 'shield' : score !== null && score <= 4 ? 'pivot' : 'shield'
+    }
+    if (!Array.isArray(parsed.verified_human_skills)) parsed.verified_human_skills = []
+    if (!Array.isArray(parsed.shield_growth)) parsed.shield_growth = []
 
     const roadmap = { ...parsed, generated_at: new Date().toISOString() }
 

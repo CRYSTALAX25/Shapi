@@ -46,9 +46,14 @@ type PivotPath = {
   first_actions: string[]
 }
 type EventRec = { name: string; when: string; where: string; why: string; priority: 'high' | 'medium' | 'low'; official_url?: string | null }
+type ShieldGrowth = { title: string; why: string; uplift?: string }
 type Roadmap = {
   ai_resilience_score: number
   resilience_reasoning: string
+  track?: 'pivot' | 'shield' | 'cross-collar'
+  collar?: 'white' | 'blue' | 'mixed'
+  verified_human_skills?: string[]
+  shield_growth?: ShieldGrowth[]
   skills_gaps: SkillGap[]
   pivot_paths: PivotPath[]
   events_to_attend: EventRec[]
@@ -161,6 +166,11 @@ export default function ContinuousLearning({
     + (data?.talks?.length || 0) + (data?.oss?.length || 0) + (data?.courses?.length || 0) > 0
 
   const rm = localRoadmap
+
+  // SHIELD = resilient trade/role: celebrate + level up within the trade, never "pivot out".
+  // Trust the model's explicit track; fall back to the score (>=7 = AI-proof) if absent.
+  const effectiveScore = rm?.ai_resilience_score ?? resilienceScore
+  const isShield = rm?.track === 'shield' || (rm?.track == null && (effectiveScore ?? 0) >= 7)
 
   const resilienceColor = (score: number | null) => {
     if (score === null) return { color: '#A6A6B4', label: '—', bg: 'rgba(255,255,255,0.05)' }
@@ -324,6 +334,47 @@ export default function ContinuousLearning({
             </div>
             )}
 
+            {/* SHIELD — AI-proof trade. Lead with celebration, then "grow your earning power". */}
+            {showCareer && isShield && (
+              <div className="mb-6 p-5 rounded-2xl" style={{ background: 'rgba(106,168,245,0.10)', border: '1px solid rgba(106,168,245,0.25)' }}>
+                <p className="text-[#6AA8F5] text-xs font-bold uppercase tracking-wider mb-1">🛡️ AI-Proof — your trade is the backbone</p>
+                <p className="text-[#C7C7D1] text-sm leading-relaxed">Your work needs hands, judgement, and presence — the things AI can’t replace. You’re not pivoting out; you’re levelling up. Here’s how to grow your earning power within your field.</p>
+              </div>
+            )}
+
+            {/* What AI can't replace — verified human strengths (all tracks) */}
+            {showCareer && (rm.verified_human_skills?.length ?? 0) > 0 && (
+              <div className="mb-6">
+                <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-2">🤝 What AI can’t replace</p>
+                <div className="flex flex-wrap gap-2">
+                  {rm.verified_human_skills!.map((s, i) => (
+                    <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5', border: '1px solid rgba(106,168,245,0.15)' }}>{s}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Grow your earning power — shield level-up moves (shield track only) */}
+            {showCareer && isShield && (rm.shield_growth?.length ?? 0) > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#4F8FE8)' }} />
+                  <h3 className="text-[#F4F4F7] text-base font-black">💪 Grow your earning power</h3>
+                </div>
+                <div className="space-y-2.5">
+                  {rm.shield_growth!.map((g, i) => (
+                    <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <p className="text-[#F4F4F7] font-bold text-sm">{g.title}</p>
+                        {g.uplift && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}>{g.uplift}</span>}
+                      </div>
+                      <p className="text-[#A6A6B4] text-xs leading-relaxed">{g.why}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Skills gaps — Learning */}
             {showLearning && rm.skills_gaps?.length > 0 && (
               <div className="mb-6">
@@ -415,13 +466,15 @@ export default function ContinuousLearning({
               </div>
             )}
 
-            {/* Pivot paths — Career */}
+            {/* Pivot paths — Career. For shield trades these are OPTIONAL adjacent moves, not an exit. */}
             {showCareer && rm.pivot_paths?.length > 0 && (
               <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 mb-1">
                   <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#4F8FE8)' }} />
-                  <h3 className="text-[#F4F4F7] text-base font-black">↗️ Pivot paths to consider</h3>
+                  <h3 className="text-[#F4F4F7] text-base font-black">{isShield ? '🧭 Optional adjacent moves' : '↗️ Pivot paths to consider'}</h3>
                 </div>
+                {isShield && <p className="text-[#7E7E8E] text-xs mb-3 ml-3">Only if you ever fancy a change — your trade is solid as-is.</p>}
+                {!isShield && <div className="mb-2" />}
                 <div className="space-y-3">
                   {rm.pivot_paths.map((p, i) => (
                     <div key={i} className="p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>

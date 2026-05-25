@@ -267,6 +267,84 @@ export async function sendCompanyMatchEmail(
   })
 }
 
+// ── Welcome nurture sequence (3 parts) ─────────────────────────────────────
+// Sent over the first ~5 days after signup by /api/cron/nurture.
+// Warm, AI-era, encouraging — signed "— Shapi".
+
+function signoff() {
+  return `${divider()}
+    <p style="color:rgba(255,255,255,0.45);font-size:14px;line-height:1.6;margin:0">
+      We&apos;re in your corner.<br>
+      <strong style="color:rgba(255,255,255,0.7)">— Shapi</strong>
+    </p>`
+}
+
+// Part 1 — sent immediately on signup
+export async function sendWelcomeEmail({ to, name }: { to: string; name: string }) {
+  const firstName = name?.split(' ')[0] || 'there'
+
+  const html = emailShell(`
+    ${h1(`Welcome to Shapi, ${firstName}. 🌟`)}
+    ${p(`You just took the smartest first step in an AI-shaped job market: getting ahead of it. The world of work is changing fast — but with the right map, change is opportunity, not threat.`)}
+    ${p(`Here&apos;s where to start. In 2 minutes, find out how exposed your current role is to automation — and exactly what to do about it.`)}
+    ${btn('Check your AI risk →', `${SITE}/ai-proof`)}
+    ${divider()}
+    ${p(`Already explored? Your dashboard is home base — everything you build with us lives there.`)}
+    <a href="${SITE}/dashboard" style="color:#22D3EE;font-size:14px;font-weight:700;text-decoration:none">Go to your dashboard →</a>
+    ${signoff()}
+  `)
+
+  await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: `Welcome to Shapi — let's shape your future career 🌟`,
+    html,
+  })
+}
+
+// Part 2 — sent ~2 days after signup
+export async function sendPivotMapEmail({ to, name }: { to: string; name: string }) {
+  const firstName = name?.split(' ')[0] || 'there'
+
+  const html = emailShell(`
+    ${h1(`${firstName}, your career pivot map is ready. 🗺️`)}
+    ${p(`Your skills are worth more than the job title they&apos;re currently attached to. The hard part is seeing where else they fit — so we built a tool that does exactly that.`)}
+    ${p(`Our Career Translator takes what you already know how to do and maps it onto roles you might never have considered — including the ones AI is creating, not replacing.`)}
+    ${btn('Open your Career Translator →', `${SITE}/translate`)}
+    ${divider()}
+    ${p(`No two maps look the same. Yours is built around your experience — give it a try and see where your skills could take you next.`)}
+    ${signoff()}
+  `)
+
+  await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: `Your custom career pivot map is ready 🗺️`,
+    html,
+  })
+}
+
+// Part 3 — sent ~5 days after signup
+export async function sendSocialProofEmail({ to, name }: { to: string; name: string }) {
+  const firstName = name?.split(' ')[0] || 'there'
+
+  const html = emailShell(`
+    ${h1(`From factory floor to automation tech 🛠️→🤖`)}
+    ${p(`Hi ${firstName} — a quick story. People are already making the leap you&apos;re considering. The line worker who became the person maintaining the robots. The cashier who moved into systems support. The warehouse picker now running automated fulfilment.`)}
+    ${p(`What they had in common wasn&apos;t a degree or a lucky break — it was starting from skills they already had, and pointing them at where the work is going.`)}
+    ${p(`We&apos;ve mapped the roles that are growing in your field. See which ones your experience already lines up with.`)}
+    ${btn('Explore roles built for the future →', `${SITE}/roles`)}
+    ${signoff()}
+  `)
+
+  await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: `From factory floor to automation tech 🛠️→🤖`,
+    html,
+  })
+}
+
 // ── 7. Candidate: CV links sent to their own email ──────────────────────────
 
 export async function sendCVLinksEmail(opts: {

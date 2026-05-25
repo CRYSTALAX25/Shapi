@@ -95,6 +95,7 @@ export default async function ProfilePage() {
         <div className="flex flex-wrap gap-1.5 mb-4">
           {isLive && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5]">✓ Live</span>}
           {tm && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: tm.bg, color: tm.color }}>{tm.emoji} {tm.label}</span>}
+          {((profile.ai_resilience_score as number | null) ?? 0) >= 7 && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5]">🛡️ AI-Proof Asset</span>}
           {profile.ai_tier && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5] capitalize">{aiTierLabel[profile.ai_tier as string] || profile.ai_tier}</span>}
         </div>
 

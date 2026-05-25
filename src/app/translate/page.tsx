@@ -208,7 +208,9 @@ export default function CareerTranslator() {
               <div className="rounded-2xl p-5" style={{ background: 'rgba(240,140,174,0.08)', border: '1px solid rgba(240,140,174,0.2)' }}>
                 <p className="text-[#F08CAE] text-[10px] font-bold uppercase tracking-wider mb-1">🏢 Could you run your own business?</p>
                 <p className="text-[#C7C7D1] text-sm">{t.business.viable ? '✓ ' : ''}{t.business.note}</p>
-                <p className="text-[#7E7E8E] text-[11px] mt-2">Step-by-step business blueprint (licensing, pricing, first clients) coming soon.</p>
+                <Link href={`/business?field=${encodeURIComponent(t.to_role || '')}`} className="inline-block mt-3 px-5 py-2.5 rounded-full font-black text-xs text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
+                  📐 Plan my own business — pricing, licensing & first clients →
+                </Link>
               </div>
             )}
 
