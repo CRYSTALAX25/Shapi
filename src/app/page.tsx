@@ -15,7 +15,7 @@ export default function Home() {
         .orb-c { animation: pulseGlow 7s ease-in-out infinite 3s; }
         .float-card { animation: floatCard 6s ease-in-out infinite; }
         .grad-text {
-          background: linear-gradient(135deg, #8BB0E0, #E2A5B0, #E8A9A0, #8BB0E0);
+          background: linear-gradient(135deg, #6AA8F5, #F08CAE, #F58E9A, #6AA8F5);
           background-size: 300% 300%;
           -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
           animation: gradientShift 6s ease infinite;
@@ -28,22 +28,28 @@ export default function Home() {
         }
         .card:hover {
           transform: translateY(-4px);
-          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 20px 46px rgba(226,165,176,0.14);
-          border-color: rgba(226,165,176,0.28);
+          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 20px 46px rgba(240,140,174,0.14);
+          border-color: rgba(240,140,174,0.28);
         }
         .btn-primary {
-          background: linear-gradient(135deg, #8BB0E0, #E2A5B0, #E8A9A0);
+          background: linear-gradient(135deg, #6AA8F5, #F08CAE, #F58E9A);
           color: #fff;
-          box-shadow: 0 8px 24px rgba(226,165,176,0.28);
+          box-shadow: 0 8px 24px rgba(240,140,174,0.28);
           transition: all 0.25s ease;
         }
-        .btn-primary:hover { box-shadow: 0 12px 32px rgba(226,165,176,0.42); transform: translateY(-1px); }
+        .btn-primary:hover { box-shadow: 0 12px 32px rgba(240,140,174,0.42); transform: translateY(-1px); }
         .grad-border-cta {
-          background: linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg,#8BB0E0,#E2A5B0,#E8A9A0) border-box;
+          background: linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A) border-box;
           border: 1.5px solid transparent; color: #F4F4F7;
           transition: all 0.25s ease;
         }
-        .grad-border-cta:hover { box-shadow: 0 8px 24px rgba(226,165,176,0.22); transform: translateY(-1px); }
+        .grad-border-cta:hover { box-shadow: 0 8px 24px rgba(240,140,174,0.22); transform: translateY(-1px); }
+        /* Black button that turns colourful on hover */
+        .btn-dark-hover { background:#0B0B0F; color:#F4F4F7; border:1px solid rgba(255,255,255,0.12); transition: all .25s ease; }
+        .btn-dark-hover:hover { background: linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A); color:#fff; border-color:transparent; box-shadow:0 12px 32px rgba(240,140,174,0.34); transform: translateY(-1px); }
+        /* Back-illuminate on hover (for cards that have their own background) */
+        .card-hover { transition: all .3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 22px 48px rgba(240,140,174,0.20); border-color: rgba(240,140,174,0.32); }
       `}</style>
 
       {/* Dot grid */}
@@ -72,17 +78,17 @@ export default function Home() {
 
       {/* Hero */}
       <section className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-12">
-        <div className="orb-a absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(139,176,224,0.18) 0%, transparent 70%)' }} />
-        <div className="orb-b absolute top-10 right-1/4 w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(226,165,176,0.16) 0%, transparent 70%)' }} />
-        <div className="orb-c absolute -bottom-20 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(232,169,160,0.14) 0%, transparent 70%)' }} />
+        <div className="orb-a absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(106,168,245,0.18) 0%, transparent 70%)' }} />
+        <div className="orb-b absolute top-10 right-1/4 w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(240,140,174,0.16) 0%, transparent 70%)' }} />
+        <div className="orb-c absolute -bottom-20 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245,142,154,0.14) 0%, transparent 70%)' }} />
 
         <div className="text-center max-w-5xl mx-auto">
           <div className="flex justify-center mb-5"><ShapiCharacter size={76} mood="happy" /></div>
           <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full mb-8" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#8BB0E0] animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#6AA8F5] animate-pulse" />
             <span className="text-[#A6A6B4] text-xs font-medium">UAE launch · 2026</span>
             <span className="text-white/15">·</span>
-            <span className="text-xs font-bold" style={{ color: '#E2A5B0' }}>Early access open</span>
+            <span className="text-xs font-bold" style={{ color: '#F08CAE' }}>Early access open</span>
           </div>
 
           <h1 className="text-6xl md:text-[88px] font-black leading-[0.92] tracking-tighter mb-7">
@@ -96,10 +102,10 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-16">
-            <Link href="/signup" className="btn-primary px-8 py-4 rounded-full text-sm font-black">
+            <Link href="/signup" className="btn-dark-hover px-8 py-4 rounded-full text-sm font-black">
               Build my verified profile — free to start →
             </Link>
-            <Link href="/signup" className="card px-8 py-4 rounded-full text-sm font-bold text-[#F4F4F7]">
+            <Link href="/signup" className="btn-dark-hover px-8 py-4 rounded-full text-sm font-bold">
               I&apos;m hiring — post a role free →
             </Link>
           </div>
@@ -107,43 +113,47 @@ export default function Home() {
           {/* Floating profile card + verification chips */}
           <div className="relative max-w-lg mx-auto">
             <div className="hidden lg:block">
-              <FloatChip text="3 references verified" color="#8BB0E0" pos="-left-24 top-4" />
-              <FloatChip text="AI cross-check passed" color="#E2A5B0" pos="-right-28 top-0" />
-              <FloatChip text="Right to work ✓" color="#8BB0E0" pos="-left-20 bottom-10" />
-              <FloatChip text="Trust score 94" color="#E8A9A0" pos="-right-20 bottom-6" />
+              <FloatChip text="3 references verified" color="#6AA8F5" pos="-left-24 top-4" />
+              <FloatChip text="AI cross-check passed" color="#F08CAE" pos="-right-28 top-0" />
+              <FloatChip text="Right to work ✓" color="#6AA8F5" pos="-left-20 bottom-10" />
+              <FloatChip text="Trust score 94" color="#F58E9A" pos="-right-20 bottom-6" />
             </div>
             <div className="float-card">
             <div className="card rounded-2xl p-6 text-left">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black text-white" style={{ background: 'linear-gradient(135deg, #8BB0E0, #E2A5B0)' }}>A</div>
-                  <div>
-                    <div className="text-sm font-bold">Ahmed K.</div>
-                    <div className="text-xs text-[#7E7E8E]">Operations Director · Dubai</div>
-                  </div>
+              {/* header */}
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-black text-white flex-shrink-0" style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}>A</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-bold">Ahmed K.</div>
+                  <div className="text-xs text-[#7E7E8E]">Operations Director · Dubai</div>
                 </div>
-                <div className="flex items-center gap-1.5 rounded-full px-3 py-1" style={{ background: 'rgba(139,176,224,0.12)', border: '1px solid rgba(139,176,224,0.3)' }}>
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#8BB0E0] animate-pulse" />
-                  <span className="text-[#8BB0E0] text-xs font-bold">Verified</span>
+                <div className="flex items-center gap-1.5 rounded-full px-3 py-1 flex-shrink-0" style={{ background: 'rgba(106,168,245,0.14)', border: '1px solid rgba(106,168,245,0.3)' }}>
+                  <svg className="w-3 h-3 text-[#6AA8F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                  <span className="text-[#6AA8F5] text-xs font-bold">Verified</span>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {['P&L management', 'NEOM experience', 'Team of 200+', 'Arabic / English', 'Giga-project ops', 'Visa: available'].map((s, i) => (
-                  <span key={i} className="text-xs text-[#C7C7D1] px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>{s}</span>
+              {/* what Shapi verified — one clear line each */}
+              <div className="space-y-3">
+                {[
+                  ['References', 'Independently checked — not chosen by Ahmed'],
+                  ['Skills', 'Proven by evidence, not just claimed'],
+                  ['Right to work', 'UAE · confirmed'],
+                ].map(([label, sub], i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(106,168,245,0.14)' }}>
+                      <svg className="w-3.5 h-3.5 text-[#6AA8F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                    </span>
+                    <div className="min-w-0">
+                      <span className="text-sm font-bold text-[#F4F4F7]">{label}</span>
+                      <span className="text-xs text-[#7E7E8E]"> — {sub}</span>
+                    </div>
+                  </div>
                 ))}
               </div>
-              <div className="flex items-center justify-between pt-3 border-t border-white/[0.08]">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1.5">
-                    <svg className="w-3.5 h-3.5 text-[#8BB0E0]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    <span className="text-xs text-[#7E7E8E]">3 refs verified</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <svg className="w-3.5 h-3.5" style={{ color: '#E2A5B0' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                    <span className="text-xs text-[#7E7E8E]">AI skills mapped</span>
-                  </div>
-                </div>
-                <div className="text-xs font-bold" style={{ color: '#E2A5B0' }}>Profile score: 94%</div>
+              {/* trust score */}
+              <div className="flex items-center justify-between mt-5 pt-4 border-t border-white/[0.08]">
+                <span className="text-xs text-[#7E7E8E]">Shapi trust score</span>
+                <span className="text-lg font-black" style={{ color: '#6AA8F5' }}>94<span className="text-xs text-[#7E7E8E] font-bold">/100</span></span>
               </div>
             </div>
             </div>
@@ -155,9 +165,9 @@ export default function Home() {
       <section className="relative z-10 py-12 my-4" style={{ background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="max-w-4xl mx-auto px-6 grid grid-cols-3 gap-8 text-center">
           {[
-            { n: '3 min', label: 'to build a complete profile', color: '#8BB0E0' },
-            { n: '100%', label: 'independently verified', color: '#E2A5B0' },
-            { n: '0', label: 'forms to fill in — ever', color: '#E8A9A0' },
+            { n: '3 min', label: 'to build a complete profile', color: '#6AA8F5' },
+            { n: '100%', label: 'independently verified', color: '#F08CAE' },
+            { n: '0', label: 'forms to fill in — ever', color: '#F58E9A' },
           ].map((s, i) => (
             <div key={i}>
               <p className="text-4xl md:text-5xl font-black mb-1.5" style={{ color: s.color }}>{s.n}</p>
@@ -170,7 +180,7 @@ export default function Home() {
       {/* How it works */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 py-24">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(139,176,224,0.12)', color: '#8BB0E0' }}>
+          <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>
             How it works
           </div>
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter">
@@ -180,19 +190,19 @@ export default function Home() {
 
         <div className="relative grid md:grid-cols-3 gap-5">
           {[
-            { step: '01', title: 'Drop your CV', desc: 'We read everything. No forms. Our AI extracts your experience, skills, and achievements in seconds.', color: '#8BB0E0',
+            { step: '01', title: 'Drop your CV', desc: 'We read everything. No forms. Our AI extracts your experience, skills, and achievements in seconds.', color: '#6AA8F5',
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /> },
-            { step: '02', title: 'We ask the right questions', desc: "A few WhatsApp messages — not a form. Text or voice note. We find skills you didn't know you had.", color: '#E2A5B0',
+            { step: '02', title: 'We ask the right questions', desc: "A few WhatsApp messages — not a form. Text or voice note. We find skills you didn't know you had.", color: '#F08CAE',
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /> },
-            { step: '03', title: 'Your profile goes live', desc: 'Independently verified. References sourced by us. Companies see the real you — not a polished CV.', color: '#E8A9A0',
+            { step: '03', title: 'Your profile goes live', desc: 'Independently verified. References sourced by us. Companies see the real you — not a polished CV.', color: '#F58E9A',
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /> },
           ].map((item, i) => (
             <div key={i} className="card rounded-2xl p-8">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${item.color}1f`, color: item.color }}>
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${item.color}30`, color: item.color }}>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">{item.icon}</svg>
                 </div>
-                <span className="text-4xl font-black" style={{ color: item.color, opacity: 0.3 }}>{item.step}</span>
+                <span className="text-5xl font-black" style={{ color: item.color }}>{item.step}</span>
               </div>
               <h3 className="text-lg font-bold mb-3">{item.title}</h3>
               <p className="text-[#A6A6B4] text-sm leading-relaxed">{item.desc}</p>
@@ -204,10 +214,10 @@ export default function Home() {
       {/* Why Shapi — comparison table */}
       <section id="why" className="relative z-10 max-w-5xl mx-auto px-6 py-24 scroll-mt-20">
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(226,165,176,0.12)', color: '#E2A5B0' }}>
+          <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(240,140,174,0.12)', color: '#F08CAE' }}>
             Why Shapi
           </div>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter">One platform built on proof.</h2>
+          <h2 className="text-5xl md:text-6xl font-black tracking-tighter">One platform built on proof.</h2>
           <p className="text-[#A6A6B4] text-lg mt-4 max-w-2xl mx-auto">Job boards match. Recruiters gatekeep. We verify — independently, for both sides.</p>
         </div>
 
@@ -243,11 +253,11 @@ export default function Home() {
                   {[1, 2, 3, 4].map(col => (
                     <td key={col} className="p-3 text-center">
                       <span className="inline-flex items-center justify-center w-6 h-6 rounded-full" style={{
-                        background: row[col] ? 'rgba(139,176,224,0.15)' : 'rgba(232,169,160,0.12)',
+                        background: row[col] ? 'rgba(106,168,245,0.15)' : 'rgba(245,142,154,0.12)',
                       }}>
                         {row[col]
-                          ? <svg className="w-3.5 h-3.5" style={{ color: '#8BB0E0' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                          : <svg className="w-3.5 h-3.5" style={{ color: '#E8A9A0' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>}
+                          ? <svg className="w-3.5 h-3.5" style={{ color: '#6AA8F5' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                          : <svg className="w-3.5 h-3.5" style={{ color: '#F58E9A' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>}
                       </span>
                     </td>
                   ))}
@@ -261,12 +271,12 @@ export default function Home() {
       {/* Manifesto */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-24">
         <div className="relative overflow-hidden rounded-3xl p-12 md:p-16" style={{
-          background: 'linear-gradient(135deg, rgba(139,176,224,0.10) 0%, rgba(226,165,176,0.06) 50%, rgba(232,169,160,0.08) 100%)',
-          border: '1px solid rgba(226,165,176,0.16)',
+          background: 'linear-gradient(135deg, rgba(106,168,245,0.10) 0%, rgba(240,140,174,0.06) 50%, rgba(245,142,154,0.08) 100%)',
+          border: '1px solid rgba(240,140,174,0.16)',
         }}>
-          <div className="absolute -top-20 -right-20 w-[400px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(226,165,176,0.12) 0%, transparent 70%)' }} />
+          <div className="absolute -top-20 -right-20 w-[400px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(240,140,174,0.12) 0%, transparent 70%)' }} />
           <div className="relative max-w-3xl">
-            <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-8" style={{ background: 'rgba(226,165,176,0.12)', color: '#E2A5B0' }}>
+            <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-8" style={{ background: 'rgba(240,140,174,0.12)', color: '#F08CAE' }}>
               Why we built this
             </div>
             <div className="space-y-5 text-[#C7C7D1] text-lg leading-relaxed">
@@ -283,7 +293,7 @@ export default function Home() {
                 Most platforms respond by adding more filters to screen people out faster.
                 We went the other way.
               </p>
-              <p className="font-semibold" style={{ color: '#E8A9A0' }}>
+              <p className="font-semibold" style={{ color: '#F58E9A' }}>
                 Your skills are real. Your experience is real. Your future is yours to shape.
                 We just make sure the right people see it.
               </p>
@@ -304,17 +314,17 @@ export default function Home() {
 
         <div className="grid md:grid-cols-3 gap-4">
           {[
-            { title: 'Independent references', tag: 'Our edge', color: '#8BB0E0', desc: "We choose who to contact and keep it confidential — you don't curate the answers. That's a real reference, not a testimonial.",
+            { title: 'Independent references', tag: 'Our edge', color: '#6AA8F5', desc: "We choose who to contact and keep it confidential — you don't curate the answers. That's a real reference, not a testimonial.",
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /> },
-            { title: 'AI cross-check', tag: 'The moat', color: '#E2A5B0', desc: 'We read every reference at once, confirm what multiple people agree on, and flag conflicts honestly. One report, owned by you.',
+            { title: 'AI cross-check', tag: 'The moat', color: '#F08CAE', desc: 'We read every reference at once, confirm what multiple people agree on, and flag conflicts honestly. One report, owned by you.',
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /> },
-            { title: 'Companies rated too', tag: 'Two-sided', color: '#E8A9A0', desc: 'Salary paid on time. Manager quality. Real working hours. Candidates see the truth before they apply.',
+            { title: 'Companies rated too', tag: 'Two-sided', color: '#F58E9A', desc: 'Salary paid on time. Manager quality. Real working hours. Candidates see the truth before they apply.',
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /> },
-            { title: 'Blue and white collar', tag: 'Inclusive', color: '#8BB0E0', desc: 'The chef, the construction supervisor, the ops director. One platform. Every person taken seriously — by text or voice note.',
+            { title: 'Blue and white collar', tag: 'Inclusive', color: '#6AA8F5', desc: 'The chef, the construction supervisor, the ops director. One platform. Every person taken seriously — by text or voice note.',
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /> },
-            { title: 'Right-to-work intelligence', tag: 'Region-smart', color: '#E2A5B0', desc: 'Visa and right-to-work captured per country, UAE-first. Skills over paper — no degree required to prove you can do the job.',
+            { title: 'Right-to-work intelligence', tag: 'Region-smart', color: '#F08CAE', desc: 'Visa and right-to-work captured per country, UAE-first. Skills over paper — no degree required to prove you can do the job.',
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /> },
-            { title: 'Career transition engine', tag: 'Future-proof', color: '#E8A9A0', desc: "AI taking over your role? We map your transferable skills and show you exactly where to go next — and how to get there.",
+            { title: 'Career transition engine', tag: 'Future-proof', color: '#F58E9A', desc: "AI taking over your role? We map your transferable skills and show you exactly where to go next — and how to get there.",
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /> },
           ].map((item, i) => (
             <div key={i} className="card rounded-2xl p-7">
@@ -334,7 +344,7 @@ export default function Home() {
       {/* Pricing */}
       <section id="pricing" className="relative z-10 max-w-6xl mx-auto px-6 pb-24 scroll-mt-20">
         <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(139,176,224,0.12)', color: '#8BB0E0' }}>
+          <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>
             Pricing
           </div>
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter">Start free. Pay when it pays off.</h2>
@@ -353,21 +363,21 @@ export default function Home() {
             <p className="text-[#7E7E8E] text-sm mb-6">Get started</p>
             <ul className="space-y-2.5 text-sm text-[#C7C7D1] mb-7 flex-1">
               {['Drop your CV — AI builds your profile', 'WhatsApp interview (text or voice)', 'Your basic profile page', 'Skills extracted automatically'].map((f, i) => (
-                <li key={i} className="flex gap-2.5"><Check c="#8BB0E0" />{f}</li>
+                <li key={i} className="flex gap-2.5"><Check c="#6AA8F5" />{f}</li>
               ))}
             </ul>
             <Link href="/signup" className="rounded-full py-3 text-center text-sm font-bold text-[#F4F4F7]" style={{ border: '1px solid rgba(255,255,255,0.12)' }}>Start free →</Link>
           </div>
 
           {/* CV Pro — highlighted */}
-          <div className="rounded-2xl p-7 flex flex-col relative" style={{ background: 'linear-gradient(160deg, #1A1622, #16161F)', border: '1px solid rgba(226,165,176,0.3)', boxShadow: '0 20px 50px rgba(226,165,176,0.18)' }}>
-            <span className="absolute top-5 right-5 text-[10px] font-black px-2.5 py-1 rounded-full text-white" style={{ background: 'linear-gradient(135deg,#8BB0E0,#E2A5B0)' }}>MOST POPULAR</span>
-            <p className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: '#E2A5B0' }}>CV Pro</p>
+          <div className="card-hover rounded-2xl p-7 flex flex-col relative" style={{ background: 'linear-gradient(160deg, #1A1622, #16161F)', border: '1px solid rgba(240,140,174,0.3)', boxShadow: '0 20px 50px rgba(240,140,174,0.18)' }}>
+            <span className="absolute top-5 right-5 text-[10px] font-black px-2.5 py-1 rounded-full text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>MOST POPULAR</span>
+            <p className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: '#F08CAE' }}>CV Pro</p>
             <p className="text-4xl font-black mb-1">$59 <span className="text-base font-bold text-[#7E7E8E]">one-time</span></p>
             <p className="text-[#A6A6B4] text-sm mb-6">Everything to get verified &amp; hired</p>
             <ul className="space-y-2.5 text-sm text-[#C7C7D1] mb-7 flex-1">
               {['Multi-language + industry CVs (Kit included)', 'WhatsApp deep-dive interviews', 'Independent reference verification chain', 'AI cross-check report', 'Career Roadmap + upskilling'].map((f, i) => (
-                <li key={i} className="flex gap-2.5"><Check c="#8BB0E0" />{f}</li>
+                <li key={i} className="flex gap-2.5"><Check c="#6AA8F5" />{f}</li>
               ))}
             </ul>
             <Link href="/signup" className="btn-primary rounded-full py-3 text-center text-sm font-black">Get Pro →</Link>
@@ -380,7 +390,7 @@ export default function Home() {
             <p className="text-[#7E7E8E] text-sm mb-6">Just the CVs</p>
             <ul className="space-y-2.5 text-sm text-[#C7C7D1] mb-7 flex-1">
               {['Multi-language CV versions', 'Industry-targeted versions', 'Polished, downloadable PDF', 'Yours to keep forever'].map((f, i) => (
-                <li key={i} className="flex gap-2.5"><Check c="#E2A5B0" />{f}</li>
+                <li key={i} className="flex gap-2.5"><Check c="#F08CAE" />{f}</li>
               ))}
             </ul>
             <Link href="/signup" className="rounded-full py-3 text-center text-sm font-bold text-[#F4F4F7]" style={{ border: '1px solid rgba(255,255,255,0.12)' }}>Get the Kit →</Link>
@@ -393,12 +403,12 @@ export default function Home() {
           <p className="text-[#7E7E8E] text-sm mb-4">Optional subscriptions once you&apos;re verified.</p>
           <div className="flex flex-wrap gap-3">
             {[
-              { n: 'Open Roles Board', p: '$19/mo', c: '#8BB0E0' },
-              { n: 'Shapi Active', p: '$29/mo', c: '#E2A5B0' },
-              { n: 'Career Bundle', p: '$39/mo', c: '#8BB0E0' },
-              { n: 'Active Concierge', p: '$79/mo', c: '#E8A9A0' },
+              { n: 'Open Roles Board', p: '$19/mo', c: '#6AA8F5' },
+              { n: 'Shapi Active', p: '$29/mo', c: '#F08CAE' },
+              { n: 'Career Bundle', p: '$39/mo', c: '#6AA8F5' },
+              { n: 'Active Concierge', p: '$79/mo', c: '#F58E9A' },
             ].map((a, i) => (
-              <div key={i} className="rounded-xl px-4 py-3 flex items-center gap-3" style={{ background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div key={i} className="card-hover rounded-xl px-4 py-3 flex items-center gap-3" style={{ background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <span className="text-sm font-bold">{a.n}</span>
                 <span className="text-sm font-black" style={{ color: a.c }}>{a.p}</span>
               </div>
@@ -411,21 +421,21 @@ export default function Home() {
           <h3 className="text-xl font-black">For companies</h3>
           <span className="text-[#7E7E8E] text-sm">30-day free trial. Cancel anytime.</span>
         </div>
-        <p className="text-sm font-bold mb-6" style={{ color: '#E2A5B0' }}>★ Founding Partners: the first 25 companies get 50% off for 3 months.</p>
+        <p className="text-sm font-bold mb-6" style={{ color: '#F08CAE' }}>★ Founding Partners: the first 25 companies get 50% off for 3 months.</p>
         <div className="grid md:grid-cols-3 gap-5">
           {[
-            { name: 'Starter', standard: '$299', founding: '$149', per: '/mo', custom: false, popular: false, color: '#8BB0E0',
+            { name: 'Starter', standard: '$299', founding: '$149', per: '/mo', custom: false, popular: false, color: '#6AA8F5',
               features: ['Post unlimited roles', 'Access verified candidate profiles', 'Match scoring', 'Up to 3 seats'] },
-            { name: 'Growth', standard: '$799', founding: '$399', per: '/mo', custom: false, popular: true, color: '#E2A5B0',
+            { name: 'Growth', standard: '$799', founding: '$399', per: '/mo', custom: false, popular: true, color: '#F08CAE',
               features: ['Everything in Starter', 'AI shortlisting + outreach', 'Company trust score', 'Priority placement', 'Up to 10 seats'] },
-            { name: 'Enterprise', standard: '', founding: 'Custom', per: '', custom: true, popular: false, color: '#E8A9A0',
+            { name: 'Enterprise', standard: '', founding: 'Custom', per: '', custom: true, popular: false, color: '#F58E9A',
               features: ['Everything in Growth', 'Private API + ATS integration', 'Dedicated success manager', 'Custom verification SLAs', 'Unlimited seats'] },
           ].map((tier, i) => (
-            <div key={i} className="rounded-2xl p-7 flex flex-col"
-              style={tier.popular ? { background: 'linear-gradient(160deg, #1A1622, #16161F)', border: '1px solid rgba(226,165,176,0.3)', boxShadow: '0 20px 50px rgba(226,165,176,0.18)' } : { background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div key={i} className="card-hover rounded-2xl p-7 flex flex-col"
+              style={tier.popular ? { background: 'linear-gradient(160deg, #1A1622, #16161F)', border: '1px solid rgba(240,140,174,0.3)', boxShadow: '0 20px 50px rgba(240,140,174,0.18)' } : { background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }}>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-bold uppercase tracking-wider" style={{ color: tier.popular ? '#E2A5B0' : '#7E7E8E' }}>{tier.name}</p>
-                {tier.popular && <span className="text-[10px] font-black px-2.5 py-1 rounded-full text-white" style={{ background: 'linear-gradient(135deg,#8BB0E0,#E2A5B0)' }}>POPULAR</span>}
+                <p className="text-sm font-bold uppercase tracking-wider" style={{ color: tier.popular ? '#F08CAE' : '#7E7E8E' }}>{tier.name}</p>
+                {tier.popular && <span className="text-[10px] font-black px-2.5 py-1 rounded-full text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>POPULAR</span>}
               </div>
               {tier.custom ? (
                 <p className="text-4xl font-black mb-6">Custom</p>
@@ -470,7 +480,7 @@ export default function Home() {
             <details key={i} className="group card rounded-2xl px-5 py-4">
               <summary className="flex items-center justify-between cursor-pointer list-none">
                 <span className="font-bold text-[#F4F4F7] pr-4">{f.q}</span>
-                <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[#E2A5B0] transition-transform group-open:rotate-45" style={{ background: 'rgba(226,165,176,0.12)' }}>
+                <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[#F08CAE] transition-transform group-open:rotate-45" style={{ background: 'rgba(240,140,174,0.12)' }}>
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
                 </span>
               </summary>
@@ -485,15 +495,15 @@ export default function Home() {
         <div className="relative overflow-hidden rounded-3xl text-center py-20 px-8" style={{
           background: '#16161F', border: '1px solid rgba(255,255,255,0.08)',
         }}>
-          <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(139,176,224,0.14), transparent 60%)' }} />
+          <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(106,168,245,0.14), transparent 60%)' }} />
           <div className="relative">
             <h2 className="text-5xl md:text-6xl font-black grad-text mb-4 tracking-tighter">Shape what&apos;s next.</h2>
             <p className="text-[#A6A6B4] mb-10 text-base">UAE · Saudi Arabia · GCC · Remote MENA</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/signup" className="btn-primary px-8 py-4 rounded-full font-black text-sm">
+              <Link href="/signup" className="btn-dark-hover px-8 py-4 rounded-full font-black text-sm">
                 Build my verified profile →
               </Link>
-              <Link href="/signup" className="px-8 py-4 rounded-full font-bold text-sm text-[#F4F4F7]" style={{ border: '1px solid rgba(255,255,255,0.14)' }}>
+              <Link href="/signup" className="btn-dark-hover px-8 py-4 rounded-full font-bold text-sm">
                 Start hiring →
               </Link>
             </div>
