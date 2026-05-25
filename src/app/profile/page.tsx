@@ -55,7 +55,7 @@ export default async function ProfilePage() {
   const tierMeta: Record<string, { label: string; color: string; bg: string; emoji: string; description: string }> = {
     basic: { label: 'Basic Verified', color: '#6AA8F5', bg: 'rgba(106,168,245,0.10)', emoji: '🔵', description: '1 of 2 reference chains complete' },
     strong: { label: 'Strongly Verified', color: '#6AA8F5', bg: 'rgba(106,168,245,0.10)', emoji: '🟢', description: 'Both reference chains + peer reference complete' },
-    premium: { label: 'Premium Verified', color: '#F08CAE', bg: 'rgba(240,140,174,0.10)', emoji: '🟡', description: 'Strong + AI cross-check passed with no conflicts' },
+    premium: { label: 'Premium Verified', color: '#6AA8F5', bg: 'rgba(106,168,245,0.10)', emoji: '🟡', description: 'Strong + AI cross-check passed with no conflicts' },
   }
   const tm = tierMeta[tier]
 
@@ -68,7 +68,7 @@ export default async function ProfilePage() {
             <img src={profile.profile_image_url as string} alt={(profile.full_name as string) || 'Profile'}
               className="w-16 h-16 rounded-full object-cover flex-shrink-0" style={{ border: '2px solid rgba(106,168,245,0.3)' }} />
           ) : (
-            <div className="w-16 h-16 rounded-full flex-shrink-0 flex items-center justify-center text-2xl font-black text-[#060609]" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>
+            <div className="w-16 h-16 rounded-full flex-shrink-0 flex items-center justify-center text-2xl font-black text-[#060609]" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)' }}>
               {((profile.full_name as string) || '?').charAt(0).toUpperCase()}
             </div>
           )}
@@ -82,10 +82,10 @@ export default async function ProfilePage() {
 
         {/* Completion + live */}
         <div className="flex items-center gap-3 mb-3">
-          <div className="text-3xl font-black" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{completion}%</div>
+          <div className="text-3xl font-black" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{completion}%</div>
           <div className="flex-1">
             <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.07)' }}>
-              <div className="h-full rounded-full" style={{ width: `${completion}%`, background: 'linear-gradient(90deg,#6AA8F5,#F08CAE)' }} />
+              <div className="h-full rounded-full" style={{ width: `${completion}%`, background: 'linear-gradient(90deg,#6AA8F5,#4F8FE8)' }} />
             </div>
             <p className="text-[#7E7E8E] text-[10px] mt-1">profile strength</p>
           </div>
@@ -95,7 +95,7 @@ export default async function ProfilePage() {
         <div className="flex flex-wrap gap-1.5 mb-4">
           {isLive && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5]">✓ Live</span>}
           {tm && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: tm.bg, color: tm.color }}>{tm.emoji} {tm.label}</span>}
-          {profile.ai_tier && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F08CAE]/15 text-[#F08CAE] capitalize">{aiTierLabel[profile.ai_tier as string] || profile.ai_tier}</span>}
+          {profile.ai_tier && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5] capitalize">{aiTierLabel[profile.ai_tier as string] || profile.ai_tier}</span>}
         </div>
 
         {/* Right to work */}
@@ -120,9 +120,9 @@ export default async function ProfilePage() {
         {/* Actions — Pro/Kit see only the Kit; others get a universal download */}
         <div className="space-y-2">
           {hasCvAccess ? (
-            <a href="/cv-ready" className="block text-center bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] text-[#060609] text-xs font-black py-2.5 rounded-xl hover:opacity-90 transition-opacity">Open CV Kit →</a>
+            <a href="/cv-ready" className="block text-center bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] text-[#060609] text-xs font-black py-2.5 rounded-xl hover:opacity-90 transition-opacity">Open CV Kit →</a>
           ) : (
-            <a href="/profile/print" target="_blank" className="block text-center bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] text-[#060609] text-xs font-black py-2.5 rounded-xl hover:opacity-90 transition-opacity">Download CV ↓</a>
+            <a href="/profile/print" target="_blank" className="block text-center bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] text-[#060609] text-xs font-black py-2.5 rounded-xl hover:opacity-90 transition-opacity">Download CV ↓</a>
           )}
           <div className="grid grid-cols-2 gap-2">
             <Link href="/profile/edit" className="text-center text-[#A6A6B4] text-xs font-bold py-2 rounded-xl border border-white/[0.08] hover:border-white/20 transition-colors">Edit</Link>
@@ -180,21 +180,21 @@ export default async function ProfilePage() {
         return (
           <div className="gradient-border-card rounded-2xl p-6">
             <div className="flex items-center gap-2.5 mb-4">
-              <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#F08CAE)' }} />
+              <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#4F8FE8)' }} />
               <h2 className="text-[#F4F4F7] font-black text-xl tracking-tight">Availability &amp; salary</h2>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.07)', color: '#7E7E8E' }}>🔒 private</span>
             </div>
             <div className="ml-4 space-y-4">
               {sm && <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full" style={{ background: sm.color }} /><span className="text-sm font-bold" style={{ color: sm.color }}>{sm.label}</span></div>}
               {openTo.length > 0 && (
-                <div className="flex items-center gap-2 flex-wrap"><span className="text-[#7E7E8E] text-[11px] font-bold uppercase tracking-wider">Open to:</span>{openTo.map((e, i) => <span key={i} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.12)', color: '#F08CAE' }}>{engLabel[e] || e}</span>)}</div>
+                <div className="flex items-center gap-2 flex-wrap"><span className="text-[#7E7E8E] text-[11px] font-bold uppercase tracking-wider">Open to:</span>{openTo.map((e, i) => <span key={i} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>{engLabel[e] || e}</span>)}</div>
               )}
               {(targetRoles.length > 0 || targetIndustries.length > 0) && (
                 <div>
                   <p className="text-[#7E7E8E] text-[11px] font-bold uppercase tracking-wider mb-1.5">Looking for</p>
                   <div className="flex flex-wrap gap-1.5">
                     {targetRoles.map((r, i) => <span key={`r${i}`} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.10)', color: '#6AA8F5' }}>{r}</span>)}
-                    {targetIndustries.map((ind, i) => <span key={`i${i}`} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.10)', color: '#F08CAE' }}>{indLabel[ind] || ind}</span>)}
+                    {targetIndustries.map((ind, i) => <span key={`i${i}`} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.10)', color: '#6AA8F5' }}>{indLabel[ind] || ind}</span>)}
                   </div>
                 </div>
               )}
@@ -228,7 +228,7 @@ export default async function ProfilePage() {
         <div className="gradient-border-card rounded-2xl p-6">
           <div className="flex items-center justify-between gap-2.5 mb-4">
             <div className="flex items-center gap-2.5">
-              <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#F08CAE)' }} />
+              <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#4F8FE8)' }} />
               <h2 className="text-[#F4F4F7] font-black text-xl tracking-tight">Skill Fingerprint</h2>
             </div>
           </div>
@@ -287,11 +287,11 @@ export default async function ProfilePage() {
             </div>
             {(report.conflicts?.length ?? 0) > 0 && (
               <div className="mt-3 rounded-xl p-4" style={{ background: 'rgba(217,119,6,0.12)', border: '1px solid rgba(217,119,6,0.18)' }}>
-                <p className="text-[#F08CAE] text-[11px] font-bold uppercase tracking-wider mb-2.5">⚖ Differing perspectives <span className="text-[#7E7E8E] normal-case font-medium">— flagged, not hidden</span></p>
+                <p className="text-[#6AA8F5] text-[11px] font-bold uppercase tracking-wider mb-2.5">⚖ Differing perspectives <span className="text-[#7E7E8E] normal-case font-medium">— flagged, not hidden</span></p>
                 <div className="space-y-2.5">
                   {report.conflicts!.map((c, i) => (
                     <div key={i} className="flex gap-2.5">
-                      <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full mt-1.5" style={{ background: '#F08CAE' }} />
+                      <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full mt-1.5" style={{ background: '#6AA8F5' }} />
                       <div><p className="text-[#C7C7D1] text-xs font-bold">{c.topic}</p><p className="text-[#A6A6B4] text-[11px] leading-relaxed">{c.note}</p></div>
                     </div>
                   ))}
@@ -328,7 +328,7 @@ export default async function ProfilePage() {
         <Link href="/profile/references" className="block gradient-border-card rounded-2xl p-5 hover:bg-white/[0.05] transition-colors">
           <div className="flex items-start justify-between gap-2 mb-1">
             <p className="text-[#F4F4F7] font-bold text-sm">References</p>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: refScore.jobsComplete === 2 ? 'rgba(106,168,245,0.15)' : refScore.jobsComplete === 1 ? 'rgba(240,140,174,0.15)' : 'rgba(245,142,154,0.15)', color: refScore.jobsComplete === 2 ? '#6AA8F5' : refScore.jobsComplete === 1 ? '#F08CAE' : '#F58E9A' }}>{refScore.jobsComplete} of 2 jobs</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}>{refScore.jobsComplete} of 2 jobs</span>
           </div>
           <p className="text-[#7E7E8E] text-xs leading-relaxed">{refScore.jobsComplete === 2 ? 'Both jobs fully verified — profile live ✓' : refScore.jobsComplete === 1 ? 'One more job to verify (85% → 100%).' : 'Add your 2 latest managers — we contact them, they nominate a colleague + stakeholder.'}</p>
           <p className="text-[#6AA8F5] text-xs font-semibold mt-3">{refScore.jobsComplete === 2 ? 'View references →' : 'Add references →'}</p>
@@ -336,7 +336,7 @@ export default async function ProfilePage() {
         <Link href="/evidence" className="block gradient-border-card rounded-2xl p-5 hover:bg-white/[0.05] transition-colors">
           <div className="flex items-start justify-between gap-2 mb-1">
             <p className="text-[#F4F4F7] font-bold text-sm">Work evidence</p>
-            {hasEvidence ? <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full flex-shrink-0">{evidenceCount} file{evidenceCount !== 1 ? 's' : ''} ✓</span> : <span className="text-[10px] font-bold bg-[#F58E9A]/12 text-[#F58E9A] px-2 py-0.5 rounded-full flex-shrink-0">Optional</span>}
+            {hasEvidence ? <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full flex-shrink-0">{evidenceCount} file{evidenceCount !== 1 ? 's' : ''} ✓</span> : <span className="text-[10px] font-bold bg-[#6AA8F5]/12 text-[#6AA8F5] px-2 py-0.5 rounded-full flex-shrink-0">Optional</span>}
           </div>
           <p className="text-[#7E7E8E] text-xs">{hasEvidence ? 'Photos and docs uploaded — strengthens your profile.' : 'Photos, docs, references that prove your track record'}</p>
           <p className="text-[#6AA8F5] text-xs font-semibold mt-3">{hasEvidence ? 'Add more →' : 'Upload evidence →'}</p>
@@ -382,8 +382,8 @@ export default async function ProfilePage() {
                 <p className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider mb-2">Verified via WhatsApp</p>
                 <div className="flex flex-wrap gap-2 mb-2">
                   {proficiency.cefr_level && <span title={`CEFR ${proficiency.cefr_level} — ${cefrInfo[proficiency.cefr_level] || ''}`} className="text-xs font-bold px-2 py-1 rounded-full cursor-help" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>{proficiency.cefr_level} CEFR ⓘ</span>}
-                  {proficiency.ielts_equivalent && <span title={`IELTS ${proficiency.ielts_equivalent} band`} className="text-xs font-bold px-2 py-1 rounded-full cursor-help" style={{ background: 'rgba(240,140,174,0.12)', color: '#F08CAE' }}>IELTS {proficiency.ielts_equivalent} ⓘ</span>}
-                  {proficiency.english_level && proficiency.english_level !== 'unassessed' && <span title={`English CEFR ${proficiency.english_level}`} className="text-xs font-bold px-2 py-1 rounded-full cursor-help" style={{ background: 'rgba(245,142,154,0.12)', color: '#F58E9A' }}>{proficiency.english_level} English ⓘ</span>}
+                  {proficiency.ielts_equivalent && <span title={`IELTS ${proficiency.ielts_equivalent} band`} className="text-xs font-bold px-2 py-1 rounded-full cursor-help" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>IELTS {proficiency.ielts_equivalent} ⓘ</span>}
+                  {proficiency.english_level && proficiency.english_level !== 'unassessed' && <span title={`English CEFR ${proficiency.english_level}`} className="text-xs font-bold px-2 py-1 rounded-full cursor-help" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>{proficiency.english_level} English ⓘ</span>}
                 </div>
                 <p className="text-[#7E7E8E] text-[10px] leading-relaxed">A1/A2 beginner · B1/B2 intermediate (B2 = fluent professional) · C1/C2 advanced</p>
               </div>
@@ -400,7 +400,7 @@ export default async function ProfilePage() {
       {workHistory.length > 0 ? (
         <div className="gradient-border-card rounded-2xl p-6">
           <div className="flex items-center gap-2.5 mb-5">
-            <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#F08CAE)' }} />
+            <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#4F8FE8)' }} />
             <h2 className="text-[#F4F4F7] font-black text-xl tracking-tight">Experience</h2>
           </div>
           <div className="space-y-6">
@@ -499,9 +499,9 @@ export default async function ProfilePage() {
       {profile.skill_quadrant && (
         <div className="gradient-border-card rounded-2xl p-6">
           <div className="flex items-center gap-2.5 mb-1">
-            <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#F08CAE)' }} />
+            <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#4F8FE8)' }} />
             <h2 className="text-[#F4F4F7] font-black text-xl tracking-tight">Skill Fingerprint</h2>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.14)', color: '#F08CAE' }}>◆ Shapi-assessed</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.14)', color: '#6AA8F5' }}>◆ Shapi-assessed</span>
           </div>
           <p className="text-[#7E7E8E] text-xs mb-4 ml-4">Derived from your CV + conversation — it sharpens automatically as you add detail. Not a quiz you retake.</p>
           <div className="flex justify-center"><SkillRadar data={profile.skill_quadrant as { hands: number; heart: number; head: number; spark: number; reasoning?: string }} /></div>
@@ -523,7 +523,7 @@ export default async function ProfilePage() {
             <div className="gradient-border-card rounded-2xl p-6">
               <div className="flex items-center justify-between gap-4">
                 <div><h2 className="text-[#F4F4F7] font-black text-base mb-1">Work-style check <span className="text-[10px] font-bold px-2 py-0.5 rounded-full align-middle" style={{ background: 'rgba(255,255,255,0.05)', color: '#A6A6B4' }}>optional · 2 min</span></h2><p className="text-[#A6A6B4] text-xs">Show companies how you prefer to work — team vs solo, leader vs contributor, and more.</p></div>
-                <a href="/work-style" className="flex-shrink-0 px-4 py-2.5 rounded-xl font-black text-xs" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', color: '#060609' }}>Take it →</a>
+                <a href="/work-style" className="flex-shrink-0 px-4 py-2.5 rounded-xl font-black text-xs" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', color: '#060609' }}>Take it →</a>
               </div>
             </div>
           )
@@ -531,7 +531,7 @@ export default async function ProfilePage() {
         return (
           <div className="gradient-border-card rounded-2xl p-6">
             <div className="flex items-center gap-2.5 mb-4">
-              <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#F08CAE)' }} />
+              <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#4F8FE8)' }} />
               <h2 className="text-[#F4F4F7] font-black text-xl tracking-tight">Work Style</h2>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>✎ Self-assessment</span>
               <a href="/work-style" className="ml-auto text-[#7E7E8E] text-xs font-bold hover:text-[#C7C7D1]">Retake →</a>
@@ -543,7 +543,7 @@ export default async function ProfilePage() {
                 return (
                   <div key={d.key}>
                     <div className="flex items-center justify-between text-[11px] mb-1"><span className="text-[#A6A6B4]">{d.poleB}</span><span className="text-[#F4F4F7] font-bold">{label}</span><span className="text-[#A6A6B4]">{d.poleA}</span></div>
-                    <div className="relative h-2 rounded-full" style={{ background: 'rgba(255,255,255,0.07)' }}><div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full" style={{ left: `calc(${score}% - 6px)`, background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }} /></div>
+                    <div className="relative h-2 rounded-full" style={{ background: 'rgba(255,255,255,0.07)' }}><div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full" style={{ left: `calc(${score}% - 6px)`, background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)' }} /></div>
                   </div>
                 )
               })}
@@ -555,9 +555,9 @@ export default async function ProfilePage() {
       {/* Aptitude — verified test, coming soon */}
       <div className="gradient-border-card rounded-2xl p-6">
         <div className="flex items-center gap-2.5 mb-1">
-          <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#F08CAE,#F58E9A)' }} />
+          <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#4F8FE8)' }} />
           <h2 className="text-[#F4F4F7] font-black text-xl tracking-tight">Aptitude test</h2>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.15)', color: '#F08CAE' }}>✓ Verified · coming soon</span>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}>✓ Verified · coming soon</span>
         </div>
         <p className="text-[#7E7E8E] text-xs ml-4">A proctored, one-shot aptitude test employers can trust — not a practice quiz you re-sit. Launching soon.</p>
       </div>
@@ -569,14 +569,14 @@ export default async function ProfilePage() {
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.15), rgba(240,140,174,0.15)) border-box;
+                      linear-gradient(135deg, rgba(106,168,245,0.18), rgba(79,143,232,0.12)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
       `}</style>
 
       <nav className="relative z-10 px-6 py-4 flex items-center justify-between max-w-6xl mx-auto border-b border-white/[0.08]">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #6AA8F5, #4F8FE8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         <Link href="/dashboard" className="text-[#A6A6B4] text-sm hover:text-[#C7C7D1] transition-colors">← Dashboard</Link>
       </nav>
 

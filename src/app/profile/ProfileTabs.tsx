@@ -24,7 +24,7 @@ export default function ProfileTabs({ labels, panels }: { labels: string[]; pane
             onClick={() => setActive(i)}
             className="px-4 py-2 rounded-full text-sm font-bold transition-all"
             style={active === i
-              ? { background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)', color: '#fff' }
+              ? { background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', color: '#fff' }
               : { color: '#A6A6B4', background: 'transparent' }}
           >
             {l}

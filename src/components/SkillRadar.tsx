@@ -81,7 +81,7 @@ export default function SkillRadar({
         <defs>
           <linearGradient id="radarFill" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#6AA8F5" stopOpacity={0.4} />
-            <stop offset="100%" stopColor="#F08CAE" stopOpacity={0.4} />
+            <stop offset="100%" stopColor="#4F8FE8" stopOpacity={0.4} />
           </linearGradient>
         </defs>
         <path d={pathD} fill="url(#radarFill)" stroke="#6AA8F5" strokeWidth={2} strokeLinejoin="round" />
