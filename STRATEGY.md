@@ -230,3 +230,37 @@ white collar, WhatsApp-native**, expanding from once-a-year perm into high-frequ
   remove placement fee for now, "private API — Enterprise").
 - Then: company side (JD-via-WhatsApp, dashboard, matching) per the candidate-first → company
   sequence. See BACKLOG.md.
+
+---
+
+## 10. AI / infra cost model — for the P&L (captured 2026-05-25)
+
+> **Estimates only**, based on approx public Anthropic rates. Watch live spend in **Anthropic Console → Usage**. Re-check rates before finalising the P&L.
+
+**Per-token rates used (per 1M tokens):** Sonnet 4.x ≈ **$3 in / $15 out** · Haiku 4.5 ≈ **$1 in / $5 out** · Web search ≈ **$10 per 1,000 searches (~$0.01 each)**.
+
+**Models per feature:** Sonnet = CV parse, WhatsApp interview, Career Roadmap, Career Translator, reference cross-check/Q&A, JD generation, salary benchmark, Concierge drafting, **Business blueprint (+ web search)**. Haiku = **Ask Shapi**, **AI-Proof check**.
+
+**Approx cost per action:**
+| Action | Model | ~cost |
+|---|---|---|
+| AI-Proof check · Ask Shapi (per msg) | Haiku | ~$0.005 |
+| Career Translator · salary benchmark · JD generation | Sonnet | ~$0.02–0.03 |
+| Career Roadmap · CV parse | Sonnet | ~$0.04–0.05 |
+| Business blueprint (+3 web searches) | Sonnet | ~$0.08–0.12 |
+| Full WhatsApp interview (many turns) | Sonnet | ~$0.20–0.40 |
+| Concierge daily scan + drafts (per subscriber/day) | Sonnet | ~$0.03–0.06 |
+
+**Monthly scenarios (Claude only):**
+- Friends & family (~30 active): **~$5–25/mo** (negligible).
+- ~300 active candidates + some Concierge subscribers: **~$100–300/mo**.
+- Per-candidate lifecycle AI cost is **well under $1–2** → a single **Pro ($59)** or **Concierge month ($79)** covers many users. Margins healthy.
+
+**Biggest cost drivers (already mitigated):** WhatsApp interviews (many Sonnet turns) · daily Concierge scans (Sonnet per subscriber/day) · Business web-search. Levers: Haiku for cheap tasks (done) · web-search capped at 3 (done) · cap Concierge frequency · shorten interview turns.
+
+**Other recurring infra for the P&L:**
+- **Vercel** — currently Hobby. **Pro ≈ $20/mo** is effectively required pre-launch (longer function timeouts for the AI tools + reliable crons).
+- **Twilio** (WhatsApp) — trial now; paid sender + per-message fees at launch (per-country WhatsApp conversation pricing).
+- **Resend** (email) — free tier covers low volume; paid as sends grow.
+- **Supabase** — free tier now; Pro (~$25/mo) when storage/auth/DB grows.
+- **OpenAI Whisper** (voice transcription) — per-minute audio cost when voice notes are used.
