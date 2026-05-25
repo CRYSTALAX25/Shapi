@@ -154,6 +154,7 @@ What they've already done (continuous learning):
    - popular: true for the SINGLE most-taken / most-reviewed course across all 4 (the one most people choose); false for the others. Exactly one popular:true per gap.
    - cost: "free" (genuinely free), "free_audit" (free to take, paid only for the certificate — true for most Coursera/edX courses), or "paid".
    - rating: approximate average rating out of 5 (e.g. 4.7) from your knowledge; if you genuinely don't know, use null.
+   - learners: approximate number of people who have taken it, short form from your knowledge (e.g. "1.2M", "650K", "80K"); if you genuinely don't know, use null. (The UI shows this as "≈ … learners" and links to the live course page for exact figures.)
    - price_band: short approximate price for the PAID part (e.g. "~$15", "~$49/mo", "~$59"); for free/free_audit use "Free". These are approximate — the UI tells the user to confirm on the platform.
 
 3. PIVOT PATHS — exactly 2 career pivots they could realistically make. Each path:
@@ -184,7 +185,7 @@ Return ONLY valid JSON in this exact shape:
     { "title": "...", "why": "...", "uplift": "e.g. +20% pay" }
   ],
   "skills_gaps": [
-    { "skill": "...", "priority": "high|medium|low", "why": "...", "suggested_courses": [{"name": "...", "platform": "...", "popular": true, "cost": "free|free_audit|paid", "rating": 4.7, "price_band": "Free | ~$15 | ~$49/mo"}] }
+    { "skill": "...", "priority": "high|medium|low", "why": "...", "suggested_courses": [{"name": "...", "platform": "...", "popular": true, "cost": "free|free_audit|paid", "rating": 4.7, "learners": "1.2M", "price_band": "Free | ~$15 | ~$49/mo"}] }
   ],
   "pivot_paths": [
     { "to_role": "...", "to_industry": "...", "why": "...", "transferable_skills": ["..."], "gaps_to_close": ["..."], "first_actions": ["..."] }

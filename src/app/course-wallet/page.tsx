@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { courseSearchUrl, FINANCING_OPTIONS } from '@/lib/upskill'
 
-type SuggestedCourse = { name: string; platform?: string; popular?: boolean; cost?: 'free' | 'free_audit' | 'paid'; rating?: number | null; price_band?: string }
+type SuggestedCourse = { name: string; platform?: string; popular?: boolean; cost?: 'free' | 'free_audit' | 'paid'; rating?: number | null; price_band?: string; learners?: string | null }
 type SkillGap = { skill: string; priority?: string; why?: string; suggested_courses?: SuggestedCourse[] }
 
 // Plain-language cost line for a recommended course (no jargon like "audit").
@@ -199,8 +199,21 @@ function UpskillContent() {
               const recs = gap.suggested_courses || []
               const byRank = (a: SuggestedCourse, b: SuggestedCourse) =>
                 (b.popular ? 1 : 0) - (a.popular ? 1 : 0) || ((b.rating || 0) - (a.rating || 0))
-              const freeRecs = recs.filter(c => c.cost !== 'paid').sort(byRank).slice(0, 2)
-              const paidRecs = recs.filter(c => c.cost === 'paid').sort(byRank).slice(0, 2)
+              const freeFromAI = recs.filter(c => c.cost !== 'paid').sort(byRank)
+              const paidFromAI = recs.filter(c => c.cost === 'paid').sort(byRank)
+              // Old roadmaps have no cost tag, so everything reads as "free" and the
+              // Paid group would be empty. Guarantee 2 in each group with sensible
+              // platform fallbacks (named picks arrive when the roadmap is regenerated).
+              const freeFallback: SuggestedCourse[] = [
+                { name: gap.skill, platform: 'Coursera', cost: 'free_audit' },
+                { name: gap.skill, platform: 'YouTube', cost: 'free' },
+              ]
+              const paidFallback: SuggestedCourse[] = [
+                { name: gap.skill, platform: 'Udemy', cost: 'paid' },
+                { name: gap.skill, platform: 'LinkedIn Learning', cost: 'paid' },
+              ]
+              const freeRecs = (freeFromAI.length ? freeFromAI : freeFallback).slice(0, 2)
+              const paidRecs = (paidFromAI.length ? paidFromAI : paidFallback).slice(0, 2)
               const isSaved = (name: string) => courses.some(x => (x.course_name || '').toLowerCase() === name.toLowerCase())
               const saveRec = (c: SuggestedCourse) => trackCourse({
                 course_name: c.name, platform: c.platform || null, course_url: courseSearchUrl(c.platform, c.name),
@@ -244,7 +257,7 @@ function UpskillContent() {
                           </div>
                         </div>
                       </div>
-                      <p className="text-[#7E7E8E] text-[10px] mt-2">★ and prices are approximate — confirm on the platform. <strong className="text-[#A6A6B4]">⭐ Most-taken</strong> = the course most people choose. Tap 🤍 to save it to <strong className="text-[#A6A6B4]">My courses</strong> ↑.</p>
+                      <p className="text-[#7E7E8E] text-[10px] mt-2">Ratings, learner counts &amp; prices are approximate — tap <strong className="text-[#A6A6B4]">Open ↗</strong> for the live figures on the course page. Tap 🤍 to save a course to <strong className="text-[#A6A6B4]">My courses</strong> ↑.</p>
                     </div>
                   )}
 
@@ -366,7 +379,10 @@ function RecRow({ c, saved, onSave }: { c: SuggestedCourse; saved: boolean; onSa
         {typeof c.rating === 'number' && c.rating > 0 && (
           <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: '#C7C7D1' }}>{c.rating.toFixed(1)}★</span>
         )}
-        {c.popular && (
+        {c.learners && (
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: '#A6A6B4' }}>≈{c.learners} learners</span>
+        )}
+        {c.popular && !c.learners && (
           <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.15)', color: '#FBBF24' }}>⭐ Most-taken</span>
         )}
         {cost.label && (
