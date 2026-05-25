@@ -193,6 +193,8 @@ export default async function Dashboard() {
           background-clip: text;
           animation: gradientShift 5s ease infinite;
         }
+        .dnav { color: rgba(255,255,255,0.8); transition: color .2s ease; }
+        .dnav:hover { background: linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .gradient-border-card {
           background: linear-gradient(#16161F, #16161F) padding-box,
                       linear-gradient(135deg, rgba(106,168,245,0.18), rgba(79,143,232,0.18)) border-box;
@@ -212,13 +214,13 @@ export default async function Dashboard() {
         <div className="px-6 py-4 flex items-center justify-between max-w-6xl mx-auto">
           <Link href="/" className="flex items-center gap-2">
             <ShapiCharacter mood="happy" size={30} />
-            <span className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</span>
+            <span className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</span>
           </Link>
           <div className="flex items-center gap-5">
             <span className="text-sm text-white/60 hidden sm:block">{user.email}</span>
-            <Link href="/roles" className="text-sm text-white/80 hover:text-white transition-colors hidden md:block">Roles</Link>
-            <Link href="/applications" className="text-sm text-white/80 hover:text-white transition-colors hidden md:block">My applications</Link>
-            <Link href="/active" className="text-sm text-white/80 hover:text-white transition-colors hidden md:block">Active</Link>
+            <Link href="/roles" className="text-sm dnav font-medium hidden md:block">Roles</Link>
+            <Link href="/applications" className="text-sm dnav font-medium hidden md:block">My applications</Link>
+            <Link href="/active" className="text-sm dnav font-medium hidden md:block">Active</Link>
             <Link href="/profile" className="text-sm bg-white/15 hover:bg-white/25 text-white font-bold px-4 py-1.5 rounded-full transition-colors">
               View profile →
             </Link>
@@ -309,7 +311,8 @@ export default async function Dashboard() {
                       <defs>
                         <linearGradient id="progGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                           <stop offset="0%" stopColor="#6AA8F5" />
-                          <stop offset="100%" stopColor="#4F8FE8" />
+                          <stop offset="50%" stopColor="#F08CAE" />
+                          <stop offset="100%" stopColor="#F58E9A" />
                         </linearGradient>
                       </defs>
                     </svg>
@@ -318,12 +321,12 @@ export default async function Dashboard() {
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h2 className="text-xl font-black text-[#F4F4F7] mb-0">{completion}% complete</h2>
+                    <h2 className="text-xl font-black mb-0" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{completion}% complete</h2>
                     <p className="text-[#7E7E8E] text-xs mt-1">Profile strength</p>
                   </div>
                 </div>
                 <div className="mt-4 h-1 bg-white/[0.06] rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${completion}%`, background: 'linear-gradient(90deg, #6AA8F5, #4F8FE8)' }} />
+                  <div className="h-full rounded-full transition-all" style={{ width: `${completion}%`, background: 'linear-gradient(90deg, #6AA8F5, #F08CAE, #F58E9A)' }} />
                 </div>
               </div>
             </div>
@@ -531,7 +534,7 @@ export default async function Dashboard() {
                 </div>
                 <p className="text-[#7E7E8E] text-xs mb-3">{profileComplete ? 'Complete & live — companies can find you.' : 'Keep going to reach 100% and go live.'}</p>
                 <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${completion}%`, background: 'linear-gradient(90deg, #6AA8F5, #4F8FE8)' }} />
+                  <div className="h-full rounded-full transition-all" style={{ width: `${completion}%`, background: 'linear-gradient(90deg, #6AA8F5, #F08CAE, #F58E9A)' }} />
                 </div>
               </Link>
 
@@ -561,7 +564,7 @@ export default async function Dashboard() {
                 </div>
                 <p className="text-[#7E7E8E] text-xs mb-3">{(coursesInProgress + coursesCompleted) > 0 ? 'Verified learning shows companies real growth.' : 'Close your skill gaps — free, paid or financed.'}</p>
                 <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${(coursesInProgress + coursesCompleted) > 0 ? Math.min(100, (coursesCompleted / (coursesInProgress + coursesCompleted)) * 100) : 0}%`, background: 'linear-gradient(90deg, #6AA8F5, #4F8FE8)' }} />
+                  <div className="h-full rounded-full transition-all" style={{ width: `${(coursesInProgress + coursesCompleted) > 0 ? Math.min(100, (coursesCompleted / (coursesInProgress + coursesCompleted)) * 100) : 0}%`, background: 'linear-gradient(90deg, #6AA8F5, #F08CAE, #F58E9A)' }} />
                 </div>
               </Link>
 
