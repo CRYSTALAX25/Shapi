@@ -207,15 +207,24 @@ function UpskillContent() {
                     <div className="rounded-xl p-3 mb-4" style={{ background: 'rgba(240,140,174,0.08)', border: '1px solid rgba(240,140,174,0.2)' }}>
                       <p className="text-[#F08CAE] text-[10px] font-bold uppercase tracking-wider mb-2">⭐ Shapi recommends</p>
                       <div className="space-y-1.5">
-                        {gap.suggested_courses.map((c, k) => (
-                          <a key={k} href={courseSearchUrl(c.platform, c.name)} target="_blank" rel="noopener noreferrer"
-                            className="flex items-center justify-between gap-2 bg-white/[0.05] hover:bg-white/[0.07] rounded-lg px-3 py-2 transition-colors">
-                            <span className="text-[#F4F4F7] text-xs font-bold">{c.name}{c.platform ? <span className="text-[#A6A6B4] font-normal"> · {c.platform}</span> : null}</span>
-                            <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">Open ↗</span>
-                          </a>
-                        ))}
+                        {gap.suggested_courses.map((c, k) => {
+                          const url = courseSearchUrl(c.platform, c.name)
+                          const saved = courses.some(x => (x.course_name || '').toLowerCase() === c.name.toLowerCase())
+                          return (
+                            <div key={k} className="flex items-center gap-2 bg-white/[0.05] rounded-lg px-3 py-2">
+                              <a href={url} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-0 flex items-center justify-between gap-2 hover:opacity-90">
+                                <span className="text-[#F4F4F7] text-xs font-bold">{c.name}{c.platform ? <span className="text-[#A6A6B4] font-normal"> · {c.platform}</span> : null}</span>
+                                <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">Open ↗</span>
+                              </a>
+                              <button
+                                onClick={() => { if (!saved) trackCourse({ course_name: c.name, platform: c.platform || null, course_url: url, skill: gap.skill, status: 'interested', tier: 'free', liked: true }) }}
+                                title={saved ? 'Saved to My courses' : 'Save to My courses'}
+                                className="flex-shrink-0 text-sm leading-none transition-transform hover:scale-110">{saved ? '❤️' : '🤍'}</button>
+                            </div>
+                          )
+                        })}
                       </div>
-                      <p className="text-[#7E7E8E] text-[10px] mt-2">Different level or budget? Browse alternatives below.</p>
+                      <p className="text-[#7E7E8E] text-[10px] mt-2">Tap 🤍 to save a course to <strong className="text-[#A6A6B4]">My courses</strong> ↑ — different level or budget? Browse alternatives below.</p>
                     </div>
                   )}
 
@@ -283,6 +292,7 @@ function UpskillContent() {
 function AddCourseForm({ onAdd, onDone }: { onAdd: (p: Record<string, unknown>) => Promise<void>; onDone: () => void }) {
   const [name, setName] = useState('')
   const [platform, setPlatform] = useState('')
+  const [courseUrl, setCourseUrl] = useState('')
   const [status, setStatus] = useState('completed')
   const [credUrl, setCredUrl] = useState('')
   const [liked, setLiked] = useState(false)
@@ -291,7 +301,7 @@ function AddCourseForm({ onAdd, onDone }: { onAdd: (p: Record<string, unknown>) 
   const submit = async (saveToWallet = false) => {
     if (!name.trim()) return
     setSaving(true)
-    await onAdd({ course_name: name, platform, status, credential_url: credUrl, tier: 'paid', liked: saveToWallet || liked })
+    await onAdd({ course_name: name, platform, course_url: courseUrl, status, credential_url: credUrl, tier: 'paid', liked: saveToWallet || liked })
     setSaving(false)
     onDone()
   }
@@ -301,6 +311,8 @@ function AddCourseForm({ onAdd, onDone }: { onAdd: (p: Record<string, unknown>) 
       <input value={name} onChange={e => setName(e.target.value)} placeholder="Course name (e.g. AI for Everyone)"
         className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/40" />
       <input value={platform} onChange={e => setPlatform(e.target.value)} placeholder="Platform (Coursera, Udemy, …)"
+        className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/40" />
+      <input value={courseUrl} onChange={e => setCourseUrl(e.target.value)} placeholder="Direct course link (paste the URL so you can jump back to it)"
         className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/40" />
       <div className="flex gap-2">
         {['in_progress', 'completed'].map(s => (
@@ -346,6 +358,7 @@ function CourseRow({ course, onUpdate, onRemove }: { course: Course; onUpdate: (
     id: course.id,
     course_name: course.course_name,
     platform: course.platform,
+    course_url: course.course_url,
     status: course.status,
     tier: course.tier,
     credential_url: course.credential_url,
@@ -369,7 +382,7 @@ function CourseRow({ course, onUpdate, onRemove }: { course: Course; onUpdate: (
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.15)', color: '#F08CAE' }}>🏢 Sponsored by {course.sponsored_by}</span>
           )}
         </div>
-        <p className="text-[#A6A6B4] text-xs">{course.platform || '—'} · {course.status === 'completed' ? 'Completed' : course.status === 'in_progress' ? 'In progress' : 'Interested'}{course.credential_url ? ' · ' : ''}{course.credential_url && <a href={course.credential_url} target="_blank" rel="noopener noreferrer" className="text-[#6AA8F5]">view cert ↗</a>}</p>
+        <p className="text-[#A6A6B4] text-xs">{course.platform || '—'} · {course.status === 'completed' ? 'Completed' : course.status === 'in_progress' ? 'In progress' : 'Interested'}{course.course_url ? ' · ' : ''}{course.course_url && <a href={course.course_url} target="_blank" rel="noopener noreferrer" className="text-[#6AA8F5]">open course ↗</a>}{course.credential_url ? ' · ' : ''}{course.credential_url && <a href={course.credential_url} target="_blank" rel="noopener noreferrer" className="text-[#6AA8F5]">view cert ↗</a>}</p>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
         <button onClick={() => onUpdate({ ...ctx, liked: !liked })}
