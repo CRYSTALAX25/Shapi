@@ -44,7 +44,7 @@ export default async function CandidatesPage() {
     <div className="min-h-screen bg-[#0E0E13]">
       <nav className="px-6 py-5 flex items-center justify-between max-w-6xl mx-auto border-b border-[rgba(255,255,255,0.08)]">
         <Link href="/" className="font-black text-2xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+          background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <div className="flex items-center gap-4">
@@ -70,7 +70,7 @@ export default async function CandidatesPage() {
 
         {/* Paywall banner */}
         {!isPaid && count > 0 && (
-          <div className="rounded-2xl p-7 mb-8 flex items-center justify-between gap-6 text-white" style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}>
+          <div className="rounded-2xl p-7 mb-8 flex items-center justify-between gap-6 text-white" style={{ background: 'linear-gradient(135deg, #6AA8F5, #4F8FE8)' }}>
             <div>
               <p className="font-black text-lg mb-1">
                 {count} verified candidate{count !== 1 ? 's' : ''} matched

@@ -73,16 +73,16 @@ const STAGE_LABELS: Record<string, string> = {
   archived: 'Archived',
 }
 const STAGE_COLORS: Record<string, string> = {
-  researching: 'rgba(240,140,174,0.15)',
+  researching: 'rgba(106,168,245,0.15)',
   outreach_sent: 'rgba(106,168,245,0.15)',
-  interview: 'rgba(245,142,154,0.15)',
+  interview: 'rgba(106,168,245,0.15)',
   offer: 'rgba(106,168,245,0.15)',
   archived: 'rgba(255,255,255,0.05)',
 }
 const STAGE_TEXT: Record<string, string> = {
-  researching: '#F08CAE',
+  researching: '#6AA8F5',
   outreach_sent: '#6AA8F5',
-  interview: '#F58E9A',
+  interview: '#6AA8F5',
   offer: '#6AA8F5',
   archived: '#7E7E8E',
 }
@@ -250,17 +250,17 @@ export default function ActivePage() {
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.10), rgba(240,140,174,0.10)) border-box;
+                      linear-gradient(135deg, rgba(106,168,245,0.10), rgba(79,143,232,0.10)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .card-hover:hover {
           background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.22), rgba(240,140,174,0.22)) border-box;
+                      linear-gradient(135deg, rgba(106,168,245,0.22), rgba(79,143,232,0.22)) border-box;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .tab-active {
-          background: linear-gradient(135deg, rgba(106,168,245,0.12), rgba(240,140,174,0.12));
+          background: linear-gradient(135deg, rgba(106,168,245,0.12), rgba(79,143,232,0.12));
           border-color: rgba(106,168,245,0.3);
           color: #6AA8F5;
         }
@@ -290,7 +290,7 @@ export default function ActivePage() {
       <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)]">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Link href="/" className="font-black text-xl tracking-tighter" style={{
-            background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+            background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>shapi</Link>
           <div className="flex items-center gap-4">
@@ -306,7 +306,7 @@ export default function ActivePage() {
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-3xl font-black text-[#F4F4F7]">Shapi Active</h1>
             <span className="text-xs font-bold px-3 py-1 rounded-full"
-              style={{ background: 'rgba(245,142,154,0.15)', color: '#F58E9A' }}>
+              style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}>
               Outbound pipeline
             </span>
           </div>
@@ -369,7 +369,7 @@ export default function ActivePage() {
                 onClick={scan}
                 disabled={scanning || !targetRole.trim()}
                 className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-black text-white disabled:opacity-50 transition-opacity"
-                style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}
+                style={{ background: 'linear-gradient(135deg, #6AA8F5, #4F8FE8)' }}
               >
                 {scanning ? (
                   <>
@@ -563,7 +563,7 @@ export default function ActivePage() {
                 <button
                   onClick={addApplication}
                   className="px-5 py-2.5 rounded-xl text-sm font-black text-white"
-                  style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}
+                  style={{ background: 'linear-gradient(135deg, #6AA8F5, #4F8FE8)' }}
                 >
                   Save application
                 </button>
@@ -627,7 +627,7 @@ export default function ActivePage() {
                       <button
                         onClick={() => runPrep(app)}
                         className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all"
-                        style={{ background: 'rgba(245,142,154,0.12)', border: '1px solid rgba(245,142,154,0.2)', color: '#F58E9A' }}
+                        style={{ background: 'rgba(106,168,245,0.12)', border: '1px solid rgba(106,168,245,0.2)', color: '#6AA8F5' }}
                       >
                         🎯 Prep for interview
                       </button>
@@ -745,7 +745,7 @@ export default function ActivePage() {
                         </ul>
                       </div>
                       <div className="gradient-border-card rounded-2xl p-5">
-                        <h3 className="text-[#F08CAE] text-xs font-bold uppercase tracking-wider mb-3">Culture</h3>
+                        <h3 className="text-[#6AA8F5] text-xs font-bold uppercase tracking-wider mb-3">Culture</h3>
                         <ul className="space-y-2">
                           {prep.company_snapshot.culture_themes?.map((t, i) => (
                             <li key={i} className="text-[#C7C7D1] text-xs leading-relaxed">• {t}</li>
@@ -783,14 +783,14 @@ export default function ActivePage() {
                     {/* Conversation starters — most actionable, show first */}
                     {prep.social_intel?.conversation_starters?.length > 0 && (
                       <div className="rounded-2xl p-6"
-                        style={{ background: 'linear-gradient(135deg, rgba(245,142,154,0.08), rgba(240,140,174,0.08))', border: '1px solid rgba(245,142,154,0.2)' }}>
-                        <h3 className="text-[#F58E9A] text-xs font-bold uppercase tracking-wider mb-4">
+                        style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.08), rgba(79,143,232,0.08))', border: '1px solid rgba(106,168,245,0.2)' }}>
+                        <h3 className="text-[#6AA8F5] text-xs font-bold uppercase tracking-wider mb-4">
                           💬 Use these in the interview
                         </h3>
                         <ul className="space-y-3">
                           {prep.social_intel.conversation_starters.map((s, i) => (
                             <li key={i} className="flex gap-3">
-                              <span className="text-[#F58E9A] font-black flex-shrink-0 text-sm">→</span>
+                              <span className="text-[#6AA8F5] font-black flex-shrink-0 text-sm">→</span>
                               <p className="text-[#F4F4F7] text-sm leading-relaxed italic">&ldquo;{s}&rdquo;</p>
                             </li>
                           ))}
@@ -837,11 +837,11 @@ export default function ActivePage() {
                     {/* Social themes */}
                     {prep.social_intel?.social_themes?.length > 0 && (
                       <div className="gradient-border-card rounded-2xl p-5">
-                        <h3 className="text-[#F08CAE] text-xs font-bold uppercase tracking-wider mb-3">Recurring themes across their social</h3>
+                        <h3 className="text-[#6AA8F5] text-xs font-bold uppercase tracking-wider mb-3">Recurring themes across their social</h3>
                         <div className="flex flex-wrap gap-2">
                           {prep.social_intel.social_themes.map((t, i) => (
                             <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full"
-                              style={{ background: 'rgba(240,140,174,0.12)', color: '#F08CAE', border: '1px solid rgba(240,140,174,0.2)' }}>
+                              style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5', border: '1px solid rgba(106,168,245,0.2)' }}>
                               {t}
                             </span>
                           ))}
@@ -865,9 +865,9 @@ export default function ActivePage() {
                         <p className="text-[#7E7E8E] text-xs font-bold mb-3">Use for: <span className="text-[#6AA8F5]">&quot;{story.use_for_question}&quot;</span></p>
                         <div className="grid md:grid-cols-2 gap-4">
                           {[
-                            { label: 'S — Situation', content: story.situation, color: '#F08CAE' },
+                            { label: 'S — Situation', content: story.situation, color: '#6AA8F5' },
                             { label: 'T — Task', content: story.task, color: '#6AA8F5' },
-                            { label: 'A — Action', content: story.action, color: '#F58E9A' },
+                            { label: 'A — Action', content: story.action, color: '#6AA8F5' },
                             { label: 'R — Result', content: story.result, color: '#6AA8F5' },
                           ].map(({ label, content, color }) => (
                             <div key={label}>
@@ -911,7 +911,7 @@ export default function ActivePage() {
                     <ul className="space-y-4">
                       {prep.questions_to_ask_them?.map((q, i) => (
                         <li key={i} className="flex gap-3">
-                          <span className="text-[#F08CAE] font-black flex-shrink-0">Q{i + 1}</span>
+                          <span className="text-[#6AA8F5] font-black flex-shrink-0">Q{i + 1}</span>
                           <p className="text-[#C7C7D1] text-sm leading-relaxed">{q}</p>
                         </li>
                       ))}

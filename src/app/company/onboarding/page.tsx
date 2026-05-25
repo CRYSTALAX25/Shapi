@@ -85,7 +85,7 @@ export default function CompanyOnboarding() {
         <div className="w-full max-w-sm space-y-3">
           <button
             onClick={() => router.push('/company/roles/new')}
-            className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity">
+            className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity">
             Post your first role →
           </button>
           <button
@@ -103,7 +103,7 @@ export default function CompanyOnboarding() {
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.15), rgba(240,140,174,0.15)) border-box;
+                      linear-gradient(135deg, rgba(106,168,245,0.15), rgba(79,143,232,0.15)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
@@ -120,7 +120,7 @@ export default function CompanyOnboarding() {
 
       <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-[rgba(255,255,255,0.08)]">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+          background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <span className="text-[#7E7E8E] text-xs">Company setup</span>
@@ -209,7 +209,7 @@ export default function CompanyOnboarding() {
         <button
           onClick={submit}
           disabled={saving}
-          className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity disabled:opacity-50">
+          className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity disabled:opacity-50">
           {saving ? 'Setting up...' : 'Set up company — takes 15 seconds →'}
         </button>
       </div>

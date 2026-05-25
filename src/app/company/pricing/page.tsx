@@ -23,7 +23,7 @@ export default function CompanyPricing() {
     <div className="min-h-screen bg-[#0E0E13]">
       <nav className="px-6 py-5 flex items-center justify-between max-w-5xl mx-auto border-b border-[rgba(255,255,255,0.08)]">
         <span className="font-black text-2xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+          background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</span>
         <button onClick={() => router.push('/dashboard')} className="text-sm text-[#A6A6B4] hover:text-[#F4F4F7]">
@@ -37,7 +37,7 @@ export default function CompanyPricing() {
           <p className="text-[#A6A6B4] text-lg max-w-xl mx-auto">
             Every candidate is independently verified — work history, skills, and references. No CVs to sift through.
           </p>
-          <p className="text-sm font-bold mt-5" style={{ color: '#F08CAE' }}>★ 30-day free trial · Founding Partners get 50% off for 3 months</p>
+          <p className="text-sm font-bold mt-5" style={{ color: '#6AA8F5' }}>★ 30-day free trial · Founding Partners get 50% off for 3 months</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 mb-12">
@@ -76,8 +76,8 @@ export default function CompanyPricing() {
           </div>
 
           {/* Growth */}
-          <div className="rounded-2xl p-8 relative overflow-hidden text-white" style={{ background: 'linear-gradient(160deg, #0E0E13, #1a1030 60%, #0e1a2e)', boxShadow: '0 20px 50px rgba(240,140,174,0.18)' }}>
-            <div className="absolute top-4 right-4 text-white text-[10px] font-black px-3 py-1 rounded-full" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>
+          <div className="rounded-2xl p-8 relative overflow-hidden text-white" style={{ background: 'linear-gradient(160deg, #0E0E13, #0b1228 60%, #0e1a2e)', boxShadow: '0 20px 50px rgba(106,168,245,0.18)' }}>
+            <div className="absolute top-4 right-4 text-white text-[10px] font-black px-3 py-1 rounded-full" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)' }}>
               Most popular
             </div>
             <p className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: '#6AA8F5' }}>Growth</p>
@@ -107,7 +107,7 @@ export default function CompanyPricing() {
               onClick={() => checkout('growth')}
               disabled={loading === 'growth'}
               className="w-full py-4 rounded-full font-black text-sm transition-all disabled:opacity-50 text-white"
-              style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}
+              style={{ background: 'linear-gradient(135deg, #6AA8F5, #4F8FE8)' }}
             >
               {loading === 'growth' ? 'Redirecting...' : 'Start 30-day free trial →'}
             </button>
@@ -121,7 +121,7 @@ export default function CompanyPricing() {
             Custom pricing for high-volume hiring, bulk verification, private API access, or white-label solutions.
           </p>
           <a href="mailto:hello@shapi.io?subject=Enterprise enquiry"
-            className="inline-block px-6 py-3 rounded-full text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}>
+            className="inline-block px-6 py-3 rounded-full text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg, #6AA8F5, #4F8FE8)' }}>
             Talk to us →
           </a>
         </div>

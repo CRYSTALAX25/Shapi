@@ -96,13 +96,13 @@ export default async function RolesBoard() {
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.10), rgba(240,140,174,0.10)) border-box;
+                      linear-gradient(135deg, rgba(106,168,245,0.10), rgba(79,143,232,0.10)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .card-hover:hover {
           background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.22), rgba(240,140,174,0.22)) border-box;
+                      linear-gradient(135deg, rgba(106,168,245,0.22), rgba(79,143,232,0.22)) border-box;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
       `}</style>
@@ -115,7 +115,7 @@ export default async function RolesBoard() {
       <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)]">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <Link href="/" className="font-black text-xl tracking-tighter" style={{
-            background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+            background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>shapi</Link>
           <div className="flex items-center gap-4">

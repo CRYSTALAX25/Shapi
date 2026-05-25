@@ -81,12 +81,12 @@ Write questions that (a) pressure-test the verified strengths with real examples
   return (
     <div className="min-h-screen bg-[#0E0E13]">
       <nav className="px-6 py-4 border-b border-[rgba(255,255,255,0.08)] max-w-3xl mx-auto flex items-center justify-between">
-        <Link href="/company/pipeline" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/company/pipeline" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         <Link href="/company/pipeline" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7]">← Pipeline</Link>
       </nav>
 
       <div className="max-w-3xl mx-auto px-6 pt-8 pb-20">
-        <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: '#F08CAE' }}>Interview prep · for the hiring manager</p>
+        <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: '#6AA8F5' }}>Interview prep · for the hiring manager</p>
         <h1 className="text-3xl font-black tracking-tighter text-[#F4F4F7]">{c.full_name as string}</h1>
         <p className="text-[#A6A6B4] mb-1">{c.headline as string} · for <span className="font-bold text-[#F4F4F7]">{role.title}</span></p>
         <div className="flex items-center gap-2 mb-6">
@@ -96,7 +96,7 @@ Write questions that (a) pressure-test the verified strengths with real examples
         </div>
 
         {report.summary_en && (
-          <div className="rounded-2xl p-5 mb-4" style={{ ...card, borderLeft: '3px solid #F08CAE' }}>
+          <div className="rounded-2xl p-5 mb-4" style={{ ...card, borderLeft: '3px solid #6AA8F5' }}>
             <p className="text-[#C7C7D1] text-sm leading-relaxed">{report.summary_en}</p>
             {report.tone_summary && <p className="text-[#7E7E8E] text-xs mt-2">Reference tone: {report.tone_summary}</p>}
           </div>
@@ -128,13 +128,13 @@ Write questions that (a) pressure-test the verified strengths with real examples
         {questions.length > 0 && (
           <div className="rounded-2xl p-6" style={card}>
             <div className="flex items-center gap-2.5 mb-4">
-              <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#F08CAE)' }} />
+              <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#4F8FE8)' }} />
               <h2 className="text-xl font-black tracking-tight text-[#F4F4F7]">Suggested questions</h2>
             </div>
             <ol className="space-y-3">
               {questions.map((q, i) => (
                 <li key={i} className="flex gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-black text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>{i + 1}</span>
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-black text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)' }}>{i + 1}</span>
                   <p className="text-[#C7C7D1] text-sm leading-relaxed">{q}</p>
                 </li>
               ))}

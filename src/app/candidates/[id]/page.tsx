@@ -65,7 +65,7 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.15), rgba(240,140,174,0.15)) border-box;
+                      linear-gradient(135deg, rgba(106,168,245,0.15), rgba(79,143,232,0.15)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
@@ -77,7 +77,7 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
 
       <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between max-w-5xl mx-auto">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+          background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <Link href="/company/dashboard" className="text-[#A6A6B4] text-sm hover:text-[#C7C7D1] transition-colors">
@@ -97,7 +97,7 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
             </div>
             <div className="text-right flex-shrink-0">
               <div className="text-4xl font-black" style={{
-                background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)',
+                background: 'linear-gradient(135deg, #6AA8F5, #4F8FE8)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
               }}>{c.completion_pct || 0}%</div>
               <div className="text-[#7E7E8E] text-xs">complete</div>
@@ -112,7 +112,7 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
               <span className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: `${tier.color}1f`, color: tier.color }}>✓ {tier.label}</span>
             )}
             {c.ai_tier && (
-              <span className="bg-[#F08CAE]/15 text-[#F08CAE] text-xs font-bold px-3 py-1.5 rounded-full">
+              <span className="bg-[#6AA8F5]/15 text-[#6AA8F5] text-xs font-bold px-3 py-1.5 rounded-full">
                 {aiTierLabel[c.ai_tier] || c.ai_tier}
               </span>
             )}
@@ -133,7 +133,7 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
               <p className="text-[#7E7E8E] text-[11px] font-bold uppercase tracking-wider mb-1.5">Looking for</p>
               <div className="flex flex-wrap gap-1.5">
                 {targetRoles.map((r, i) => <span key={`r${i}`} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.10)', color: '#6AA8F5' }}>{r}</span>)}
-                {targetIndustries.map((ind, i) => <span key={`i${i}`} className="text-[11px] font-bold px-2 py-0.5 rounded-full capitalize" style={{ background: 'rgba(240,140,174,0.10)', color: '#F08CAE' }}>{ind}</span>)}
+                {targetIndustries.map((ind, i) => <span key={`i${i}`} className="text-[11px] font-bold px-2 py-0.5 rounded-full capitalize" style={{ background: 'rgba(79,143,232,0.10)', color: '#4F8FE8' }}>{ind}</span>)}
               </div>
             </div>
           )}
@@ -208,7 +208,7 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
                 <p className="text-[#7E7E8E] text-xs mb-5">From their Shapi conversation</p>
                 <div className="space-y-3">
                   {userAnswers.map((m, i) => (
-                    <div key={i} className="bg-[rgba(255,255,255,0.05)] rounded-xl px-4 py-3 border-l-2 border-[#F08CAE]/40">
+                    <div key={i} className="bg-[rgba(255,255,255,0.05)] rounded-xl px-4 py-3 border-l-2 border-[#6AA8F5]/40">
                       <p className="text-[#C7C7D1] text-sm leading-relaxed">&ldquo;{m.content}&rdquo;</p>
                     </div>
                   ))}

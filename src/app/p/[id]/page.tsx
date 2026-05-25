@@ -97,7 +97,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.15), rgba(240,140,174,0.15)) border-box;
+                      linear-gradient(135deg, rgba(106,168,245,0.15), rgba(79,143,232,0.15)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
@@ -109,7 +109,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
 
       <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between max-w-4xl mx-auto">
         <a href="https://shapi.io" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+          background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</a>
         <span className="text-[#7E7E8E] text-xs">Independently verified profile</span>
@@ -155,7 +155,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
 
           <div className="flex flex-wrap gap-2 mb-4">
             {c.ai_tier && (
-              <span className="bg-[#F08CAE]/15 text-[#F08CAE] text-xs font-bold px-3 py-1.5 rounded-full">
+              <span className="bg-[#6AA8F5]/15 text-[#6AA8F5] text-xs font-bold px-3 py-1.5 rounded-full">
                 {aiTierLabel[c.ai_tier] || c.ai_tier}
               </span>
             )}
@@ -182,7 +182,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
                     <span key={`r${i}`} className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>{r}</span>
                   ))}
                   {tInds.map((ind, i) => (
-                    <span key={`i${i}`} className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(240,140,174,0.12)', color: '#F08CAE' }}>{indLabel[ind] || ind}</span>
+                    <span key={`i${i}`} className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(79,143,232,0.12)', color: '#4F8FE8' }}>{indLabel[ind] || ind}</span>
                   ))}
                 </div>
               </div>
@@ -216,7 +216,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
               {c.portfolio_url && (
                 <a href={c.portfolio_url} target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:opacity-80"
-                  style={{ background: 'rgba(240,140,174,0.1)', color: '#F08CAE', border: '1px solid rgba(240,140,174,0.2)' }}>
+                  style={{ background: 'rgba(79,143,232,0.1)', color: '#4F8FE8', border: '1px solid rgba(79,143,232,0.2)' }}>
                   🗂 Portfolio
                 </a>
               )}
@@ -323,7 +323,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
                 <p className="text-[#7E7E8E] text-xs mb-5">From their Shapi conversation</p>
                 <div className="space-y-3">
                   {userAnswers.map((m: {role: string; content: string}, i: number) => (
-                    <div key={i} className="rounded-xl px-4 py-3 border-l-2 border-[#F08CAE]/40" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                    <div key={i} className="rounded-xl px-4 py-3 border-l-2 border-[#6AA8F5]/40" style={{ background: 'rgba(255,255,255,0.05)' }}>
                       <p className="text-[#C7C7D1] text-sm leading-relaxed">&ldquo;{m.content}&rdquo;</p>
                     </div>
                   ))}
@@ -369,14 +369,14 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
                         <p className="text-[#7E7E8E] text-[10px]">CEFR</p>
                       </div>
                       {langProficiency.ielts_equivalent && (
-                        <div className="bg-[#F08CAE]/10 border border-[#F08CAE]/20 rounded-xl px-3 py-2 text-center flex-1 min-w-[70px]">
-                          <p className="text-[#F08CAE] text-base font-black">{langProficiency.ielts_equivalent}</p>
+                        <div className="bg-[#4F8FE8]/10 border border-[#4F8FE8]/20 rounded-xl px-3 py-2 text-center flex-1 min-w-[70px]">
+                          <p className="text-[#4F8FE8] text-base font-black">{langProficiency.ielts_equivalent}</p>
                           <p className="text-[#7E7E8E] text-[10px]">IELTS est.</p>
                         </div>
                       )}
                       {langProficiency.english_level && langProficiency.english_level !== 'unassessed' && (
-                        <div className="bg-[#F58E9A]/10 border border-[#F58E9A]/20 rounded-xl px-3 py-2 text-center flex-1 min-w-[70px]">
-                          <p className="text-[#F58E9A] text-base font-black">{langProficiency.english_level}</p>
+                        <div className="bg-[#6AA8F5]/10 border border-[#6AA8F5]/20 rounded-xl px-3 py-2 text-center flex-1 min-w-[70px]">
+                          <p className="text-[#6AA8F5] text-base font-black">{langProficiency.english_level}</p>
                           <p className="text-[#7E7E8E] text-[10px]">English</p>
                         </div>
                       )}
@@ -437,7 +437,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
                 <div className="gradient-border-card rounded-2xl p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <h2 className="text-[#F4F4F7] font-black text-xs uppercase tracking-widest opacity-50">Work Style</h2>
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.15)', color: '#F08CAE' }}>◆ self-assessed</span>
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>◆ self-assessed</span>
                   </div>
                   <div className="space-y-3">
                     {dims.map(d => {
@@ -451,7 +451,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
                             <span className="text-[#7E7E8E]">{d.poleA}</span>
                           </div>
                           <div className="relative h-2 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                            <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full" style={{ left: `calc(${score}% - 6px)`, background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }} />
+                            <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full" style={{ left: `calc(${score}% - 6px)`, background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)' }} />
                           </div>
                         </div>
                       )
@@ -490,8 +490,8 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
             {refCount > 0 && (
               <div className="rounded-2xl p-6" style={{
                 background: refCount >= 3
-                  ? 'linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg,rgba(106,168,245,0.35),rgba(240,140,174,0.25)) border-box'
-                  : 'linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg,rgba(106,168,245,0.15),rgba(240,140,174,0.15)) border-box',
+                  ? 'linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg,rgba(106,168,245,0.35),rgba(79,143,232,0.25)) border-box'
+                  : 'linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg,rgba(106,168,245,0.15),rgba(79,143,232,0.15)) border-box',
                 border: '1px solid transparent',
                 boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)',
               }}>
@@ -519,7 +519,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
                   )}
                   {independentRefs > 0 && (
                     <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#F08CAE]/60 flex-shrink-0" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#4F8FE8]/60 flex-shrink-0" />
                       <p className="text-[#A6A6B4] text-xs">{independentRefs} independently nominated</p>
                     </div>
                   )}
@@ -548,7 +548,7 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
             <div className="gradient-border-card rounded-2xl p-6 text-center">
               <p className="text-[#7E7E8E] text-xs mb-3">Verified by</p>
               <a href="https://shapi.io" className="font-black text-lg tracking-tighter" style={{
-                background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+                background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
               }}>shapi</a>
               <p className="text-[#7E7E8E] text-xs mt-2">shapi.io · Shape what&apos;s next</p>

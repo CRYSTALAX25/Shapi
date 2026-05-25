@@ -57,7 +57,7 @@ export default async function MyApplications() {
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
 
       <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)] max-w-4xl mx-auto flex items-center justify-between">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         <Link href="/dashboard" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7]">← Dashboard</Link>
       </nav>
 
@@ -71,7 +71,7 @@ export default async function MyApplications() {
           <div className="bg-[#16161F] rounded-2xl p-10 text-center" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
             <p className="text-[#F4F4F7] font-bold mb-1">No applications yet</p>
             <p className="text-[#7E7E8E] text-sm mb-4">Express interest in roles and they&apos;ll show up here as you move through the stages.</p>
-            <Link href="/roles" className="inline-block text-white text-sm font-bold px-5 py-2.5 rounded-full" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>Browse roles →</Link>
+            <Link href="/roles" className="inline-block text-white text-sm font-bold px-5 py-2.5 rounded-full" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)' }}>Browse roles →</Link>
           </div>
         ) : (
           <ApplicationTracker applications={apps} />

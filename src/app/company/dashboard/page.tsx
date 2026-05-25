@@ -115,8 +115,8 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
 
   const aiTierColour: Record<string, string> = {
     user: 'bg-[#6AA8F5]/10 text-[#6AA8F5]',
-    integrator: 'bg-[#F08CAE]/10 text-[#F08CAE]',
-    builder: 'bg-[#F58E9A]/10 text-[#F58E9A]',
+    integrator: 'bg-[#6AA8F5]/10 text-[#6AA8F5]',
+    builder: 'bg-[#4F8FE8]/10 text-[#4F8FE8]',
   }
 
   return (
@@ -128,13 +128,13 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
         }
         .gradient-border-card {
           background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.12), rgba(240,140,174,0.12)) border-box;
+                      linear-gradient(135deg, rgba(106,168,245,0.12), rgba(79,143,232,0.12)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .card-hover:hover {
           background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.25), rgba(240,140,174,0.25)) border-box;
+                      linear-gradient(135deg, rgba(106,168,245,0.25), rgba(79,143,232,0.25)) border-box;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .role-tab {
@@ -151,7 +151,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
         .role-tab:hover { color: #C7C7D1; border-color: rgba(255,255,255,0.18); }
         .role-tab.active {
           background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, #6AA8F5, #F08CAE) border-box;
+                      linear-gradient(135deg, #6AA8F5, #4F8FE8) border-box;
           border: 1px solid transparent;
           color: #F4F4F7;
         }
@@ -162,19 +162,19 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
         backgroundSize: '44px 44px',
       }} />
 
-      {/* Nav — company "red world" band */}
-      <nav className="relative z-10" style={{ background: 'linear-gradient(120deg, #F58E9A 0%, #F58E9A 45%, #F08CAE 100%)' }}>
+      {/* Nav — company blue band */}
+      <nav className="relative z-10" style={{ background: 'linear-gradient(120deg, #4F8FE8 0%, #4F8FE8 45%, #6AA8F5 100%)' }}>
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <ShapiCharacter mood="happy" size={30} />
-            <span className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</span>
+            <span className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</span>
           </Link>
           <div className="flex items-center gap-6">
             <Link href="/company/pipeline" className="text-white/85 text-sm font-bold hover:text-white transition-colors">Pipeline →</Link>
             <span className="text-white/60 text-sm hidden sm:block">{companyName}</span>
             {!isPaid && (
               <Link href="/company/pricing"
-                className="bg-white text-[#F58E9A] text-xs font-black px-4 py-2 rounded-full hover:bg-white/90 transition-colors">
+                className="bg-white text-[#4F8FE8] text-xs font-black px-4 py-2 rounded-full hover:bg-white/90 transition-colors">
                 Upgrade
               </Link>
             )}
@@ -196,7 +196,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
             </p>
           </div>
           <Link href="/company/roles/new"
-            className="flex-shrink-0 bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] px-5 py-2.5 rounded-full font-black text-xs text-[#fff] hover:opacity-90 transition-opacity">
+            className="flex-shrink-0 bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] px-5 py-2.5 rounded-full font-black text-xs text-[#fff] hover:opacity-90 transition-opacity">
             + Post a role
           </Link>
         </div>
@@ -320,7 +320,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
               <p className="text-[#7E7E8E] text-sm">Once you post a role, we rank all verified candidates by how well they match it.</p>
             </div>
             <Link href="/company/roles/new"
-              className="flex-shrink-0 bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] px-5 py-3 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity">
+              className="flex-shrink-0 bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] px-5 py-3 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity">
               Post a role →
             </Link>
           </div>
@@ -329,7 +329,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
         {/* Paywall banner */}
         {!isPaid && count > 0 && (
           <div className="rounded-2xl p-6 mb-8 flex items-center justify-between gap-6"
-            style={{ background: 'linear-gradient(135deg, #6AA8F5 0%, #F08CAE 100%)' }}>
+            style={{ background: 'linear-gradient(135deg, #6AA8F5 0%, #4F8FE8 100%)' }}>
             <div>
               <p className="text-white font-black text-lg mb-1">
                 {count} verified profile{count !== 1 ? 's' : ''} ready to view
@@ -374,7 +374,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                           </span>
                         )}
                         {hasDeepDive && (
-                          <span className="bg-[#F08CAE]/10 text-[#F08CAE] text-xs font-bold px-2.5 py-1 rounded-full">
+                          <span className="bg-[#6AA8F5]/10 text-[#6AA8F5] text-xs font-bold px-2.5 py-1 rounded-full">
                             Deep profile
                           </span>
                         )}
@@ -429,7 +429,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                         <div className="text-right">
                           <div className="text-3xl font-black" style={{
                             background: ms >= 50
-                              ? 'linear-gradient(135deg, #6AA8F5, #F08CAE)'
+                              ? 'linear-gradient(135deg, #6AA8F5, #4F8FE8)'
                               : 'linear-gradient(135deg, #F08CAE, #F58E9A)',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
@@ -440,7 +440,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                       ) : (
                         <div className="text-right">
                           <div className="text-3xl font-black" style={{
-                            background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)',
+                            background: 'linear-gradient(135deg, #6AA8F5, #4F8FE8)',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
                             backgroundClip: 'text',
@@ -450,7 +450,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                       )}
                       {isPaid && (
                         <Link href={`/candidates/${c.id}`}
-                          className="bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] text-[#fff] text-xs font-black px-4 py-2 rounded-full hover:opacity-90 transition-opacity">
+                          className="bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] text-[#fff] text-xs font-black px-4 py-2 rounded-full hover:opacity-90 transition-opacity">
                           View profile →
                         </Link>
                       )}
@@ -513,7 +513,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
               className="flex-1 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/40"
             />
             <button type="submit"
-              className="flex-shrink-0 bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] text-[#fff] text-xs font-black px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity">
+              className="flex-shrink-0 bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] text-[#fff] text-xs font-black px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity">
               Invite
             </button>
           </form>

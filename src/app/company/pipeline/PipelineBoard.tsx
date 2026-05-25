@@ -6,9 +6,9 @@ import Link from 'next/link'
 
 const COMPANY_PARAMS = ['Skills & experience', 'Communication', 'Culture / team fit', 'Motivation & drive', 'Growth potential']
 const STAGES = [
-  { key: 'matched', label: 'Interested', color: '#F08CAE' },
+  { key: 'matched', label: 'Interested', color: '#6AA8F5' },
   { key: 'shortlisted', label: 'Shortlisted', color: '#6AA8F5' },
-  { key: 'interviewing', label: 'Interviewing', color: '#F08CAE' },
+  { key: 'interviewing', label: 'Interviewing', color: '#4F8FE8' },
   { key: 'offer', label: 'Offer', color: '#FBBF24' },
   { key: 'hired', label: 'Hired', color: '#6AA8F5' },
   { key: 'passed', label: 'Passed', color: '#7E7E8E' },
@@ -82,7 +82,7 @@ export default function PipelineBoard({ roleId, roleTitle, applications }: { rol
       <div className="bg-[#16161F] rounded-2xl p-10 text-center" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
         <p className="text-[#F4F4F7] font-bold mb-1">No candidates in the pipeline for {roleTitle}</p>
         <p className="text-[#7E7E8E] text-sm mb-4">Shortlist candidates from the Candidates view and they&apos;ll appear here.</p>
-        <Link href="/company/dashboard" className="inline-block text-white text-sm font-bold px-5 py-2.5 rounded-full" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>Find candidates →</Link>
+        <Link href="/company/dashboard" className="inline-block text-white text-sm font-bold px-5 py-2.5 rounded-full" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)' }}>Find candidates →</Link>
       </div>
     )
   }
@@ -119,7 +119,7 @@ export default function PipelineBoard({ roleId, roleTitle, applications }: { rol
                         )}
                       </div>
                       {score != null && (
-                        <span className="flex-shrink-0 text-xs font-black px-2 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.12)', color: '#F08CAE' }}>{score}</span>
+                        <span className="flex-shrink-0 text-xs font-black px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>{score}</span>
                       )}
                     </div>
 
@@ -137,8 +137,8 @@ export default function PipelineBoard({ roleId, roleTitle, applications }: { rol
 
                     {/* Booked interview */}
                     {iv?.scheduled_at && !isScoring && !isBooking && (
-                      <div className="mt-2 rounded-lg px-2 py-1.5" style={{ background: 'rgba(240,140,174,0.08)' }}>
-                        <p className="text-[11px] font-bold text-[#F08CAE]">📅 {fmtWhen(iv.scheduled_at)}{iv.video_platform ? ` · ${PLATFORM_LABEL[iv.video_platform] || 'Video'}` : ''}</p>
+                      <div className="mt-2 rounded-lg px-2 py-1.5" style={{ background: 'rgba(106,168,245,0.08)' }}>
+                        <p className="text-[11px] font-bold text-[#6AA8F5]">📅 {fmtWhen(iv.scheduled_at)}{iv.video_platform ? ` · ${PLATFORM_LABEL[iv.video_platform] || 'Video'}` : ''}</p>
                         {iv.video_platform === 'in_person'
                           ? iv.location && <p className="text-[10px] text-[#7E7E8E]">📍 {iv.location}</p>
                           : iv.meeting_link && <a href={iv.meeting_link} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-[#6AA8F5]">Join call →</a>}
@@ -174,14 +174,14 @@ export default function PipelineBoard({ roleId, roleTitle, applications }: { rol
                         <button onClick={() => setScoring(a.candidate_id)} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(106,168,245,0.10)', color: '#6AA8F5' }}>
                           {a.company_scorecard ? 'Edit score' : 'Score'}
                         </button>
-                        <button onClick={() => setBooking(a.candidate_id)} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(240,140,174,0.10)', color: '#F08CAE' }}>
+                        <button onClick={() => setBooking(a.candidate_id)} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(79,143,232,0.10)', color: '#4F8FE8' }}>
                           {iv?.scheduled_at ? 'Reschedule' : 'Interview'}
                         </button>
                         <button onClick={() => setFeedbacking(a.candidate_id)} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(106,168,245,0.10)', color: '#6AA8F5' }}>
                           {fb ? 'Edit feedback' : 'Feedback'}
                         </button>
                         <Link href={`/candidates/${a.candidate_id}`} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.05)', color: '#C7C7D1' }}>View</Link>
-                        <Link href={`/company/prep/${roleId}/${a.candidate_id}`} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(240,140,174,0.10)', color: '#F08CAE' }}>Prep brief</Link>
+                        <Link href={`/company/prep/${roleId}/${a.candidate_id}`} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(79,143,232,0.10)', color: '#4F8FE8' }}>Prep brief</Link>
                         <select
                           value={a.stage}
                           disabled={busy === a.candidate_id}
@@ -216,7 +216,7 @@ function ScoreEditor({ initial, onSave, onCancel, busy }: { initial: Record<stri
               <button key={n} onClick={() => setScores(s => ({ ...s, [p]: n }))}
                 className="flex-1 text-[11px] font-bold rounded py-1"
                 style={scores[p] === n
-                  ? { background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)', color: '#fff' }
+                  ? { background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', color: '#fff' }
                   : { background: '#16161F', border: '1px solid rgba(255,255,255,0.12)', color: '#7E7E8E' }}>
                 {n}
               </button>
@@ -225,7 +225,7 @@ function ScoreEditor({ initial, onSave, onCancel, busy }: { initial: Record<stri
         </div>
       ))}
       <div className="flex gap-2 pt-1">
-        <button onClick={() => onSave(scores)} disabled={busy} className="flex-1 text-[11px] font-black text-white rounded-lg py-1.5 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>{busy ? 'Saving…' : 'Save'}</button>
+        <button onClick={() => onSave(scores)} disabled={busy} className="flex-1 text-[11px] font-black text-white rounded-lg py-1.5 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)' }}>{busy ? 'Saving…' : 'Save'}</button>
         <button onClick={onCancel} className="text-[11px] font-bold rounded-lg py-1.5 px-3" style={{ background: 'rgba(255,255,255,0.05)', color: '#7E7E8E' }}>Cancel</button>
       </div>
     </div>
@@ -268,7 +268,7 @@ function InterviewEditor({ initial, onSave, onCancel, busy }: { initial: Intervi
       )}
       <div className="flex gap-2 pt-1">
         <button onClick={() => onSave({ scheduled_at: when ? new Date(when).toISOString() : '', video_platform: platform, meeting_link: link, location: loc })} disabled={busy || !when}
-          className="flex-1 text-[11px] font-black text-white rounded-lg py-1.5 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>{busy ? 'Saving…' : 'Book interview'}</button>
+          className="flex-1 text-[11px] font-black text-white rounded-lg py-1.5 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)' }}>{busy ? 'Saving…' : 'Book interview'}</button>
         <button onClick={onCancel} className="text-[11px] font-bold rounded-lg py-1.5 px-3" style={{ background: 'rgba(255,255,255,0.05)', color: '#7E7E8E' }}>Cancel</button>
       </div>
     </div>
@@ -285,7 +285,7 @@ function FeedbackEditor({ initial, onSave, onCancel, busy }: { initial: Feedback
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map(n => (
           <button key={n} onClick={() => setRating(n)} className="flex-1 text-[11px] font-bold rounded py-1"
-            style={rating === n ? { background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)', color: '#fff' } : { background: '#16161F', border: '1px solid rgba(255,255,255,0.12)', color: '#7E7E8E' }}>{n}</button>
+            style={rating === n ? { background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', color: '#fff' } : { background: '#16161F', border: '1px solid rgba(255,255,255,0.12)', color: '#7E7E8E' }}>{n}</button>
         ))}
       </div>
       <div className="flex gap-1.5">
@@ -298,7 +298,7 @@ function FeedbackEditor({ initial, onSave, onCancel, busy }: { initial: Feedback
         style={{ background: '#16161F', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '6px 8px', fontSize: 11, width: '100%', color: '#F4F4F7', resize: 'vertical' }} />
       <div className="flex gap-2">
         <button onClick={() => onSave({ rating, move_forward: forward ?? false, notes })} disabled={busy || rating === 0}
-          className="flex-1 text-[11px] font-black text-white rounded-lg py-1.5 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>{busy ? 'Saving…' : 'Save feedback'}</button>
+          className="flex-1 text-[11px] font-black text-white rounded-lg py-1.5 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)' }}>{busy ? 'Saving…' : 'Save feedback'}</button>
         <button onClick={onCancel} className="text-[11px] font-bold rounded-lg py-1.5 px-3" style={{ background: 'rgba(255,255,255,0.05)', color: '#7E7E8E' }}>Cancel</button>
       </div>
     </div>

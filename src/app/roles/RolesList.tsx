@@ -101,7 +101,7 @@ export default function RolesList({
                       )}
                       {role.engagement_type && role.engagement_type !== 'permanent' && (
                         <span className="text-xs font-bold px-2.5 py-1 rounded-full capitalize"
-                          style={{ background: 'rgba(240,140,174,0.14)', color: '#F08CAE' }}>
+                          style={{ background: 'rgba(106,168,245,0.14)', color: '#6AA8F5' }}>
                           {role.engagement_type === 'temp' ? 'Temp / Shift' : 'Contract'}
                         </span>
                       )}
@@ -116,7 +116,7 @@ export default function RolesList({
                         const toneColors = {
                           gold:   { bg: 'rgba(251,191,36,0.13)', fg: '#D97706' },
                           teal:   { bg: 'rgba(106,168,245,0.12)', fg: '#6AA8F5' },
-                          purple: { bg: 'rgba(240,140,174,0.13)', fg: '#F08CAE' },
+                          purple: { bg: 'rgba(106,168,245,0.13)', fg: '#6AA8F5' },
                         }[accolade.tone]
                         return (
                           <span

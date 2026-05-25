@@ -179,7 +179,7 @@ export default async function Dashboard() {
           50% { background-position: 100% 50%; }
         }
         .animated-gradient {
-          background: linear-gradient(135deg, #F08CAE, #6AA8F5, #F58E9A, #F08CAE);
+          background: linear-gradient(135deg, #6AA8F5, #4F8FE8, #6AA8F5, #4F8FE8);
           background-size: 300% 300%;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -188,14 +188,14 @@ export default async function Dashboard() {
         }
         .gradient-border-card {
           background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.18), rgba(240,140,174,0.18)) border-box;
+                      linear-gradient(135deg, rgba(106,168,245,0.18), rgba(79,143,232,0.18)) border-box;
           border: 1px solid transparent;
           transition: all 0.25s ease;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .gradient-border-card:hover {
           background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.5), rgba(240,140,174,0.5)) border-box;
+                      linear-gradient(135deg, rgba(106,168,245,0.5), rgba(79,143,232,0.5)) border-box;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
       `}</style>
@@ -205,7 +205,7 @@ export default async function Dashboard() {
         <div className="px-6 py-4 flex items-center justify-between max-w-6xl mx-auto">
           <Link href="/" className="flex items-center gap-2">
             <ShapiCharacter mood="happy" size={30} />
-            <span className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</span>
+            <span className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</span>
           </Link>
           <div className="flex items-center gap-5">
             <span className="text-sm text-white/60 hidden sm:block">{user.email}</span>
@@ -241,7 +241,7 @@ export default async function Dashboard() {
             <div className="grid lg:grid-cols-2 gap-4 mb-5 items-stretch">
               {/* Shapi guide */}
               <div className="rounded-2xl p-6 flex items-center gap-5"
-                style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.12), rgba(240,140,174,0.08))', border: '1px solid rgba(106,168,245,0.28)', boxShadow: '0 10px 30px rgba(106,168,245,0.12)' }}>
+                style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.12), rgba(79,143,232,0.08))', border: '1px solid rgba(106,168,245,0.28)', boxShadow: '0 10px 30px rgba(106,168,245,0.12)' }}>
                 <ShapiCharacter mood={shapiMood} size={84} className="flex-shrink-0" />
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#6AA8F5' }}>Shapi says</p>
@@ -249,7 +249,7 @@ export default async function Dashboard() {
                 </div>
                 {!profile?.cv_parsed && (
                   <Link href="/upload-cv"
-                    className="ml-auto flex-shrink-0 bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] px-4 py-2 rounded-full text-xs font-black text-[#060609] hover:opacity-90 transition-opacity">
+                    className="ml-auto flex-shrink-0 bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] px-4 py-2 rounded-full text-xs font-black text-[#060609] hover:opacity-90 transition-opacity">
                     Start →
                   </Link>
                 )}
@@ -265,7 +265,7 @@ export default async function Dashboard() {
                       <defs>
                         <linearGradient id="progGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                           <stop offset="0%" stopColor="#6AA8F5" />
-                          <stop offset="100%" stopColor="#F08CAE" />
+                          <stop offset="100%" stopColor="#4F8FE8" />
                         </linearGradient>
                       </defs>
                     </svg>
@@ -279,7 +279,7 @@ export default async function Dashboard() {
                   </div>
                 </div>
                 <div className="mt-4 h-1 bg-white/[0.06] rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${completion}%`, background: 'linear-gradient(90deg, #6AA8F5, #F08CAE)' }} />
+                  <div className="h-full rounded-full transition-all" style={{ width: `${completion}%`, background: 'linear-gradient(90deg, #6AA8F5, #4F8FE8)' }} />
                 </div>
               </div>
             </div>
@@ -306,8 +306,8 @@ export default async function Dashboard() {
                   <div>
                     <p className="text-[#A6A6B4] text-[11px] font-bold uppercase tracking-wider mb-1.5">Anytime, just text</p>
                     <ul className="text-[#C7C7D1] text-xs leading-relaxed space-y-1.5 pl-1">
-                      <li><span className="font-bold text-[#F08CAE]">&quot;voice&quot;</span> — record a voice sample in each language you speak</li>
-                      <li><span className="font-bold text-[#F08CAE]">&quot;references&quot;</span> — see your reference requests + status</li>
+                      <li><span className="font-bold text-[#6AA8F5]">&quot;voice&quot;</span> — record a voice sample in each language you speak</li>
+                      <li><span className="font-bold text-[#6AA8F5]">&quot;references&quot;</span> — see your reference requests + status</li>
                     </ul>
                   </div>
                   <p className="text-[#A6A6B4] text-xs leading-relaxed pt-1">
@@ -321,15 +321,15 @@ export default async function Dashboard() {
             <div className="mb-3 flex items-center gap-2">
               <span className="text-[#5C5C6A] text-xs font-bold uppercase tracking-wider">Your plan:</span>
               {isConcierge ? (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.18)', color: '#F08CAE' }}>Active Concierge</span>
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.18)', color: '#6AA8F5' }}>Active Concierge</span>
               ) : isActive ? (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(245,142,154,0.15)', color: '#F58E9A' }}>Shapi Active</span>
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}>Shapi Active</span>
               ) : isRolesBoard ? (
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>Open Roles Board</span>
               ) : profile?.cv_tier === 'pro' ? (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.18)', color: '#F08CAE' }}>CV Pro</span>
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.18)', color: '#6AA8F5' }}>CV Pro</span>
               ) : cvKitPurchased ? (
-                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.12)', color: '#F08CAE' }}>CV Kit</span>
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>CV Kit</span>
               ) : (
                 <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#7E7E8E' }}>Free</span>
               )}
@@ -396,8 +396,8 @@ export default async function Dashboard() {
               ) : (
                 <div className="gradient-border-card rounded-2xl p-6 opacity-50">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-[#F08CAE]/15 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-5 h-5 text-[#F08CAE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-10 h-10 rounded-xl bg-[#6AA8F5]/15 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 text-[#6AA8F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                       </svg>
                     </div>
@@ -412,7 +412,7 @@ export default async function Dashboard() {
               {/* CV Kit CTA — only if not yet purchased */}
               {!cvKitPurchased && profile?.cv_parsed && (
                 <Link href="/pay" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05] sm:col-span-2 lg:col-span-3" style={{
-                  background: 'linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg,rgba(240,140,174,0.3),rgba(106,168,245,0.2)) border-box',
+                  background: 'linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg,rgba(106,168,245,0.3),rgba(79,143,232,0.2)) border-box',
                   border: '1px solid transparent',
                   boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)',
                 }}>
@@ -420,11 +420,11 @@ export default async function Dashboard() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-bold text-[#F4F4F7] text-sm">Get your enhanced CV</h3>
-                        <span className="text-[10px] font-bold bg-[#F08CAE]/15 text-[#F08CAE] px-2 py-0.5 rounded-full">From $25 one-time</span>
+                        <span className="text-[10px] font-bold bg-[#6AA8F5]/15 text-[#6AA8F5] px-2 py-0.5 rounded-full">From $25 one-time</span>
                       </div>
                       <p className="text-[#7E7E8E] text-xs">English + native language version, industry-optimised, send to WhatsApp or email.</p>
                     </div>
-                    <span className="text-[#F08CAE] font-black text-sm flex-shrink-0">Unlock →</span>
+                    <span className="text-[#6AA8F5] font-black text-sm flex-shrink-0">Unlock →</span>
                   </div>
                 </Link>
               )}
@@ -478,13 +478,13 @@ export default async function Dashboard() {
               {/* Work evidence — visible for ALL candidates */}
               <Link href="/evidence" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05]">
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${evidenceCount > 0 ? 'bg-emerald-500/15' : 'bg-[#F58E9A]/15'}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${evidenceCount > 0 ? 'bg-emerald-500/15' : 'bg-[#6AA8F5]/15'}`}>
                     {evidenceCount > 0 ? (
                       <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     ) : (
-                      <svg className="w-5 h-5 text-[#F58E9A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-[#6AA8F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     )}
@@ -495,7 +495,7 @@ export default async function Dashboard() {
                       {evidenceCount > 0 ? (
                         <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">{evidenceCount} file{evidenceCount !== 1 ? 's' : ''} ✓</span>
                       ) : (
-                        <span className="text-[10px] font-bold bg-[#F58E9A]/15 text-[#F58E9A] px-2 py-0.5 rounded-full">Add now</span>
+                        <span className="text-[10px] font-bold bg-[#6AA8F5]/15 text-[#6AA8F5] px-2 py-0.5 rounded-full">Add now</span>
                       )}
                     </div>
                     <p className="text-[#7E7E8E] text-xs">{evidenceCount > 0 ? 'Photos and docs uploaded — adds weight to your profile.' : 'Photos and docs that prove your experience.'}</p>
@@ -538,7 +538,7 @@ export default async function Dashboard() {
               {/* Courses / learning */}
               <Link href="/upskill" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05] transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${(coursesInProgress + coursesCompleted) > 0 ? 'bg-emerald-500/15' : 'bg-[#F08CAE]/15'}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${(coursesInProgress + coursesCompleted) > 0 ? 'bg-emerald-500/15' : 'bg-[#6AA8F5]/15'}`}>
                     <span className="text-lg">🎓</span>
                   </div>
                   <div className="flex-1">
@@ -546,7 +546,7 @@ export default async function Dashboard() {
                       <h3 className="font-bold text-[#F4F4F7] text-sm">Courses & learning</h3>
                       {(coursesInProgress + coursesCompleted) > 0
                         ? <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">{coursesCompleted} done · {coursesInProgress} learning</span>
-                        : <span className="text-[10px] font-bold bg-[#F08CAE]/15 text-[#F08CAE] px-2 py-0.5 rounded-full">Browse</span>}
+                        : <span className="text-[10px] font-bold bg-[#6AA8F5]/15 text-[#6AA8F5] px-2 py-0.5 rounded-full">Browse</span>}
                     </div>
                     <p className="text-[#7E7E8E] text-xs">{(coursesInProgress + coursesCompleted) > 0 ? 'Verified learning shows companies real growth.' : 'Close your skill gaps — free, paid or financed.'}</p>
                   </div>
@@ -556,7 +556,7 @@ export default async function Dashboard() {
               {/* Work style */}
               <Link href="/work-style" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05] transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${profile?.work_style ? 'bg-emerald-500/15' : 'bg-[#F58E9A]/15'}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${profile?.work_style ? 'bg-emerald-500/15' : 'bg-[#6AA8F5]/15'}`}>
                     <span className="text-lg">🧭</span>
                   </div>
                   <div className="flex-1">
@@ -564,7 +564,7 @@ export default async function Dashboard() {
                       <h3 className="font-bold text-[#F4F4F7] text-sm">Work style</h3>
                       {profile?.work_style
                         ? <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">Done ✓</span>
-                        : <span className="text-[10px] font-bold bg-[#F58E9A]/15 text-[#F58E9A] px-2 py-0.5 rounded-full">2 min</span>}
+                        : <span className="text-[10px] font-bold bg-[#6AA8F5]/15 text-[#6AA8F5] px-2 py-0.5 rounded-full">2 min</span>}
                     </div>
                     <p className="text-[#7E7E8E] text-xs">{profile?.work_style ? 'How you prefer to work — shown to companies.' : 'Quick check — how you work best (team vs solo, etc.).'}</p>
                   </div>
@@ -575,13 +575,13 @@ export default async function Dashboard() {
               {/* Concierge queue — today's AI-drafted outreach */}
               {isConcierge && (
               <div className="sm:col-span-2 lg:col-span-3 rounded-2xl p-6" style={{
-                background: 'linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg,rgba(240,140,174,0.35),rgba(245,142,154,0.25)) border-box',
+                background: 'linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg,rgba(106,168,245,0.35),rgba(79,143,232,0.25)) border-box',
                 border: '1px solid transparent',
                 boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)',
               }}>
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
-                    <p className="text-[#F08CAE] text-xs font-bold uppercase tracking-wider mb-1">Concierge · today's shortlist</p>
+                    <p className="text-[#6AA8F5] text-xs font-bold uppercase tracking-wider mb-1">Concierge · today's shortlist</p>
                     <h3 className="font-black text-[#F4F4F7] text-lg">
                       {conciergeDrafts.length > 0
                         ? `${conciergeDrafts.length} role${conciergeDrafts.length === 1 ? '' : 's'} matched · ready to send`
@@ -590,7 +590,7 @@ export default async function Dashboard() {
                     <p className="text-[#A6A6B4] text-xs mt-1">AI scans open roles every morning and drafts personalised intros — you review, approve, send.</p>
                   </div>
                   <form action="/api/concierge/scan" method="POST">
-                    <button type="submit" className="text-[#F08CAE] text-xs font-bold border border-[#F08CAE]/30 hover:border-[#F08CAE]/60 px-3 py-1.5 rounded-full transition-colors">
+                    <button type="submit" className="text-[#6AA8F5] text-xs font-bold border border-[#6AA8F5]/30 hover:border-[#6AA8F5]/60 px-3 py-1.5 rounded-full transition-colors">
                       Refresh now
                     </button>
                   </form>
@@ -606,7 +606,7 @@ export default async function Dashboard() {
                               <p className="text-[#F4F4F7] text-sm font-bold">{role?.title || 'Role'}</p>
                               <p className="text-[#A6A6B4] text-xs">{role?.company_name || ''}</p>
                             </div>
-                            <span className="text-[#F08CAE] text-xs font-black">{draft.match_score}%</span>
+                            <span className="text-[#6AA8F5] text-xs font-black">{draft.match_score}%</span>
                           </div>
                           {draft.draft_subject && (
                             <p className="text-[#A6A6B4] text-xs mt-2 italic">&ldquo;{draft.draft_subject}&rdquo;</p>
@@ -616,7 +616,7 @@ export default async function Dashboard() {
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                               draft.status === 'sent' ? 'bg-emerald-500/15 text-emerald-400' :
                               draft.status === 'approved' ? 'bg-[#6AA8F5]/15 text-[#6AA8F5]' :
-                              draft.status === 'auto_send' ? 'bg-[#F08CAE]/15 text-[#F08CAE]' :
+                              draft.status === 'auto_send' ? 'bg-[#6AA8F5]/15 text-[#6AA8F5]' :
                               'bg-white/[0.05] text-[#A6A6B4]'
                             }`}>
                               {draft.status.replace('_', ' ')}
@@ -667,7 +667,7 @@ export default async function Dashboard() {
               <Link href="/roles" className="gradient-border-card rounded-2xl p-6 flex items-center justify-between hover:bg-white/[0.05] transition-all">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.15), rgba(240,140,174,0.15))' }}>
+                    style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.15), rgba(79,143,232,0.15))' }}>
                     <svg className="w-5 h-5 text-[#6AA8F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
@@ -695,14 +695,14 @@ export default async function Dashboard() {
             <div className="mt-4">
               <Link href="/active" className="block rounded-2xl p-6 hover:opacity-90 transition-opacity"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(245,142,154,0.12) 0%, rgba(240,140,174,0.12) 50%, rgba(106,168,245,0.12) 100%)',
-                  border: '1px solid rgba(245,142,154,0.2)',
+                  background: 'linear-gradient(135deg, rgba(106,168,245,0.12) 0%, rgba(79,143,232,0.12) 100%)',
+                  border: '1px solid rgba(106,168,245,0.2)',
                 }}>
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-xs font-bold px-2.5 py-1 rounded-full"
-                        style={{ background: 'rgba(245,142,154,0.2)', color: '#F58E9A' }}>
+                        style={{ background: 'rgba(106,168,245,0.2)', color: '#6AA8F5' }}>
                         NEW
                       </span>
                       <h3 className="font-bold text-[#F4F4F7]">Shapi Active</h3>
@@ -719,7 +719,7 @@ export default async function Dashboard() {
                   </div>
                   <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-4">
                     {activeApplicationsCount > 0 && (
-                      <span className="text-2xl font-black" style={{ color: '#F58E9A' }}>{activeApplicationsCount}</span>
+                      <span className="text-2xl font-black" style={{ color: '#6AA8F5' }}>{activeApplicationsCount}</span>
                     )}
                     {activeApplicationsCount > 0 && (
                       <span className="text-[#7E7E8E] text-[10px]">applications</span>
@@ -756,8 +756,8 @@ export default async function Dashboard() {
               </Link>
 
               <Link href="/company/dashboard" className="gradient-border-card rounded-2xl p-7 block hover:bg-white/[0.05]">
-                <div className="w-11 h-11 rounded-xl bg-[#F08CAE]/15 flex items-center justify-center mb-5">
-                  <svg className="w-5 h-5 text-[#F08CAE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-11 h-11 rounded-xl bg-[#6AA8F5]/15 flex items-center justify-center mb-5">
+                  <svg className="w-5 h-5 text-[#6AA8F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
@@ -782,7 +782,7 @@ export default async function Dashboard() {
                 </div>
               ) : (
                 <Link href="/company/pricing" className="md:col-span-2 rounded-2xl p-7 block hover:opacity-90 transition-opacity" style={{
-                  background: 'linear-gradient(135deg, rgba(106,168,245,0.85) 0%, rgba(240,140,174,0.85) 100%)',
+                  background: 'linear-gradient(135deg, rgba(106,168,245,0.85) 0%, rgba(79,143,232,0.85) 100%)',
                   border: '1px solid rgba(106,168,245,0.2)',
                 }}>
                   <div className="flex items-center justify-between">
