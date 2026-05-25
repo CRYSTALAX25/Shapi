@@ -170,6 +170,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
             <span className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</span>
           </Link>
           <div className="flex items-center gap-6">
+            <Link href="/company/roles" className="text-white/85 text-sm font-bold hover:text-white transition-colors">Manage roles</Link>
             <Link href="/company/pipeline" className="text-white/85 text-sm font-bold hover:text-white transition-colors">Pipeline →</Link>
             <span className="text-white/60 text-sm hidden sm:block">{companyName}</span>
             {!isPaid && (
@@ -291,9 +292,14 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                         <span className="ml-2">· Posted {ageDays === 0 ? 'today' : `${ageDays} day${ageDays !== 1 ? 's' : ''} ago`}</span>
                       </p>
                     </div>
-                    <p className="text-[#7E7E8E] text-xs flex-shrink-0">
-                      {count} candidate{count !== 1 ? 's' : ''} scored · {shortlistedCount} shortlisted
-                    </p>
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                      <p className="text-[#7E7E8E] text-xs">
+                        {count} candidate{count !== 1 ? 's' : ''} scored · {shortlistedCount} shortlisted
+                      </p>
+                      <Link href={`/company/roles/${selectedRole.id}`} className="text-[#6AA8F5] text-xs font-bold hover:opacity-80">
+                        Edit role →
+                      </Link>
+                    </div>
                   </div>
 
                   {/* Job health nudge — Shapi proactively offers help on stale roles */}

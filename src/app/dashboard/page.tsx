@@ -81,6 +81,7 @@ export default async function Dashboard() {
   }
   let conciergeDrafts: ConciergeDraft[] = []
   let conciergeRoleMap: Record<string, { title: string; company_name: string }> = {}
+  const conciergeCounts = { queued: 0, approved: 0, sent: 0 }
   if (isConcierge) {
     const { data: drafts } = await supabase
       .from('concierge_queue')
@@ -90,6 +91,11 @@ export default async function Dashboard() {
       .order('created_at', { ascending: false })
       .limit(10)
     conciergeDrafts = (drafts as ConciergeDraft[]) || []
+    for (const d of conciergeDrafts) {
+      if (d.status === 'sent') conciergeCounts.sent++
+      else if (d.status === 'approved') conciergeCounts.approved++
+      else conciergeCounts.queued++ // pending_approval / auto_send
+    }
     if (conciergeDrafts.length > 0) {
       const { createAdminClient } = await import('@/lib/supabase/admin')
       const admin = createAdminClient()
@@ -609,6 +615,13 @@ export default async function Dashboard() {
                         : 'No new matches today'}
                     </h3>
                     <p className="text-[#A6A6B4] text-xs mt-1">AI scans open roles every morning and drafts personalised intros — you review, approve, send.</p>
+                    {(conciergeCounts.queued + conciergeCounts.approved + conciergeCounts.sent) > 0 && (
+                      <div className="flex items-center gap-2 mt-3">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/[0.05] text-[#A6A6B4]">{conciergeCounts.queued} queued</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5]">{conciergeCounts.approved} approved</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">{conciergeCounts.sent} sent</span>
+                      </div>
+                    )}
                   </div>
                   <form action="/api/concierge/scan" method="POST">
                     <button type="submit" className="text-[#6AA8F5] text-xs font-bold border border-[#6AA8F5]/30 hover:border-[#6AA8F5]/60 px-3 py-1.5 rounded-full transition-colors">

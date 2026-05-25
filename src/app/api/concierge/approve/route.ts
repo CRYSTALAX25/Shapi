@@ -2,13 +2,17 @@
 //
 //   POST /api/concierge/approve  { draftId, action: 'approve' | 'decline' | 'edit', body? }
 //
-// On 'approve': flips status to 'approved' (the actual send happens in a
-// downstream worker that we'll wire next — for now, approval just stages it).
+// On 'approve': flips status to 'approved', then immediately delivers the
+// outreach to the hiring company (resolved from the role) and flips the row to
+// 'sent'. If no company email is on file the row stays 'approved' so the
+// cron-safe /api/concierge/send retry path can pick it up later.
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { sendConciergeDraftById } from '@/lib/concierge'
 
 export const runtime = 'nodejs'
+export const maxDuration = 60
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -54,6 +58,19 @@ export async function POST(request: Request) {
     .eq('id', draftId)
     .eq('candidate_id', user.id)
   if (updErr) return NextResponse.json({ error: updErr.message }, { status: 500 })
+
+  // On approval, deliver the outreach now. Ownership was verified above, so the
+  // draft is safe to send via the admin-scoped helper. If the company has no
+  // email on file the row stays 'approved' and the send route can retry.
+  if (action === 'approve') {
+    const result = await sendConciergeDraftById(draftId)
+    if (result.ok && result.sent) {
+      return NextResponse.json({ ok: true, status: 'sent' })
+    }
+    const reason = 'reason' in result ? result.reason : undefined
+    // Approved but not sent (e.g. missing company email) — surface, don't fail.
+    return NextResponse.json({ ok: true, status: 'approved', sent: false, reason })
+  }
 
   return NextResponse.json({ ok: true })
 }

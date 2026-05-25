@@ -8,6 +8,7 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sendConciergeOutreach } from '@/lib/email'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -271,4 +272,134 @@ export async function runConciergeScanForAll(): Promise<{
   }
 
   return { candidatesProcessed: candidates?.length || 0, totalDrafted }
+}
+
+// ── Outbound delivery ──────────────────────────────────────────────────────
+// Sends an approved Concierge draft to the hiring company behind its role.
+//
+// There is NO recipient field on concierge_queue, so the recipient is resolved
+// at send time: role_id → roles.company_id → auth.users.email (the company's
+// signup email). Reply-to is set to the candidate's own email so replies reach
+// them directly. Returns a typed outcome so callers can surface why a send was
+// skipped (e.g. no company email on file) without inventing an address.
+
+export type ConciergeSendResult =
+  | { ok: true; sent: true; draftId: string }
+  | { ok: true; sent: false; draftId: string; reason: string }
+  | { ok: false; draftId: string; reason: string }
+
+type QueueRow = {
+  id: string
+  candidate_id: string
+  role_id: string
+  draft_subject: string | null
+  draft_body: string
+  status: string
+  sent_at: string | null
+}
+
+// Send a single already-fetched 'approved' row. Idempotent: re-checks status
+// and sent_at, only ever flips 'approved'/'auto_send' → 'sent'.
+export async function sendApprovedConciergeDraft(draft: QueueRow): Promise<ConciergeSendResult> {
+  const admin = createAdminClient()
+
+  // Guard: only unsent, approved/auto_send rows ever go out.
+  if (draft.sent_at) return { ok: true, sent: false, draftId: draft.id, reason: 'already sent' }
+  if (draft.status !== 'approved' && draft.status !== 'auto_send') {
+    return { ok: true, sent: false, draftId: draft.id, reason: `status is '${draft.status}'` }
+  }
+
+  // Resolve the company (recipient) behind the role.
+  const { data: role } = await admin
+    .from('roles')
+    .select('company_id')
+    .eq('id', draft.role_id)
+    .single()
+  if (!role?.company_id) {
+    return { ok: true, sent: false, draftId: draft.id, reason: 'role/company not found' }
+  }
+
+  const [{ data: companyAuth }, { data: candidateProfile }, { data: candidateAuth }] = await Promise.all([
+    admin.auth.admin.getUserById(role.company_id as string),
+    admin.from('profiles').select('full_name').eq('id', draft.candidate_id).single(),
+    admin.auth.admin.getUserById(draft.candidate_id),
+  ])
+
+  const companyEmail = companyAuth?.user?.email
+  if (!companyEmail) {
+    // Don't invent an address — leave it 'approved' for a later retry.
+    return { ok: true, sent: false, draftId: draft.id, reason: 'no company email on file' }
+  }
+
+  const candidateName = (candidateProfile?.full_name as string) || ''
+  const replyTo = candidateAuth?.user?.email || undefined
+
+  try {
+    await sendConciergeOutreach({
+      to: companyEmail,
+      subject: draft.draft_subject || `${candidateName || 'A candidate'} would like to connect`,
+      body: draft.draft_body,
+      candidateName,
+      replyTo,
+    })
+  } catch (err) {
+    console.error('[concierge] send failed:', err)
+    return { ok: false, draftId: draft.id, reason: 'email send failed' }
+  }
+
+  // Flip to 'sent' — scoped to the still-unsent state to avoid races/double-send.
+  const { error: updErr } = await admin
+    .from('concierge_queue')
+    .update({ status: 'sent', sent_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+    .eq('id', draft.id)
+    .is('sent_at', null)
+  if (updErr) {
+    console.error('[concierge] status update failed after send:', updErr)
+    return { ok: false, draftId: draft.id, reason: 'sent but status update failed' }
+  }
+
+  return { ok: true, sent: true, draftId: draft.id }
+}
+
+// Convenience: fetch one draft by id (admin scope) and send it.
+export async function sendConciergeDraftById(draftId: string): Promise<ConciergeSendResult> {
+  const admin = createAdminClient()
+  const { data: draft } = await admin
+    .from('concierge_queue')
+    .select('id, candidate_id, role_id, draft_subject, draft_body, status, sent_at')
+    .eq('id', draftId)
+    .single()
+  if (!draft) return { ok: false, draftId, reason: 'draft not found' }
+  return sendApprovedConciergeDraft(draft as QueueRow)
+}
+
+// Batch runner: pick up approved drafts that haven't been sent and fire them.
+// Used by the cron-safe /api/concierge/send endpoint. Caps batch size.
+export async function sendPendingConciergeOutreach(limit = 25): Promise<{
+  picked: number
+  sent: number
+  skipped: number
+  failed: number
+  results: ConciergeSendResult[]
+}> {
+  const admin = createAdminClient()
+  const { data: drafts } = await admin
+    .from('concierge_queue')
+    .select('id, candidate_id, role_id, draft_subject, draft_body, status, sent_at')
+    .in('status', ['approved', 'auto_send'])
+    .is('sent_at', null)
+    .order('approved_at', { ascending: true, nullsFirst: true })
+    .limit(Math.max(1, Math.min(25, limit)))
+
+  const rows = (drafts as QueueRow[]) || []
+  const results: ConciergeSendResult[] = []
+  let sent = 0, skipped = 0, failed = 0
+  for (const row of rows) {
+    const r = await sendApprovedConciergeDraft(row)
+    results.push(r)
+    if (r.ok && r.sent) sent++
+    else if (r.ok) skipped++
+    else failed++
+  }
+  return { picked: rows.length, sent, skipped, failed, results }
 }

@@ -345,6 +345,46 @@ export async function sendSocialProofEmail({ to, name }: { to: string; name: str
   })
 }
 
+// ── 8. Concierge outreach → hiring company ─────────────────────────────────
+// The AI Concierge fires an approved, candidate-authored intro to the company
+// behind a matched role. The body is plain text (newlines) drafted by Claude;
+// we wrap it in the branded shell and set reply-to so the company can answer
+// the candidate directly. `replyTo` is optional — omit if unknown.
+
+export async function sendConciergeOutreach(opts: {
+  to: string
+  subject: string
+  body: string
+  candidateName: string
+  replyTo?: string
+}) {
+  const { to, subject, body, candidateName, replyTo } = opts
+  const safeBody = String(body || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\r\n|\r|\n/g, '<br>')
+  const who = candidateName?.trim() || 'A verified candidate'
+
+  const html = emailShell(`
+    ${h1(`${who} would like to connect`)}
+    <div style="background:rgba(106,168,245,0.06);border:1px solid rgba(106,168,245,0.18);border-radius:10px;padding:14px 18px;margin:0 0 20px">
+      <p style="color:rgba(106,168,245,0.85);font-size:12px;font-weight:700;margin:0">Reached out via Shapi — profile independently verified</p>
+    </div>
+    <p style="color:rgba(255,255,255,0.7);font-size:15px;line-height:1.7;margin:0 0 16px">${safeBody}</p>
+    ${divider()}
+    ${p(`<span style="font-size:13px;color:rgba(255,255,255,0.3)">${who} sent this through Shapi, where every profile is verified before it can reach you. Reply to this email to respond directly.</span>`)}
+  `)
+
+  await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: subject || `${who} would like to connect`,
+    html,
+    ...(replyTo ? { replyTo } : {}),
+  })
+}
+
 // ── 7. Candidate: CV links sent to their own email ──────────────────────────
 
 export async function sendCVLinksEmail(opts: {
