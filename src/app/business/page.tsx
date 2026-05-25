@@ -3,10 +3,19 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
-type Step = { title?: string; detail?: string }
+type Tier = { range?: string; covers?: string }
+type Entity = { name?: string; what?: string; url?: string | null }
 type Blueprint = {
-  field?: string; country?: string
-  steps?: Step[]; insurance?: string[]; first_clients?: string[]; note?: string
+  field?: string; country?: string; currency?: string
+  fit?: { score?: number; verdict?: string; strengths?: string[]; gaps?: string[] }
+  pros?: string[]; cons?: string[]
+  better_countries?: { country?: string; why?: string }[]
+  structures?: string[]; time_estimate?: string
+  capital?: { lean?: Tier; standard?: Tier; comfortable?: Tier; note?: string }
+  launch_plan?: { phase?: string; steps?: string[] }[]
+  contacts?: string[]
+  entities?: Entity[]
+  disclaimer?: string
 }
 
 // Rough default currency by country keyword (free-text, user can overwrite).
@@ -146,7 +155,7 @@ export default function BusinessBlueprint() {
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 pt-8 pb-20">
         <h1 className="text-3xl md:text-4xl font-black tracking-tighter mb-2">Plan your own business</h1>
-        <p className="text-[#A6A6B4] text-sm mb-6">Price your work so it&apos;s sustainable, follow a 3-phase blueprint, then get the exact steps to launch legally in your country.</p>
+        <p className="text-[#A6A6B4] text-sm mb-6">Price your work, then get a full read: how well it fits <em>you</em>, the pros &amp; cons in your country, where it might do better, starting capital (lean → comfortable), a launch plan, who to contact, and one-click links to every official body.</p>
 
         {/* (a) Inputs */}
         <div className="rounded-2xl p-5 mb-6" style={cardStyle}>
@@ -250,51 +259,138 @@ export default function BusinessBlueprint() {
           </button>
           {err && <p className="text-[#F58E9A] text-xs mt-3">{err}</p>}
 
-          {bp && (
+          {bp && (() => {
+            const entityUrl = (e: Entity) =>
+              e.url && /^https?:\/\//i.test(e.url)
+                ? e.url
+                : `https://www.google.com/search?q=${encodeURIComponent(`${e.name || ''} ${bp.country || ''} official`)}`
+            const fitColor = (bp.fit?.score ?? 0) >= 7 ? '#6AA8F5' : (bp.fit?.score ?? 0) >= 4 ? '#F08CAE' : '#F58E9A'
+            return (
             <div className="mt-5 space-y-4">
-              {bp.steps && bp.steps.length > 0 && (
+              {/* Fit for you */}
+              {bp.fit && (
+                <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div className="flex items-center gap-3 mb-1">
+                    <span className="text-2xl font-black" style={{ color: fitColor }}>{bp.fit.score}/10</span>
+                    <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider">How well this fits you</p>
+                  </div>
+                  {bp.fit.verdict && <p className="text-[#C7C7D1] text-sm leading-relaxed mb-2">{bp.fit.verdict}</p>}
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {bp.fit.strengths && bp.fit.strengths.length > 0 && (
+                      <div><p className="text-[#6AA8F5] text-[10px] font-bold uppercase mb-1">✓ You already bring</p>
+                        <ul className="space-y-0.5">{bp.fit.strengths.map((s, i) => <li key={i} className="text-[#A6A6B4] text-xs">• {s}</li>)}</ul></div>
+                    )}
+                    {bp.fit.gaps && bp.fit.gaps.length > 0 && (
+                      <div><p className="text-[#F58E9A] text-[10px] font-bold uppercase mb-1">△ You&apos;d need</p>
+                        <ul className="space-y-0.5">{bp.fit.gaps.map((s, i) => <li key={i} className="text-[#A6A6B4] text-xs">• {s}</li>)}</ul></div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Pros / cons */}
+              {((bp.pros?.length ?? 0) > 0 || (bp.cons?.length ?? 0) > 0) && (
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {bp.pros && bp.pros.length > 0 && (
+                    <div className="rounded-xl p-4" style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.2)' }}>
+                      <p className="text-[#6AA8F5] text-[10px] font-bold uppercase tracking-wider mb-2">👍 Pros in {bp.country}</p>
+                      <ul className="space-y-1">{bp.pros.map((s, i) => <li key={i} className="text-[#C7C7D1] text-xs">• {s}</li>)}</ul>
+                    </div>
+                  )}
+                  {bp.cons && bp.cons.length > 0 && (
+                    <div className="rounded-xl p-4" style={{ background: 'rgba(245,142,154,0.08)', border: '1px solid rgba(245,142,154,0.2)' }}>
+                      <p className="text-[#F58E9A] text-[10px] font-bold uppercase tracking-wider mb-2">👎 Watch-outs in {bp.country}</p>
+                      <ul className="space-y-1">{bp.cons.map((s, i) => <li key={i} className="text-[#C7C7D1] text-xs">• {s}</li>)}</ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Capital tiers */}
+              {bp.capital && (
                 <div>
-                  <p className={`${labelCls} mb-2`}>✓ Steps to launch legally</p>
+                  <p className={`${labelCls} mb-2`}>💰 Starting capital (indicative)</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([['Lean', bp.capital.lean], ['Standard', bp.capital.standard], ['Comfortable', bp.capital.comfortable]] as const).map(([lbl, t]) => (
+                      <div key={lbl} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                        <p className={labelCls}>{lbl}</p>
+                        <p className="text-[#F4F4F7] text-sm font-black mt-0.5">{t?.range || '—'}</p>
+                        {t?.covers && <p className="text-[#7E7E8E] text-[11px] mt-1 leading-snug">{t.covers}</p>}
+                      </div>
+                    ))}
+                  </div>
+                  {bp.capital.note && <p className="text-[#7E7E8E] text-[11px] mt-2">💡 {bp.capital.note}</p>}
+                </div>
+              )}
+
+              {/* Structures + time */}
+              {((bp.structures?.length ?? 0) > 0 || bp.time_estimate) && (
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  {bp.structures?.map((s, i) => <span key={i} className="font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#C7C7D1' }}>🏛 {s}</span>)}
+                  {bp.time_estimate && <span className="font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>⏱️ {bp.time_estimate}</span>}
+                </div>
+              )}
+
+              {/* Launch plan */}
+              {bp.launch_plan && bp.launch_plan.length > 0 && (
+                <div>
+                  <p className={`${labelCls} mb-2`}>🚀 Your launch plan</p>
                   <div className="space-y-2">
-                    {bp.steps.map((s, i) => (
+                    {bp.launch_plan.map((ph, i) => (
                       <div key={i} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                        <p className="text-[#F4F4F7] font-bold text-sm">{i + 1}. {s.title}</p>
-                        {s.detail && <p className="text-[#A6A6B4] text-xs mt-1 leading-relaxed">{s.detail}</p>}
+                        <p className="text-[#F4F4F7] font-bold text-sm mb-1.5"><span className="text-[#6AA8F5]">{i + 1}.</span> {ph.phase}</p>
+                        <ul className="space-y-1">{(ph.steps || []).map((st, j) => <li key={j} className="text-[#A6A6B4] text-xs flex gap-2"><span className="text-[#6AA8F5]">•</span><span>{st}</span></li>)}</ul>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {bp.insurance && bp.insurance.length > 0 && (
+              {/* Entities — one-click official links */}
+              {bp.entities && bp.entities.length > 0 && (
                 <div>
-                  <p className={`${labelCls} mb-2`}>🛡️ Insurance & cover</p>
-                  <div className="flex flex-wrap gap-2">
-                    {bp.insurance.map((s, i) => (
-                      <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>{s}</span>
+                  <p className={`${labelCls} mb-2`}>🔗 Where to go (one click)</p>
+                  <div className="space-y-2">
+                    {bp.entities.map((e, i) => (
+                      <a key={i} href={entityUrl(e)} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 hover:opacity-90 transition-opacity" style={{ background: 'rgba(106,168,245,0.10)', border: '1px solid rgba(106,168,245,0.2)' }}>
+                        <div className="min-w-0">
+                          <p className="text-[#F4F4F7] text-sm font-bold">{e.name}</p>
+                          {e.what && <p className="text-[#A6A6B4] text-xs">{e.what}</p>}
+                        </div>
+                        <span className="text-[#6AA8F5] text-xs font-bold flex-shrink-0">Open ↗</span>
+                      </a>
                     ))}
                   </div>
                 </div>
               )}
 
-              {bp.first_clients && bp.first_clients.length > 0 && (
+              {/* Contacts */}
+              {bp.contacts && bp.contacts.length > 0 && (
                 <div>
-                  <p className={`${labelCls} mb-2`}>🤝 First clients</p>
-                  <ul className="space-y-1.5">
-                    {bp.first_clients.map((s, i) => (
-                      <li key={i} className="text-[#C7C7D1] text-xs leading-relaxed flex gap-2">
-                        <span style={{ color: '#F08CAE' }}>•</span><span>{s}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <p className={`${labelCls} mb-2`}>🤝 Contacts to make first</p>
+                  <ul className="space-y-1">{bp.contacts.map((s, i) => <li key={i} className="text-[#C7C7D1] text-xs flex gap-2"><span style={{ color: '#F08CAE' }}>•</span><span>{s}</span></li>)}</ul>
                 </div>
               )}
 
-              {bp.note && (
-                <p className="text-[#A6A6B4] text-xs leading-relaxed pt-2 border-t border-white/[0.08]">💡 {bp.note}</p>
+              {/* Better countries */}
+              {bp.better_countries && bp.better_countries.length > 0 && (
+                <div>
+                  <p className={`${labelCls} mb-2`}>🌍 Might do even better in</p>
+                  <div className="space-y-1.5">
+                    {bp.better_countries.map((c, i) => (
+                      <p key={i} className="text-xs"><span className="font-bold text-[#F4F4F7]">{c.country}</span><span className="text-[#A6A6B4]"> — {c.why}</span></p>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {bp.disclaimer && (
+                <p className="text-[#7E7E8E] text-[11px] leading-relaxed pt-2 border-t border-white/[0.08]">⚠️ {bp.disclaimer}</p>
               )}
             </div>
-          )}
+            )
+          })()}
         </div>
       </div>
     </div>
