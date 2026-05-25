@@ -40,9 +40,12 @@ export default async function RolesBoard() {
 
   // Fetch all active roles
   const admin = createAdminClient()
+  // select('*') so the board stays resilient if the accepts_pivot_candidates
+  // (pivot_jobs.sql) migration hasn't been applied yet — an explicit column list
+  // would 500 the whole candidate roles board on a missing column.
   const { data: roles } = await admin
     .from('roles')
-    .select('id, title, department, location, remote, salary_min, salary_max, salary_currency, salary_visible, description, status, created_at, company_id, engagement_type, accepts_pivot_candidates')
+    .select('*')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
 

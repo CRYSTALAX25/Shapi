@@ -178,7 +178,10 @@ export default function ContinuousLearning({
     if (score >= 4) return { color: '#6AA8F5', label: 'Medium risk', bg: 'rgba(106,168,245,0.10)' }
     return { color: '#F58E9A', label: 'High risk', bg: 'rgba(245,142,154,0.10)' }
   }
-  const r = resilienceColor(resilienceScore)
+  // Use the freshest score available: a just-generated roadmap's score (rm)
+  // overrides the (possibly stale/null) prop from the last page load, so the
+  // colour + risk label match the number shown after the first generation.
+  const r = resilienceColor(effectiveScore ?? null)
 
   const priorityChip = (p: string) => {
     const map: Record<string, { color: string; bg: string }> = {
@@ -326,7 +329,7 @@ export default function ContinuousLearning({
             {/* AI Resilience Score — Career */}
             {showCareer && (
             <div className="flex items-center gap-4 mb-6 p-4 rounded-2xl" style={{ background: r.bg, border: `1px solid ${r.color}33` }}>
-              <div className="text-4xl font-black" style={{ color: r.color }}>{resilienceScore ?? rm.ai_resilience_score}</div>
+              <div className="text-4xl font-black" style={{ color: r.color }}>{effectiveScore ?? rm.ai_resilience_score}</div>
               <div className="flex-1">
                 <p className="text-xs font-bold uppercase tracking-wider" style={{ color: r.color }}>AI resilience · {r.label}</p>
                 <p className="text-[#A6A6B4] text-xs leading-relaxed mt-1">{rm.resilience_reasoning}</p>
@@ -482,7 +485,7 @@ export default function ContinuousLearning({
                       <p className="text-[#A6A6B4] text-xs mb-3 leading-relaxed">{p.why}</p>
                       <div className="text-xs">
                         <p className="text-emerald-400 font-bold mb-1">✓ Transferable strengths</p>
-                        <p className="text-[#A6A6B4]">{p.transferable_skills.join(' · ')}</p>
+                        <p className="text-[#A6A6B4]">{(p.transferable_skills ?? []).join(' · ')}</p>
                         {p.gaps_to_close?.length > 0 && <p className="text-[#7E7E8E] text-[10px] mt-2">What to learn for this pivot → see the <span className="font-bold text-[#6AA8F5]">Learning</span> tab.</p>}
                       </div>
                       {p.first_actions?.length > 0 && (
