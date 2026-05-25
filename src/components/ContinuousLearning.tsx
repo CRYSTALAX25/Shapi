@@ -484,9 +484,9 @@ export default function ContinuousLearning({
                       <p className="text-[#F4F4F7] font-bold text-sm mb-1">{p.to_role} <span className="text-[#7E7E8E] text-xs font-normal">· {p.to_industry}</span></p>
                       <p className="text-[#A6A6B4] text-xs mb-3 leading-relaxed">{p.why}</p>
                       <div className="text-xs">
-                        <p className="text-emerald-400 font-bold mb-1">✓ Transferable strengths</p>
+                        <p className="text-[#6AA8F5] font-bold mb-1">✓ Transferable strengths</p>
                         <p className="text-[#A6A6B4]">{(p.transferable_skills ?? []).join(' · ')}</p>
-                        {p.gaps_to_close?.length > 0 && <p className="text-[#7E7E8E] text-[10px] mt-2">What to learn for this pivot → see the <span className="font-bold text-[#6AA8F5]">Learning</span> tab.</p>}
+                        {p.gaps_to_close?.length > 0 && <p className="text-[#7E7E8E] text-[10px] mt-2">What to learn for this pivot → <Link href="/profile?tab=Learning" className="font-bold text-[#6AA8F5] hover:underline">open the Learning tab</Link>.</p>}
                       </div>
                       {p.first_actions?.length > 0 && (
                         <div className="mt-3 pt-3 border-t border-white/[0.08]">

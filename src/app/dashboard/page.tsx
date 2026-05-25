@@ -284,6 +284,27 @@ export default async function Dashboard() {
               </div>
             </div>
 
+            {/* Your toolkit — quick access to every Shapi tool */}
+            <div className="mb-5">
+              <p className="text-[#7E7E8E] text-[11px] font-bold uppercase tracking-wider mb-2">Your toolkit</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {[
+                  { href: '/translate', icon: '🧭', label: 'Career Translator', desc: 'Map your next move + pay' },
+                  { href: '/upskill', icon: '📚', label: 'Course Wallet', desc: 'Saved courses + progress' },
+                  { href: '/worth', icon: '💸', label: "What you're worth", desc: 'Salary by role & country' },
+                  { href: '/ai-proof', icon: '🛡️', label: 'AI-Proof check', desc: 'Your automation risk' },
+                  { href: '/business', icon: '🏢', label: 'Start a business', desc: 'Pricing + first steps' },
+                  { href: '/profile?tab=Career', icon: '🗺️', label: 'Career roadmap', desc: 'Resilience + pivots' },
+                ].map(t => (
+                  <Link key={t.href} href={t.href} className="gradient-border-card rounded-2xl p-4 hover:bg-white/[0.03] transition-colors">
+                    <div className="text-xl mb-1.5">{t.icon}</div>
+                    <p className="text-[#F4F4F7] font-bold text-sm leading-tight">{t.label}</p>
+                    <p className="text-[#7E7E8E] text-[11px] mt-0.5">{t.desc}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
             {/* WhatsApp tips — surfaces hidden intent commands so candidates know what to say */}
             {profile?.whatsapp_number && (
               <details className="gradient-border-card rounded-2xl p-4 mb-5">
