@@ -133,10 +133,19 @@ export default function BusinessBlueprint() {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ field, country }),
       })
-      const d = await res.json()
-      if (!res.ok) { setErr(d.error || 'Could not build that blueprint'); return }
+      // Parse defensively — researching the live web can be slow; a timeout
+      // returns an HTML 504, not JSON.
+      const raw = await res.text()
+      let d: { blueprint?: Blueprint; error?: string } = {}
+      try { d = JSON.parse(raw) } catch {
+        setErr((res.status === 504 || /timeout|gateway/i.test(raw))
+          ? 'Researching live data took too long — tap again, it usually works on the second try.'
+          : `Server error (${res.status}) — try again in a moment.`)
+        return
+      }
+      if (!res.ok || !d.blueprint) { setErr(d.error || 'Could not build that blueprint'); return }
       setBp(d.blueprint)
-    } catch { setErr('Network error — try again') } finally { setLoading(false) }
+    } catch { setErr('Connection dropped — try again.') } finally { setLoading(false) }
   }
 
   const inputCls =

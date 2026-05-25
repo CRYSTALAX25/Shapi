@@ -93,7 +93,7 @@ Keep it practical and ${country}-specific. After searching, output the JSON as y
       const response = await anthropic.messages.create({
         model: 'claude-sonnet-4-6',
         max_tokens: 3000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 } as unknown as Anthropic.Tool],
+        tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 3 } as unknown as Anthropic.Tool],
         messages: [{ role: 'user', content: prompt }],
       })
       content = response.content as Array<{ type: string; text?: string }>

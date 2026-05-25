@@ -112,8 +112,58 @@ function UpskillContent() {
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 pt-8 pb-20">
         <div className="mb-6">
-          <h1 className="text-3xl font-black mb-2">Upskill</h1>
-          <p className="text-[#A6A6B4] text-sm">Close the gaps from your Career Roadmap. Pick free, paid, or financed options — then verify what you complete so it counts on your profile.</p>
+          <h1 className="text-3xl font-black mb-2">Course Wallet</h1>
+          <p className="text-[#A6A6B4] text-sm">Save courses you like, track your progress, and verify what you finish so it counts on your profile. Roadmap recommendations are below.</p>
+        </div>
+
+        {/* My courses — the wallet (saved + tracked), front and centre */}
+        <div id="my-courses" className="gradient-border-card rounded-2xl p-5 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">My courses</p>
+            <button onClick={() => setAddOpen(o => !o)} className="text-[#6AA8F5] text-xs font-bold border border-[#6AA8F5]/30 hover:border-[#6AA8F5]/60 px-3 py-1.5 rounded-full transition-colors">
+              {addOpen ? 'Close' : '+ Add a course'}
+            </button>
+          </div>
+
+          {addOpen && <AddCourseForm onAdd={trackCourse} onDone={() => setAddOpen(false)} />}
+
+          {/* Filter row */}
+          {courses.length > 0 && (
+            <div className="flex gap-2 mb-1">
+              {([
+                ['all', 'All'],
+                ['saved', '❤️ Saved'],
+                ['verified', '✓ Verified'],
+              ] as Array<[CourseFilter, string]>).map(([key, label]) => (
+                <button key={key} onClick={() => setFilter(key)}
+                  className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
+                  style={{
+                    background: filter === key ? 'rgba(106,168,245,0.12)' : 'rgba(255,255,255,0.05)',
+                    color: filter === key ? '#6AA8F5' : '#A6A6B4',
+                  }}>{label}</button>
+              ))}
+            </div>
+          )}
+
+          {courses.length === 0 ? (
+            <p className="text-[#7E7E8E] text-xs text-center py-4">Nothing tracked yet. Add a course you&apos;re taking or have done, or save one from the recommendations below.</p>
+          ) : (() => {
+            const shown = courses.filter(c =>
+              filter === 'saved' ? !!c.liked :
+              filter === 'verified' ? c.verification_status === 'verified' :
+              true
+            )
+            if (shown.length === 0) {
+              return <p className="text-[#7E7E8E] text-xs text-center py-4">No courses match this filter.</p>
+            }
+            return (
+              <div className="space-y-2 mt-3">
+                {shown.map(c => (
+                  <CourseRow key={c.id} course={c} onUpdate={trackCourse} onRemove={removeCourse} />
+                ))}
+              </div>
+            )
+          })()}
         </div>
 
         {/* Trust note */}
@@ -225,55 +275,6 @@ function UpskillContent() {
           </div>
         </div>
 
-        {/* My courses */}
-        <div className="gradient-border-card rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">My courses</p>
-            <button onClick={() => setAddOpen(o => !o)} className="text-[#6AA8F5] text-xs font-bold border border-[#6AA8F5]/30 hover:border-[#6AA8F5]/60 px-3 py-1.5 rounded-full transition-colors">
-              {addOpen ? 'Close' : '+ Add a course'}
-            </button>
-          </div>
-
-          {addOpen && <AddCourseForm onAdd={trackCourse} onDone={() => setAddOpen(false)} />}
-
-          {/* Filter row */}
-          {courses.length > 0 && (
-            <div className="flex gap-2 mb-1">
-              {([
-                ['all', 'All'],
-                ['saved', '❤️ Saved'],
-                ['verified', '✓ Verified'],
-              ] as Array<[CourseFilter, string]>).map(([key, label]) => (
-                <button key={key} onClick={() => setFilter(key)}
-                  className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
-                  style={{
-                    background: filter === key ? 'rgba(106,168,245,0.12)' : 'rgba(255,255,255,0.05)',
-                    color: filter === key ? '#6AA8F5' : '#A6A6B4',
-                  }}>{label}</button>
-              ))}
-            </div>
-          )}
-
-          {courses.length === 0 ? (
-            <p className="text-[#7E7E8E] text-xs text-center py-4">Nothing tracked yet. Start a course above, or add one you&apos;ve already done.</p>
-          ) : (() => {
-            const shown = courses.filter(c =>
-              filter === 'saved' ? !!c.liked :
-              filter === 'verified' ? c.verification_status === 'verified' :
-              true
-            )
-            if (shown.length === 0) {
-              return <p className="text-[#7E7E8E] text-xs text-center py-4">No courses match this filter.</p>
-            }
-            return (
-              <div className="space-y-2 mt-3">
-                {shown.map(c => (
-                  <CourseRow key={c.id} course={c} onUpdate={trackCourse} onRemove={removeCourse} />
-                ))}
-              </div>
-            )
-          })()}
-        </div>
       </div>
     </div>
   )

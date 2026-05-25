@@ -67,16 +67,20 @@ export default function AskShapi() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: payload }),
       })
-      const data = await res.json()
-      const reply =
-        data?.reply ||
-        data?.error ||
-        'Something went wrong. Please try again.'
+      // Parse defensively — a timeout returns an HTML 504, not JSON.
+      const raw = await res.text()
+      let data: { reply?: string; error?: string } = {}
+      try { data = JSON.parse(raw) } catch {
+        data = { error: (res.status === 504 || /timeout|gateway/i.test(raw))
+          ? 'That took a bit too long — try again, it usually works on the second go.'
+          : `Hmm, I hit a snag (${res.status}). Try again in a moment.` }
+      }
+      const reply = data.reply || data.error || 'Something went wrong. Please try again.'
       setMessages((m) => [...m, { role: 'assistant', content: reply }])
     } catch {
       setMessages((m) => [
         ...m,
-        { role: 'assistant', content: 'Network error — please try again.' },
+        { role: 'assistant', content: 'Connection dropped — please try again.' },
       ])
     } finally {
       setLoading(false)
