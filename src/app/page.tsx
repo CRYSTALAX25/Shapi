@@ -69,6 +69,7 @@ export default function Home() {
             <span className="font-black text-xl tracking-tighter grad-text">shapi</span>
           </div>
           <div className="flex items-center gap-5">
+            <Link href="/ai-proof" className="nav-link text-sm hidden md:block">AI risk check</Link>
             <Link href="/worth" className="nav-link text-sm hidden md:block">What you&apos;re worth</Link>
             <Link href="#why" className="nav-link text-sm hidden md:block">Why Shapi</Link>
             <Link href="#pricing" className="nav-link text-sm hidden sm:block">Pricing</Link>

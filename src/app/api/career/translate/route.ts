@@ -18,12 +18,13 @@ export async function GET() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('headline, career_translation')
+    .select('headline, location, career_translation')
     .eq('id', user.id)
     .single()
 
   return NextResponse.json({
     from_role: (profile?.headline as string) || '',
+    country: (profile?.location as string) || '',
     translation: profile?.career_translation ?? null,
   })
 }
@@ -46,6 +47,8 @@ export async function POST(request: Request) {
 
   const fromRole = (typeof body.from_role === 'string' && body.from_role.trim())
     || (profile.headline as string) || 'their current role'
+  const country = (typeof body.country === 'string' && body.country.trim())
+    || (profile.location as string) || ''
   const skills = Array.isArray(profile.skills) ? profile.skills : []
   const workHistory = Array.isArray(profile.work_history) ? profile.work_history : []
 
@@ -56,8 +59,8 @@ export async function POST(request: Request) {
 ═══ THE PERSON ═══
 Current role: ${fromRole}
 Target role they're considering: ${toRole}
+Country / market: ${country || 'n/a — ask them to set their country for accurate pay'}
 Summary: ${(profile.summary as string) || 'n/a'}
-Location: ${profile.location || 'n/a'}
 Current skills: ${skills.join(', ') || 'n/a'}
 Recent work history: ${workHistory.slice(0, 4).map((w: { title?: string; company?: string }) => `${w.title || '?'} @ ${w.company || '?'}`).join('; ') || 'n/a'}
 
@@ -68,8 +71,8 @@ Recent work history: ${workHistory.slice(0, 4).map((w: { title?: string; company
   • "shield" — the current role is a resilient trade (plumber, electrician, HVAC, nurse, etc.) and the move is about LEVELLING UP / earning more within it, not escaping. Treat these workers as the AI-proof backbone — do NOT patronise them.
   • "cross-collar" — moving white↔blue. Favour industry-ADJACENT moves that reuse their knowledge (e.g. logistics manager → supply-chain coordinator for a construction firm; master welder → QC manager), never generic restarts.
 - AI risk (0-10): current role displacement risk; target role resilience.
-- Salary: be realistic. Career changes often dip Year-1 then climb. Express as % change vs their CURRENT pay (negative = a drop). If the move likely raises pay immediately, year1 can be positive.
-- Roadmap: 2-4 concrete upskilling steps with REAL course platforms (Coursera, edX, Udacity, LinkedIn Learning, Google, AWS Skill Builder, local trade college) and honest hour estimates. Don't invent course names.
+- Salary: be realistic and **specific to their country (${country || 'their country'})** — use THAT market's pay norms and **local currency**. Give typical pay ranges for the current role, the target role in Year 1, and the target role in Year 3, as short strings in local currency (e.g. "AED 8,000–12,000/mo", "£28k–34k/yr"). Also express the change as % vs their current pay (negative = a drop). Career changes often dip Year-1 then climb.
+- Roadmap: 2-4 concrete upskilling steps. For each, set "platform" to EXACTLY ONE of: Coursera, Udemy, edX, LinkedIn Learning, Udacity, DeepLearning.AI, Pluralsight, YouTube (so the link opens that platform's own site, not a search engine). Give honest hour estimates. Don't invent specific course names — use a clear, real, searchable course/topic title.
 - Business: could they eventually run their own business in the TARGET field? One honest line.
 
 Return ONLY valid JSON, tight (every "why"/note ≤ 18 words):
@@ -79,8 +82,13 @@ Return ONLY valid JSON, tight (every "why"/note ≤ 18 words):
   "to_role": "${toRole}",
   "to_collar": "white|blue|mixed",
   "track": "pivot|shield|cross-collar",
+  "country": "${country}",
+  "currency": "local currency code/symbol, e.g. AED, £, $",
   "current_ai_risk": 0,
   "target_ai_resilience": 0,
+  "from_pay_range": "current role typical pay in local currency",
+  "to_pay_year1_range": "target role Year-1 pay in local currency",
+  "to_pay_year3_range": "target role Year-3 pay in local currency",
   "salary_year1_change_pct": 0,
   "salary_year3_change_pct": 0,
   "salary_note": "1 sentence",

@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { courseSearchUrl } from '@/lib/upskill'
 
 type Course = { name?: string; platform?: string }
 type Step = { step: string; why?: string; course?: Course; hours?: number; priority?: string }
 type Translation = {
   from_role?: string; from_collar?: string; to_role?: string; to_collar?: string
   track?: 'pivot' | 'shield' | 'cross-collar'
+  country?: string; currency?: string
+  from_pay_range?: string; to_pay_year1_range?: string; to_pay_year3_range?: string
   current_ai_risk?: number; target_ai_resilience?: number
   salary_year1_change_pct?: number; salary_year3_change_pct?: number; salary_note?: string
   transferable_skills?: string[]; roadmap?: Step[]; total_hours?: number
@@ -29,6 +32,7 @@ const TRACK: Record<string, { label: string; color: string; blurb: string }> = {
 export default function CareerTranslator() {
   const [fromRole, setFromRole] = useState('')
   const [toRole, setToRole] = useState('')
+  const [country, setCountry] = useState('')
   const [pace, setPace] = useState<'sprint' | 'steady' | 'bite'>('steady')
   const [t, setT] = useState<Translation | null>(null)
   const [loading, setLoading] = useState(false)
@@ -40,6 +44,7 @@ export default function CareerTranslator() {
       .then(r => r.json())
       .then(d => {
         setFromRole(d.from_role || '')
+        setCountry(d.country || '')
         if (d.translation) { setT(d.translation); if (d.translation.to_role) setToRole(d.translation.to_role) }
       })
       .catch(() => {})
@@ -52,7 +57,7 @@ export default function CareerTranslator() {
     try {
       const res = await fetch('/api/career/translate', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from_role: fromRole, to_role: toRole }),
+        body: JSON.stringify({ from_role: fromRole, to_role: toRole, country }),
       })
       const d = await res.json()
       if (!res.ok) { setErr(d.error || 'Could not map that move'); return }
@@ -93,6 +98,11 @@ export default function CareerTranslator() {
                 className="w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/50" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
             </div>
           </div>
+          <div className="mt-3">
+            <label className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider">Country (for accurate local pay)</label>
+            <input value={country} onChange={e => setCountry(e.target.value)} onKeyDown={e => e.key === 'Enter' && run()} placeholder="e.g. UAE, Saudi Arabia, UK"
+              className="w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/50" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
+          </div>
           <button onClick={run} disabled={loading || !toRole.trim()} className="mt-4 w-full sm:w-auto px-6 py-3 rounded-full font-black text-sm text-white disabled:opacity-40" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
             {loading ? 'Mapping your move…' : '🧭 Map my move'}
           </button>
@@ -113,7 +123,17 @@ export default function CareerTranslator() {
 
             {/* Financial reality */}
             <div className="rounded-2xl p-5" style={{ background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-4">📊 Financial reality (vs your pay today)</p>
+              <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-4">📊 Financial reality{t.country ? ` · ${t.country}` : ''} (vs your pay today)</p>
+              {(t.from_pay_range || t.to_pay_year1_range || t.to_pay_year3_range) && (
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  {[['Now', t.from_pay_range], ['Year 1', t.to_pay_year1_range], ['Year 3', t.to_pay_year3_range]].map(([lbl, val]) => (
+                    <div key={lbl as string} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                      <p className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider">{lbl}</p>
+                      <p className="text-[#F4F4F7] text-sm font-black mt-0.5">{(val as string) || '—'}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
                   <p className="text-3xl font-black" style={{ color: y1 < 0 ? '#F58E9A' : '#6AA8F5' }}>{pct(y1)}</p>
@@ -171,7 +191,7 @@ export default function CareerTranslator() {
                       </div>
                       {s.why && <p className="text-[#A6A6B4] text-xs mt-1">{s.why}</p>}
                       {s.course?.name && (
-                        <a href={`https://www.google.com/search?q=${encodeURIComponent(`${s.course.name} ${s.course.platform || ''} course`)}`} target="_blank" rel="noopener noreferrer"
+                        <a href={courseSearchUrl(s.course.platform, s.course.name)} target="_blank" rel="noopener noreferrer"
                           className="inline-block mt-2 text-[#6AA8F5] text-xs font-bold hover:underline">⭐ {s.course.name}{s.course.platform ? ` · ${s.course.platform}` : ''} ↗</a>
                       )}
                     </div>
@@ -195,7 +215,7 @@ export default function CareerTranslator() {
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-3">
               <Link href="/roles" className="flex-1 text-center px-6 py-3 rounded-full font-black text-sm text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>Find matching roles →</Link>
-              <Link href="/upskill" className="flex-1 text-center px-6 py-3 rounded-full font-bold text-sm text-[#F4F4F7]" style={{ border: '1px solid rgba(255,255,255,0.14)' }}>Browse all courses →</Link>
+              <Link href={t.roadmap?.[0]?.step ? `/upskill?skill=${encodeURIComponent(t.roadmap[0].step)}` : '/upskill'} className="flex-1 text-center px-6 py-3 rounded-full font-bold text-sm text-[#F4F4F7]" style={{ border: '1px solid rgba(255,255,255,0.14)' }}>More courses for this move →</Link>
             </div>
           </div>
         )}
