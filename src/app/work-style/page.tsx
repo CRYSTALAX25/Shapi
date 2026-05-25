@@ -50,7 +50,7 @@ export default function WorkStylePage() {
       </nav>
 
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-8 pb-20">
-        <h1 className="text-3xl font-black mb-2">Work-style check</h1>
+        <h1 className="text-3xl font-black mb-2" style={{ color: '#FB7185' }}>Work-style check</h1>
         <p className="text-[#A6A6B4] text-sm mb-1">Optional · ~2 minutes. How you <em>prefer</em> to work — added to your profile as a self-assessment (◆ Shapi-assessed).</p>
         <p className="text-[#7E7E8E] text-xs mb-6">There are no right answers. Be honest — it helps companies see fit, not just skills.</p>
 

@@ -281,7 +281,7 @@ export default function References() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-[#F4F4F7] mb-2">Get Vouched.</h1>
+          <h1 className="text-3xl font-black mb-2" style={{ color: '#FB7185' }}>Get Vouched.</h1>
           <p className="text-[#7E7E8E] text-sm leading-relaxed max-w-xl">
             Give us your manager&apos;s details for two jobs. We email them independently — they fill in a short form and nominate a colleague and stakeholder from their team.
             Those people get reached out to directly. <strong className="text-[#C7C7D1]">You don&apos;t find out who was nominated or what was said.</strong> That&apos;s what makes it credible.

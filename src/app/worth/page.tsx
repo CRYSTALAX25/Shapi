@@ -103,7 +103,7 @@ export default function WorthPage() {
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-8 pb-20">
         <div className="text-center mb-8">
           <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#F08CAE' }}>Free · 30 seconds</p>
-          <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-3">What you&apos;re worth.</h1>
+          <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-3" style={{ color: '#FB7185' }}>What you&apos;re worth.</h1>
           <p className="text-[#C7C7D1] text-lg max-w-xl mx-auto">A fair salary band for your role — and, if you&apos;re pivoting, a realistic band for the new field too.</p>
         </div>
 

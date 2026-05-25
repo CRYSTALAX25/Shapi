@@ -73,7 +73,7 @@ export default async function ProfilePage() {
             </div>
           )}
           <div className="min-w-0">
-            <h1 className="text-xl font-black leading-tight" style={{ color: '#FB7185' }}>{profile.full_name || 'Your Name'}</h1>
+            <h1 className="text-xl font-black text-[#F4F4F7] leading-tight">{profile.full_name || 'Your Name'}</h1>
             <p className="text-[#A6A6B4] text-sm">{profile.headline || 'Professional'}</p>
           </div>
         </div>

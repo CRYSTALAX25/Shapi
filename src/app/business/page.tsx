@@ -210,7 +210,7 @@ export default function BusinessBlueprint() {
       </nav>
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 pt-8 pb-20">
-        <h1 className="text-3xl md:text-4xl font-black tracking-tighter mb-2">Plan your own business</h1>
+        <h1 className="text-3xl md:text-4xl font-black tracking-tighter mb-2" style={{ color: '#FB7185' }}>Plan your own business</h1>
         <p className="text-[#A6A6B4] text-sm mb-6">Price your work, then get a full read: how well it fits <em>you</em>, the pros &amp; cons in your country, where it might do better, starting capital (lean → comfortable), a launch plan, who to contact, and one-click links to every official body.</p>
 
         {/* (a) Inputs */}

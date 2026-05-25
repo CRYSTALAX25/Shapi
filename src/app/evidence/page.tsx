@@ -118,7 +118,7 @@ export default function Evidence() {
 
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-10 pb-20">
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-[#F4F4F7] mb-2">Add work evidence.</h1>
+          <h1 className="text-3xl font-black mb-2" style={{ color: '#FB7185' }}>Add work evidence.</h1>
           <p className="text-[#A6A6B4] text-sm leading-relaxed">
             The more proof you add, the stronger your verified profile. This is what separates you from everyone else with a similar CV.
           </p>

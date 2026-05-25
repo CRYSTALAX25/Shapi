@@ -80,7 +80,7 @@ export default function CareerTranslator() {
       </nav>
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 pt-8 pb-20">
-        <h1 className="text-3xl md:text-4xl font-black tracking-tighter mb-2">Career Translator</h1>
+        <h1 className="text-3xl md:text-4xl font-black tracking-tighter mb-2" style={{ color: '#FB7185' }}>Career Translator</h1>
         <p className="text-[#A6A6B4] text-sm mb-6">Tell me where you are and where you want to go. I&apos;ll show the money reality, the track, and the fastest path — no jargon.</p>
 
         {/* From → To */}

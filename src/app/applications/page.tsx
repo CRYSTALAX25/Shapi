@@ -63,7 +63,7 @@ export default async function MyApplications() {
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 pt-8 pb-20">
         <div className="mb-6">
-          <h1 className="text-3xl font-black text-[#F4F4F7] mb-1">My applications</h1>
+          <h1 className="text-3xl font-black mb-1" style={{ color: '#FB7185' }}>My applications</h1>
           <p className="text-[#A6A6B4] text-sm">Track where you stand — and score each opportunity so you know which to choose.</p>
         </div>
 

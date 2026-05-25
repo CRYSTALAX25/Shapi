@@ -49,7 +49,7 @@ export default function AIProof() {
             <span className="w-1.5 h-1.5 rounded-full bg-[#6AA8F5] animate-pulse" />
             <span className="text-[#A6A6B4] text-xs font-medium">Free · 30 seconds · no signup</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-3">Is your job AI-proof?</h1>
+          <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-3" style={{ color: '#FB7185' }}>Is your job AI-proof?</h1>
           <p className="text-[#A6A6B4] text-base max-w-lg mx-auto">Get an honest read on where AI is heading for your role — and the smartest moves to stay ahead.</p>
         </div>
 

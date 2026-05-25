@@ -253,6 +253,7 @@ export default async function Dashboard() {
                   { href: '/course-wallet', label: 'Course Wallet', icon: '📚' },
                   { href: '/worth', label: "What you're worth", icon: '💸' },
                   { href: '/ai-proof', label: 'AI-Proof check', icon: '🛡️' },
+                  { href: '/business', label: 'Plan a business', icon: '🚀' },
                   { href: '/profile?tab=Career', label: 'Career roadmap', icon: '🗺️' },
                   { href: '/roles', label: 'Roles', icon: '💼' },
                   { href: '/applications', label: 'My applications', icon: '📋' },
@@ -264,7 +265,7 @@ export default async function Dashboard() {
                     href={item.href}
                     className={`flex items-center gap-2.5 flex-shrink-0 rounded-xl px-3 py-2 text-sm font-bold transition-colors whitespace-nowrap ${
                       item.active
-                        ? 'text-[#6AA8F5]'
+                        ? 'text-[#FB7185]'
                         : 'text-[#C7C7D1] hover:text-[#FB7185]'
                     }`}
                     style={item.active
@@ -282,7 +283,7 @@ export default async function Dashboard() {
             <main className="min-w-0">
             {/* Header */}
             <div className="mb-5">
-              <h1 className="text-3xl font-black text-[#F4F4F7] mb-1 transition-colors hover:text-[#FB7185] cursor-default inline-block">
+              <h1 className="text-3xl font-black text-[#F4F4F7] mb-1">
                 Welcome{completion > 0 ? ' back' : ''}{firstName ? `, ${firstName}` : ''}.
               </h1>
               {profile?.headline && (
@@ -983,7 +984,7 @@ export default async function Dashboard() {
         {type === 'company' && (
           <>
             <div className="mb-8">
-              <h1 className="text-3xl font-black text-[#F4F4F7] mb-1 transition-colors hover:text-[#FB7185] cursor-default inline-block">
+              <h1 className="text-3xl font-black text-[#F4F4F7] mb-1">
                 Welcome{completion > 0 ? ' back' : ''}{firstName ? `, ${firstName}` : ''}.
               </h1>
               <p className="text-[#7E7E8E] text-sm">Post jobs, review verified candidates, manage your pipeline.</p>

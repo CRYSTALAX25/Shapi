@@ -127,7 +127,7 @@ export default async function RolesBoard() {
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 pt-8 pb-20">
         <div className="mb-6">
-          <h1 className="text-3xl font-black text-[#F4F4F7] mb-2">Open roles</h1>
+          <h1 className="text-3xl font-black mb-2" style={{ color: '#FB7185' }}>Open roles</h1>
         </div>
 
         <RolesList
