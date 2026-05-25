@@ -19,15 +19,15 @@ const enc = (s: string) => encodeURIComponent(s.trim())
 
 export const PROVIDERS: Provider[] = [
   // ── Free ──
-  { name: 'Coursera (audit free)', tier: 'free', searchUrl: q => `https://www.coursera.org/search?query=${enc(q)}`, note: 'Most courses are free to audit; pay only for the certificate.' },
-  { name: 'edX (audit free)', tier: 'free', searchUrl: q => `https://www.edx.org/search?q=${enc(q)}`, note: 'Audit track is free; verified certificate is paid.' },
+  { name: 'Coursera — free to learn', tier: 'free', searchUrl: q => `https://www.coursera.org/search?query=${enc(q)}`, note: 'Watch all the lessons free; only pay if you want the certificate at the end.' },
+  { name: 'edX — free to learn', tier: 'free', searchUrl: q => `https://www.edx.org/search?q=${enc(q)}`, note: 'Take the whole course free; the verified certificate is the only paid part.' },
   { name: 'YouTube', tier: 'free', searchUrl: q => `https://www.youtube.com/results?search_query=${enc(q + ' full course')}`, note: 'Full-length courses from creators — no certificate.' },
   { name: 'freeCodeCamp', tier: 'free', searchUrl: q => `https://www.freecodecamp.org/news/search/?query=${enc(q)}`, note: 'Free, project-based, with free certifications.' },
   { name: 'Google Digital Garage', tier: 'free', searchUrl: () => `https://grow.google/certificates/`, note: 'Free Google career certificates + financial aid.' },
 
   // ── Paid ──
   { name: 'Udemy', tier: 'paid', searchUrl: q => `https://www.udemy.com/courses/search/?q=${enc(q)}`, note: 'Frequent sales; lifetime access; certificate of completion.' },
-  { name: 'Coursera (certificate)', tier: 'paid', searchUrl: q => `https://www.coursera.org/search?query=${enc(q)}`, note: 'University + industry certificates, verifiable credential.' },
+  { name: 'Coursera — certificate', tier: 'paid', searchUrl: q => `https://www.coursera.org/search?query=${enc(q)}`, note: 'University + industry certificates, verifiable credential.' },
   { name: 'DeepLearning.AI', tier: 'paid', searchUrl: q => `https://www.deeplearning.ai/courses/?search=${enc(q)}`, note: 'Best-in-class for AI/ML upskilling.' },
   { name: 'LinkedIn Learning', tier: 'paid', searchUrl: q => `https://www.linkedin.com/learning/search?keywords=${enc(q)}`, note: 'Certificate posts straight to your LinkedIn profile.' },
   { name: 'Pluralsight', tier: 'paid', searchUrl: q => `https://www.pluralsight.com/search?q=${enc(q)}`, note: 'Deep tech/ops skill paths with assessments.' },

@@ -370,7 +370,7 @@ export default function Home() {
           {[
             { href: '/translate', tag: 'Map your move', color: '#6AA8F5', title: '🧭 Career Translator', desc: 'Any role → any role: the salary dip + 3-year forecast, the exact courses with timelines, and whether to find a job or start your own business — by country.' },
             { href: '/ai-proof', tag: 'Know your risk', color: '#F08CAE', title: '🛡️ AI-Proof check', desc: 'An honest read on how exposed your role is to automation — and your 3 smartest next moves. Free, 30 seconds, no signup.' },
-            { href: '/upskill', tag: 'Free · paid · funded', color: '#F58E9A', title: '📚 Upskilling, sorted', desc: 'Courses matched to your goal with real time estimates and free, paid or financed options — straight to the provider, verified on your profile when you finish.' },
+            { href: '/course-wallet', tag: 'Free · paid · funded', color: '#F58E9A', title: '📚 Upskilling, sorted', desc: 'Courses matched to your goal with real time estimates and free, paid or financed options — straight to the provider, verified on your profile when you finish.' },
             { href: '/worth', tag: 'Salary truth', color: '#6AA8F5', title: '💸 What you’re worth', desc: 'Real pay benchmarks by role and country, so you negotiate from facts — not guesses.' },
           ].map((item, i) => (
             <Link key={i} href={item.href} className="card rounded-2xl p-7 block">

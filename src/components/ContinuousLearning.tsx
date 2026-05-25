@@ -14,7 +14,7 @@ import { courseSearchUrl } from '@/lib/upskill'
 function stepLink(action: string): { href: string; label: string } | null {
   const a = action.toLowerCase()
   if (/\b(course|courses|certificate|certification|cert|coursera|udemy|edx|deeplearning|learn|upskill|training|bootcamp)\b/.test(a)) {
-    return { href: '/upskill', label: 'find courses →' }
+    return { href: '/course-wallet', label: 'find courses →' }
   }
   if (/\b(role|roles|job|jobs|apply|applying|application|position|positions|target|targeting|vacanc)\b/.test(a)) {
     return { href: '/roles', label: 'see roles →' }
@@ -205,7 +205,7 @@ export default function ContinuousLearning({
         <div className="mb-5">
           <div className="flex items-center justify-between mb-2">
             <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">Courses & Learning</p>
-            <Link href="/upskill" className="text-[#6AA8F5] text-xs font-bold hover:underline">Manage →</Link>
+            <Link href="/course-wallet" className="text-[#6AA8F5] text-xs font-bold hover:underline">Manage →</Link>
           </div>
           <div className="space-y-1.5">
             {trackedCourses.map(c => {
@@ -386,7 +386,7 @@ export default function ContinuousLearning({
                     <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#6AA8F5)' }} />
                     <h3 className="text-[#F4F4F7] text-base font-black">🎯 Sharpen your current field</h3>
                   </div>
-                  <Link href="/upskill" className="text-[#6AA8F5] text-xs font-bold hover:underline flex-shrink-0">Browse courses →</Link>
+                  <Link href="/course-wallet" className="text-[#6AA8F5] text-xs font-bold hover:underline flex-shrink-0">Browse courses →</Link>
                 </div>
                 <p className="text-[#7E7E8E] text-xs mb-3">Skills that strengthen the experience you already have.</p>
                 <div className="space-y-2">
@@ -420,7 +420,7 @@ export default function ContinuousLearning({
                             </>
                           )
                         })()}
-                        <Link href={`/upskill?skill=${encodeURIComponent(g.skill)}#financing`} className="text-[#6AA8F5] text-xs font-bold hover:underline">
+                        <Link href={`/course-wallet?skill=${encodeURIComponent(g.skill)}#financing`} className="text-[#6AA8F5] text-xs font-bold hover:underline">
                           More courses · free / paid / financing →
                         </Link>
                       </div>
@@ -438,7 +438,7 @@ export default function ContinuousLearning({
                     <span className="w-1 h-5 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#4F8FE8)' }} />
                     <h3 className="text-[#F4F4F7] text-base font-black">↗️ Learn for your pivot</h3>
                   </div>
-                  <Link href="/upskill" className="text-[#6AA8F5] text-xs font-bold hover:underline flex-shrink-0">Browse courses →</Link>
+                  <Link href="/course-wallet" className="text-[#6AA8F5] text-xs font-bold hover:underline flex-shrink-0">Browse courses →</Link>
                 </div>
                 <p className="text-[#7E7E8E] text-xs mb-3 ml-3">What to learn to move into a new field.</p>
                 <div className="space-y-2">
@@ -459,7 +459,7 @@ export default function ContinuousLearning({
                             </a>
                           ))}
                         </div>
-                        <Link href={`/upskill?skill=${encodeURIComponent(p.gaps_to_close[0])}#financing`} className="text-[#6AA8F5] text-xs font-bold hover:underline">
+                        <Link href={`/course-wallet?skill=${encodeURIComponent(p.gaps_to_close[0])}#financing`} className="text-[#6AA8F5] text-xs font-bold hover:underline">
                           More courses · free / paid / financing →
                         </Link>
                       </div>

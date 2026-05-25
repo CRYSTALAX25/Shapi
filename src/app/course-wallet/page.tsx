@@ -3,9 +3,18 @@
 import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { providersByTier, courseSearchUrl, FINANCING_OPTIONS } from '@/lib/upskill'
+import { courseSearchUrl, FINANCING_OPTIONS } from '@/lib/upskill'
 
-type SkillGap = { skill: string; priority?: string; why?: string; suggested_courses?: Array<{ name: string; platform?: string }> }
+type SuggestedCourse = { name: string; platform?: string; popular?: boolean; cost?: 'free' | 'free_audit' | 'paid'; rating?: number | null; price_band?: string }
+type SkillGap = { skill: string; priority?: string; why?: string; suggested_courses?: SuggestedCourse[] }
+
+// Plain-language cost line for a recommended course (no jargon like "audit").
+function recCost(cost?: string): { label: string; tier: 'free' | 'paid' } {
+  if (cost === 'paid') return { label: 'Paid', tier: 'paid' }
+  if (cost === 'free_audit') return { label: 'Free to learn · paid certificate', tier: 'free' }
+  if (cost === 'free') return { label: 'Free', tier: 'free' }
+  return { label: '', tier: 'free' }
+}
 type Course = {
   id: string
   skill: string | null
@@ -112,7 +121,7 @@ function UpskillContent() {
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 pt-8 pb-20">
         <div className="mb-6">
-          <h1 className="text-3xl font-black mb-2">Course Wallet</h1>
+          <h1 className="text-3xl font-black mb-2" style={{ color: '#FB7185' }}>Course Wallet</h1>
           <p className="text-[#A6A6B4] text-sm">Save courses you like, track your progress, and verify what you finish so it counts on your profile. Roadmap recommendations are below.</p>
         </div>
 
@@ -187,7 +196,16 @@ function UpskillContent() {
         ) : (
           <div className="space-y-4 mb-8">
             {displayGaps.map((gap, i) => {
-              const opts = providersByTier(gap.skill)
+              const recs = gap.suggested_courses || []
+              const byRank = (a: SuggestedCourse, b: SuggestedCourse) =>
+                (b.popular ? 1 : 0) - (a.popular ? 1 : 0) || ((b.rating || 0) - (a.rating || 0))
+              const freeRecs = recs.filter(c => c.cost !== 'paid').sort(byRank).slice(0, 2)
+              const paidRecs = recs.filter(c => c.cost === 'paid').sort(byRank).slice(0, 2)
+              const isSaved = (name: string) => courses.some(x => (x.course_name || '').toLowerCase() === name.toLowerCase())
+              const saveRec = (c: SuggestedCourse) => trackCourse({
+                course_name: c.name, platform: c.platform || null, course_url: courseSearchUrl(c.platform, c.name),
+                skill: gap.skill, status: 'interested', tier: recCost(c.cost).tier, liked: true,
+              })
               const highlighted = focusSkill && gap.skill.toLowerCase() === focusSkill.toLowerCase()
               return (
                 <div key={i} className="gradient-border-card rounded-2xl p-5" style={highlighted ? { borderColor: 'rgba(106,168,245,0.4)' } : undefined}>
@@ -202,67 +220,46 @@ function UpskillContent() {
                   </div>
                   {gap.why && <p className="text-[#A6A6B4] text-xs mb-3">{gap.why}</p>}
 
-                  {/* Shapi's specific recommendation — lands on the exact course via name search */}
-                  {gap.suggested_courses && gap.suggested_courses.length > 0 && (
+                  {/* Shapi's picks — 2 best free + 2 best paid, by rating & price */}
+                  {(freeRecs.length > 0 || paidRecs.length > 0) && (
                     <div className="rounded-xl p-3 mb-4" style={{ background: 'rgba(240,140,174,0.08)', border: '1px solid rgba(240,140,174,0.2)' }}>
-                      <p className="text-[#F08CAE] text-[10px] font-bold uppercase tracking-wider mb-2">⭐ Shapi recommends</p>
-                      <div className="space-y-1.5">
-                        {gap.suggested_courses.map((c, k) => {
-                          const url = courseSearchUrl(c.platform, c.name)
-                          const saved = courses.some(x => (x.course_name || '').toLowerCase() === c.name.toLowerCase())
-                          return (
-                            <div key={k} className="flex items-center gap-2 bg-white/[0.05] rounded-lg px-3 py-2">
-                              <a href={url} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-0 flex items-center justify-between gap-2 hover:opacity-90">
-                                <span className="text-[#F4F4F7] text-xs font-bold">{c.name}{c.platform ? <span className="text-[#A6A6B4] font-normal"> · {c.platform}</span> : null}</span>
-                                <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">Open ↗</span>
-                              </a>
-                              <button
-                                onClick={() => { if (!saved) trackCourse({ course_name: c.name, platform: c.platform || null, course_url: url, skill: gap.skill, status: 'interested', tier: 'free', liked: true }) }}
-                                title={saved ? 'Saved to My courses' : 'Save to My courses'}
-                                className="flex-shrink-0 text-sm leading-none transition-transform hover:scale-110">{saved ? '❤️' : '🤍'}</button>
-                            </div>
-                          )
-                        })}
+                      <p className="text-[#F08CAE] text-[10px] font-bold uppercase tracking-wider mb-2">⭐ Shapi recommends — best by rating &amp; price</p>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {/* Free group */}
+                        <div>
+                          <p className="text-[#6AA8F5] text-[10px] font-bold uppercase tracking-wider mb-2">Free</p>
+                          <div className="space-y-1.5">
+                            {freeRecs.length > 0
+                              ? freeRecs.map((c, k) => <RecRow key={k} c={c} saved={isSaved(c.name)} onSave={() => saveRec(c)} />)
+                              : <p className="text-[#7E7E8E] text-[10px]">No standout free pick — search below.</p>}
+                          </div>
+                        </div>
+                        {/* Paid group */}
+                        <div>
+                          <p className="text-[#F08CAE] text-[10px] font-bold uppercase tracking-wider mb-2">Paid</p>
+                          <div className="space-y-1.5">
+                            {paidRecs.length > 0
+                              ? paidRecs.map((c, k) => <RecRow key={k} c={c} saved={isSaved(c.name)} onSave={() => saveRec(c)} />)
+                              : <p className="text-[#7E7E8E] text-[10px]">No standout paid pick — search below.</p>}
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-[#7E7E8E] text-[10px] mt-2">Tap 🤍 to save a course to <strong className="text-[#A6A6B4]">My courses</strong> ↑ — different level or budget? Browse alternatives below.</p>
+                      <p className="text-[#7E7E8E] text-[10px] mt-2">★ and prices are approximate — confirm on the platform. <strong className="text-[#A6A6B4]">⭐ Most-taken</strong> = the course most people choose. Tap 🤍 to save it to <strong className="text-[#A6A6B4]">My courses</strong> ↑.</p>
                     </div>
                   )}
 
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {/* Free */}
-                    <div>
-                      <p className="text-[#6AA8F5] text-[10px] font-bold uppercase tracking-wider mb-2">Free</p>
-                      <div className="space-y-1.5">
-                        {opts.free.map((o, j) => (
-                          <a key={j} href={o.url} target="_blank" rel="noopener noreferrer"
-                            className="block bg-white/[0.05] hover:bg-white/[0.07] rounded-lg px-3 py-2 transition-colors">
-                            <span className="text-[#F4F4F7] text-xs font-bold">{o.name} ↗</span>
-                            {o.note && <span className="block text-[#7E7E8E] text-[10px] mt-0.5">{o.note}</span>}
-                          </a>
-                        ))}
-                      </div>
+                  {/* Search for more + add-your-own */}
+                  <div className="rounded-xl p-3 bg-white/[0.03]">
+                    <p className="text-[#A6A6B4] text-[10px] mb-2">Want something else? Search more courses for <strong className="text-[#C7C7D1]">{gap.skill}</strong>:</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {['Coursera', 'Udemy', 'edX', 'YouTube', 'LinkedIn'].map(p => (
+                        <a key={p} href={courseSearchUrl(p, gap.skill)} target="_blank" rel="noopener noreferrer"
+                          className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/[0.05] text-[#6AA8F5] hover:bg-white/[0.08] transition-colors">{p} ↗</a>
+                      ))}
                     </div>
-                    {/* Paid */}
-                    <div>
-                      <p className="text-[#F08CAE] text-[10px] font-bold uppercase tracking-wider mb-2">Paid (verifiable certificate)</p>
-                      <div className="space-y-1.5">
-                        {opts.paid.map((o, j) => (
-                          <a key={j} href={o.url} target="_blank" rel="noopener noreferrer"
-                            className="block bg-white/[0.05] hover:bg-white/[0.07] rounded-lg px-3 py-2 transition-colors">
-                            <span className="text-[#F4F4F7] text-xs font-bold">{o.name} ↗</span>
-                            {o.note && <span className="block text-[#7E7E8E] text-[10px] mt-0.5">{o.note}</span>}
-                          </a>
-                        ))}
-                      </div>
-                    </div>
+                    <p className="text-[#7E7E8E] text-[10px] mt-2">Found one you like? Add it with its link using <strong className="text-[#A6A6B4]">+ Add a course</strong> at the top.</p>
                   </div>
 
-                  <div className="flex gap-2 mt-4">
-                    <button onClick={() => trackCourse({ skill: gap.skill, course_name: `${gap.skill} course`, tier: 'free', status: 'in_progress' })}
-                      className="text-xs font-bold px-3 py-1.5 rounded-full bg-white/[0.05] text-[#C7C7D1] hover:bg-white/[0.08] transition-colors">
-                      I&apos;m learning this
-                    </button>
-                  </div>
                 </div>
               )
             })}
@@ -344,6 +341,40 @@ function AddCourseForm({ onAdd, onDone }: { onAdd: (p: Record<string, unknown>) 
           className="px-4 py-2.5 rounded-lg font-bold text-sm border border-[#6AA8F5]/30 text-[#6AA8F5] hover:border-[#6AA8F5]/60 disabled:opacity-40 transition-colors">
           ❤️ Save
         </button>
+      </div>
+    </div>
+  )
+}
+
+// A single recommended-course row: heart-save · name/platform · Open · rating/cost tags.
+function RecRow({ c, saved, onSave }: { c: SuggestedCourse; saved: boolean; onSave: () => void }) {
+  const url = courseSearchUrl(c.platform, c.name)
+  const cost = recCost(c.cost)
+  const showBand = c.price_band && c.price_band.trim().toLowerCase() !== 'free'
+  return (
+    <div className="bg-white/[0.05] rounded-lg px-3 py-2">
+      <div className="flex items-center gap-2">
+        <button onClick={() => { if (!saved) onSave() }}
+          title={saved ? 'Saved to My courses' : 'Save to My courses'}
+          className="flex-shrink-0 text-sm leading-none transition-transform hover:scale-110">{saved ? '❤️' : '🤍'}</button>
+        <a href={url} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-0 flex items-center justify-between gap-2 hover:opacity-90">
+          <span className="text-[#F4F4F7] text-xs font-bold truncate">{c.name}{c.platform ? <span className="text-[#A6A6B4] font-normal"> · {c.platform}</span> : null}</span>
+          <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">Open ↗</span>
+        </a>
+      </div>
+      <div className="flex items-center gap-1.5 mt-1 flex-wrap pl-7">
+        {typeof c.rating === 'number' && c.rating > 0 && (
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: '#C7C7D1' }}>{c.rating.toFixed(1)}★</span>
+        )}
+        {c.popular && (
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.15)', color: '#FBBF24' }}>⭐ Most-taken</span>
+        )}
+        {cost.label && (
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: cost.tier === 'paid' ? 'rgba(240,140,174,0.12)' : 'rgba(106,168,245,0.12)', color: cost.tier === 'paid' ? '#F08CAE' : '#6AA8F5' }}>{cost.label}</span>
+        )}
+        {showBand && (
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: '#A6A6B4' }}>{c.price_band}</span>
+        )}
       </div>
     </div>
   )

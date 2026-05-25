@@ -26,7 +26,7 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // Protected routes — redirect to login if not authenticated
-  const protectedPaths = ['/onboarding', '/dashboard', '/profile', '/evidence', '/cv-builder', '/pay', '/upload-cv', '/upskill', '/work-style', '/applications', '/company', '/candidates']
+  const protectedPaths = ['/onboarding', '/dashboard', '/profile', '/evidence', '/cv-builder', '/pay', '/upload-cv', '/course-wallet', '/work-style', '/applications', '/company', '/candidates']
   const isProtected = protectedPaths.some(path =>
     request.nextUrl.pathname.startsWith(path)
   )

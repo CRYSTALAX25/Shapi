@@ -147,8 +147,14 @@ What they've already done (continuous learning):
 2. SKILLS GAPS — exactly 3 skills they should learn in the next 6-12 months to either:
    (a) make their current career MORE AI-augmented (use AI as a multiplier), OR
    (b) prepare for a pivot if their role is high-risk.
-   Each gap: { skill, priority (high|medium|low), why (1 sentence), suggested_courses ([{name, platform}] — 1 course each) }
-   Courses must be REAL platforms (Coursera, edX, Udacity, Pluralsight, AWS Skill Builder, Google Digital Garage, LinkedIn Learning, Stanford Online, DeepLearning.AI). Don't invent course names — be conservative if unsure.
+   Each gap: { skill, priority (high|medium|low), why (1 sentence), suggested_courses ([{name, platform, popular, cost, rating, price_band}] — exactly 4 SPECIFIC, well-known courses people actually take for this skill: the 2 best FREE ones AND the 2 best PAID ones) }
+   - Pick by real-world POPULARITY + RATING: the courses with the most enrolments / best reviews that people actually take. Give the 2 strongest FREE (or free-to-audit) courses and the 2 strongest PAID courses.
+   - name: the REAL course title (e.g. "Google Data Analytics Professional Certificate", "Machine Learning Specialization", "The Complete 2024 Web Development Bootcamp"). Don't invent — be conservative if unsure, but DO name the famous flagship course where you know it.
+   - platform: the REAL platform (Coursera, edX, Udacity, Pluralsight, AWS Skill Builder, Google Digital Garage, Udemy, LinkedIn Learning, Stanford Online, DeepLearning.AI).
+   - popular: true for the SINGLE most-taken / most-reviewed course across all 4 (the one most people choose); false for the others. Exactly one popular:true per gap.
+   - cost: "free" (genuinely free), "free_audit" (free to take, paid only for the certificate — true for most Coursera/edX courses), or "paid".
+   - rating: approximate average rating out of 5 (e.g. 4.7) from your knowledge; if you genuinely don't know, use null.
+   - price_band: short approximate price for the PAID part (e.g. "~$15", "~$49/mo", "~$59"); for free/free_audit use "Free". These are approximate — the UI tells the user to confirm on the platform.
 
 3. PIVOT PATHS — exactly 2 career pivots they could realistically make. Each path:
    - to_role: target role title
@@ -178,7 +184,7 @@ Return ONLY valid JSON in this exact shape:
     { "title": "...", "why": "...", "uplift": "e.g. +20% pay" }
   ],
   "skills_gaps": [
-    { "skill": "...", "priority": "high|medium|low", "why": "...", "suggested_courses": [{"name": "...", "platform": "..."}] }
+    { "skill": "...", "priority": "high|medium|low", "why": "...", "suggested_courses": [{"name": "...", "platform": "...", "popular": true, "cost": "free|free_audit|paid", "rating": 4.7, "price_band": "Free | ~$15 | ~$49/mo"}] }
   ],
   "pivot_paths": [
     { "to_role": "...", "to_industry": "...", "why": "...", "transferable_skills": ["..."], "gaps_to_close": ["..."], "first_actions": ["..."] }

@@ -217,7 +217,7 @@ export default function CareerTranslator() {
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-3">
               <Link href="/roles" className="flex-1 text-center px-6 py-3 rounded-full font-black text-sm text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>Find matching roles →</Link>
-              <Link href={t.roadmap?.[0]?.step ? `/upskill?skill=${encodeURIComponent(t.roadmap[0].step)}` : '/upskill'} className="flex-1 text-center px-6 py-3 rounded-full font-bold text-sm text-[#F4F4F7]" style={{ border: '1px solid rgba(255,255,255,0.14)' }}>More courses for this move →</Link>
+              <Link href={t.roadmap?.[0]?.step ? `/course-wallet?skill=${encodeURIComponent(t.roadmap[0].step)}` : '/course-wallet'} className="flex-1 text-center px-6 py-3 rounded-full font-bold text-sm text-[#F4F4F7]" style={{ border: '1px solid rgba(255,255,255,0.14)' }}>More courses for this move →</Link>
             </div>
           </div>
         )}

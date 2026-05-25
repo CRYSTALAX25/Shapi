@@ -243,7 +243,7 @@ export default async function Dashboard() {
                 {[
                   { href: '#', label: 'Overview', icon: '🏠', active: true },
                   { href: '/translate', label: 'Career Translator', icon: '🧭' },
-                  { href: '/upskill', label: 'Course Wallet', icon: '📚' },
+                  { href: '/course-wallet', label: 'Course Wallet', icon: '📚' },
                   { href: '/worth', label: "What you're worth", icon: '💸' },
                   { href: '/ai-proof', label: 'AI-Proof check', icon: '🛡️' },
                   { href: '/profile?tab=Career', label: 'Career roadmap', icon: '🗺️' },
@@ -258,7 +258,7 @@ export default async function Dashboard() {
                     className={`flex items-center gap-2.5 flex-shrink-0 rounded-xl px-3 py-2 text-sm font-bold transition-colors whitespace-nowrap ${
                       item.active
                         ? 'text-[#6AA8F5]'
-                        : 'text-[#C7C7D1] hover:text-[#6AA8F5]'
+                        : 'text-[#C7C7D1] hover:text-[#FB7185]'
                     }`}
                     style={item.active
                       ? { background: 'rgba(106,168,245,0.12)', border: '1px solid rgba(106,168,245,0.28)' }
@@ -275,7 +275,7 @@ export default async function Dashboard() {
             <main className="min-w-0">
             {/* Header */}
             <div className="mb-5">
-              <h1 className="text-3xl font-black text-[#F4F4F7] mb-1">
+              <h1 className="text-3xl font-black text-[#F4F4F7] mb-1 transition-colors hover:text-[#FB7185] cursor-default inline-block">
                 Welcome{completion > 0 ? ' back' : ''}{firstName ? `, ${firstName}` : ''}.
               </h1>
               {profile?.headline && (
@@ -557,7 +557,7 @@ export default async function Dashboard() {
               </Link>
 
               {/* Courses — in-progress + completed, mini bar */}
-              <Link href="/upskill" className="gradient-border-card rounded-2xl p-5 block hover:bg-white/[0.05] transition-colors">
+              <Link href="/course-wallet" className="gradient-border-card rounded-2xl p-5 block hover:bg-white/[0.05] transition-colors">
                 <div className="flex items-center justify-between mb-1.5">
                   <h3 className="font-bold text-[#F4F4F7] text-sm">Courses</h3>
                   <span className="text-[#6AA8F5] text-sm font-black">{coursesCompleted} done · {coursesInProgress} learning</span>
@@ -805,7 +805,7 @@ export default async function Dashboard() {
               })()}
 
               {/* Courses / learning */}
-              <Link href="/upskill" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05] transition-colors">
+              <Link href="/course-wallet" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05] transition-colors">
                 <div className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${(coursesInProgress + coursesCompleted) > 0 ? 'bg-emerald-500/15' : 'bg-[#6AA8F5]/15'}`}>
                     <span className="text-lg">🎓</span>
@@ -976,7 +976,7 @@ export default async function Dashboard() {
         {type === 'company' && (
           <>
             <div className="mb-8">
-              <h1 className="text-3xl font-black text-[#F4F4F7] mb-1">
+              <h1 className="text-3xl font-black text-[#F4F4F7] mb-1 transition-colors hover:text-[#FB7185] cursor-default inline-block">
                 Welcome{completion > 0 ? ' back' : ''}{firstName ? `, ${firstName}` : ''}.
               </h1>
               <p className="text-[#7E7E8E] text-sm">Post jobs, review verified candidates, manage your pipeline.</p>
