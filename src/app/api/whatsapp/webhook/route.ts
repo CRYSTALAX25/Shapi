@@ -312,7 +312,7 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
   // back to most-recently-created.
   const { data: profileCandidates } = await admin
     .from('profiles')
-    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, languages_spoken, cv_tier, industry_chats, whatsapp_conversation_active, created_at, voice_samples, awaiting_voice_sample_lang, type, company_name, jd_chat')
+    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, languages_spoken, cv_tier, industry_chats, whatsapp_conversation_active, created_at, voice_samples, awaiting_voice_sample_lang, type, company_name, jd_chat, jd_active_role_id')
     .eq('whatsapp_number', phone)
     .order('created_at', { ascending: false })
 
@@ -627,6 +627,8 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
       : []
     const userTurns = jdChat.filter(m => m.role === 'user').length
     jdChat.push({ role: 'user', content: userMessage })
+
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
     try {
       const completion = await anthropic.messages.create({
