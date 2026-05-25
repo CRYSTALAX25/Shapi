@@ -67,3 +67,13 @@ Decision (Ana, 2026-05-25): **build these, not defer** — sequenced around the 
 ## Go-to-market (not code — for the launch plan)
 - **Hyper-local first** for marketplace liquidity: one metro with both corporate + construction density; Month 1 onboard 15–20 trade employers (free 6-mo posts, accept pivot candidates); Month 2 open candidate supply; Month 3 case studies → adjacent cities. (NB current plan is UAE-first / friends & family 2 June.)
 - **Viral hooks:** "Desk burnout vs trade security" split-screen reels; "skill translation myth-buster" posts; Employer-paid Upskilling Bounty ("study 5h/wk for a month → guaranteed interview with [Employer]").
+
+## ⏸️ Deferred — discuss AFTER launch (pushback, 2026-05-25)
+Ana agreed (2026-05-25) to ship GOLD+GOOD and park these; revisit post-launch. Reasons in brackets.
+- **Cert fraud-forensics** — OCR of certs, PDF metadata/hash fingerprinting, "edited in Canva/Photoshop" detection, public-registry scraping. [Rabbit hole; our "paste a public credential URL → verified + manual spot-check" model is enough until there's volume + a real fraud problem.]
+- **Native LMS / hosted courses** (incl. the 3-module "Cross-Collar Transition Guide"). [We're the curator+verifier — don't become a course platform. A light Shapi-voiced article is fine, not an LMS.]
+- **Employer-pays-course-via-Shapi-API billing** + locked course links. [Complex external billing integration; a "Sponsored by X" label + manual arrangement covers launch.]
+- **Global government-grant parsing engine / voucher codes.** [Worldwide grant data = maintenance nightmare; hardcode a couple of UAE/KSA programmes, let Ask-Shapi answer the rest.]
+- **Adaptability Score (learning-speed metric).** [Needs months of usage data we won't have at launch — showing it now = fabricated; hurts the trust moat. Revisit once there's real engagement data.]
+- **Constellation gamification / Star Fragments / 3D Pixar mascot render.** [Lovely, not launch-critical; SVG mascot is plenty.]
+- **Copy guardrail:** avoid absolute claims ("0% AI risk / 100% AI-proof") — say "high resilience / low automation risk." [Overclaiming undercuts the verification brand.]

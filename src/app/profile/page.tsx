@@ -465,12 +465,23 @@ export default async function ProfilePage() {
   )
 
   const careerPanel = (
-    <ContinuousLearning view="career"
-      data={(profile.continuous_learning as Parameters<typeof ContinuousLearning>[0]['data']) ?? null}
-      roadmap={(profile.career_recommendations as Parameters<typeof ContinuousLearning>[0]['roadmap']) ?? null}
-      isPro={profile.cv_tier === 'pro'}
-      resilienceScore={(profile.ai_resilience_score as number | null) ?? null}
-    />
+    <div className="space-y-4">
+      <a href="/translate" className="block gradient-border-card rounded-2xl p-5 hover:bg-white/[0.03] transition-colors">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[#F4F4F7] font-black text-base">🧭 Career Translator</p>
+            <p className="text-[#A6A6B4] text-xs mt-0.5">Map any role → role: the salary reality, the track, and the fastest path.</p>
+          </div>
+          <span className="text-[#6AA8F5] text-sm font-bold flex-shrink-0">Open →</span>
+        </div>
+      </a>
+      <ContinuousLearning view="career"
+        data={(profile.continuous_learning as Parameters<typeof ContinuousLearning>[0]['data']) ?? null}
+        roadmap={(profile.career_recommendations as Parameters<typeof ContinuousLearning>[0]['roadmap']) ?? null}
+        isPro={profile.cv_tier === 'pro'}
+        resilienceScore={(profile.ai_resilience_score as number | null) ?? null}
+      />
+    </div>
   )
 
   const eventsPanel = (
