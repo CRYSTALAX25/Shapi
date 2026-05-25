@@ -82,10 +82,10 @@ export default async function ProfilePage() {
 
         {/* Completion + live */}
         <div className="flex items-center gap-3 mb-3">
-          <div className="text-3xl font-black" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{completion}%</div>
+          <div className="text-3xl font-black" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{completion}%</div>
           <div className="flex-1">
             <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.07)' }}>
-              <div className="h-full rounded-full" style={{ width: `${completion}%`, background: 'linear-gradient(90deg,#6AA8F5,#4F8FE8)' }} />
+              <div className="h-full rounded-full" style={{ width: `${completion}%`, background: 'linear-gradient(90deg,#6AA8F5,#F08CAE,#F58E9A)' }} />
             </div>
             <p className="text-[#7E7E8E] text-[10px] mt-1">profile strength</p>
           </div>
