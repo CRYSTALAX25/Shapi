@@ -22,7 +22,12 @@ function HeroMock({ src, label }: { src: string; label: string }) {
       <div className="relative px-6 py-12 text-center" style={{ background: '#0E0E13' }}>
         <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
         <div className="relative">
-          <img src={src} alt={label} className="mx-auto mb-6 object-contain" style={{ height: 200, filter: 'drop-shadow(0 12px 30px rgba(106,168,245,0.25))' }} />
+          <img src={src} alt={label} className="mx-auto mb-6 object-contain" style={{
+            height: 230,
+            WebkitMaskImage: 'radial-gradient(ellipse 62% 72% at 50% 44%, #000 50%, transparent 70%)',
+            maskImage: 'radial-gradient(ellipse 62% 72% at 50% 44%, #000 50%, transparent 70%)',
+            filter: 'drop-shadow(0 12px 30px rgba(106,168,245,0.25))',
+          }} />
           <h1 className="text-4xl md:text-5xl font-black leading-[0.95] tracking-tighter mb-4">
             <span className="block text-[#F4F4F7]">Hiring that actually</span>
             <span className="block" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>works for humans.</span>
