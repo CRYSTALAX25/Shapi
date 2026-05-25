@@ -256,6 +256,10 @@ export default function Home() {
                 ['Company trust score for candidates', true, false, false, false],
                 ['Right-to-work intelligence by country', true, false, false, false],
                 ['Blue + white collar — voice-note first', true, false, false, false],
+                ['AI-displacement risk check for your role', true, false, false, false],
+                ['Career Translator — pivot map + salary forecast', true, false, false, false],
+                ['Upskilling with time + financing, matched to jobs', true, false, false, false],
+                ['Cross-collar pivots (blue ↔ white collar)', true, false, false, false],
                 ['You own your verification report', true, false, false, false],
                 ['No placement / per-hire fees', true, true, true, false],
               ].map((row, i) => (
@@ -348,6 +352,33 @@ export default function Home() {
               <h3 className="font-bold mb-2">{item.title}</h3>
               <p className="text-[#A6A6B4] text-sm leading-relaxed">{item.desc}</p>
             </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Career navigation — more than verification */}
+      <section className="relative z-10 max-w-6xl mx-auto px-6 pb-24">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(244,114,182,0.12)', color: '#F08CAE' }}>
+            Built for the AI era
+          </div>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter">Not just a profile — a career, navigated.</h2>
+          <p className="text-[#A6A6B4] text-lg mt-4 max-w-2xl mx-auto">AI is reshaping work. Shapi shows you where it&apos;s going and the fastest way to stay ahead — all in one place.</p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          {[
+            { href: '/translate', tag: 'Map your move', color: '#6AA8F5', title: '🧭 Career Translator', desc: 'Any role → any role: the salary dip + 3-year forecast, the exact courses with timelines, and whether to find a job or start your own business — by country.' },
+            { href: '/ai-proof', tag: 'Know your risk', color: '#F08CAE', title: '🛡️ AI-Proof check', desc: 'An honest read on how exposed your role is to automation — and your 3 smartest next moves. Free, 30 seconds, no signup.' },
+            { href: '/upskill', tag: 'Free · paid · funded', color: '#F58E9A', title: '📚 Upskilling, sorted', desc: 'Courses matched to your goal with real time estimates and free, paid or financed options — straight to the provider, verified on your profile when you finish.' },
+            { href: '/worth', tag: 'Salary truth', color: '#6AA8F5', title: '💸 What you’re worth', desc: 'Real pay benchmarks by role and country, so you negotiate from facts — not guesses.' },
+          ].map((item, i) => (
+            <Link key={i} href={item.href} className="card rounded-2xl p-7 block">
+              <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: `${item.color}1a`, color: item.color }}>{item.tag}</span>
+              <h3 className="font-black text-lg mt-3 mb-2">{item.title}</h3>
+              <p className="text-[#A6A6B4] text-sm leading-relaxed">{item.desc}</p>
+              <span className="inline-block mt-3 text-sm font-bold" style={{ color: item.color }}>Try it →</span>
+            </Link>
           ))}
         </div>
       </section>
