@@ -7,6 +7,10 @@ type Tier = { range?: string; covers?: string }
 type Entity = { name?: string; what?: string; url?: string | null }
 type Blueprint = {
   field?: string; country?: string; currency?: string
+  verdict?: { recommendation?: string; why?: string }
+  demand?: { level?: string; summary?: string }
+  breakeven?: string
+  automation?: { tasks?: string[]; note?: string }
   fit?: { score?: number; verdict?: string; strengths?: string[]; gaps?: string[] }
   ownership?: { can_sole_own?: string; summary?: string; visa_or_permit?: string; partner_or_sponsor?: string; route?: string }
   pros?: string[]; cons?: string[]
@@ -320,6 +324,41 @@ export default function BusinessBlueprint() {
             const fitColor = (bp.fit?.score ?? 0) >= 7 ? '#6AA8F5' : (bp.fit?.score ?? 0) >= 4 ? '#F08CAE' : '#F58E9A'
             return (
             <div className="mt-5 space-y-4">
+              {/* Verdict — the go/no-go headline */}
+              {bp.verdict && (() => {
+                const rec = (bp.verdict.recommendation || '').toLowerCase()
+                const go = rec.includes('go') && !rec.includes('not')
+                const vc = go ? '#6AA8F5' : rec.includes('caution') ? '#FBBF24' : '#F58E9A'
+                const vlabel = go ? '✅ GO' : rec.includes('caution') ? '⚠️ PROCEED WITH CAUTION' : '⛔ NOT NOW'
+                return (
+                  <div className="rounded-xl p-4" style={{ background: `${vc}14`, border: `1px solid ${vc}40` }}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-black px-2.5 py-1 rounded-full" style={{ background: `${vc}26`, color: vc }}>{vlabel}</span>
+                      <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider">Shapi&apos;s verdict</p>
+                    </div>
+                    {bp.verdict.why && <p className="text-[#C7C7D1] text-sm leading-relaxed">{bp.verdict.why}</p>}
+                  </div>
+                )
+              })()}
+
+              {/* Demand + break-even */}
+              {(bp.demand || bp.breakeven) && (
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {bp.demand && (
+                    <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-1">📈 Market demand{bp.demand.level ? ` · ${bp.demand.level}` : ''}</p>
+                      {bp.demand.summary && <p className="text-[#C7C7D1] text-xs leading-relaxed">{bp.demand.summary}</p>}
+                    </div>
+                  )}
+                  {bp.breakeven && (
+                    <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-1">⚖️ Break-even</p>
+                      <p className="text-[#C7C7D1] text-xs leading-relaxed">{bp.breakeven}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Fit for you */}
               {bp.fit && (
                 <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -362,6 +401,15 @@ export default function BusinessBlueprint() {
                   </div>
                 )
               })()}
+
+              {/* What you can automate (AI era) */}
+              {bp.automation && (bp.automation.tasks?.length ?? 0) > 0 && (
+                <div className="rounded-xl p-4" style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.2)' }}>
+                  <p className="text-[#6AA8F5] text-[10px] font-bold uppercase tracking-wider mb-2">🤖 What you can automate (cut labour cost)</p>
+                  <ul className="space-y-1 mb-2">{bp.automation.tasks!.map((t, i) => <li key={i} className="text-[#C7C7D1] text-xs flex gap-2"><span className="text-[#6AA8F5]">•</span><span>{t}</span></li>)}</ul>
+                  {bp.automation.note && <p className="text-[#7E7E8E] text-[11px]">{bp.automation.note}</p>}
+                </div>
+              )}
 
               {/* Pros / cons */}
               {((bp.pros?.length ?? 0) > 0 || (bp.cons?.length ?? 0) > 0) && (

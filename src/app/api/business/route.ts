@@ -63,12 +63,18 @@ Rules:
 - For each entity, give the official organisation name and its real official URL from your search (root or the specific registration page). If you genuinely couldn't find a URL, set "url" to null.
 - OWNERSHIP & VISA (critical): based on THEIR residency status above, determine whether they can own this "${field}" business as a SOLE / 100% owner in ${country}, or whether they need a local partner/sponsor, a specific visa/residency/permit, or must use a free zone (100% foreign ownership) vs mainland (which may require a local partner or service agent). Use web search for ${country}'s current foreign-ownership rules. Be specific to their exact status (citizen vs PR vs work-visa vs non-resident) — e.g. a PR may have different rights than a citizen or a tourist.
 - "fit.score" 0-10 = how well THEIR background suits running this business; be honest.
+- DECISION SUPPORT (this must be enough to decide go/no-go): give an honest market-DEMAND + competition read, a rough BREAK-EVEN (how many jobs/clients per month, or what monthly revenue, to cover costs), and a clear VERDICT (go / caution / not-now) with why.
+- AUTOMATION (Shapi's whole point): since they're costing labour, name which tasks in a "${field}" business can be AUTOMATED or sped up with AI/software/tools to cut labour cost or let them scale without hiring.
 
 Return ONLY valid JSON (tight; each string ≤ 24 words):
 {
   "field": "${field}",
   "country": "${country}",
   "currency": "local currency code/symbol",
+  "verdict": { "recommendation": "go|caution|not-now", "why": "1-2 honest sentences — should THEY open this, here, now" },
+  "demand": { "level": "high|medium|low", "summary": "market demand + competition in ${country}, 1-2 sentences" },
+  "breakeven": "rough jobs/clients per month (or monthly revenue) to break even",
+  "automation": { "tasks": ["2-4 tasks AI/software/tools can do or speed up for a ${field} business"], "note": "1 sentence — how it cuts labour cost or lets you scale" },
   "fit": { "score": 0, "verdict": "1-2 honest sentences on their fit", "strengths": ["from their background"], "gaps": ["what they'd need to add"] },
   "ownership": {
     "can_sole_own": "yes|no|conditional",
@@ -122,7 +128,7 @@ Keep it practical and ${country}-specific. After searching, output the JSON as y
       } catch (searchErr) {
         console.warn('[business] web search failed, falling back:', searchErr instanceof Error ? searchErr.message : searchErr)
         const response = await anthropic.messages.create({
-          model: 'claude-sonnet-4-6', max_tokens: 2400,
+          model: 'claude-sonnet-4-6', max_tokens: 2800,
           messages: [{ role: 'user', content: prompt + '\n\n(No web search — give your best indicative figures and say so in the disclaimer.)' }],
         })
         content = response.content as Array<{ type: string; text?: string }>
@@ -130,7 +136,7 @@ Keep it practical and ${country}-specific. After searching, output the JSON as y
     } else {
       // Fast path — no web search, indicative figures.
       const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-6', max_tokens: 2400,
+        model: 'claude-sonnet-4-6', max_tokens: 2800,
         messages: [{ role: 'user', content: prompt + '\n\n(Give your best indicative figures from knowledge — do NOT use web search. Keep the disclaimer honest that figures are indicative; the user can tap "live figures" to research current ones.)' }],
       })
       content = response.content as Array<{ type: string; text?: string }>
