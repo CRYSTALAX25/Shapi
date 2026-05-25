@@ -13,6 +13,7 @@ function SignUpForm() {
 
   const [email, setEmail] = useState(inviteEmail || '')
   const [password, setPassword] = useState('')
+  const [showPw, setShowPw] = useState(false)
   // If arriving via company invite, type is locked to 'company'
   const [type, setType] = useState<'candidate' | 'company' | null>(companyInvite ? 'company' : null)
   const [agreedToTerms, setAgreedToTerms] = useState(false)
@@ -177,15 +178,25 @@ function SignUpForm() {
             className="gradient-border-card w-full px-5 py-4 rounded-2xl text-[#F4F4F7] placeholder-[#7E7E8E] focus:outline-none text-sm bg-transparent"
           />
 
-          <input
-            type="password"
-            placeholder="Password (min 8 characters)"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-            minLength={8}
-            className="gradient-border-card w-full px-5 py-4 rounded-2xl text-[#F4F4F7] placeholder-[#7E7E8E] focus:outline-none text-sm bg-transparent"
-          />
+          <div className="relative">
+            <input
+              type={showPw ? 'text' : 'password'}
+              placeholder="Password (min 8 characters)"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+              minLength={8}
+              className="gradient-border-card w-full px-5 py-4 pr-12 rounded-2xl text-[#F4F4F7] placeholder-[#7E7E8E] focus:outline-none text-sm bg-transparent"
+            />
+            <button type="button" onClick={() => setShowPw(s => !s)} aria-label={showPw ? 'Hide password' : 'Show password'}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#7E7E8E] hover:text-[#C7C7D1] transition-colors">
+              {showPw ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 3l18 18M10.58 10.58a2 2 0 002.83 2.83M9.88 4.24A9.1 9.1 0 0112 4c5 0 9 4.5 9 8a9.7 9.7 0 01-1.67 3.16M6.6 6.6C4.4 7.9 3 10 3 12c0 0 4 8 9 8a9 9 0 003.4-.66" /></svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" strokeWidth={1.8} /></svg>
+              )}
+            </button>
+          </div>
 
           {/* How did you hear about us */}
           <select
