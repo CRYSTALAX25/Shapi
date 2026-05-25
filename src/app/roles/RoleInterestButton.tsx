@@ -49,9 +49,9 @@ export default function RoleInterestButton({
       style={
         interested
           ? {
-              background: 'linear-gradient(135deg, rgba(34,211,238,0.15), rgba(139,92,246,0.15))',
-              border: '1px solid rgba(34,211,238,0.4)',
-              color: '#22D3EE',
+              background: 'linear-gradient(135deg, rgba(106,168,245,0.15), rgba(240,140,174,0.15))',
+              border: '1px solid rgba(106,168,245,0.4)',
+              color: '#6AA8F5',
             }
           : {
               background: 'rgba(255,255,255,0.04)',
@@ -64,7 +64,7 @@ export default function RoleInterestButton({
         <span
           className="absolute inset-0 rounded-xl pointer-events-none"
           style={{
-            background: 'linear-gradient(135deg, rgba(34,211,238,0.25), rgba(139,92,246,0.25))',
+            background: 'linear-gradient(135deg, rgba(106,168,245,0.25), rgba(240,140,174,0.25))',
             animation: 'pulse 0.6s ease-out',
           }}
         />

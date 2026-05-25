@@ -76,73 +76,73 @@ Write questions that (a) pressure-test the verified strengths with real examples
     } catch { questions = [] }
   }
 
-  const card = { background: '#fff', border: '1px solid rgba(14,14,26,0.08)', boxShadow: '0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05)' } as const
+  const card = { background: '#16161F', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)' } as const
 
   return (
-    <div className="min-h-screen bg-[#F1F2F7]">
-      <nav className="px-6 py-4 border-b border-[#0E0E1A]/[0.08] max-w-3xl mx-auto flex items-center justify-between">
-        <Link href="/company/pipeline" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#7C3AED,#06B6D4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
-        <Link href="/company/pipeline" className="text-[#5A5A6E] text-sm hover:text-[#0E0E1A]">← Pipeline</Link>
+    <div className="min-h-screen bg-[#0E0E13]">
+      <nav className="px-6 py-4 border-b border-[rgba(255,255,255,0.08)] max-w-3xl mx-auto flex items-center justify-between">
+        <Link href="/company/pipeline" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#F08CAE,#6AA8F5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/company/pipeline" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7]">← Pipeline</Link>
       </nav>
 
       <div className="max-w-3xl mx-auto px-6 pt-8 pb-20">
-        <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: '#7C3AED' }}>Interview prep · for the hiring manager</p>
-        <h1 className="text-3xl font-black tracking-tighter text-[#0E0E1A]">{c.full_name as string}</h1>
-        <p className="text-[#5A5A6E] mb-1">{c.headline as string} · for <span className="font-bold text-[#0E0E1A]">{role.title}</span></p>
+        <p className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: '#F08CAE' }}>Interview prep · for the hiring manager</p>
+        <h1 className="text-3xl font-black tracking-tighter text-[#F4F4F7]">{c.full_name as string}</h1>
+        <p className="text-[#A6A6B4] mb-1">{c.headline as string} · for <span className="font-bold text-[#F4F4F7]">{role.title}</span></p>
         <div className="flex items-center gap-2 mb-6">
           {tier && <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: `${tier.color}1f`, color: tier.color }}>✓ {tier.label}</span>}
-          {refCount > 0 && <span className="text-xs text-[#8A8A99]">{refCount} reference{refCount !== 1 ? 's' : ''} on file</span>}
-          {salaryBand && <span className="text-xs font-bold" style={{ color: '#0891B2' }}>· Expects {salaryBand}</span>}
+          {refCount > 0 && <span className="text-xs text-[#7E7E8E]">{refCount} reference{refCount !== 1 ? 's' : ''} on file</span>}
+          {salaryBand && <span className="text-xs font-bold" style={{ color: '#6AA8F5' }}>· Expects {salaryBand}</span>}
         </div>
 
         {report.summary_en && (
-          <div className="rounded-2xl p-5 mb-4" style={{ ...card, borderLeft: '3px solid #7C3AED' }}>
-            <p className="text-[#3F3F4E] text-sm leading-relaxed">{report.summary_en}</p>
-            {report.tone_summary && <p className="text-[#8A8A99] text-xs mt-2">Reference tone: {report.tone_summary}</p>}
+          <div className="rounded-2xl p-5 mb-4" style={{ ...card, borderLeft: '3px solid #F08CAE' }}>
+            <p className="text-[#C7C7D1] text-sm leading-relaxed">{report.summary_en}</p>
+            {report.tone_summary && <p className="text-[#7E7E8E] text-xs mt-2">Reference tone: {report.tone_summary}</p>}
           </div>
         )}
 
         <div className="grid sm:grid-cols-2 gap-4 mb-4">
           {(report.claims_verified?.length ?? 0) > 0 && (
             <div className="rounded-2xl p-5" style={card}>
-              <p className="text-[#059669] text-[11px] font-bold uppercase tracking-wider mb-2">✓ Verified strengths</p>
-              <ul className="space-y-1">{report.claims_verified!.slice(0, 5).map((s, i) => <li key={i} className="text-[#3F3F4E] text-xs leading-relaxed">· {s}</li>)}</ul>
+              <p className="text-[#6AA8F5] text-[11px] font-bold uppercase tracking-wider mb-2">✓ Verified strengths</p>
+              <ul className="space-y-1">{report.claims_verified!.slice(0, 5).map((s, i) => <li key={i} className="text-[#C7C7D1] text-xs leading-relaxed">· {s}</li>)}</ul>
             </div>
           )}
           {refSkills.length > 0 && (
             <div className="rounded-2xl p-5" style={card}>
-              <p className="text-[#0891B2] text-[11px] font-bold uppercase tracking-wider mb-2">Most-cited by references</p>
-              <div className="flex flex-wrap gap-1.5">{refSkills.map((s, i) => <span key={i} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(6,182,212,0.10)', color: '#0891B2' }}>{s}</span>)}</div>
+              <p className="text-[#6AA8F5] text-[11px] font-bold uppercase tracking-wider mb-2">Most-cited by references</p>
+              <div className="flex flex-wrap gap-1.5">{refSkills.map((s, i) => <span key={i} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.10)', color: '#6AA8F5' }}>{s}</span>)}</div>
             </div>
           )}
         </div>
 
         {((report.claims_unverified?.length ?? 0) > 0 || (report.conflicts?.length ?? 0) > 0) && (
-          <div className="rounded-2xl p-5 mb-4" style={{ ...card, borderLeft: '3px solid #D97706' }}>
-            <p className="text-[#B45309] text-[11px] font-bold uppercase tracking-wider mb-2">Areas worth exploring</p>
-            {(report.claims_unverified || []).map((s, i) => <p key={`u${i}`} className="text-[#3F3F4E] text-xs leading-relaxed">· {s} <span className="text-[#8A8A99]">(no reference confirmed)</span></p>)}
-            {(report.conflicts || []).map((cf, i) => <p key={`c${i}`} className="text-[#3F3F4E] text-xs leading-relaxed mt-1">· {cf.topic}: <span className="text-[#8A8A99]">{cf.note}</span></p>)}
+          <div className="rounded-2xl p-5 mb-4" style={{ ...card, borderLeft: '3px solid #FBBF24' }}>
+            <p className="text-[#FBBF24] text-[11px] font-bold uppercase tracking-wider mb-2">Areas worth exploring</p>
+            {(report.claims_unverified || []).map((s, i) => <p key={`u${i}`} className="text-[#C7C7D1] text-xs leading-relaxed">· {s} <span className="text-[#7E7E8E]">(no reference confirmed)</span></p>)}
+            {(report.conflicts || []).map((cf, i) => <p key={`c${i}`} className="text-[#C7C7D1] text-xs leading-relaxed mt-1">· {cf.topic}: <span className="text-[#7E7E8E]">{cf.note}</span></p>)}
           </div>
         )}
 
         {questions.length > 0 && (
           <div className="rounded-2xl p-6" style={card}>
             <div className="flex items-center gap-2.5 mb-4">
-              <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#06B6D4,#7C3AED)' }} />
-              <h2 className="text-xl font-black tracking-tight text-[#0E0E1A]">Suggested questions</h2>
+              <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#6AA8F5,#F08CAE)' }} />
+              <h2 className="text-xl font-black tracking-tight text-[#F4F4F7]">Suggested questions</h2>
             </div>
             <ol className="space-y-3">
               {questions.map((q, i) => (
                 <li key={i} className="flex gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-black text-white" style={{ background: 'linear-gradient(135deg,#06B6D4,#7C3AED)' }}>{i + 1}</span>
-                  <p className="text-[#3F3F4E] text-sm leading-relaxed">{q}</p>
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-black text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>{i + 1}</span>
+                  <p className="text-[#C7C7D1] text-sm leading-relaxed">{q}</p>
                 </li>
               ))}
             </ol>
           </div>
         )}
 
-        <p className="text-[#8A8A99] text-xs mt-6">Built from {firstName}&apos;s verified Shapi profile. Reference details are aggregated — individual referee identities and verbatim responses stay confidential.</p>
+        <p className="text-[#7E7E8E] text-xs mt-6">Built from {firstName}&apos;s verified Shapi profile. Reference details are aggregated — individual referee identities and verbatim responses stay confidential.</p>
       </div>
     </div>
   )

@@ -40,30 +40,30 @@ export default function WorkStylePage() {
   const previewScores = done || (allAnswered ? scoreWorkStyle(answers) : null)
 
   return (
-    <div className="min-h-screen bg-[#F1F2F7] text-[#0E0E1A]">
-      <style>{`.gradient-border-card { background: linear-gradient(#ffffff,#ffffff) padding-box, linear-gradient(135deg, rgba(34,211,238,0.12), rgba(139,92,246,0.12)) border-box; border: 1px solid transparent; box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05); }`}</style>
-      <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
+    <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7]">
+      <style>{`.gradient-border-card { background: linear-gradient(#16161F, #16161F) padding-box, linear-gradient(135deg, rgba(106,168,245,0.10), rgba(240,140,174,0.10)) border-box; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35); }`}</style>
+      <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
 
-      <nav className="relative z-10 px-6 py-4 border-b border-[#0E0E1A]/[0.08] flex items-center justify-between max-w-3xl mx-auto">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#A78BFA,#22D3EE)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
-        <Link href="/profile" className="text-[#8A8A99] text-sm hover:text-[#3F3F4E]">Profile</Link>
+      <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between max-w-3xl mx-auto">
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/profile" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1]">Profile</Link>
       </nav>
 
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-8 pb-20">
         <h1 className="text-3xl font-black mb-2">Work-style check</h1>
-        <p className="text-[#5A5A6E] text-sm mb-1">Optional · ~2 minutes. How you <em>prefer</em> to work — added to your profile as a self-assessment (◆ Shapi-assessed).</p>
-        <p className="text-[#8A8A99] text-xs mb-6">There are no right answers. Be honest — it helps companies see fit, not just skills.</p>
+        <p className="text-[#A6A6B4] text-sm mb-1">Optional · ~2 minutes. How you <em>prefer</em> to work — added to your profile as a self-assessment (◆ Shapi-assessed).</p>
+        <p className="text-[#7E7E8E] text-xs mb-6">There are no right answers. Be honest — it helps companies see fit, not just skills.</p>
 
         {done ? (
           <div className="gradient-border-card rounded-2xl p-6 mb-6">
             <div className="flex items-center gap-2 mb-4">
-              <h2 className="text-[#0E0E1A] font-black text-lg">Your Work Style</h2>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#EDE9FE', color: '#6D28D9' }}>◆ Shapi-assessed</span>
+              <h2 className="text-[#F4F4F7] font-black text-lg">Your Work Style</h2>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.12)', color: '#F08CAE' }}>◆ Shapi-assessed</span>
             </div>
             {DIMENSIONS.map(d => (
               <ScoreBar key={d.key} dim={d} score={done[d.key] ?? 50} />
             ))}
-            <Link href="/profile" className="block text-center mt-5 py-3 rounded-xl font-black text-sm" style={{ background: 'linear-gradient(135deg,#22D3EE,#A78BFA)', color: '#060609' }}>
+            <Link href="/profile" className="block text-center mt-5 py-3 rounded-xl font-black text-sm text-white" style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}>
               View on your profile →
             </Link>
           </div>
@@ -72,7 +72,7 @@ export default function WorkStylePage() {
             <div className="space-y-3 mb-6">
               {QUESTIONS.map((q, i) => (
                 <div key={q.id} className="gradient-border-card rounded-2xl p-4">
-                  <p className="text-[#0E0E1A] text-sm font-bold mb-3">{i + 1}. {q.text}</p>
+                  <p className="text-[#F4F4F7] text-sm font-bold mb-3">{i + 1}. {q.text}</p>
                   <div className="flex gap-1.5 flex-wrap">
                     {SCALE.map(s => {
                       const active = answers[q.id] === s.v
@@ -80,9 +80,9 @@ export default function WorkStylePage() {
                         <button key={s.v} onClick={() => setAnswers(prev => ({ ...prev, [q.id]: s.v }))}
                           className="flex-1 min-w-[80px] py-2 rounded-lg text-[11px] font-bold transition-colors"
                           style={{
-                            background: active ? 'rgba(34,211,238,0.15)' : 'rgba(14,14,26,0.04)',
-                            color: active ? '#0891B2' : '#5A5A6E',
-                            border: `1px solid ${active ? 'rgba(34,211,238,0.4)' : 'rgba(14,14,26,0.08)'}`,
+                            background: active ? 'rgba(106,168,245,0.15)' : 'rgba(255,255,255,0.05)',
+                            color: active ? '#6AA8F5' : '#7E7E8E',
+                            border: `1px solid ${active ? 'rgba(106,168,245,0.4)' : 'rgba(255,255,255,0.08)'}`,
                           }}>
                           {s.label}
                         </button>
@@ -95,15 +95,15 @@ export default function WorkStylePage() {
 
             {previewScores && !done && (
               <div className="gradient-border-card rounded-2xl p-5 mb-6">
-                <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-3">Preview</p>
+                <p className="text-[#7E7E8E] text-xs font-bold uppercase tracking-wider mb-3">Preview</p>
                 {DIMENSIONS.map(d => <ScoreBar key={d.key} dim={d} score={previewScores[d.key] ?? 50} />)}
               </div>
             )}
 
-            {error && <p className="text-[#E11D48] text-xs mb-3">{error}</p>}
+            {error && <p className="text-[#F58E9A] text-xs mb-3">{error}</p>}
             <button onClick={submit} disabled={!allAnswered || saving}
-              className="w-full py-3.5 rounded-xl font-black text-sm transition-opacity disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg,#22D3EE,#A78BFA)', color: '#060609' }}>
+              className="w-full py-3.5 rounded-xl font-black text-sm transition-opacity disabled:opacity-40 text-white"
+              style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}>
               {saving ? 'Saving…' : allAnswered ? 'Save to my profile' : `Answer all ${QUESTIONS.length} (${answeredCount} done)`}
             </button>
           </>
@@ -117,12 +117,12 @@ function ScoreBar({ dim, score }: { dim: { key: string; poleA: string; poleB: st
   return (
     <div className="mb-3">
       <div className="flex items-center justify-between text-[11px] mb-1">
-        <span className="text-[#5A5A6E]">{dim.poleB}</span>
-        <span className="text-[#0E0E1A] font-bold">{styleLabel(dim, score)}</span>
-        <span className="text-[#5A5A6E]">{dim.poleA}</span>
+        <span className="text-[#7E7E8E]">{dim.poleB}</span>
+        <span className="text-[#F4F4F7] font-bold">{styleLabel(dim, score)}</span>
+        <span className="text-[#7E7E8E]">{dim.poleA}</span>
       </div>
-      <div className="relative h-2 rounded-full" style={{ background: 'rgba(14,14,26,0.04)' }}>
-        <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full" style={{ left: `calc(${score}% - 6px)`, background: 'linear-gradient(135deg,#22D3EE,#A78BFA)' }} />
+      <div className="relative h-2 rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }}>
+        <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full" style={{ left: `calc(${score}% - 6px)`, background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }} />
       </div>
     </div>
   )

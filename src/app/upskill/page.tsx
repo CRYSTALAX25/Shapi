@@ -61,7 +61,7 @@ function UpskillContent() {
   }
 
   if (loading) {
-    return <div className="min-h-screen bg-[#F1F2F7] flex items-center justify-center text-[#5A5A6E] text-sm">Loading…</div>
+    return <div className="min-h-screen bg-[#0E0E13] flex items-center justify-center text-[#A6A6B4] text-sm">Loading…</div>
   }
 
   // If arrived via ?skill=X and X isn't already a roadmap gap, prepend a
@@ -78,27 +78,27 @@ function UpskillContent() {
     : gaps
 
   return (
-    <div className="min-h-screen bg-[#F1F2F7] text-[#0E0E1A]">
+    <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7]">
       <style>{`
-        .gradient-border-card { background: linear-gradient(#ffffff,#ffffff) padding-box, linear-gradient(135deg, rgba(34,211,238,0.12), rgba(139,92,246,0.12)) border-box; border: 1px solid transparent; box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05); }
+        .gradient-border-card { background: linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg, rgba(106,168,245,0.15), rgba(240,140,174,0.15)) border-box; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35); }
       `}</style>
-      <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
+      <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
 
-      <nav className="relative z-10 px-6 py-4 border-b border-[#0E0E1A]/[0.08] flex items-center justify-between max-w-4xl mx-auto">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#A78BFA,#22D3EE)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
-        <Link href={`/profile?tab=${backTab}`} className="text-[#8A8A99] text-sm hover:text-[#3F3F4E]">← Profile</Link>
+      <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-4xl mx-auto">
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#F08CAE,#6AA8F5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href={`/profile?tab=${backTab}`} className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1]">← Profile</Link>
       </nav>
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 pt-8 pb-20">
         <div className="mb-6">
           <h1 className="text-3xl font-black mb-2">Upskill</h1>
-          <p className="text-[#5A5A6E] text-sm">Close the gaps from your Career Roadmap. Pick free, paid, or financed options — then verify what you complete so it counts on your profile.</p>
+          <p className="text-[#A6A6B4] text-sm">Close the gaps from your Career Roadmap. Pick free, paid, or financed options — then verify what you complete so it counts on your profile.</p>
         </div>
 
         {/* Trust note */}
         <div className="gradient-border-card rounded-2xl p-4 mb-6">
-          <p className="text-[#3F3F4E] text-xs leading-relaxed">
-            <span className="text-[#059669] font-bold">✓ Verified</span> = you added a checkable certificate link, or completed it through Shapi · <span className="text-[#5A5A6E] font-bold">○ Self-reported</span> = your claim, not yet checked. Verified learning shows companies real, provable growth.
+          <p className="text-[#C7C7D1] text-xs leading-relaxed">
+            <span className="text-[#6AA8F5] font-bold">✓ Verified</span> = you added a checkable certificate link, or completed it through Shapi · <span className="text-[#A6A6B4] font-bold">○ Self-reported</span> = your claim, not yet checked. Verified learning shows companies real, provable growth.
           </p>
         </div>
 
@@ -107,9 +107,9 @@ function UpskillContent() {
             link lands on real course options for that exact gap. */}
         {displayGaps.length === 0 ? (
           <div className="gradient-border-card rounded-2xl p-8 text-center mb-6">
-            <p className="text-[#5A5A6E] font-bold mb-1">No skill gaps yet</p>
-            <p className="text-[#8A8A99] text-sm mb-4">Generate your Career Roadmap first — it identifies exactly what to learn next.</p>
-            <Link href="/profile" className="inline-block px-5 py-2.5 rounded-full font-black text-sm" style={{ background: 'linear-gradient(135deg,#A78BFA,#22D3EE)', color: '#060609' }}>
+            <p className="text-[#A6A6B4] font-bold mb-1">No skill gaps yet</p>
+            <p className="text-[#7E7E8E] text-sm mb-4">Generate your Career Roadmap first — it identifies exactly what to learn next.</p>
+            <Link href="/profile" className="inline-block px-5 py-2.5 rounded-full font-black text-sm" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', color: '#fff' }}>
               Go to Career Roadmap →
             </Link>
           </div>
@@ -119,58 +119,58 @@ function UpskillContent() {
               const opts = providersByTier(gap.skill)
               const highlighted = focusSkill && gap.skill.toLowerCase() === focusSkill.toLowerCase()
               return (
-                <div key={i} className="gradient-border-card rounded-2xl p-5" style={highlighted ? { borderColor: 'rgba(34,211,238,0.4)' } : undefined}>
+                <div key={i} className="gradient-border-card rounded-2xl p-5" style={highlighted ? { borderColor: 'rgba(106,168,245,0.4)' } : undefined}>
                   <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-black text-[#0E0E1A]">{gap.skill}</h3>
+                    <h3 className="font-black text-[#F4F4F7]">{gap.skill}</h3>
                     {gap.priority && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{
-                        background: gap.priority === 'high' ? 'rgba(251,113,133,0.12)' : gap.priority === 'medium' ? 'rgba(251,191,36,0.12)' : 'rgba(14,14,26,0.04)',
-                        color: gap.priority === 'high' ? '#E11D48' : gap.priority === 'medium' ? '#D97706' : '#5A5A6E',
+                        background: gap.priority === 'high' ? 'rgba(245,142,154,0.12)' : gap.priority === 'medium' ? 'rgba(240,140,174,0.12)' : 'rgba(255,255,255,0.05)',
+                        color: gap.priority === 'high' ? '#F58E9A' : gap.priority === 'medium' ? '#F08CAE' : '#A6A6B4',
                       }}>{gap.priority} priority</span>
                     )}
                   </div>
-                  {gap.why && <p className="text-[#5A5A6E] text-xs mb-3">{gap.why}</p>}
+                  {gap.why && <p className="text-[#A6A6B4] text-xs mb-3">{gap.why}</p>}
 
                   {/* Shapi's specific recommendation — lands on the exact course via name search */}
                   {gap.suggested_courses && gap.suggested_courses.length > 0 && (
-                    <div className="rounded-xl p-3 mb-4" style={{ background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.2)' }}>
-                      <p className="text-[#7C3AED] text-[10px] font-bold uppercase tracking-wider mb-2">⭐ Shapi recommends</p>
+                    <div className="rounded-xl p-3 mb-4" style={{ background: 'rgba(240,140,174,0.08)', border: '1px solid rgba(240,140,174,0.2)' }}>
+                      <p className="text-[#F08CAE] text-[10px] font-bold uppercase tracking-wider mb-2">⭐ Shapi recommends</p>
                       <div className="space-y-1.5">
                         {gap.suggested_courses.map((c, k) => (
                           <a key={k} href={courseSearchUrl(c.platform, c.name)} target="_blank" rel="noopener noreferrer"
-                            className="flex items-center justify-between gap-2 bg-[#0E0E1A]/[0.04] hover:bg-[#0E0E1A]/[0.04] rounded-lg px-3 py-2 transition-colors">
-                            <span className="text-[#0E0E1A] text-xs font-bold">{c.name}{c.platform ? <span className="text-[#5A5A6E] font-normal"> · {c.platform}</span> : null}</span>
-                            <span className="text-[#7C3AED] text-xs font-bold flex-shrink-0">Open ↗</span>
+                            className="flex items-center justify-between gap-2 bg-white/[0.05] hover:bg-white/[0.07] rounded-lg px-3 py-2 transition-colors">
+                            <span className="text-[#F4F4F7] text-xs font-bold">{c.name}{c.platform ? <span className="text-[#A6A6B4] font-normal"> · {c.platform}</span> : null}</span>
+                            <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">Open ↗</span>
                           </a>
                         ))}
                       </div>
-                      <p className="text-[#8A8A99] text-[10px] mt-2">Different level or budget? Browse alternatives below.</p>
+                      <p className="text-[#7E7E8E] text-[10px] mt-2">Different level or budget? Browse alternatives below.</p>
                     </div>
                   )}
 
                   <div className="grid md:grid-cols-2 gap-4">
                     {/* Free */}
                     <div>
-                      <p className="text-[#059669] text-[10px] font-bold uppercase tracking-wider mb-2">Free</p>
+                      <p className="text-[#6AA8F5] text-[10px] font-bold uppercase tracking-wider mb-2">Free</p>
                       <div className="space-y-1.5">
                         {opts.free.map((o, j) => (
                           <a key={j} href={o.url} target="_blank" rel="noopener noreferrer"
-                            className="block bg-[#0E0E1A]/[0.04] hover:bg-[#0E0E1A]/[0.04] rounded-lg px-3 py-2 transition-colors">
-                            <span className="text-[#0E0E1A] text-xs font-bold">{o.name} ↗</span>
-                            {o.note && <span className="block text-[#8A8A99] text-[10px] mt-0.5">{o.note}</span>}
+                            className="block bg-white/[0.05] hover:bg-white/[0.07] rounded-lg px-3 py-2 transition-colors">
+                            <span className="text-[#F4F4F7] text-xs font-bold">{o.name} ↗</span>
+                            {o.note && <span className="block text-[#7E7E8E] text-[10px] mt-0.5">{o.note}</span>}
                           </a>
                         ))}
                       </div>
                     </div>
                     {/* Paid */}
                     <div>
-                      <p className="text-[#0891B2] text-[10px] font-bold uppercase tracking-wider mb-2">Paid (verifiable certificate)</p>
+                      <p className="text-[#F08CAE] text-[10px] font-bold uppercase tracking-wider mb-2">Paid (verifiable certificate)</p>
                       <div className="space-y-1.5">
                         {opts.paid.map((o, j) => (
                           <a key={j} href={o.url} target="_blank" rel="noopener noreferrer"
-                            className="block bg-[#0E0E1A]/[0.04] hover:bg-[#0E0E1A]/[0.04] rounded-lg px-3 py-2 transition-colors">
-                            <span className="text-[#0E0E1A] text-xs font-bold">{o.name} ↗</span>
-                            {o.note && <span className="block text-[#8A8A99] text-[10px] mt-0.5">{o.note}</span>}
+                            className="block bg-white/[0.05] hover:bg-white/[0.07] rounded-lg px-3 py-2 transition-colors">
+                            <span className="text-[#F4F4F7] text-xs font-bold">{o.name} ↗</span>
+                            {o.note && <span className="block text-[#7E7E8E] text-[10px] mt-0.5">{o.note}</span>}
                           </a>
                         ))}
                       </div>
@@ -179,7 +179,7 @@ function UpskillContent() {
 
                   <div className="flex gap-2 mt-4">
                     <button onClick={() => trackCourse({ skill: gap.skill, course_name: `${gap.skill} course`, tier: 'free', status: 'in_progress' })}
-                      className="text-xs font-bold px-3 py-1.5 rounded-full bg-[#0E0E1A]/[0.04] text-[#3F3F4E] hover:bg-[#0E0E1A]/[0.04] transition-colors">
+                      className="text-xs font-bold px-3 py-1.5 rounded-full bg-white/[0.05] text-[#C7C7D1] hover:bg-white/[0.08] transition-colors">
                       I&apos;m learning this
                     </button>
                   </div>
@@ -191,14 +191,14 @@ function UpskillContent() {
 
         {/* Financing */}
         <div id="financing" className="gradient-border-card rounded-2xl p-5 mb-8 scroll-mt-24">
-          <p className="text-[#D97706] text-xs font-bold uppercase tracking-wider mb-1">💳 Financing — don&apos;t let cost stop you</p>
-          <p className="text-[#5A5A6E] text-xs mb-4">Routes to take a paid course without paying upfront.</p>
+          <p className="text-[#F08CAE] text-xs font-bold uppercase tracking-wider mb-1">💳 Financing — don&apos;t let cost stop you</p>
+          <p className="text-[#A6A6B4] text-xs mb-4">Routes to take a paid course without paying upfront.</p>
           <div className="grid md:grid-cols-2 gap-3">
             {FINANCING_OPTIONS.map((f, i) => (
-              <div key={i} className="bg-[#0E0E1A]/[0.04] rounded-xl p-3">
-                <p className="text-[#0E0E1A] text-sm font-bold mb-1">{f.title}</p>
-                <p className="text-[#5A5A6E] text-xs leading-relaxed">{f.detail}</p>
-                {f.href && <a href={f.href} target="_blank" rel="noopener noreferrer" className="text-[#0891B2] text-xs font-bold mt-1 inline-block">Learn more ↗</a>}
+              <div key={i} className="bg-white/[0.05] rounded-xl p-3">
+                <p className="text-[#F4F4F7] text-sm font-bold mb-1">{f.title}</p>
+                <p className="text-[#A6A6B4] text-xs leading-relaxed">{f.detail}</p>
+                {f.href && <a href={f.href} target="_blank" rel="noopener noreferrer" className="text-[#6AA8F5] text-xs font-bold mt-1 inline-block">Learn more ↗</a>}
               </div>
             ))}
           </div>
@@ -207,8 +207,8 @@ function UpskillContent() {
         {/* My courses */}
         <div className="gradient-border-card rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider">My courses</p>
-            <button onClick={() => setAddOpen(o => !o)} className="text-[#0891B2] text-xs font-bold border border-[#22D3EE]/30 hover:border-[#22D3EE]/60 px-3 py-1.5 rounded-full transition-colors">
+            <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">My courses</p>
+            <button onClick={() => setAddOpen(o => !o)} className="text-[#6AA8F5] text-xs font-bold border border-[#6AA8F5]/30 hover:border-[#6AA8F5]/60 px-3 py-1.5 rounded-full transition-colors">
               {addOpen ? 'Close' : '+ Add a course'}
             </button>
           </div>
@@ -216,7 +216,7 @@ function UpskillContent() {
           {addOpen && <AddCourseForm onAdd={trackCourse} onDone={() => setAddOpen(false)} />}
 
           {courses.length === 0 ? (
-            <p className="text-[#8A8A99] text-xs text-center py-4">Nothing tracked yet. Start a course above, or add one you&apos;ve already done.</p>
+            <p className="text-[#7E7E8E] text-xs text-center py-4">Nothing tracked yet. Start a course above, or add one you&apos;ve already done.</p>
           ) : (
             <div className="space-y-2 mt-3">
               {courses.map(c => (
@@ -246,16 +246,16 @@ function AddCourseForm({ onAdd, onDone }: { onAdd: (p: Record<string, unknown>) 
   }
 
   return (
-    <div className="bg-[#0E0E1A]/[0.04] rounded-xl p-4 mb-3 space-y-3">
+    <div className="bg-white/[0.05] rounded-xl p-4 mb-3 space-y-3">
       <input value={name} onChange={e => setName(e.target.value)} placeholder="Course name (e.g. AI for Everyone)"
-        className="w-full bg-[#0E0E1A]/[0.04] border border-[#0E0E1A]/[0.08] rounded-lg px-3 py-2 text-sm text-[#0E0E1A] placeholder-[#9A9AA8] outline-none focus:border-[#22D3EE]/40" />
+        className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/40" />
       <input value={platform} onChange={e => setPlatform(e.target.value)} placeholder="Platform (Coursera, Udemy, …)"
-        className="w-full bg-[#0E0E1A]/[0.04] border border-[#0E0E1A]/[0.08] rounded-lg px-3 py-2 text-sm text-[#0E0E1A] placeholder-[#9A9AA8] outline-none focus:border-[#22D3EE]/40" />
+        className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/40" />
       <div className="flex gap-2">
         {['in_progress', 'completed'].map(s => (
           <button key={s} onClick={() => setStatus(s)}
             className="flex-1 py-2 rounded-lg text-xs font-bold transition-colors"
-            style={{ background: status === s ? 'rgba(34,211,238,0.12)' : 'rgba(14,14,26,0.04)', color: status === s ? '#0891B2' : '#5A5A6E' }}>
+            style={{ background: status === s ? 'rgba(106,168,245,0.12)' : 'rgba(255,255,255,0.05)', color: status === s ? '#6AA8F5' : '#A6A6B4' }}>
             {s === 'in_progress' ? 'In progress' : 'Completed'}
           </button>
         ))}
@@ -263,13 +263,13 @@ function AddCourseForm({ onAdd, onDone }: { onAdd: (p: Record<string, unknown>) 
       {status === 'completed' && (
         <div>
           <input value={credUrl} onChange={e => setCredUrl(e.target.value)} placeholder="Certificate verification link (makes it ✓ Verified)"
-            className="w-full bg-[#0E0E1A]/[0.04] border border-[#0E0E1A]/[0.08] rounded-lg px-3 py-2 text-sm text-[#0E0E1A] placeholder-[#9A9AA8] outline-none focus:border-[#34D399]/40" />
-          <p className="text-[#8A8A99] text-[10px] mt-1">Paste the public certificate URL from Coursera/Udemy/Credly etc. Leave blank to keep it self-reported.</p>
+            className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/40" />
+          <p className="text-[#7E7E8E] text-[10px] mt-1">Paste the public certificate URL from Coursera/Udemy/Credly etc. Leave blank to keep it self-reported.</p>
         </div>
       )}
       <button onClick={submit} disabled={saving || !name.trim()}
         className="w-full py-2.5 rounded-lg font-black text-sm disabled:opacity-40"
-        style={{ background: 'linear-gradient(135deg,#22D3EE,#A78BFA)', color: '#060609' }}>
+        style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', color: '#fff' }}>
         {saving ? 'Saving…' : 'Add course'}
       </button>
     </div>
@@ -279,27 +279,27 @@ function AddCourseForm({ onAdd, onDone }: { onAdd: (p: Record<string, unknown>) 
 function CourseRow({ course, onUpdate, onRemove }: { course: Course; onUpdate: (p: Record<string, unknown>) => Promise<void>; onRemove: (id: string) => Promise<void> }) {
   const verified = course.verification_status === 'verified'
   return (
-    <div className="bg-[#0E0E1A]/[0.04] rounded-xl p-3 flex items-center justify-between gap-3">
+    <div className="bg-white/[0.05] rounded-xl p-3 flex items-center justify-between gap-3">
       <div className="min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[#0E0E1A] text-sm font-bold truncate">{course.course_name}</span>
+          <span className="text-[#F4F4F7] text-sm font-bold truncate">{course.course_name}</span>
           {verified ? (
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#059669' }}>✓ Verified</span>
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}>✓ Verified</span>
           ) : (
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(14,14,26,0.04)', color: '#5A5A6E' }}>○ Self-reported</span>
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#A6A6B4' }}>○ Self-reported</span>
           )}
           {course.sponsored_by && (
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.15)', color: '#D97706' }}>🏢 Sponsored by {course.sponsored_by}</span>
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.15)', color: '#F08CAE' }}>🏢 Sponsored by {course.sponsored_by}</span>
           )}
         </div>
-        <p className="text-[#5A5A6E] text-xs">{course.platform || '—'} · {course.status === 'completed' ? 'Completed' : course.status === 'in_progress' ? 'In progress' : 'Interested'}{course.credential_url ? ' · ' : ''}{course.credential_url && <a href={course.credential_url} target="_blank" rel="noopener noreferrer" className="text-[#0891B2]">view cert ↗</a>}</p>
+        <p className="text-[#A6A6B4] text-xs">{course.platform || '—'} · {course.status === 'completed' ? 'Completed' : course.status === 'in_progress' ? 'In progress' : 'Interested'}{course.credential_url ? ' · ' : ''}{course.credential_url && <a href={course.credential_url} target="_blank" rel="noopener noreferrer" className="text-[#6AA8F5]">view cert ↗</a>}</p>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
         {course.status !== 'completed' && (
           <button onClick={() => onUpdate({ id: course.id, course_name: course.course_name, status: 'completed', credential_url: course.credential_url, platform: course.platform, tier: course.tier })}
-            className="text-[#059669] text-xs font-bold">Mark done</button>
+            className="text-[#6AA8F5] text-xs font-bold">Mark done</button>
         )}
-        <button onClick={() => onRemove(course.id)} className="text-[#8A8A99] hover:text-[#E11D48] text-xs">✕</button>
+        <button onClick={() => onRemove(course.id)} className="text-[#7E7E8E] hover:text-[#F58E9A] text-xs">✕</button>
       </div>
     </div>
   )
@@ -307,7 +307,7 @@ function CourseRow({ course, onUpdate, onRemove }: { course: Course; onUpdate: (
 
 export default function UpskillPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#F1F2F7]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#0E0E13]" />}>
       <UpskillContent />
     </Suspense>
   )

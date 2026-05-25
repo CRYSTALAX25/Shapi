@@ -9,25 +9,25 @@ const UPDATED = '21 May 2026'
 
 export default function Terms() {
   return (
-    <div className="min-h-screen bg-[#F1F2F7]">
+    <div className="min-h-screen bg-[#0E0E13]">
       <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
       }} />
 
-      <nav className="relative z-10 px-6 py-4 border-b border-[#0E0E1A]/[0.08] max-w-3xl mx-auto flex items-center justify-between">
+      <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)] max-w-3xl mx-auto flex items-center justify-between">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #A78BFA, #22D3EE)',
+          background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
-        <Link href="/privacy" className="text-[#5A5A6E] text-sm hover:text-[#3F3F4E] transition-colors">Privacy →</Link>
+        <Link href="/privacy" className="text-[#A6A6B4] text-sm hover:text-[#C7C7D1] transition-colors">Privacy →</Link>
       </nav>
 
       <div className="relative z-10 max-w-3xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-black text-[#0E0E1A] mb-2">Terms of Service</h1>
-        <p className="text-[#8A8A99] text-sm mb-10">Last updated: {UPDATED}</p>
+        <h1 className="text-3xl font-black text-[#F4F4F7] mb-2">Terms of Service</h1>
+        <p className="text-[#7E7E8E] text-sm mb-10">Last updated: {UPDATED}</p>
 
-        <div className="space-y-8 text-[#3F3F4E] text-sm leading-relaxed">
+        <div className="space-y-8 text-[#C7C7D1] text-sm leading-relaxed">
           <p>
             These terms govern your use of Shapi (shapi.io). By creating an account or using the service you agree
             to them. If you do not agree, do not use Shapi.
@@ -42,7 +42,7 @@ export default function Terms() {
           <Section title="2. Your account">
             You must be at least 18 and provide accurate information. You are responsible for keeping your
             password secure and for activity under your account. Tell us promptly at{' '}
-            <a href="mailto:hello@shapi.io" className="text-[#0891B2]">hello@shapi.io</a> if you suspect
+            <a href="mailto:hello@shapi.io" className="text-[#6AA8F5]">hello@shapi.io</a> if you suspect
             unauthorised use.
           </Section>
 
@@ -107,12 +107,12 @@ export default function Terms() {
           </Section>
 
           <Section title="13. Contact">
-            <a href="mailto:hello@shapi.io" className="text-[#0891B2]">hello@shapi.io</a>
+            <a href="mailto:hello@shapi.io" className="text-[#6AA8F5]">hello@shapi.io</a>
           </Section>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-[#0E0E1A]/[0.08]">
-          <Link href="/signup" className="text-[#0891B2] text-sm font-bold hover:opacity-80">← Back to sign up</Link>
+        <div className="mt-12 pt-6 border-t border-[rgba(255,255,255,0.08)]">
+          <Link href="/signup" className="text-[#6AA8F5] text-sm font-bold hover:opacity-80">← Back to sign up</Link>
         </div>
       </div>
     </div>
@@ -122,7 +122,7 @@ export default function Terms() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h2 className="text-[#0E0E1A] font-bold text-base mb-2">{title}</h2>
+      <h2 className="text-[#F4F4F7] font-bold text-base mb-2">{title}</h2>
       <div>{children}</div>
     </div>
   )

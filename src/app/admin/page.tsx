@@ -67,42 +67,42 @@ export default async function AdminPanel() {
   )
 
   return (
-    <div className="min-h-screen bg-[#F1F2F7]">
+    <div className="min-h-screen bg-[#0E0E13]">
       <style>{`
         .gradient-border-card {
-          background: linear-gradient(#ffffff, #ffffff) padding-box,
-                      linear-gradient(135deg, rgba(34,211,238,0.12), rgba(139,92,246,0.12)) border-box;
+          background: linear-gradient(#16161F, #16161F) padding-box,
+                      linear-gradient(135deg, rgba(106,168,245,0.12), rgba(240,140,174,0.12)) border-box;
           border: 1px solid transparent;
-          box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05);
+          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(14,14,26,0.45); padding: 8px 12px; border-bottom: 1px solid rgba(14,14,26,0.08); }
-        td { padding: 10px 12px; font-size: 13px; color: rgba(14,14,26,0.7); border-bottom: 1px solid rgba(14,14,26,0.06); vertical-align: middle; }
-        tr:hover td { background: rgba(14,14,26,0.02); }
+        th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.35); padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        td { padding: 10px 12px; font-size: 13px; color: rgba(244,244,247,0.7); border-bottom: 1px solid rgba(255,255,255,0.06); vertical-align: middle; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
         .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-        .dot-green { background: #34D399; }
+        .dot-green { background: #6AA8F5; }
         .dot-yellow { background: #FCD34D; }
-        .dot-red { background: rgba(14,14,26,0.15); }
+        .dot-red { background: rgba(255,255,255,0.15); }
       `}</style>
 
       <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
       }} />
 
-      <nav className="relative z-10 px-6 py-4 border-b border-[#0E0E1A]/[0.08]">
+      <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)]">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="font-black text-xl tracking-tighter" style={{
-              background: 'linear-gradient(135deg, #A78BFA, #22D3EE)',
+              background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
             }}>shapi</Link>
-            <span className="text-[#B0B0BC] text-xs font-bold uppercase tracking-wider px-2 py-1 bg-[#FB7185]/10 text-[#E11D48] rounded-full">Admin</span>
+            <span className="text-[#5C5C6A] text-xs font-bold uppercase tracking-wider px-2 py-1 bg-[#F58E9A]/10 text-[#F58E9A] rounded-full">Admin</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-[#8A8A99] text-sm hover:text-[#3F3F4E]">Dashboard</Link>
+            <Link href="/dashboard" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1]">Dashboard</Link>
             <form action="/api/auth/signout" method="post">
-              <button className="text-[#8A8A99] text-sm hover:text-[#3F3F4E]">Sign out</button>
+              <button className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1]">Sign out</button>
             </form>
           </div>
         </div>
@@ -111,25 +111,25 @@ export default async function AdminPanel() {
       <div className="relative z-10 max-w-7xl mx-auto px-6 pt-8 pb-20">
 
         <div className="mb-8">
-          <h1 className="text-2xl font-black text-[#0E0E1A] mb-1">Admin Panel</h1>
-          <p className="text-[#8A8A99] text-sm">All users · verification queue · revenue signals</p>
+          <h1 className="text-2xl font-black text-[#F4F4F7] mb-1">Admin Panel</h1>
+          <p className="text-[#7E7E8E] text-sm">All users · verification queue · revenue signals</p>
         </div>
 
         {/* Stats grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
           {[
-            { label: 'Total candidates', value: candidates.length, colour: '#0891B2' },
-            { label: 'Verified / live', value: `${verified.length} / ${candidates.length}`, colour: '#059669' },
-            { label: 'With WhatsApp', value: withWhatsApp.length, colour: '#7C3AED' },
-            { label: 'CV Kits sold', value: cvKitPurchased.length, colour: '#E11D48' },
-            { label: 'Companies', value: companies.length, colour: '#0891B2' },
-            { label: 'Paid companies', value: paidCompanies.length, colour: '#059669' },
-            { label: 'Total users', value: all.length, colour: '#7C3AED' },
+            { label: 'Total candidates', value: candidates.length, colour: '#6AA8F5' },
+            { label: 'Verified / live', value: `${verified.length} / ${candidates.length}`, colour: '#6AA8F5' },
+            { label: 'With WhatsApp', value: withWhatsApp.length, colour: '#F08CAE' },
+            { label: 'CV Kits sold', value: cvKitPurchased.length, colour: '#F58E9A' },
+            { label: 'Companies', value: companies.length, colour: '#6AA8F5' },
+            { label: 'Paid companies', value: paidCompanies.length, colour: '#6AA8F5' },
+            { label: 'Total users', value: all.length, colour: '#F08CAE' },
             { label: 'Est. MRR', value: `$${paidCompanies.length * 299}`, colour: '#FCD34D' },
           ].map((s, i) => (
             <div key={i} className="gradient-border-card rounded-xl p-4">
               <div className="text-2xl font-black mb-1" style={{ color: s.colour }}>{s.value}</div>
-              <div className="text-[#8A8A99] text-xs">{s.label}</div>
+              <div className="text-[#7E7E8E] text-xs">{s.label}</div>
             </div>
           ))}
         </div>
@@ -137,12 +137,12 @@ export default async function AdminPanel() {
         {/* Verification queue */}
         {queue.length > 0 && (
           <div className="gradient-border-card rounded-2xl mb-6 overflow-hidden">
-            <div className="px-5 py-4 border-b border-[#0E0E1A]/[0.08] flex items-center justify-between">
+            <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between">
               <div>
-                <p className="text-[#0E0E1A] font-bold">Verification queue</p>
-                <p className="text-[#8A8A99] text-xs">Ready to go live — CV parsed + WhatsApp done, waiting for approval</p>
+                <p className="text-[#F4F4F7] font-bold">Verification queue</p>
+                <p className="text-[#7E7E8E] text-xs">Ready to go live — CV parsed + WhatsApp done, waiting for approval</p>
               </div>
-              <span className="bg-[#FB7185]/15 text-[#E11D48] text-xs font-bold px-3 py-1 rounded-full">{queue.length} pending</span>
+              <span className="bg-[#F58E9A]/15 text-[#F58E9A] text-xs font-bold px-3 py-1 rounded-full">{queue.length} pending</span>
             </div>
             <table>
               <thead>
@@ -158,21 +158,21 @@ export default async function AdminPanel() {
               <tbody>
                 {queue.map(c => (
                   <tr key={c.id}>
-                    <td className="text-[#0E0E1A] font-semibold">{c.full_name || '—'}</td>
-                    <td className="text-[#5A5A6E]">{c.email}</td>
+                    <td className="text-[#F4F4F7] font-semibold">{c.full_name || '—'}</td>
+                    <td className="text-[#A6A6B4]">{c.email}</td>
                     <td>{c.industry || '—'}</td>
                     <td>
-                      <span style={{ color: '#0891B2', fontWeight: 700 }}>{c.completion_pct}%</span>
+                      <span style={{ color: '#6AA8F5', fontWeight: 700 }}>{c.completion_pct}%</span>
                     </td>
                     <td>{(c.whatsapp_chat as unknown[]).length}</td>
                     <td>
                       <div className="flex gap-2">
                         <Link href={`/p/${c.id.slice(0, 8)}`} target="_blank"
-                          className="text-xs text-[#0891B2] hover:opacity-80">View →</Link>
+                          className="text-xs text-[#6AA8F5] hover:opacity-80">View →</Link>
                         <form action={`/api/admin/verify`} method="post" style={{ display: 'inline' }}>
                           <input type="hidden" name="id" value={c.id} />
                           <button type="submit"
-                            className="text-xs bg-emerald-500/20 text-emerald-600 px-2 py-0.5 rounded-full hover:bg-emerald-500/30">
+                            className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full hover:bg-emerald-500/30">
                             ✓ Go live
                           </button>
                         </form>
@@ -187,8 +187,8 @@ export default async function AdminPanel() {
 
         {/* All candidates */}
         <div className="gradient-border-card rounded-2xl mb-6 overflow-hidden">
-          <div className="px-5 py-4 border-b border-[#0E0E1A]/[0.08]">
-            <p className="text-[#0E0E1A] font-bold">All candidates ({candidates.length})</p>
+          <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.08)]">
+            <p className="text-[#F4F4F7] font-bold">All candidates ({candidates.length})</p>
           </div>
           <div className="overflow-x-auto">
             <table>
@@ -213,27 +213,27 @@ export default async function AdminPanel() {
                     <tr key={c.id}>
                       <td>
                         <Link href={`/p/${c.id.slice(0, 8)}`} target="_blank"
-                          className="text-[#0E0E1A] font-semibold hover:text-[#0891B2]">
+                          className="text-[#F4F4F7] font-semibold hover:text-[#6AA8F5]">
                           {c.full_name || '—'}
                         </Link>
                       </td>
-                      <td className="text-[#5A5A6E]">{c.email}</td>
-                      <td className="text-[#5A5A6E]">{c.industry || '—'}</td>
+                      <td className="text-[#A6A6B4]">{c.email}</td>
+                      <td className="text-[#A6A6B4]">{c.industry || '—'}</td>
                       <td>
                         {c.ai_tier ? (
                           <span className="text-xs font-bold capitalize" style={{
-                            color: c.ai_tier === 'builder' ? '#E11D48' : c.ai_tier === 'integrator' ? '#7C3AED' : '#0891B2'
+                            color: c.ai_tier === 'builder' ? '#F58E9A' : c.ai_tier === 'integrator' ? '#F08CAE' : '#6AA8F5'
                           }}>{c.ai_tier}</span>
                         ) : '—'}
                       </td>
-                      <td style={{ color: c.completion_pct >= 60 ? '#059669' : c.completion_pct >= 30 ? '#FCD34D' : 'rgba(14,14,26,0.4)', fontWeight: 700 }}>
+                      <td style={{ color: c.completion_pct >= 60 ? '#6AA8F5' : c.completion_pct >= 30 ? '#FCD34D' : 'rgba(255,255,255,0.25)', fontWeight: 700 }}>
                         {c.completion_pct}%
                       </td>
                       <td><span className={`dot ${c.cv_parsed ? 'dot-green' : 'dot-red'}`} title={c.cv_parsed ? 'CV parsed' : 'No CV'} /></td>
                       <td>
                         <span className={`dot ${chatLen > 4 ? 'dot-green' : chatLen > 0 ? 'dot-yellow' : 'dot-red'}`}
                           title={`${chatLen} messages`} />
-                        {chatLen > 0 && <span className="text-[#8A8A99] text-xs ml-1">{chatLen}</span>}
+                        {chatLen > 0 && <span className="text-[#7E7E8E] text-xs ml-1">{chatLen}</span>}
                       </td>
                       <td><span className={`dot ${c.cv_kit_purchased ? 'dot-green' : 'dot-red'}`} title={c.cv_kit_purchased ? 'Kit purchased' : 'Not purchased'} /></td>
                       <td>
@@ -242,11 +242,11 @@ export default async function AdminPanel() {
                         ) : (
                           <form action="/api/admin/verify" method="post" style={{ display: 'inline' }}>
                             <input type="hidden" name="id" value={c.id} />
-                            <button type="submit" className="text-xs text-[#B0B0BC] hover:text-emerald-600">set live</button>
+                            <button type="submit" className="text-xs text-[#5C5C6A] hover:text-emerald-400">set live</button>
                           </form>
                         )}
                       </td>
-                      <td className="text-[#8A8A99] text-xs">{new Date(c.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</td>
+                      <td className="text-[#7E7E8E] text-xs">{new Date(c.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</td>
                     </tr>
                   )
                 })}
@@ -257,8 +257,8 @@ export default async function AdminPanel() {
 
         {/* Companies */}
         <div className="gradient-border-card rounded-2xl overflow-hidden">
-          <div className="px-5 py-4 border-b border-[#0E0E1A]/[0.08]">
-            <p className="text-[#0E0E1A] font-bold">All companies ({companies.length})</p>
+          <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.08)]">
+            <p className="text-[#F4F4F7] font-bold">All companies ({companies.length})</p>
           </div>
           <div className="overflow-x-auto">
             <table>
@@ -276,21 +276,21 @@ export default async function AdminPanel() {
                   <tr key={c.id}>
                     <td>
                       <Link href={`/company/dashboard`}
-                        className="text-[#0E0E1A] font-semibold hover:text-[#0891B2]">
+                        className="text-[#F4F4F7] font-semibold hover:text-[#6AA8F5]">
                         {c.company_name || c.full_name || '—'}
                       </Link>
                     </td>
-                    <td className="text-[#5A5A6E]">{c.email}</td>
+                    <td className="text-[#A6A6B4]">{c.email}</td>
                     <td>
                       <span className={`dot ${c.paid ? 'dot-green' : 'dot-red'}`} />
-                      {c.paid && <span className="text-emerald-600 text-xs ml-2 font-bold">$299/mo</span>}
+                      {c.paid && <span className="text-emerald-400 text-xs ml-2 font-bold">$299/mo</span>}
                     </td>
                     <td><span className={`dot dot-yellow`} /></td>
-                    <td className="text-[#8A8A99] text-xs">{new Date(c.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</td>
+                    <td className="text-[#7E7E8E] text-xs">{new Date(c.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</td>
                   </tr>
                 ))}
                 {companies.length === 0 && (
-                  <tr><td colSpan={5} style={{ color: 'rgba(14,14,26,0.2)', textAlign: 'center', padding: 32 }}>No companies yet</td></tr>
+                  <tr><td colSpan={5} style={{ color: 'rgba(255,255,255,0.2)', textAlign: 'center', padding: 32 }}>No companies yet</td></tr>
                 )}
               </tbody>
             </table>

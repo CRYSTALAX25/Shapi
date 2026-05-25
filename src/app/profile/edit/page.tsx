@@ -244,72 +244,72 @@ export default function EditProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F1F2F7] flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-[#0E0E1A]/[0.08] border-t-[#22D3EE] animate-spin" />
+      <div className="min-h-screen bg-[#0E0E13] flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-white/[0.08] border-t-[#6AA8F5] animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#F1F2F7]">
+    <div className="min-h-screen bg-[#0E0E13]">
       <style>{`
         .gradient-border-card {
-          background: linear-gradient(#ffffff, #ffffff) padding-box,
-                      linear-gradient(135deg, rgba(34,211,238,0.15), rgba(139,92,246,0.15)) border-box;
+          background: linear-gradient(#16161F, #16161F) padding-box,
+                      linear-gradient(135deg, rgba(106,168,245,0.15), rgba(240,140,174,0.15)) border-box;
           border: 1px solid transparent;
-          box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05);
+          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
-        .field { width: 100%; background: rgba(14,14,26,0.04); border: 1px solid rgba(14,14,26,0.08); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #0E0E1A; outline: none; transition: border-color 0.2s; }
-        .field::placeholder { color: #9A9AA8; }
-        .field:focus { border-color: rgba(34,211,238,0.5); }
-        label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #8A8A99; margin-bottom: 8px; }
+        .field { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #F4F4F7; outline: none; transition: border-color 0.2s; }
+        .field::placeholder { color: #7E7E8E; }
+        .field:focus { border-color: rgba(106,168,245,0.5); }
+        label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #7E7E8E; margin-bottom: 8px; }
       `}</style>
 
       <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
       }} />
 
-      <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-[#0E0E1A]/[0.08]">
+      <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-white/[0.08]">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #A78BFA, #22D3EE)',
+          background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <div className="flex items-center gap-4">
-          {saved && <span className="text-emerald-600 text-sm font-semibold">✓ Saved</span>}
-          <Link href="/profile" className="text-[#5A5A6E] text-sm hover:text-[#3F3F4E] transition-colors">← Profile</Link>
+          {saved && <span className="text-emerald-400 text-sm font-semibold">✓ Saved</span>}
+          <Link href="/profile" className="text-[#A6A6B4] text-sm hover:text-[#C7C7D1] transition-colors">← Profile</Link>
         </div>
       </nav>
 
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-10 pb-24">
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-[#0E0E1A] mb-2">Edit your profile.</h1>
-          <p className="text-[#8A8A99] text-sm">Changes update your profile page and both CV versions immediately.</p>
+          <h1 className="text-3xl font-black text-[#F4F4F7] mb-2">Edit your profile.</h1>
+          <p className="text-[#7E7E8E] text-sm">Changes update your profile page and both CV versions immediately.</p>
         </div>
 
         {error && (
-          <div className="bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3 mb-6 text-sm text-[#E11D48]">{error}</div>
+          <div className="bg-[#F58E9A]/10 border border-[#F58E9A]/20 rounded-xl px-4 py-3 mb-6 text-sm text-[#F58E9A]">{error}</div>
         )}
 
         {/* Basic info */}
         <div className="gradient-border-card rounded-2xl p-6 mb-5 space-y-4">
-          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider">Basic info</p>
+          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">Basic info</p>
 
           {/* Profile photo */}
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)' }}>
+            <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
               {profileImageUrl
                 ? <img src={profileImageUrl} alt="Profile" className="w-full h-full object-cover" />
-                : <span className="text-[#8A8A99] text-2xl">{(fullName || '?').charAt(0).toUpperCase()}</span>}
+                : <span className="text-[#7E7E8E] text-2xl">{(fullName || '?').charAt(0).toUpperCase()}</span>}
             </div>
             <div>
               <label>Profile photo</label>
-              <label className="inline-block cursor-pointer text-xs font-bold px-3 py-2 rounded-lg" style={{ background: 'rgba(34,211,238,0.1)', color: '#0891B2', border: '1px solid rgba(34,211,238,0.25)' }}>
+              <label className="inline-block cursor-pointer text-xs font-bold px-3 py-2 rounded-lg" style={{ background: 'rgba(106,168,245,0.1)', color: '#6AA8F5', border: '1px solid rgba(106,168,245,0.25)' }}>
                 {uploadingImage ? 'Uploading…' : profileImageUrl ? 'Change photo' : 'Upload photo'}
                 <input type="file" accept="image/*" className="hidden"
                   onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f) }} />
               </label>
-              <p className="text-[#8A8A99] text-[10px] mt-1">JPG/PNG/WebP, under 5MB</p>
+              <p className="text-[#7E7E8E] text-[10px] mt-1">JPG/PNG/WebP, under 5MB</p>
             </div>
           </div>
 
@@ -335,7 +335,7 @@ export default function EditProfile() {
 
         {/* Summary */}
         <div className="gradient-border-card rounded-2xl p-6 mb-5">
-          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-4">Profile summary</p>
+          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-4">Profile summary</p>
           <label>Summary</label>
           <textarea
             className="field"
@@ -349,7 +349,7 @@ export default function EditProfile() {
 
         {/* Skills */}
         <div className="gradient-border-card rounded-2xl p-6 mb-5">
-          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-4">Skills</p>
+          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-4">Skills</p>
           <label>Skills (comma separated)</label>
           <input
             className="field"
@@ -360,7 +360,7 @@ export default function EditProfile() {
           {skillsRaw && (
             <div className="flex flex-wrap gap-2 mt-3">
               {skillsRaw.split(',').map(s => s.trim()).filter(Boolean).map((s, i) => (
-                <span key={i} className="bg-[#0E0E1A]/[0.04] text-[#3F3F4E] text-xs px-3 py-1.5 rounded-full">{s}</span>
+                <span key={i} className="bg-white/[0.05] text-[#C7C7D1] text-xs px-3 py-1.5 rounded-full">{s}</span>
               ))}
             </div>
           )}
@@ -369,23 +369,23 @@ export default function EditProfile() {
         {/* Work history */}
         <div className="gradient-border-card rounded-2xl p-6 mb-5">
           <div className="flex items-center justify-between mb-5">
-            <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider">Work history</p>
+            <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">Work history</p>
             <button onClick={addJob}
-              className="text-xs text-[#0891B2] font-bold hover:opacity-80 transition-opacity flex items-center gap-1">
+              className="text-xs text-[#6AA8F5] font-bold hover:opacity-80 transition-opacity flex items-center gap-1">
               + Add role
             </button>
           </div>
 
           {workHistory.length === 0 && (
-            <p className="text-[#8A8A99] text-sm text-center py-4">No roles yet — click &ldquo;Add role&rdquo; to start.</p>
+            <p className="text-[#7E7E8E] text-sm text-center py-4">No roles yet — click &ldquo;Add role&rdquo; to start.</p>
           )}
 
           <div className="space-y-6">
             {workHistory.map((job, i) => (
-              <div key={i} className={`${i > 0 ? 'pt-6 border-t border-[#0E0E1A]/[0.08]' : ''}`}>
+              <div key={i} className={`${i > 0 ? 'pt-6 border-t border-white/[0.08]' : ''}`}>
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-[#5A5A6E] text-xs font-bold">Role {i + 1}</p>
-                  <button onClick={() => removeJob(i)} className="text-[#E11D48]/60 text-xs hover:text-[#E11D48] transition-colors">Remove</button>
+                  <p className="text-[#A6A6B4] text-xs font-bold">Role {i + 1}</p>
+                  <button onClick={() => removeJob(i)} className="text-[#F58E9A]/60 text-xs hover:text-[#F58E9A] transition-colors">Remove</button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                   <div>
@@ -424,13 +424,13 @@ export default function EditProfile() {
         {/* Links & online presence */}
         <div className="gradient-border-card rounded-2xl p-6 mb-5 space-y-4">
           <div>
-            <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider">Links & online presence</p>
-            <p className="text-[#B0B0BC] text-xs mt-1">Shown on your public profile. All optional.</p>
+            <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">Links & online presence</p>
+            <p className="text-[#5C5C6A] text-xs mt-1">Shown on your public profile. All optional.</p>
           </div>
           <div>
             <label>LinkedIn URL</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#B0B0BC] text-sm font-bold select-none">in</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5C5C6A] text-sm font-bold select-none">in</span>
               <input
                 className="field"
                 style={{ paddingLeft: 32 }}
@@ -444,7 +444,7 @@ export default function EditProfile() {
           <div>
             <label>GitHub URL</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#B0B0BC] text-xs select-none">{'</>'}</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5C5C6A] text-xs select-none">{'</>'}</span>
               <input
                 className="field"
                 style={{ paddingLeft: 36 }}
@@ -458,7 +458,7 @@ export default function EditProfile() {
           <div>
             <label>Personal website</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#B0B0BC] text-xs select-none">🌐</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5C5C6A] text-xs select-none">🌐</span>
               <input
                 className="field"
                 style={{ paddingLeft: 30 }}
@@ -472,7 +472,7 @@ export default function EditProfile() {
           <div>
             <label>Portfolio / project URL</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#B0B0BC] text-xs select-none">🗂</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5C5C6A] text-xs select-none">🗂</span>
               <input
                 className="field"
                 style={{ paddingLeft: 30 }}
@@ -488,8 +488,8 @@ export default function EditProfile() {
         {/* Identity & Languages */}
         <div className="gradient-border-card rounded-2xl p-6 mb-5 space-y-4">
           <div>
-            <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider">Identity & languages</p>
-            <p className="text-[#B0B0BC] text-xs mt-1">Detected from your CV. Correct if anything is wrong — used for native language CV generation.</p>
+            <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">Identity & languages</p>
+            <p className="text-[#5C5C6A] text-xs mt-1">Detected from your CV. Correct if anything is wrong — used for native language CV generation.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -520,16 +520,16 @@ export default function EditProfile() {
               <button
                 type="button"
                 onClick={() => setLanguagesSpoken(prev => [...prev, { language: '', level: 'Fluent' }])}
-                className="text-[#0891B2] text-xs font-bold hover:opacity-80"
+                className="text-[#6AA8F5] text-xs font-bold hover:opacity-80"
               >
                 + Add language
               </button>
             </div>
-            <p className="text-[#8A8A99] text-xs mb-3">
+            <p className="text-[#7E7E8E] text-xs mb-3">
               Add every language you speak. Each unlocks a CV in that language on the download page.
             </p>
             {languagesSpoken.length === 0 ? (
-              <p className="text-[#8A8A99] text-xs italic">No languages added yet — click &quot;Add language&quot; above.</p>
+              <p className="text-[#7E7E8E] text-xs italic">No languages added yet — click &quot;Add language&quot; above.</p>
             ) : (
               <div className="space-y-2">
                 {languagesSpoken.map((l, i) => (
@@ -548,13 +548,13 @@ export default function EditProfile() {
                       style={{ flex: 1, minWidth: 120 }}
                     >
                       {PROFICIENCY_LEVELS.map(lvl => (
-                        <option key={lvl} value={lvl} style={{ background: '#ffffff' }}>{lvl}</option>
+                        <option key={lvl} value={lvl} style={{ background: '#16161F' }}>{lvl}</option>
                       ))}
                     </select>
                     <button
                       type="button"
                       onClick={() => setLanguagesSpoken(prev => prev.filter((_, j) => j !== i))}
-                      className="text-[#8A8A99] hover:text-[#E11D48] text-lg px-2"
+                      className="text-[#7E7E8E] hover:text-[#F58E9A] text-lg px-2"
                       aria-label="Remove language"
                     >
                       ✕
@@ -569,13 +569,13 @@ export default function EditProfile() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="!mb-0">Right to work</label>
-              <button type="button" onClick={addRtw} className="text-[#0891B2] text-xs font-bold hover:opacity-80">+ Add country/region</button>
+              <button type="button" onClick={addRtw} className="text-[#6AA8F5] text-xs font-bold hover:opacity-80">+ Add country/region</button>
             </div>
-            <p className="text-[#8A8A99] text-xs mb-3">
+            <p className="text-[#7E7E8E] text-xs mb-3">
               Where you&apos;re authorised to work, and on what basis. Add all that apply (e.g. UK PR, Saudi PR, EU/EEA via citizenship). Shown as self-reported until document-verified.
             </p>
             {rightToWork.length === 0 ? (
-              <p className="text-[#8A8A99] text-xs italic">None added yet — click &quot;Add country/region&quot;.</p>
+              <p className="text-[#7E7E8E] text-xs italic">None added yet — click &quot;Add country/region&quot;.</p>
             ) : (
               <div className="space-y-2">
                 {rightToWork.map((r, i) => (
@@ -594,10 +594,10 @@ export default function EditProfile() {
                       style={{ flex: 1, minWidth: 150 }}
                     >
                       {RTW_BASIS.map(b => (
-                        <option key={b.value} value={b.value} style={{ background: '#ffffff' }}>{b.label}</option>
+                        <option key={b.value} value={b.value} style={{ background: '#16161F' }}>{b.label}</option>
                       ))}
                     </select>
-                    <button type="button" onClick={() => removeRtw(i)} className="text-[#8A8A99] hover:text-[#E11D48] text-lg px-2" aria-label="Remove">✕</button>
+                    <button type="button" onClick={() => removeRtw(i)} className="text-[#7E7E8E] hover:text-[#F58E9A] text-lg px-2" aria-label="Remove">✕</button>
                   </div>
                 ))}
               </div>
@@ -606,48 +606,48 @@ export default function EditProfile() {
 
           {/* Language proficiency — read-only, set by WhatsApp analysis */}
           {languageProficiency && (
-            <div className="bg-[#0E0E1A]/[0.04] border border-[#0E0E1A]/[0.08] rounded-xl p-4">
-              <p className="text-[#8A8A99] text-xs font-bold uppercase tracking-wider mb-3">Language proficiency — assessed from WhatsApp</p>
+            <div className="bg-white/[0.05] border border-white/[0.08] rounded-xl p-4">
+              <p className="text-[#7E7E8E] text-xs font-bold uppercase tracking-wider mb-3">Language proficiency — assessed from WhatsApp</p>
               <div className="flex flex-wrap gap-3">
                 {languageProficiency.cefr_level && (
                   <div
-                    className="bg-[#22D3EE]/10 border border-[#22D3EE]/20 rounded-xl px-4 py-2 text-center cursor-help"
+                    className="bg-[#6AA8F5]/10 border border-[#6AA8F5]/20 rounded-xl px-4 py-2 text-center cursor-help"
                     title={`CEFR ${languageProficiency.cefr_level} (${languageProficiency.conversation_language || 'detected language'}): ${CEFR_INFO[languageProficiency.cefr_level] || 'Common European Framework of Reference for Languages — international standard for language proficiency from A1 (beginner) to C2 (mastery).'}`}
                   >
-                    <p className="text-[#0891B2] text-lg font-black">{languageProficiency.cefr_level}</p>
-                    <p className="text-[#8A8A99] text-xs">CEFR · {languageProficiency.conversation_language || 'Language'} <span className="opacity-50">ⓘ</span></p>
+                    <p className="text-[#6AA8F5] text-lg font-black">{languageProficiency.cefr_level}</p>
+                    <p className="text-[#7E7E8E] text-xs">CEFR · {languageProficiency.conversation_language || 'Language'} <span className="opacity-50">ⓘ</span></p>
                   </div>
                 )}
                 {languageProficiency.ielts_equivalent && (
                   <div
-                    className="bg-[#A78BFA]/10 border border-[#A78BFA]/20 rounded-xl px-4 py-2 text-center cursor-help"
+                    className="bg-[#F08CAE]/10 border border-[#F08CAE]/20 rounded-xl px-4 py-2 text-center cursor-help"
                     title={`IELTS ${languageProficiency.ielts_equivalent}: International English Language Testing System band. ${IELTS_BAND_INFO[languageProficiency.ielts_equivalent.replace(/[^0-9-]/g, '')] || 'Bands range 0 (no English) to 9 (expert/native).'}`}
                   >
-                    <p className="text-[#7C3AED] text-lg font-black">{languageProficiency.ielts_equivalent}</p>
-                    <p className="text-[#8A8A99] text-xs">IELTS equivalent <span className="opacity-50">ⓘ</span></p>
+                    <p className="text-[#F08CAE] text-lg font-black">{languageProficiency.ielts_equivalent}</p>
+                    <p className="text-[#7E7E8E] text-xs">IELTS equivalent <span className="opacity-50">ⓘ</span></p>
                   </div>
                 )}
                 {languageProficiency.english_level && languageProficiency.english_level !== 'unassessed' && (
                   <div
-                    className="bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-2 text-center cursor-help"
+                    className="bg-[#F58E9A]/10 border border-[#F58E9A]/20 rounded-xl px-4 py-2 text-center cursor-help"
                     title={`English CEFR ${languageProficiency.english_level}: ${CEFR_INFO[languageProficiency.english_level] || 'Common European Framework level for English specifically — A1 (beginner) through C2 (mastery).'}`}
                   >
-                    <p className="text-[#E11D48] text-lg font-black">{languageProficiency.english_level}</p>
-                    <p className="text-[#8A8A99] text-xs">English CEFR <span className="opacity-50">ⓘ</span></p>
+                    <p className="text-[#F58E9A] text-lg font-black">{languageProficiency.english_level}</p>
+                    <p className="text-[#7E7E8E] text-xs">English CEFR <span className="opacity-50">ⓘ</span></p>
                   </div>
                 )}
               </div>
               {/* Mini CEFR scale legend, always visible — helps non-technical candidates calibrate */}
-              <div className="mt-3 p-2 rounded-lg bg-[#0E0E1A]/[0.04] border border-[#0E0E1A]/[0.08]">
-                <p className="text-[#8A8A99] text-[10px] font-bold uppercase tracking-wider mb-1">CEFR scale (hover any badge for detail)</p>
-                <p className="text-[#5A5A6E] text-xs leading-relaxed">
-                  <strong className="text-[#3F3F4E]">A1/A2</strong> Beginner · <strong className="text-[#3F3F4E]">B1/B2</strong> Intermediate (B2 = fluent professional) · <strong className="text-[#3F3F4E]">C1/C2</strong> Advanced / near-native
+              <div className="mt-3 p-2 rounded-lg bg-white/[0.05] border border-white/[0.08]">
+                <p className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider mb-1">CEFR scale (hover any badge for detail)</p>
+                <p className="text-[#A6A6B4] text-xs leading-relaxed">
+                  <strong className="text-[#C7C7D1]">A1/A2</strong> Beginner · <strong className="text-[#C7C7D1]">B1/B2</strong> Intermediate (B2 = fluent professional) · <strong className="text-[#C7C7D1]">C1/C2</strong> Advanced / near-native
                 </p>
               </div>
               {languageProficiency.proficiency_notes && (
-                <p className="text-[#8A8A99] text-xs mt-3 leading-relaxed">{languageProficiency.proficiency_notes}</p>
+                <p className="text-[#7E7E8E] text-xs mt-3 leading-relaxed">{languageProficiency.proficiency_notes}</p>
               )}
-              <p className="text-[#B0B0BC] text-xs mt-2">Assessed automatically — complete more of your WhatsApp conversation to improve accuracy.</p>
+              <p className="text-[#5C5C6A] text-xs mt-2">Assessed automatically — complete more of your WhatsApp conversation to improve accuracy.</p>
             </div>
           )}
         </div>
@@ -655,8 +655,8 @@ export default function EditProfile() {
         {/* Availability & salary */}
         <div className="gradient-border-card rounded-2xl p-6 mb-5 space-y-5">
           <div>
-            <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider">Availability & salary</p>
-            <p className="text-[#B0B0BC] text-xs mt-1">Your salary expectations are <span className="font-bold text-[#5A5A6E]">private</span> — used for matching and shown only to companies you match with.</p>
+            <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">Availability & salary</p>
+            <p className="text-[#5C5C6A] text-xs mt-1">Your salary expectations are <span className="font-bold text-[#A6A6B4]">private</span> — used for matching and shown only to companies you match with.</p>
           </div>
 
           {/* Intent status */}
@@ -670,11 +670,11 @@ export default function EditProfile() {
                   onClick={() => setJobSearchStatus(opt.value)}
                   className="text-left rounded-xl px-4 py-3 transition-all"
                   style={jobSearchStatus === opt.value
-                    ? { background: 'rgba(34,211,238,0.1)', border: '1px solid rgba(34,211,238,0.45)' }
-                    : { background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)' }}
+                    ? { background: 'rgba(106,168,245,0.1)', border: '1px solid rgba(106,168,245,0.45)' }
+                    : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
                 >
-                  <p className="text-sm font-bold" style={{ color: jobSearchStatus === opt.value ? '#0891B2' : '#3F3F4E' }}>{opt.label}</p>
-                  <p className="text-[#8A8A99] text-[11px] mt-0.5 leading-tight">{opt.sub}</p>
+                  <p className="text-sm font-bold" style={{ color: jobSearchStatus === opt.value ? '#6AA8F5' : '#A6A6B4' }}>{opt.label}</p>
+                  <p className="text-[#7E7E8E] text-[11px] mt-0.5 leading-tight">{opt.sub}</p>
                 </button>
               ))}
             </div>
@@ -695,14 +695,14 @@ export default function EditProfile() {
                     onClick={() => setOpenToEngagement(prev => on ? prev.filter(x => x !== o.v) : [...prev, o.v])}
                     className="text-sm font-bold px-4 py-2 rounded-full transition-all"
                     style={on
-                      ? { background: 'rgba(34,211,238,0.12)', border: '1px solid rgba(34,211,238,0.45)', color: '#0891B2' }
-                      : { background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)', color: '#5A5A6E' }}>
+                      ? { background: 'rgba(106,168,245,0.12)', border: '1px solid rgba(106,168,245,0.45)', color: '#6AA8F5' }
+                      : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#A6A6B4' }}>
                     {on ? '✓ ' : ''}{o.l}
                   </button>
                 )
               })}
             </div>
-            <p className="text-[#8A8A99] text-xs mt-2">Which kinds of work you&apos;ll consider. Helps us match you to the right roles.</p>
+            <p className="text-[#7E7E8E] text-xs mt-2">Which kinds of work you&apos;ll consider. Helps us match you to the right roles.</p>
           </div>
 
           {/* Looking for — roles + industries */}
@@ -713,14 +713,14 @@ export default function EditProfile() {
             {targetRolesRaw && (
               <div className="flex flex-wrap gap-2 mt-2">
                 {targetRolesRaw.split(',').map(s => s.trim()).filter(Boolean).map((s, i) => (
-                  <span key={i} className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(6,182,212,0.10)', color: '#0891B2' }}>{s}</span>
+                  <span key={i} className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(106,168,245,0.10)', color: '#6AA8F5' }}>{s}</span>
                 ))}
               </div>
             )}
           </div>
           <div>
             <label>Target industries</label>
-            <p className="text-[#8A8A99] text-xs mb-2">We&apos;ll surface you for these — and lead with the matching CV when a company in that field views you.</p>
+            <p className="text-[#7E7E8E] text-xs mb-2">We&apos;ll surface you for these — and lead with the matching CV when a company in that field views you.</p>
             <div className="flex flex-wrap gap-2">
               {SUPPORTED_INDUSTRIES.map(ind => {
                 const on = targetIndustries.includes(ind)
@@ -730,8 +730,8 @@ export default function EditProfile() {
                     onClick={() => setTargetIndustries(prev => on ? prev.filter(x => x !== ind) : [...prev, ind])}
                     className="text-sm font-bold px-3 py-1.5 rounded-full transition-all"
                     style={on
-                      ? { background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.45)', color: '#7C3AED' }
-                      : { background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)', color: '#5A5A6E' }}>
+                      ? { background: 'rgba(240,140,174,0.12)', border: '1px solid rgba(240,140,174,0.45)', color: '#F08CAE' }
+                      : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#A6A6B4' }}>
                     {meta.emoji} {meta.label}
                   </button>
                 )
@@ -744,30 +744,30 @@ export default function EditProfile() {
             <div>
               <label>Currency</label>
               <select className="field" value={salCurrency} onChange={e => setSalCurrency(e.target.value)}>
-                {CURRENCIES.map(c => <option key={c} value={c} style={{ background: '#ffffff' }}>{c}</option>)}
+                {CURRENCIES.map(c => <option key={c} value={c} style={{ background: '#16161F' }}>{c}</option>)}
               </select>
             </div>
             <div>
               <label>Per</label>
               <select className="field" value={salPeriod} onChange={e => setSalPeriod(e.target.value as 'month' | 'year')}>
-                <option value="month" style={{ background: '#ffffff' }}>Month</option>
-                <option value="year" style={{ background: '#ffffff' }}>Year</option>
+                <option value="month" style={{ background: '#16161F' }}>Month</option>
+                <option value="year" style={{ background: '#16161F' }}>Year</option>
               </select>
             </div>
             <label className="flex items-end gap-2 pb-3 cursor-pointer">
-              <input type="checkbox" checked={salAllowances} onChange={e => setSalAllowances(e.target.checked)} className="w-4 h-4 accent-[#06B6D4]" />
-              <span className="text-[#3F3F4E] text-xs font-medium normal-case tracking-normal">Incl. allowances</span>
+              <input type="checkbox" checked={salAllowances} onChange={e => setSalAllowances(e.target.checked)} className="w-4 h-4 accent-[#6AA8F5]" />
+              <span className="text-[#C7C7D1] text-xs font-medium normal-case tracking-normal">Incl. allowances</span>
             </label>
             <label className="flex items-end gap-2 pb-3 cursor-pointer">
-              <input type="checkbox" checked={salFlexible} onChange={e => setSalFlexible(e.target.checked)} className="w-4 h-4 accent-[#06B6D4]" />
-              <span className="text-[#3F3F4E] text-xs font-medium normal-case tracking-normal">Negotiable</span>
+              <input type="checkbox" checked={salFlexible} onChange={e => setSalFlexible(e.target.checked)} className="w-4 h-4 accent-[#6AA8F5]" />
+              <span className="text-[#C7C7D1] text-xs font-medium normal-case tracking-normal">Negotiable</span>
             </label>
           </div>
 
           {/* Primary expectation */}
           <div>
             <label>Primary expectation — your main field</label>
-            <p className="text-[#8A8A99] text-xs mb-2">Where you have the experience and references to back it up.</p>
+            <p className="text-[#7E7E8E] text-xs mb-2">Where you have the experience and references to back it up.</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <input className="field" value={primaryTrack} onChange={e => setPrimaryTrack(e.target.value)} placeholder="Field, e.g. Operations" />
               <input className="field" value={primaryMin} onChange={e => setPrimaryMin(e.target.value)} placeholder={`Min (${salCurrency})`} inputMode="numeric" />
@@ -779,20 +779,20 @@ export default function EditProfile() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="!mb-0">Pivot tracks — open from a lower band</label>
-              <button type="button" onClick={addPivot} className="text-[#0891B2] text-xs font-bold hover:opacity-80">+ Add track</button>
+              <button type="button" onClick={addPivot} className="text-[#6AA8F5] text-xs font-bold hover:opacity-80">+ Add track</button>
             </div>
-            <p className="text-[#8A8A99] text-xs mb-3">
+            <p className="text-[#7E7E8E] text-xs mb-3">
               Exploring a new field where you&apos;re still building experience? Set a fair, lower band for it — it rises as you upskill. Companies hiring for that track see the right number.
             </p>
             {pivotBands.length === 0 ? (
-              <p className="text-[#8A8A99] text-xs italic">None yet — add a track you&apos;re open to at a different rate.</p>
+              <p className="text-[#7E7E8E] text-xs italic">None yet — add a track you&apos;re open to at a different rate.</p>
             ) : (
               <div className="space-y-3">
                 {pivotBands.map((p, i) => (
                   <div key={i} className="rounded-xl p-3" style={{ background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)' }}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[#8A8A99] text-[11px] font-bold uppercase tracking-wider">Pivot track {i + 1}</span>
-                      <button type="button" onClick={() => removePivot(i)} className="text-[#8A8A99] hover:text-[#E11D48] text-sm">✕</button>
+                      <span className="text-[#7E7E8E] text-[11px] font-bold uppercase tracking-wider">Pivot track {i + 1}</span>
+                      <button type="button" onClick={() => removePivot(i)} className="text-[#7E7E8E] hover:text-[#F58E9A] text-sm">✕</button>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2">
                       <input className="field" value={p.track} onChange={e => updatePivot(i, 'track', e.target.value)} placeholder="Track, e.g. UX Design" />
@@ -811,13 +811,13 @@ export default function EditProfile() {
         <button
           onClick={save}
           disabled={saving}
-          className="w-full bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] py-4 rounded-full font-black text-sm text-[#060609] hover:opacity-90 transition-opacity disabled:opacity-50"
+          className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] py-4 rounded-full font-black text-sm text-[#060609] hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save changes →'}
         </button>
         <button
           onClick={() => router.push('/profile')}
-          className="w-full py-3 text-sm text-[#8A8A99] hover:text-[#5A5A6E] transition-colors mt-2"
+          className="w-full py-3 text-sm text-[#7E7E8E] hover:text-[#A6A6B4] transition-colors mt-2"
         >
           Cancel
         </button>

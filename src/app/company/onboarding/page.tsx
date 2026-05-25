@@ -64,8 +64,8 @@ export default function CompanyOnboarding() {
     return (
       <Screen>
         <ShapiCharacter mood="thinking" size={90} className="mb-6" />
-        <h2 className="text-2xl font-black text-[#0E0E1A] mb-3 text-center">Setting up your company profile...</h2>
-        <p className="text-[#5A5A6E] text-sm text-center leading-relaxed max-w-xs">
+        <h2 className="text-2xl font-black text-[#F4F4F7] mb-3 text-center">Setting up your company profile...</h2>
+        <p className="text-[#A6A6B4] text-sm text-center leading-relaxed max-w-xs">
           Pulling public data — Glassdoor rating, Reddit sentiment, recent news. About 15 seconds.
         </p>
       </Screen>
@@ -76,21 +76,21 @@ export default function CompanyOnboarding() {
     return (
       <Screen>
         <ShapiCharacter mood="happy" size={90} className="mb-6" />
-        <h2 className="text-2xl font-black text-[#0E0E1A] mb-3 text-center">
+        <h2 className="text-2xl font-black text-[#F4F4F7] mb-3 text-center">
           {companyName} is set up.
         </h2>
-        <p className="text-[#5A5A6E] text-sm text-center leading-relaxed mb-8 max-w-xs">
+        <p className="text-[#A6A6B4] text-sm text-center leading-relaxed mb-8 max-w-xs">
           We&apos;ve pulled your company intelligence from public sources. Post your first role and we&apos;ll start matching.
         </p>
         <div className="w-full max-w-sm space-y-3">
           <button
             onClick={() => router.push('/company/roles/new')}
-            className="w-full bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] py-4 rounded-full font-black text-sm text-[#060609] hover:opacity-90 transition-opacity">
+            className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity">
             Post your first role →
           </button>
           <button
             onClick={() => router.push('/company/dashboard')}
-            className="w-full py-3 text-sm text-[#8A8A99] hover:text-[#3F3F4E] transition-colors">
+            className="w-full py-3 text-sm text-[#7E7E8E] hover:text-[#C7C7D1] transition-colors">
             Go to dashboard first
           </button>
         </div>
@@ -99,48 +99,48 @@ export default function CompanyOnboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F1F2F7]">
+    <div className="min-h-screen bg-[#0E0E13]">
       <style>{`
         .gradient-border-card {
-          background: linear-gradient(#ffffff, #ffffff) padding-box,
-                      linear-gradient(135deg, rgba(34,211,238,0.15), rgba(139,92,246,0.15)) border-box;
+          background: linear-gradient(#16161F, #16161F) padding-box,
+                      linear-gradient(135deg, rgba(106,168,245,0.15), rgba(240,140,174,0.15)) border-box;
           border: 1px solid transparent;
-          box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05);
+          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
-        .field { width: 100%; background: rgba(14,14,26,0.04); border: 1px solid rgba(14,14,26,0.08); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #0E0E1A; outline: none; transition: border-color 0.2s; }
-        .field::placeholder { color: rgba(154,154,168,1); }
-        .field:focus { border-color: rgba(34,211,238,0.5); }
-        label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(90,90,110,1); margin-bottom: 8px; }
+        .field { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #F4F4F7; outline: none; transition: border-color 0.2s; }
+        .field::placeholder { color: rgba(126,126,142,1); }
+        .field:focus { border-color: rgba(106,168,245,0.5); }
+        label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #A6A6B4; margin-bottom: 8px; }
       `}</style>
 
       <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
       }} />
 
-      <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-[#0E0E1A]/[0.08]">
+      <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-[rgba(255,255,255,0.08)]">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #A78BFA, #22D3EE)',
+          background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
-        <span className="text-[#8A8A99] text-xs">Company setup</span>
+        <span className="text-[#7E7E8E] text-xs">Company setup</span>
       </nav>
 
       <div className="relative z-10 max-w-2xl mx-auto px-6 pt-10 pb-24">
 
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-[#0E0E1A] mb-2">Set up your company.</h1>
-          <p className="text-[#5A5A6E] text-sm leading-relaxed">
+          <h1 className="text-3xl font-black text-[#F4F4F7] mb-2">Set up your company.</h1>
+          <p className="text-[#A6A6B4] text-sm leading-relaxed">
             Takes 2 minutes. We pull your company data from public sources automatically — Glassdoor, LinkedIn, Reddit, news.
           </p>
         </div>
 
         {error && (
-          <div className="bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3 mb-6 text-sm text-[#E11D48]">{error}</div>
+          <div className="bg-[#F58E9A]/10 border border-[#F58E9A]/20 rounded-xl px-4 py-3 mb-6 text-sm text-[#F58E9A]">{error}</div>
         )}
 
         <div className="gradient-border-card rounded-2xl p-6 mb-5 space-y-4">
-          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider">Company details</p>
+          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">Company details</p>
 
           <div>
             <label>Company name *</label>
@@ -168,8 +168,8 @@ export default function CompanyOnboarding() {
                 <button key={s} type="button" onClick={() => setSize(s)}
                   className={`py-2 rounded-xl text-xs font-bold transition-colors ${
                     size === s
-                      ? 'bg-[#22D3EE] text-[#060609]'
-                      : 'bg-[#0E0E1A]/[0.04] text-[#5A5A6E] hover:bg-[#0E0E1A]/[0.03]'
+                      ? 'bg-[#6AA8F5] text-[#fff]'
+                      : 'bg-[rgba(255,255,255,0.05)] text-[#A6A6B4] hover:bg-[rgba(255,255,255,0.07)]'
                   }`}>
                   {s}
                 </button>
@@ -178,7 +178,7 @@ export default function CompanyOnboarding() {
           </div>
 
           <div>
-            <label>What makes your company a great place to work? <span className="text-[#B0B0BC] normal-case font-normal">(optional)</span></label>
+            <label>What makes your company a great place to work? <span className="text-[#5C5C6A] normal-case font-normal">(optional)</span></label>
             <textarea className="field" rows={3} value={about} onChange={e => setAbout(e.target.value)}
               placeholder="Culture, mission, what kind of people thrive here..."
               style={{ resize: 'vertical' }} />
@@ -187,7 +187,7 @@ export default function CompanyOnboarding() {
 
         {/* What Shapi will pull automatically */}
         <div className="gradient-border-card rounded-2xl p-5 mb-6">
-          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-3">We&apos;ll pull automatically</p>
+          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-3">We&apos;ll pull automatically</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { icon: '⭐', label: 'Glassdoor rating' },
@@ -195,13 +195,13 @@ export default function CompanyOnboarding() {
               { icon: '📰', label: 'Recent news' },
               { icon: '🏢', label: 'Company size & industry' },
             ].map((item, i) => (
-              <div key={i} className="bg-[#0E0E1A]/[0.04] rounded-xl p-3 text-center">
+              <div key={i} className="bg-[rgba(255,255,255,0.05)] rounded-xl p-3 text-center">
                 <div className="text-lg mb-1">{item.icon}</div>
-                <p className="text-[#5A5A6E] text-xs">{item.label}</p>
+                <p className="text-[#A6A6B4] text-xs">{item.label}</p>
               </div>
             ))}
           </div>
-          <p className="text-[#B0B0BC] text-xs mt-3">
+          <p className="text-[#5C5C6A] text-xs mt-3">
             Sourced from public data. Candidates see this alongside your job postings. You can edit anything.
           </p>
         </div>
@@ -209,7 +209,7 @@ export default function CompanyOnboarding() {
         <button
           onClick={submit}
           disabled={saving}
-          className="w-full bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] py-4 rounded-full font-black text-sm text-[#060609] hover:opacity-90 transition-opacity disabled:opacity-50">
+          className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity disabled:opacity-50">
           {saving ? 'Setting up...' : 'Set up company — takes 15 seconds →'}
         </button>
       </div>
@@ -219,9 +219,9 @@ export default function CompanyOnboarding() {
 
 function Screen({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#F1F2F7] flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-[#0E0E13] flex flex-col items-center justify-center px-6">
       <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
       }} />
       <div className="relative z-10 flex flex-col items-center max-w-sm w-full">{children}</div>

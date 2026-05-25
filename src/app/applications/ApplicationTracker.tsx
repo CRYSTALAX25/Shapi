@@ -57,40 +57,40 @@ export default function ApplicationTracker({ applications }: { applications: App
         const passed = a.stage === 'passed'
         const stageIdx = STAGE_ORDER.indexOf(a.stage)
         return (
-          <div key={a.id} className="bg-white rounded-2xl p-6" style={{ border: '1px solid rgba(14,14,26,0.08)', boxShadow: '0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05)' }}>
+          <div key={a.id} className="bg-[#16161F] rounded-2xl p-6" style={{ border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)' }}>
             <div className="flex items-start justify-between gap-4 mb-4">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="text-[#0E0E1A] font-black text-lg">{idx === 0 && score != null ? '⭐ ' : ''}{a.role?.title || 'Role'}</h3>
+                  <h3 className="text-[#F4F4F7] font-black text-lg">{idx === 0 && score != null ? '⭐ ' : ''}{a.role?.title || 'Role'}</h3>
                   {a.role?.engagement_type && a.role.engagement_type !== 'permanent' && (
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full capitalize" style={{ background: 'rgba(167,139,250,0.14)', color: '#7C3AED' }}>{a.role.engagement_type === 'temp' ? 'Temp / Shift' : 'Contract'}</span>
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full capitalize" style={{ background: 'rgba(240,140,174,0.14)', color: '#F08CAE' }}>{a.role.engagement_type === 'temp' ? 'Temp / Shift' : 'Contract'}</span>
                   )}
                 </div>
-                <p className="text-[#5A5A6E] text-sm">{a.company_name}{a.role?.location ? ` · ${a.role.location}` : ''}</p>
+                <p className="text-[#A6A6B4] text-sm">{a.company_name}{a.role?.location ? ` · ${a.role.location}` : ''}</p>
                 {a.role?.salary_min && a.role?.salary_max && (
-                  <p className="text-[#0891B2] text-sm font-bold mt-0.5">{a.role.salary_currency} {a.role.salary_min.toLocaleString()}–{a.role.salary_max.toLocaleString()}</p>
+                  <p className="text-[#6AA8F5] text-sm font-bold mt-0.5">{a.role.salary_currency} {a.role.salary_min.toLocaleString()}–{a.role.salary_max.toLocaleString()}</p>
                 )}
               </div>
               {score != null && (
                 <div className="text-right flex-shrink-0">
-                  <div className="text-2xl font-black" style={{ color: '#7C3AED' }}>{score}</div>
-                  <div className="text-[#8A8A99] text-[10px]">your score</div>
+                  <div className="text-2xl font-black" style={{ color: '#F08CAE' }}>{score}</div>
+                  <div className="text-[#7E7E8E] text-[10px]">your score</div>
                 </div>
               )}
             </div>
 
             {/* Stage tracker */}
             {passed ? (
-              <div className="inline-block text-xs font-bold px-3 py-1 rounded-full mb-4" style={{ background: 'rgba(14,14,26,0.05)', color: '#8A8A99' }}>Not progressed</div>
+              <div className="inline-block text-xs font-bold px-3 py-1 rounded-full mb-4" style={{ background: 'rgba(255,255,255,0.05)', color: '#7E7E8E' }}>Not progressed</div>
             ) : (
               <div className="flex items-center gap-1 mb-4">
                 {STAGE_ORDER.map((s, i) => (
                   <div key={s} className="flex items-center flex-1 last:flex-none">
                     <div className="flex flex-col items-center">
-                      <div className="w-3 h-3 rounded-full" style={{ background: i <= stageIdx ? 'linear-gradient(135deg,#06B6D4,#7C3AED)' : 'rgba(14,14,26,0.10)' }} />
-                      <span className="text-[9px] mt-1 font-semibold" style={{ color: i <= stageIdx ? '#3F3F4E' : '#B0B0BC' }}>{STAGE_LABEL[s]}</span>
+                      <div className="w-3 h-3 rounded-full" style={{ background: i <= stageIdx ? 'linear-gradient(135deg,#6AA8F5,#F08CAE)' : 'rgba(255,255,255,0.10)' }} />
+                      <span className="text-[9px] mt-1 font-semibold" style={{ color: i <= stageIdx ? '#C7C7D1' : '#5C5C6A' }}>{STAGE_LABEL[s]}</span>
                     </div>
-                    {i < STAGE_ORDER.length - 1 && <div className="h-0.5 flex-1 mx-1" style={{ background: i < stageIdx ? 'linear-gradient(135deg,#06B6D4,#7C3AED)' : 'rgba(14,14,26,0.10)' }} />}
+                    {i < STAGE_ORDER.length - 1 && <div className="h-0.5 flex-1 mx-1" style={{ background: i < stageIdx ? 'linear-gradient(135deg,#6AA8F5,#F08CAE)' : 'rgba(255,255,255,0.10)' }} />}
                   </div>
                 ))}
               </div>
@@ -98,10 +98,10 @@ export default function ApplicationTracker({ applications }: { applications: App
 
             {/* Booked interview */}
             {a.interview?.scheduled_at && (
-              <div className="rounded-xl px-4 py-3 mb-4 flex items-center justify-between gap-3" style={{ background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.2)' }}>
+              <div className="rounded-xl px-4 py-3 mb-4 flex items-center justify-between gap-3" style={{ background: 'rgba(240,140,174,0.08)', border: '1px solid rgba(240,140,174,0.2)' }}>
                 <div>
-                  <p className="text-[#7C3AED] text-sm font-bold">📅 Interview · {fmtWhen(a.interview.scheduled_at)}</p>
-                  <p className="text-[#8A8A99] text-xs">
+                  <p className="text-[#F08CAE] text-sm font-bold">📅 Interview · {fmtWhen(a.interview.scheduled_at)}</p>
+                  <p className="text-[#7E7E8E] text-xs">
                     {a.interview.video_platform === 'in_person'
                       ? (a.interview.location ? `📍 ${a.interview.location}` : 'In person')
                       : PLATFORM_LABEL[a.interview.video_platform || 'other'] || 'Video call'}
@@ -109,7 +109,7 @@ export default function ApplicationTracker({ applications }: { applications: App
                 </div>
                 {a.interview.video_platform !== 'in_person' && a.interview.meeting_link && (
                   <a href={a.interview.meeting_link} target="_blank" rel="noopener noreferrer"
-                    className="flex-shrink-0 text-white text-xs font-black px-4 py-2 rounded-full" style={{ background: 'linear-gradient(135deg,#06B6D4,#7C3AED)' }}>
+                    className="flex-shrink-0 text-white text-xs font-black px-4 py-2 rounded-full" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>
                     Join call →
                   </a>
                 )}
@@ -121,13 +121,13 @@ export default function ApplicationTracker({ applications }: { applications: App
               isFeedbacking ? (
                 <CandidateFeedbackEditor initial={a.feedback} busy={busy === a.role_id} onCancel={() => setFeedbacking(null)} onSave={fb => saveFeedback(a.role_id, fb)} />
               ) : (
-                <div className="rounded-xl px-4 py-3 mb-4 flex items-center justify-between gap-3" style={{ background: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                <div className="rounded-xl px-4 py-3 mb-4 flex items-center justify-between gap-3" style={{ background: 'rgba(106,168,245,0.07)', border: '1px solid rgba(106,168,245,0.2)' }}>
                   {a.feedback && (a.feedback.rating != null || a.feedback.move_forward != null) ? (
-                    <p className="text-sm font-bold" style={{ color: '#059669' }}>Your feedback: {a.feedback.rating != null ? `${a.feedback.rating}/5` : '—'}{a.feedback.move_forward != null ? ` · ${a.feedback.move_forward ? 'Keen to continue' : 'Not for me'}` : ''}</p>
+                    <p className="text-sm font-bold" style={{ color: '#6AA8F5' }}>Your feedback: {a.feedback.rating != null ? `${a.feedback.rating}/5` : '—'}{a.feedback.move_forward != null ? ` · ${a.feedback.move_forward ? 'Keen to continue' : 'Not for me'}` : ''}</p>
                   ) : (
-                    <p className="text-[#3F3F4E] text-sm">How did the interview go? Your feedback stays private and helps us improve matches.</p>
+                    <p className="text-[#C7C7D1] text-sm">How did the interview go? Your feedback stays private and helps us improve matches.</p>
                   )}
-                  <button onClick={() => setFeedbacking(a.role_id)} className="flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(16,185,129,0.12)', color: '#059669' }}>
+                  <button onClick={() => setFeedbacking(a.role_id)} className="flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>
                     {a.feedback ? 'Edit' : 'Give feedback'}
                   </button>
                 </div>
@@ -138,17 +138,17 @@ export default function ApplicationTracker({ applications }: { applications: App
             {isScoring ? (
               <CandidateScoreEditor initial={a.candidate_scorecard} busy={busy === a.role_id} onCancel={() => setScoring(null)} onSave={sc => save(a.role_id, sc)} />
             ) : (
-              <div className="flex items-center justify-between gap-3 pt-3 border-t border-[#0E0E1A]/[0.06]">
+              <div className="flex items-center justify-between gap-3 pt-3 border-t border-[rgba(255,255,255,0.06)]">
                 {a.candidate_scorecard ? (
                   <div className="flex flex-wrap gap-x-4 gap-y-0.5">
                     {CANDIDATE_PARAMS.map(p => a.candidate_scorecard?.[p] != null && (
-                      <span key={p} className="text-[11px] text-[#8A8A99]">{p}: <span className="text-[#3F3F4E] font-bold">{a.candidate_scorecard![p]}/5</span></span>
+                      <span key={p} className="text-[11px] text-[#7E7E8E]">{p}: <span className="text-[#C7C7D1] font-bold">{a.candidate_scorecard![p]}/5</span></span>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-[#8A8A99] text-xs">Score this opportunity to compare it against your others.</p>
+                  <p className="text-[#7E7E8E] text-xs">Score this opportunity to compare it against your others.</p>
                 )}
-                <button onClick={() => setScoring(a.role_id)} className="flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(6,182,212,0.10)', color: '#0891B2' }}>
+                <button onClick={() => setScoring(a.role_id)} className="flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(106,168,245,0.10)', color: '#6AA8F5' }}>
                   {a.candidate_scorecard ? 'Edit' : 'Score it'}
                 </button>
               </div>
@@ -163,17 +163,17 @@ export default function ApplicationTracker({ applications }: { applications: App
 function CandidateScoreEditor({ initial, onSave, onCancel, busy }: { initial: Record<string, number> | null; onSave: (sc: Record<string, number>) => void; onCancel: () => void; busy: boolean }) {
   const [scores, setScores] = useState<Record<string, number>>(initial || {})
   return (
-    <div className="space-y-3 pt-3 border-t border-[#0E0E1A]/[0.06]">
+    <div className="space-y-3 pt-3 border-t border-[rgba(255,255,255,0.06)]">
       {CANDIDATE_PARAMS.map(p => (
         <div key={p}>
-          <p className="text-[#5A5A6E] text-xs font-semibold mb-1">{p}</p>
+          <p className="text-[#A6A6B4] text-xs font-semibold mb-1">{p}</p>
           <div className="flex gap-1.5">
             {[1, 2, 3, 4, 5].map(n => (
               <button key={n} onClick={() => setScores(s => ({ ...s, [p]: n }))}
                 className="flex-1 text-xs font-bold rounded-lg py-1.5"
                 style={scores[p] === n
-                  ? { background: 'linear-gradient(135deg,#06B6D4,#7C3AED)', color: '#fff' }
-                  : { background: '#F7F8FB', border: '1px solid rgba(14,14,26,0.10)', color: '#8A8A99' }}>
+                  ? { background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)', color: '#fff' }
+                  : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.10)', color: '#7E7E8E' }}>
                 {n}
               </button>
             ))}
@@ -181,8 +181,8 @@ function CandidateScoreEditor({ initial, onSave, onCancel, busy }: { initial: Re
         </div>
       ))}
       <div className="flex gap-2">
-        <button onClick={() => onSave(scores)} disabled={busy} className="flex-1 text-sm font-black text-white rounded-full py-2.5 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#06B6D4,#7C3AED)' }}>{busy ? 'Saving…' : 'Save score'}</button>
-        <button onClick={onCancel} className="text-sm font-bold rounded-full py-2.5 px-4" style={{ background: 'rgba(14,14,26,0.04)', color: '#8A8A99' }}>Cancel</button>
+        <button onClick={() => onSave(scores)} disabled={busy} className="flex-1 text-sm font-black text-white rounded-full py-2.5 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>{busy ? 'Saving…' : 'Save score'}</button>
+        <button onClick={onCancel} className="text-sm font-bold rounded-full py-2.5 px-4" style={{ background: 'rgba(255,255,255,0.05)', color: '#7E7E8E' }}>Cancel</button>
       </div>
     </div>
   )
@@ -193,29 +193,29 @@ function CandidateFeedbackEditor({ initial, onSave, onCancel, busy }: { initial:
   const [forward, setForward] = useState<boolean | null>(initial?.move_forward ?? null)
   const [notes, setNotes] = useState(initial?.notes || '')
   return (
-    <div className="rounded-xl p-4 mb-4 space-y-3" style={{ background: '#F7F8FB', border: '1px solid rgba(14,14,26,0.08)' }}>
-      <p className="text-[#3F3F4E] text-sm font-bold">How did the interview go?</p>
+    <div className="rounded-xl p-4 mb-4 space-y-3" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+      <p className="text-[#C7C7D1] text-sm font-bold">How did the interview go?</p>
       <div>
-        <p className="text-[#5A5A6E] text-xs font-semibold mb-1">Your rating</p>
+        <p className="text-[#A6A6B4] text-xs font-semibold mb-1">Your rating</p>
         <div className="flex gap-1.5">
           {[1, 2, 3, 4, 5].map(n => (
             <button key={n} onClick={() => setRating(n)} className="flex-1 text-xs font-bold rounded-lg py-1.5"
-              style={rating === n ? { background: 'linear-gradient(135deg,#06B6D4,#7C3AED)', color: '#fff' } : { background: '#fff', border: '1px solid rgba(14,14,26,0.10)', color: '#8A8A99' }}>{n}</button>
+              style={rating === n ? { background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)', color: '#fff' } : { background: '#16161F', border: '1px solid rgba(255,255,255,0.10)', color: '#7E7E8E' }}>{n}</button>
           ))}
         </div>
       </div>
       <div className="flex gap-1.5">
         <button onClick={() => setForward(true)} className="flex-1 text-xs font-bold rounded-lg py-2"
-          style={forward === true ? { background: 'rgba(16,185,129,0.15)', color: '#059669', border: '1px solid rgba(16,185,129,0.4)' } : { background: '#fff', border: '1px solid rgba(14,14,26,0.10)', color: '#8A8A99' }}>Keen to continue</button>
+          style={forward === true ? { background: 'rgba(106,168,245,0.15)', color: '#6AA8F5', border: '1px solid rgba(106,168,245,0.4)' } : { background: '#16161F', border: '1px solid rgba(255,255,255,0.10)', color: '#7E7E8E' }}>Keen to continue</button>
         <button onClick={() => setForward(false)} className="flex-1 text-xs font-bold rounded-lg py-2"
-          style={forward === false ? { background: 'rgba(225,29,72,0.12)', color: '#E11D48', border: '1px solid rgba(225,29,72,0.4)' } : { background: '#fff', border: '1px solid rgba(14,14,26,0.10)', color: '#8A8A99' }}>Not for me</button>
+          style={forward === false ? { background: 'rgba(245,142,154,0.12)', color: '#F58E9A', border: '1px solid rgba(245,142,154,0.4)' } : { background: '#16161F', border: '1px solid rgba(255,255,255,0.10)', color: '#7E7E8E' }}>Not for me</button>
       </div>
       <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} placeholder="Anything you'd flag? (private)"
-        style={{ background: '#fff', border: '1px solid rgba(14,14,26,0.10)', borderRadius: 10, padding: '8px 10px', fontSize: 13, width: '100%', color: '#0E0E1A', resize: 'vertical' }} />
+        style={{ background: '#16161F', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 10, padding: '8px 10px', fontSize: 13, width: '100%', color: '#F4F4F7', resize: 'vertical' }} />
       <div className="flex gap-2">
         <button onClick={() => onSave({ rating, move_forward: forward ?? false, notes })} disabled={busy || rating === 0}
-          className="flex-1 text-sm font-black text-white rounded-full py-2.5 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#06B6D4,#7C3AED)' }}>{busy ? 'Saving…' : 'Save feedback'}</button>
-        <button onClick={onCancel} className="text-sm font-bold rounded-full py-2.5 px-4" style={{ background: 'rgba(14,14,26,0.04)', color: '#8A8A99' }}>Cancel</button>
+          className="flex-1 text-sm font-black text-white rounded-full py-2.5 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>{busy ? 'Saving…' : 'Save feedback'}</button>
+        <button onClick={onCancel} className="text-sm font-bold rounded-full py-2.5 px-4" style={{ background: 'rgba(255,255,255,0.05)', color: '#7E7E8E' }}>Cancel</button>
       </div>
     </div>
   )

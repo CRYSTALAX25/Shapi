@@ -50,6 +50,9 @@ export default function Home() {
         /* Back-illuminate on hover (for cards that have their own background) */
         .card-hover { transition: all .3s ease; }
         .card-hover:hover { transform: translateY(-4px); box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 22px 48px rgba(240,140,174,0.20); border-color: rgba(240,140,174,0.32); }
+        /* Nav links go colourful (gradient text) on hover */
+        .nav-link { color:#A6A6B4; transition: color .2s ease; }
+        .nav-link:hover { background: linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
       `}</style>
 
       {/* Dot grid */}
@@ -66,11 +69,11 @@ export default function Home() {
             <span className="font-black text-xl tracking-tighter grad-text">shapi</span>
           </div>
           <div className="flex items-center gap-5">
-            <Link href="/worth" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7] transition-colors hidden md:block">What you&apos;re worth</Link>
-            <Link href="#why" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7] transition-colors hidden md:block">Why Shapi</Link>
-            <Link href="#pricing" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7] transition-colors hidden sm:block">Pricing</Link>
-            <Link href="/blog" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7] transition-colors hidden sm:block">Blog</Link>
-            <Link href="/login" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7] transition-colors">Sign in</Link>
+            <Link href="/worth" className="nav-link text-sm hidden md:block">What you&apos;re worth</Link>
+            <Link href="#why" className="nav-link text-sm hidden md:block">Why Shapi</Link>
+            <Link href="#pricing" className="nav-link text-sm hidden sm:block">Pricing</Link>
+            <Link href="/blog" className="nav-link text-sm hidden sm:block">Blog</Link>
+            <Link href="/login" className="nav-link text-sm">Sign in</Link>
             <Link href="/signup" className="grad-border-cta px-4 py-2 rounded-full text-sm font-black">Get started →</Link>
           </div>
         </div>
@@ -106,7 +109,7 @@ export default function Home() {
               Build my verified profile — free to start →
             </Link>
             <Link href="/signup" className="btn-dark-hover px-8 py-4 rounded-full text-sm font-bold">
-              I&apos;m hiring — post a role free →
+              I&apos;m hiring — post a free role →
             </Link>
           </div>
 

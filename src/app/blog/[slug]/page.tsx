@@ -25,19 +25,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   if (!post) notFound()
 
   return (
-    <div className="min-h-screen bg-[#F1F2F7] text-[#0E0E1A]">
+    <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7]">
       <nav className="px-6 py-5 max-w-3xl mx-auto flex items-center justify-between">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+          background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
-        <Link href="/blog" className="text-[#5A5A6E] text-sm hover:text-[#0E0E1A] transition-colors">← All posts</Link>
+        <Link href="/blog" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7] transition-colors">← All posts</Link>
       </nav>
 
       <article className="max-w-3xl mx-auto px-6 pt-8 pb-20">
         <div className="flex items-center gap-3 mb-5">
           <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: `${post.accent}14`, color: post.accent }}>{post.tag}</span>
-          <span className="text-[#8A8A99] text-xs">{fmtDate(post.date)} · {post.readMinutes} min read</span>
+          <span className="text-[#7E7E8E] text-xs">{fmtDate(post.date)} · {post.readMinutes} min read</span>
         </div>
 
         <h1 className="text-4xl md:text-5xl font-black tracking-tighter leading-[1.05] mb-8">{post.title}</h1>
@@ -47,30 +47,30 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             para.startsWith('## ') ? (
               <h2 key={i} className="text-2xl font-black tracking-tight pt-4" style={{ color: post.accent }}>{para.slice(3)}</h2>
             ) : (
-              <p key={i} className="text-[#3F3F4E] text-lg leading-relaxed">{para}</p>
+              <p key={i} className="text-[#C7C7D1] text-lg leading-relaxed">{para}</p>
             ),
           )}
         </div>
 
-        <div className="mt-14 rounded-2xl p-8 text-center text-white" style={{ background: 'linear-gradient(135deg, #06B6D4, #7C3AED 55%, #F43F5E)' }}>
+        <div className="mt-14 rounded-2xl p-8 text-center text-white" style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE 55%, #F58E9A)' }}>
           <h3 className="text-2xl font-black mb-2">Get a profile that proves it.</h3>
           <p className="text-white/80 text-sm mb-6">Independently verified. References sourced by us. Built in minutes.</p>
-          <Link href="/signup" className="inline-block bg-white text-[#0E0E1A] px-7 py-3.5 rounded-full font-black text-sm hover:scale-[1.02] transition-transform">
+          <Link href="/signup" className="inline-block bg-white text-[#0E0E13] px-7 py-3.5 rounded-full font-black text-sm hover:scale-[1.02] transition-transform">
             Build my verified profile →
           </Link>
         </div>
       </article>
 
-      <footer className="border-t border-[#0E0E1A]/[0.07] py-8 px-6">
+      <footer className="border-t border-[rgba(255,255,255,0.08)] py-8 px-6">
         <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
           <span className="font-black text-lg tracking-tighter" style={{
-            background: 'linear-gradient(135deg, #7C3AED, #06B6D4)',
+            background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>shapi</span>
-          <div className="flex items-center gap-5 text-[#8A8A99]">
-            <Link href="/privacy" className="hover:text-[#0E0E1A]">Privacy</Link>
-            <Link href="/terms" className="hover:text-[#0E0E1A]">Terms</Link>
-            <a href="mailto:hello@shapi.io" className="hover:text-[#0E0E1A]">hello@shapi.io</a>
+          <div className="flex items-center gap-5 text-[#7E7E8E]">
+            <Link href="/privacy" className="hover:text-[#F4F4F7]">Privacy</Link>
+            <Link href="/terms" className="hover:text-[#F4F4F7]">Terms</Link>
+            <a href="mailto:hello@shapi.io" className="hover:text-[#F4F4F7]">hello@shapi.io</a>
           </div>
         </div>
       </footer>

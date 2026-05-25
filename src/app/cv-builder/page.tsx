@@ -55,15 +55,18 @@ export default function CVBuilder() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F4EE] flex flex-col">
+    <div className="min-h-screen bg-[#0E0E13] flex flex-col">
       {/* Nav */}
-      <nav className="px-6 py-4 flex items-center justify-between border-b border-[#1C1C2E]/5 bg-[#F8F4EE]/80 backdrop-blur sticky top-0 z-10">
-        <span className="text-[#0B5563] font-bold text-xl tracking-tight">shapi</span>
+      <nav className="px-6 py-4 flex items-center justify-between border-b border-[rgba(255,255,255,0.08)] bg-[#0E0E13]/80 backdrop-blur sticky top-0 z-10">
+        <span className="font-bold text-xl tracking-tight" style={{
+          background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+        }}>shapi</span>
         <div className="flex items-center gap-4">
-          <span className="text-xs text-[#1C1C2E]/40">CV Builder</span>
+          <span className="text-xs text-[#5C5C6A]">CV Builder</span>
           <button
             onClick={() => router.push('/onboarding')}
-            className="text-xs text-[#0B5563] font-medium hover:underline"
+            className="text-xs text-[#6AA8F5] font-medium hover:underline"
           >
             Skip to manual form →
           </button>
@@ -77,9 +80,10 @@ export default function CVBuilder() {
             <div
               className={`max-w-[85%] rounded-2xl px-5 py-4 text-sm leading-relaxed ${
                 m.role === 'user'
-                  ? 'bg-[#0B5563] text-white rounded-br-sm'
-                  : 'bg-white text-[#1C1C2E] border border-[#1C1C2E]/5 shadow-sm rounded-bl-sm'
+                  ? 'text-white rounded-br-sm'
+                  : 'bg-[#16161F] text-[#C7C7D1] border border-[rgba(255,255,255,0.08)] shadow-sm rounded-bl-sm'
               }`}
+              style={m.role === 'user' ? { background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' } : undefined}
             >
               {m.content.split('\n').map((line, j) => {
                 // Bold **text**
@@ -98,11 +102,11 @@ export default function CVBuilder() {
 
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-white border border-[#1C1C2E]/5 shadow-sm rounded-2xl rounded-bl-sm px-5 py-4">
+            <div className="bg-[#16161F] border border-[rgba(255,255,255,0.08)] shadow-sm rounded-2xl rounded-bl-sm px-5 py-4">
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-[#0B5563]/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 bg-[#0B5563]/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 bg-[#0B5563]/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="w-2 h-2 bg-[#6AA8F5]/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 bg-[#6AA8F5]/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 bg-[#6AA8F5]/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
           </div>
@@ -112,7 +116,7 @@ export default function CVBuilder() {
       </div>
 
       {/* Input */}
-      <div className="sticky bottom-0 bg-[#F8F4EE]/80 backdrop-blur border-t border-[#1C1C2E]/5 px-4 py-4">
+      <div className="sticky bottom-0 bg-[#0E0E13]/80 backdrop-blur border-t border-[rgba(255,255,255,0.08)] px-4 py-4">
         <div className="max-w-2xl mx-auto flex gap-3">
           <textarea
             value={input}
@@ -120,13 +124,14 @@ export default function CVBuilder() {
             onKeyDown={handleKey}
             placeholder="Type your answer... (Enter to send)"
             rows={1}
-            className="flex-1 bg-white border border-[#1C1C2E]/10 rounded-2xl px-5 py-3.5 text-sm text-[#1C1C2E] placeholder-[#1C1C2E]/30 focus:outline-none focus:border-[#0B5563] transition-colors resize-none"
+            className="flex-1 bg-[#16161F] border border-[rgba(255,255,255,0.08)] rounded-2xl px-5 py-3.5 text-sm text-[#F4F4F7] placeholder-[#5C5C6A] focus:outline-none focus:border-[#6AA8F5] transition-colors resize-none"
             style={{ minHeight: '52px', maxHeight: '120px' }}
           />
           <button
             onClick={send}
             disabled={!input.trim() || loading}
-            className="bg-[#0B5563] text-white px-5 py-3.5 rounded-2xl font-medium text-sm hover:bg-[#094450] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+            className="text-white px-5 py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+            style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}
           >
             Send
           </button>
@@ -135,14 +140,15 @@ export default function CVBuilder() {
           <div className="mt-3 flex flex-col items-center gap-2">
             <button
               onClick={() => router.push('/pay')}
-              className="bg-[#0B5563] text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-[#094450] transition-colors"
+              className="text-white px-8 py-3.5 rounded-full font-semibold text-sm hover:opacity-90 transition-opacity"
+              style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}
             >
               Continue to payment — $49 →
             </button>
-            <p className="text-xs text-[#1C1C2E]/40">Your profile is ready to go live</p>
+            <p className="text-xs text-[#5C5C6A]">Your profile is ready to go live</p>
           </div>
         ) : (
-          <p className="text-center text-xs text-[#1C1C2E]/30 mt-2">Your answers are saved as you go</p>
+          <p className="text-center text-xs text-[#5C5C6A] mt-2">Your answers are saved as you go</p>
         )}
       </div>
     </div>

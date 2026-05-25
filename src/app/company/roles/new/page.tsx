@@ -120,8 +120,8 @@ export default function NewRole() {
       <Screen>
         <div className="text-center max-w-sm">
           <ShapiCharacter mood="thinking" size={90} className="mx-auto mb-6" />
-          <h2 className="text-2xl font-black text-[#0E0E1A] mb-3">Writing your job description...</h2>
-          <p className="text-[#5A5A6E] text-sm leading-relaxed">
+          <h2 className="text-2xl font-black text-[#F4F4F7] mb-3">Writing your job description...</h2>
+          <p className="text-[#A6A6B4] text-sm leading-relaxed">
             Claude is turning your answers into a real, specific JD — not a template. About 15 seconds.
           </p>
         </div>
@@ -134,19 +134,19 @@ export default function NewRole() {
       <Screen>
         <div className="text-center max-w-sm">
           <ShapiCharacter mood="happy" size={90} className="mx-auto mb-6" />
-          <h2 className="text-2xl font-black text-[#0E0E1A] mb-3">Role posted.</h2>
-          <p className="text-[#5A5A6E] text-sm leading-relaxed mb-8">
+          <h2 className="text-2xl font-black text-[#F4F4F7] mb-3">Role posted.</h2>
+          <p className="text-[#A6A6B4] text-sm leading-relaxed mb-8">
             Claude has written your job description. We&apos;ll start matching verified candidates to it now.
           </p>
           <div className="space-y-3">
             <button
               onClick={() => router.push('/company/dashboard')}
-              className="w-full bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] py-4 rounded-full font-black text-sm text-[#060609] hover:opacity-90 transition-opacity">
+              className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity">
               View all roles →
             </button>
             <button
               onClick={() => { setStage('form'); setTitle(''); setProblemToSolve(''); setSalaryMin(''); setSalaryMax('') }}
-              className="w-full py-3 text-sm text-[#8A8A99] hover:text-[#3F3F4E] transition-colors">
+              className="w-full py-3 text-sm text-[#7E7E8E] hover:text-[#C7C7D1] transition-colors">
               Post another role
             </button>
           </div>
@@ -156,32 +156,32 @@ export default function NewRole() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F1F2F7]">
+    <div className="min-h-screen bg-[#0E0E13]">
       <style>{`
         .gradient-border-card {
-          background: linear-gradient(#ffffff, #ffffff) padding-box,
-                      linear-gradient(135deg, rgba(34,211,238,0.15), rgba(139,92,246,0.15)) border-box;
+          background: linear-gradient(#16161F, #16161F) padding-box,
+                      linear-gradient(135deg, rgba(106,168,245,0.15), rgba(240,140,174,0.15)) border-box;
           border: 1px solid transparent;
-          box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05);
+          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
-        .field { width: 100%; background: rgba(14,14,26,0.04); border: 1px solid rgba(14,14,26,0.08); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #0E0E1A; outline: none; transition: border-color 0.2s; }
-        .field::placeholder { color: rgba(154,154,168,1); }
-        .field:focus { border-color: rgba(34,211,238,0.5); }
-        label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(90,90,110,1); margin-bottom: 8px; }
-        .required::after { content: " *"; color: #E11D48; }
+        .field { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #F4F4F7; outline: none; transition: border-color 0.2s; }
+        .field::placeholder { color: rgba(126,126,142,1); }
+        .field:focus { border-color: rgba(106,168,245,0.5); }
+        label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #A6A6B4; margin-bottom: 8px; }
+        .required::after { content: " *"; color: #F58E9A; }
       `}</style>
 
       <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
       }} />
 
-      <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-[#0E0E1A]/[0.08]">
+      <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-[rgba(255,255,255,0.08)]">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #A78BFA, #22D3EE)',
+          background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
-        <Link href="/company/dashboard" className="text-[#5A5A6E] text-sm hover:text-[#3F3F4E] transition-colors">
+        <Link href="/company/dashboard" className="text-[#A6A6B4] text-sm hover:text-[#C7C7D1] transition-colors">
           ← Dashboard
         </Link>
       </nav>
@@ -189,22 +189,22 @@ export default function NewRole() {
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-10 pb-24">
 
         <div className="mb-8">
-          <h1 className="text-3xl font-black text-[#0E0E1A] mb-2">Post a new role.</h1>
-          <p className="text-[#5A5A6E] text-sm leading-relaxed">
+          <h1 className="text-3xl font-black text-[#F4F4F7] mb-2">Post a new role.</h1>
+          <p className="text-[#A6A6B4] text-sm leading-relaxed">
             Answer honestly — Claude will write the job description from your answers. The more specific you are, the better your matches.
           </p>
         </div>
 
         {error && (
-          <div className="bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3 mb-6 text-sm text-[#E11D48]">{error}</div>
+          <div className="bg-[#F58E9A]/10 border border-[#F58E9A]/20 rounded-xl px-4 py-3 mb-6 text-sm text-[#F58E9A]">{error}</div>
         )}
 
         {/* JD paste — optional shortcut */}
         <div className="gradient-border-card rounded-2xl p-6 mb-5">
           <div className="flex items-start justify-between gap-3 mb-3">
             <div>
-              <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider">Already have a JD?</p>
-              <p className="text-[#8A8A99] text-xs mt-0.5">Paste it and we&apos;ll extract the fields for you. You can edit anything after.</p>
+              <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">Already have a JD?</p>
+              <p className="text-[#7E7E8E] text-xs mt-0.5">Paste it and we&apos;ll extract the fields for you. You can edit anything after.</p>
             </div>
             {parsedOk && (
               <span className="flex-shrink-0 bg-emerald-500/15 text-emerald-600 text-xs font-bold px-3 py-1 rounded-full">✓ Fields filled</span>
@@ -223,17 +223,17 @@ export default function NewRole() {
             onClick={parseJD}
             disabled={parsing || !jdText.trim()}
             className="mt-3 px-5 py-2 rounded-full text-xs font-black transition-opacity disabled:opacity-40"
-            style={{ background: 'rgba(34,211,238,0.12)', color: '#0891B2', border: '1px solid rgba(34,211,238,0.2)' }}>
+            style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5', border: '1px solid rgba(106,168,245,0.2)' }}>
             {parsing ? 'Extracting…' : 'Extract fields →'}
           </button>
           {parsedOk && (
-            <p className="text-[#8A8A99] text-xs mt-2">Fields below have been filled from your JD. Review and add anything missing.</p>
+            <p className="text-[#7E7E8E] text-xs mt-2">Fields below have been filled from your JD. Review and add anything missing.</p>
           )}
         </div>
 
         {/* Section 1 — basics */}
         <div className="gradient-border-card rounded-2xl p-6 mb-5 space-y-4">
-          <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider">Role basics</p>
+          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">Role basics</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
@@ -264,10 +264,10 @@ export default function NewRole() {
                 <button key={o.v} type="button" onClick={() => setEngagementType(o.v)}
                   className="text-left rounded-xl px-3 py-2.5 transition-all"
                   style={engagementType === o.v
-                    ? { background: 'rgba(34,211,238,0.1)', border: '1px solid rgba(34,211,238,0.45)' }
-                    : { background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)' }}>
-                  <p className="text-sm font-bold" style={{ color: engagementType === o.v ? '#0891B2' : '#3F3F4E' }}>{o.l}</p>
-                  <p className="text-[#8A8A99] text-[10px] leading-tight">{o.s}</p>
+                    ? { background: 'rgba(106,168,245,0.1)', border: '1px solid rgba(106,168,245,0.45)' }
+                    : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <p className="text-sm font-bold" style={{ color: engagementType === o.v ? '#6AA8F5' : '#C7C7D1' }}>{o.l}</p>
+                  <p className="text-[#7E7E8E] text-[10px] leading-tight">{o.s}</p>
                 </button>
               ))}
             </div>
@@ -276,20 +276,20 @@ export default function NewRole() {
           <label className="flex items-center gap-3 cursor-pointer">
             <div
               onClick={() => setRemote(!remote)}
-              className={`w-10 h-6 rounded-full transition-colors relative ${remote ? 'bg-[#22D3EE]' : 'bg-[#0E0E1A]/[0.04]'}`}>
+              className={`w-10 h-6 rounded-full transition-colors relative ${remote ? 'bg-[#6AA8F5]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
               <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${remote ? 'left-5' : 'left-1'}`} />
             </div>
-            <span className="text-[#5A5A6E] text-sm">Remote / hybrid OK</span>
+            <span className="text-[#A6A6B4] text-sm">Remote / hybrid OK</span>
           </label>
         </div>
 
         {/* Section 2 — salary (mandatory) */}
         <div className="gradient-border-card rounded-2xl p-6 mb-5">
           <div className="flex items-center gap-3 mb-4">
-            <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider">Salary range</p>
-            <span className="text-[#E11D48] text-xs font-bold">Required</span>
+            <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">Salary range</p>
+            <span className="text-[#F58E9A] text-xs font-bold">Required</span>
           </div>
-          <p className="text-[#8A8A99] text-xs mb-4 leading-relaxed">
+          <p className="text-[#7E7E8E] text-xs mb-4 leading-relaxed">
             Mandatory on Shapi. Candidates pre-qualify themselves — you only hear from people who&apos;re genuinely interested at this range.
           </p>
 
@@ -298,7 +298,7 @@ export default function NewRole() {
               <label className="required">Currency</label>
               <select className="field" value={currency} onChange={e => setCurrency(e.target.value)}
                 style={{ appearance: 'none' }}>
-                {CURRENCIES.map(c => <option key={c} value={c} style={{ background: '#ffffff' }}>{c}</option>)}
+                {CURRENCIES.map(c => <option key={c} value={c} style={{ background: '#16161F' }}>{c}</option>)}
               </select>
             </div>
             <div>
@@ -314,7 +314,7 @@ export default function NewRole() {
           </div>
 
           {salaryMin && salaryMax && parseInt(salaryMin) < parseInt(salaryMax) && (
-            <p className="text-[#0891B2] text-xs font-semibold">
+            <p className="text-[#6AA8F5] text-xs font-semibold">
               {currency} {parseInt(salaryMin).toLocaleString()} – {parseInt(salaryMax).toLocaleString()} per year
             </p>
           )}
@@ -322,18 +322,18 @@ export default function NewRole() {
           <label className="flex items-center gap-3 cursor-pointer mt-4">
             <div
               onClick={() => setSalaryVisible(!salaryVisible)}
-              className={`w-10 h-6 rounded-full transition-colors relative ${salaryVisible ? 'bg-[#22D3EE]' : 'bg-[#0E0E1A]/[0.04]'}`}>
+              className={`w-10 h-6 rounded-full transition-colors relative ${salaryVisible ? 'bg-[#6AA8F5]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
               <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${salaryVisible ? 'left-5' : 'left-1'}`} />
             </div>
-            <span className="text-[#5A5A6E] text-sm">Show salary publicly on role listing</span>
+            <span className="text-[#A6A6B4] text-sm">Show salary publicly on role listing</span>
           </label>
         </div>
 
         {/* Section 3 — the real questions */}
         <div className="gradient-border-card rounded-2xl p-6 mb-5 space-y-5">
           <div>
-            <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-1">The honest brief</p>
-            <p className="text-[#8A8A99] text-xs">This is what Shapi uses to write your JD and match candidates. Be specific.</p>
+            <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-1">The honest brief</p>
+            <p className="text-[#7E7E8E] text-xs">This is what Shapi uses to write your JD and match candidates. Be specific.</p>
           </div>
 
           <div>
@@ -381,11 +381,11 @@ export default function NewRole() {
 
         <button
           onClick={submit}
-          className="w-full bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] py-4 rounded-full font-black text-sm text-[#060609] hover:opacity-90 transition-opacity"
+          className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity"
         >
           Post role — Claude writes the JD →
         </button>
-        <p className="text-center text-[#B0B0BC] text-xs mt-3">You can edit the generated description after posting</p>
+        <p className="text-center text-[#5C5C6A] text-xs mt-3">You can edit the generated description after posting</p>
       </div>
     </div>
   )
@@ -393,9 +393,9 @@ export default function NewRole() {
 
 function Screen({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#F1F2F7] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-[#0E0E13] flex items-center justify-center px-6">
       <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
       }} />
       <div className="relative z-10 w-full max-w-sm flex flex-col items-center">{children}</div>

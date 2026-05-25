@@ -339,8 +339,8 @@ export default function CVReady() {
 
   if (!ready) {
     return (
-      <div style={{ minHeight: '100vh', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: 'rgba(14,14,26,0.4)', fontSize: 14 }}>Loading…</div>
+      <div style={{ minHeight: '100vh', background: '#0E0E13', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>Loading…</div>
       </div>
     )
   }
@@ -490,24 +490,24 @@ export default function CVReady() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F1F2F7]">
+    <div className="min-h-screen bg-[#0E0E13]">
       <style>{`
         .gradient-border-card {
-          background: linear-gradient(#ffffff, #ffffff) padding-box,
-                      linear-gradient(135deg, rgba(34,211,238,0.15), rgba(139,92,246,0.15)) border-box;
+          background: linear-gradient(#16161F, #16161F) padding-box,
+                      linear-gradient(135deg, rgba(106,168,245,0.15), rgba(240,140,174,0.15)) border-box;
           border: 1px solid transparent;
-          box-shadow: 0 1px 3px rgba(14,14,26,0.04), 0 10px 30px rgba(14,14,26,0.05);
+          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .before-col {
-          background: rgba(14,14,26,0.04);
-          border: 1px solid rgba(14,14,26,0.08);
+          background: rgba(255,255,255,0.05);
+          border: 1px solid rgba(255,255,255,0.08);
           border-radius: 14px;
           padding: 18px;
           flex: 1;
         }
         .after-col {
-          background: linear-gradient(135deg, rgba(34,211,238,0.06), rgba(167,139,250,0.06));
-          border: 1px solid rgba(34,211,238,0.2);
+          background: linear-gradient(135deg, rgba(106,168,245,0.06), rgba(240,140,174,0.06));
+          border: 1px solid rgba(106,168,245,0.2);
           border-radius: 14px;
           padding: 18px;
           flex: 1;
@@ -518,11 +518,11 @@ export default function CVReady() {
           position: absolute;
           inset: 0;
           border-radius: 14px;
-          background: linear-gradient(135deg, rgba(34,211,238,0.03), rgba(167,139,250,0.03));
+          background: linear-gradient(135deg, rgba(106,168,245,0.03), rgba(240,140,174,0.03));
           pointer-events: none;
         }
         .shimmer {
-          background: linear-gradient(90deg, rgba(14,14,26,0.04) 25%, rgba(14,14,26,0.08) 50%, rgba(14,14,26,0.04) 75%);
+          background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
           background-size: 200% 100%;
           animation: shimmer 1.5s infinite;
           border-radius: 6px;
@@ -535,19 +535,19 @@ export default function CVReady() {
       `}</style>
 
       <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(14,14,26,0.05) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
       }} />
 
-      <nav className="relative z-10 px-6 py-4 border-b border-[#0E0E1A]/[0.08]">
+      <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)]">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link href="/" className="font-black text-xl tracking-tighter" style={{
-            background: 'linear-gradient(135deg, #A78BFA, #22D3EE)',
+            background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>shapi</Link>
           <div className="flex items-center gap-4">
-            <Link href="/profile" className="text-[#8A8A99] text-sm hover:text-[#3F3F4E] transition-colors">Profile</Link>
-            <Link href="/dashboard" className="text-[#8A8A99] text-sm hover:text-[#3F3F4E] transition-colors">Dashboard →</Link>
+            <Link href="/profile" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1] transition-colors">Profile</Link>
+            <Link href="/dashboard" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1] transition-colors">Dashboard →</Link>
           </div>
         </div>
       </nav>
@@ -557,11 +557,11 @@ export default function CVReady() {
         {/* Hero */}
         <div className="text-center mb-10">
           <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center"
-            style={{ background: 'radial-gradient(circle at 40% 35%, #67E8F9, #A78BFA, #7C3AED)' }}>
+            style={{ background: 'radial-gradient(circle at 40% 35%, #6AA8F5, #F08CAE, #F58E9A)' }}>
             <span className="text-2xl">✨</span>
           </div>
-          <h1 className="text-3xl font-black text-[#0E0E1A] mb-2">{firstName}, your CV Kit is ready.</h1>
-          <p className="text-[#5A5A6E] text-sm leading-relaxed max-w-sm mx-auto">
+          <h1 className="text-3xl font-black text-[#F4F4F7] mb-2">{firstName}, your CV Kit is ready.</h1>
+          <p className="text-[#A6A6B4] text-sm leading-relaxed max-w-sm mx-auto">
             {profile && buildLanguageList(profile).length > 1
               ? `One CV per language you speak (${buildLanguageList(profile).map(l => l.language).join(', ')}) — plus generate for any target industry below.`
               : 'Your CV is ready — generate a version for any industry you\'re targeting.'}
@@ -572,9 +572,9 @@ export default function CVReady() {
         {(loadingPreview || preview?.has_whatsapp) && (
           <div className="gradient-border-card rounded-2xl p-5 mb-6">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-[#8A8A99] text-xs font-bold uppercase tracking-wider">What Shapi added to your CV</p>
+              <p className="text-[#7E7E8E] text-xs font-bold uppercase tracking-wider">What Shapi added to your CV</p>
               {preview?.industry && (
-                <span className="text-[#8A8A99] text-xs capitalize">{preview.industry}-optimised</span>
+                <span className="text-[#7E7E8E] text-xs capitalize">{preview.industry}-optimised</span>
               )}
             </div>
 
@@ -582,7 +582,7 @@ export default function CVReady() {
             <div className="flex gap-3 mb-1" style={{ alignItems: 'stretch' }}>
               {/* Before */}
               <div className="before-col">
-                <p className="text-[#B0B0BC] text-[10px] font-bold uppercase tracking-wider mb-3">
+                <p className="text-[#5C5C6A] text-[10px] font-bold uppercase tracking-wider mb-3">
                   Before — from your upload
                 </p>
                 {loadingPreview ? (
@@ -592,7 +592,7 @@ export default function CVReady() {
                     <div className="shimmer w-3/5" />
                   </>
                 ) : (
-                  <p className="text-[#8A8A99] text-xs leading-relaxed" style={{ fontStyle: 'italic' }}>
+                  <p className="text-[#7E7E8E] text-xs leading-relaxed" style={{ fontStyle: 'italic' }}>
                     &ldquo;{preview?.before
                       ? preview.before.slice(0, 180) + (preview.before.length > 180 ? '…' : '')
                       : 'Basic work history — titles, companies, dates. No specific achievements or metrics.'}
@@ -605,7 +605,7 @@ export default function CVReady() {
               <div className="flex items-center flex-shrink-0 px-1">
                 <div style={{
                   color: 'transparent',
-                  background: 'linear-gradient(135deg, #22D3EE, #A78BFA)',
+                  background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   fontSize: 20,
@@ -615,17 +615,17 @@ export default function CVReady() {
 
               {/* After */}
               <div className="after-col">
-                <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: '#22D3EE', opacity: 0.7 }}>
+                <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: '#6AA8F5', opacity: 0.7 }}>
                   After — Shapi-enhanced
                 </p>
                 {loadingPreview ? (
                   <>
-                    <div className="shimmer w-full" style={{ background: 'linear-gradient(90deg, rgba(34,211,238,0.06) 25%, rgba(34,211,238,0.12) 50%, rgba(34,211,238,0.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
-                    <div className="shimmer w-11/12" style={{ background: 'linear-gradient(90deg, rgba(34,211,238,0.06) 25%, rgba(34,211,238,0.12) 50%, rgba(34,211,238,0.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
-                    <div className="shimmer w-3/4" style={{ background: 'linear-gradient(90deg, rgba(34,211,238,0.06) 25%, rgba(34,211,238,0.12) 50%, rgba(34,211,238,0.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+                    <div className="shimmer w-full" style={{ background: 'linear-gradient(90deg, rgba(106,168,245,0.06) 25%, rgba(106,168,245,0.12) 50%, rgba(106,168,245,0.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+                    <div className="shimmer w-11/12" style={{ background: 'linear-gradient(90deg, rgba(106,168,245,0.06) 25%, rgba(106,168,245,0.12) 50%, rgba(106,168,245,0.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+                    <div className="shimmer w-3/4" style={{ background: 'linear-gradient(90deg, rgba(106,168,245,0.06) 25%, rgba(106,168,245,0.12) 50%, rgba(106,168,245,0.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
                   </>
                 ) : (
-                  <p className="text-[#0E0E1A] text-xs leading-relaxed">
+                  <p className="text-[#F4F4F7] text-xs leading-relaxed">
                     {preview?.after
                       ? preview.after
                       : 'Enhanced with specific achievements, metrics, and stories from your WhatsApp conversation.'}
@@ -636,23 +636,23 @@ export default function CVReady() {
 
             {/* Divider line label */}
             <div className="flex items-center gap-3 mt-4">
-              <div className="h-px flex-1 bg-[#0E0E1A]/[0.08]" />
-              <p className="text-[#B0B0BC] text-[10px]">
+              <div className="h-px flex-1 bg-[rgba(255,255,255,0.08)]" />
+              <p className="text-[#5C5C6A] text-[10px]">
                 {loadingPreview
                   ? 'Claude is writing your enhanced version…'
                   : preview?.whatsapp_count
                   ? `Built from ${preview.whatsapp_count} WhatsApp message${preview.whatsapp_count !== 1 ? 's' : ''} · generate for any industry below`
                   : 'Enhanced and industry-formatted by Claude'}
               </p>
-              <div className="h-px flex-1 bg-[#0E0E1A]/[0.08]" />
+              <div className="h-px flex-1 bg-[rgba(255,255,255,0.08)]" />
             </div>
           </div>
         )}
 
         {/* Downloads — one button per language the candidate speaks */}
         <div className="gradient-border-card rounded-2xl p-5 mb-6 space-y-3">
-          <p className="text-[#8A8A99] text-xs font-bold uppercase tracking-wider mb-1">Download your CVs</p>
-          <p className="text-[#8A8A99] text-xs mb-3">
+          <p className="text-[#7E7E8E] text-xs font-bold uppercase tracking-wider mb-1">Download your CVs</p>
+          <p className="text-[#7E7E8E] text-xs mb-3">
             One CV per language you speak. Generated on first click, then saved forever — re-download anytime.
           </p>
 
@@ -672,31 +672,31 @@ export default function CVReady() {
                 target="_blank"
                 className="flex items-center justify-between p-4 rounded-xl transition-colors group"
                 style={{
-                  background: isPrimary ? 'rgba(34,211,238,0.06)' : 'rgba(14,14,26,0.04)',
-                  border: isPrimary ? '1px solid rgba(34,211,238,0.15)' : '1px solid rgba(14,14,26,0.08)',
+                  background: isPrimary ? 'rgba(106,168,245,0.06)' : 'rgba(255,255,255,0.05)',
+                  border: isPrimary ? '1px solid rgba(106,168,245,0.15)' : '1px solid rgba(255,255,255,0.08)',
                   cursor: showSpinner ? 'default' : 'pointer',
                 }}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[#0E0E1A]/[0.04] flex items-center justify-center text-lg">{langFlag(lang.language)}</div>
+                  <div className="w-9 h-9 rounded-lg bg-[rgba(255,255,255,0.05)] flex items-center justify-center text-lg">{langFlag(lang.language)}</div>
                   <div>
-                    <p className="text-[#0E0E1A] font-bold text-sm">{lang.language} CV</p>
+                    <p className="text-[#F4F4F7] font-bold text-sm">{lang.language} CV</p>
                     {showSpinner ? (
-                      <p className="text-[#0891B2]/60 text-xs flex items-center gap-1">
-                        <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#22D3EE', opacity: 0.7, animation: 'pulse 1.2s ease-in-out infinite' }} />
+                      <p className="text-[#6AA8F5]/60 text-xs flex items-center gap-1">
+                        <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#6AA8F5', opacity: 0.7, animation: 'pulse 1.2s ease-in-out infinite' }} />
                         Writing your CV… ready in ~20 seconds
                       </p>
                     ) : (
-                      <p className="text-[#8A8A99] text-xs">
+                      <p className="text-[#7E7E8E] text-xs">
                         {isEnglish ? 'Industry-optimised · ATS-friendly · print to PDF' : `${lang.level || 'Fluent'} · auto-translated · review before sending`}
                       </p>
                     )}
                   </div>
                 </div>
                 {showSpinner ? (
-                  <div style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(34,211,238,0.2)', borderTopColor: '#22D3EE', animation: 'spin 0.9s linear infinite' }} />
+                  <div style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(106,168,245,0.2)', borderTopColor: '#6AA8F5', animation: 'spin 0.9s linear infinite' }} />
                 ) : (
-                  <span className="text-[#0891B2] text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
+                  <span className="text-[#6AA8F5] text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
                 )}
               </a>
             )
@@ -707,10 +707,10 @@ export default function CVReady() {
         {matchedIndustries.length > 0 && (
           <div className="gradient-border-card rounded-2xl p-5 mb-6">
             <div className="flex items-start justify-between mb-1">
-              <p className="text-[#8A8A99] text-xs font-bold uppercase tracking-wider">Your industry CVs</p>
-              <span className="text-[10px] font-bold bg-[#22D3EE]/10 text-[#0891B2] px-2 py-0.5 rounded-full flex-shrink-0">Included</span>
+              <p className="text-[#7E7E8E] text-xs font-bold uppercase tracking-wider">Your industry CVs</p>
+              <span className="text-[10px] font-bold bg-[#6AA8F5]/10 text-[#6AA8F5] px-2 py-0.5 rounded-full flex-shrink-0">Included</span>
             </div>
-            <p className="text-[#8A8A99] text-xs mb-4">
+            <p className="text-[#7E7E8E] text-xs mb-4">
               Based on your background, Shapi identified these industries. Each CV reframes your achievements for that sector.
             </p>
             <div className="flex flex-wrap gap-2 mb-3">
@@ -719,37 +719,37 @@ export default function CVReady() {
                 return (
                   <a key={ind} href={`/profile/print?industry=${ind}`} target="_blank"
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105"
-                    style={{ background: 'rgba(34,211,238,0.06)', border: '1px solid rgba(34,211,238,0.15)', color: '#3F3F4E' }}>
+                    style={{ background: 'rgba(106,168,245,0.06)', border: '1px solid rgba(106,168,245,0.15)', color: '#C7C7D1' }}>
                     <span>{meta.emoji}</span>{meta.label}
-                    <span className="text-[#0891B2] ml-1">↓</span>
+                    <span className="text-[#6AA8F5] ml-1">↓</span>
                   </a>
                 )
               })}
               <a href="/profile/print?lang=universal" target="_blank"
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105"
-                style={{ background: 'rgba(52,211,153,0.06)', border: '1px solid rgba(52,211,153,0.15)', color: '#059669' }}>
+                style={{ background: 'rgba(106,168,245,0.06)', border: '1px solid rgba(106,168,245,0.15)', color: '#C7C7D1' }}>
                 <span>📋</span>Universal
-                <span className="text-[#059669] ml-1">↓</span>
+                <span className="text-[#6AA8F5] ml-1">↓</span>
               </a>
             </div>
-            <p className="text-[#B0B0BC] text-[10px]">Opens in a new tab — click &quot;Save as PDF&quot; to download</p>
+            <p className="text-[#5C5C6A] text-[10px]">Opens in a new tab — click &quot;Save as PDF&quot; to download</p>
           </div>
         )}
 
         {/* Pro deep-dive — only if kit tier */}
         {!isPro && (
-          <div className="gradient-border-card rounded-2xl p-5 mb-6" style={{ borderColor: 'rgba(167,139,250,0.3)' }}>
+          <div className="gradient-border-card rounded-2xl p-5 mb-6" style={{ borderColor: 'rgba(240,140,174,0.3)' }}>
             <div className="flex items-start justify-between mb-2">
-              <p className="text-[#7C3AED] text-xs font-bold uppercase tracking-wider">CV Pro — $59</p>
-              <span className="text-[10px] font-bold bg-[#A78BFA]/10 text-[#7C3AED] px-2 py-0.5 rounded-full flex-shrink-0">Upgrade</span>
+              <p className="text-[#F08CAE] text-xs font-bold uppercase tracking-wider">CV Pro — $59</p>
+              <span className="text-[10px] font-bold bg-[#F08CAE]/10 text-[#F08CAE] px-2 py-0.5 rounded-full flex-shrink-0">Upgrade</span>
             </div>
-            <p className="text-[#3F3F4E] text-sm font-bold mb-1">Get the stories that win the role you actually want</p>
-            <p className="text-[#8A8A99] text-xs mb-4 leading-relaxed">
+            <p className="text-[#C7C7D1] text-sm font-bold mb-1">Get the stories that win the role you actually want</p>
+            <p className="text-[#7E7E8E] text-xs mb-4 leading-relaxed">
               Claude reviews your CV and WhatsApp answers, identifies what&apos;s missing for {matchedIndustries.length > 0 ? matchedIndustries.map(i => INDUSTRY_META[i]?.label || i).join(', ') : 'your target industries'}, then interviews you on WhatsApp to surface the specific projects, numbers and stories that only come out when you&apos;re asked directly.
             </p>
             <button onClick={upgradeToPro}
               className="w-full py-3 rounded-xl font-black text-sm transition-all hover:opacity-90"
-              style={{ background: 'linear-gradient(135deg, #A78BFA, #22D3EE)', color: '#060609' }}>
+              style={{ background: 'linear-gradient(135deg, #F08CAE, #6AA8F5)', color: '#fff' }}>
               Upgrade to Pro — $59 →
             </button>
           </div>
@@ -757,13 +757,13 @@ export default function CVReady() {
 
         {/* Pro deep-dive UI — only for pro tier */}
         {isPro && matchedIndustries.length > 0 && (
-          <div className="gradient-border-card rounded-2xl p-5 mb-6" style={{ borderColor: 'rgba(167,139,250,0.25)' }}>
+          <div className="gradient-border-card rounded-2xl p-5 mb-6" style={{ borderColor: 'rgba(240,140,174,0.25)' }}>
             <div className="flex items-start justify-between mb-1">
-              <p className="text-[#7C3AED] text-xs font-bold uppercase tracking-wider">Pro deep-dive — per industry</p>
-              <span className="text-[10px] font-bold bg-[#A78BFA]/10 text-[#7C3AED] px-2 py-0.5 rounded-full">Pro ✓</span>
+              <p className="text-[#F08CAE] text-xs font-bold uppercase tracking-wider">Pro deep-dive — per industry</p>
+              <span className="text-[10px] font-bold bg-[#F08CAE]/10 text-[#F08CAE] px-2 py-0.5 rounded-full">Pro ✓</span>
             </div>
-            <p className="text-[#3F3F4E] text-sm font-bold mb-1">One conversational WhatsApp interview per target industry</p>
-            <p className="text-[#8A8A99] text-xs mb-4">Claude reads your CV against each industry&apos;s rubric, scores how much coverage you already have, and asks targeted follow-ups for the thin spots. 5-8 turns per industry, voice notes welcome.</p>
+            <p className="text-[#C7C7D1] text-sm font-bold mb-1">One conversational WhatsApp interview per target industry</p>
+            <p className="text-[#7E7E8E] text-xs mb-4">Claude reads your CV against each industry&apos;s rubric, scores how much coverage you already have, and asks targeted follow-ups for the thin spots. 5-8 turns per industry, voice notes welcome.</p>
 
             <div className="space-y-2.5">
               {matchedIndustries.map((ind) => {
@@ -798,16 +798,16 @@ export default function CVReady() {
                   <div key={ind}
                     className="rounded-xl p-3.5"
                     style={{
-                      background: isComplete ? 'rgba(52,211,153,0.06)'
-                        : isInProgress ? 'rgba(251,191,36,0.06)'
-                        : 'rgba(14,14,26,0.04)',
-                      border: `1px solid ${isComplete ? 'rgba(52,211,153,0.18)' : isInProgress ? 'rgba(251,191,36,0.18)' : 'rgba(14,14,26,0.08)'}`,
+                      background: isComplete ? 'rgba(106,168,245,0.06)'
+                        : isInProgress ? 'rgba(240,140,174,0.06)'
+                        : 'rgba(255,255,255,0.05)',
+                      border: `1px solid ${isComplete ? 'rgba(106,168,245,0.18)' : isInProgress ? 'rgba(240,140,174,0.18)' : 'rgba(255,255,255,0.08)'}`,
                     }}
                   >
                     <div className="flex items-start justify-between gap-3 mb-1">
                       <div className="flex items-center gap-2">
                         <span className="text-lg">{meta.emoji}</span>
-                        <p className="text-[#0E0E1A] text-sm font-bold">{meta.label}</p>
+                        <p className="text-[#F4F4F7] text-sm font-bold">{meta.label}</p>
                       </div>
                       {coverageBadge && !isComplete && (
                         <span className="text-[10px] font-bold flex-shrink-0" style={{ color: coverageBadge.color }}>
@@ -815,7 +815,7 @@ export default function CVReady() {
                         </span>
                       )}
                       {isComplete && (
-                        <span className="text-[10px] font-bold text-[#059669] flex-shrink-0">
+                        <span className="text-[10px] font-bold text-[#6AA8F5] flex-shrink-0">
                           {(ic?.answers?.length ?? 0)} answers captured
                         </span>
                       )}
@@ -825,22 +825,22 @@ export default function CVReady() {
                         for every industry, plus personalised gaps once started. */}
                     {!isComplete && (
                       <details className="mb-2 group">
-                        <summary className="text-[#7C3AED] text-xs cursor-pointer list-none flex items-center gap-1 select-none">
+                        <summary className="text-[#F08CAE] text-xs cursor-pointer list-none flex items-center gap-1 select-none">
                           <span className="transition-transform group-open:rotate-90">▸</span>
                           What we&apos;ll explore
                         </summary>
-                        <div className="mt-2 pl-3 border-l border-[#0E0E1A]/[0.08]">
+                        <div className="mt-2 pl-3 border-l border-[rgba(255,255,255,0.08)]">
                           {ic?.missing_areas && ic.missing_areas.length > 0 ? (
-                            <p className="text-[#5A5A6E] text-xs mb-2">
-                              <span className="text-[#8A8A99] font-bold">Your gaps to fill:</span> {ic.missing_areas.slice(0, 3).join(', ')}
+                            <p className="text-[#A6A6B4] text-xs mb-2">
+                              <span className="text-[#7E7E8E] font-bold">Your gaps to fill:</span> {ic.missing_areas.slice(0, 3).join(', ')}
                             </p>
                           ) : (
-                            <p className="text-[#5A5A6E] text-xs mb-2">
-                              <span className="text-[#8A8A99] font-bold">This deep-dive surfaces:</span> {INDUSTRY_FOCUS_SHORT[ind as Industry] || 'specific projects, numbers and outcomes that make your experience stand out'}
+                            <p className="text-[#A6A6B4] text-xs mb-2">
+                              <span className="text-[#7E7E8E] font-bold">This deep-dive surfaces:</span> {INDUSTRY_FOCUS_SHORT[ind as Industry] || 'specific projects, numbers and outcomes that make your experience stand out'}
                             </p>
                           )}
                           {ic?.opening_message && (
-                            <p className="text-[#8A8A99] text-[11px] italic leading-relaxed">&ldquo;{ic.opening_message}&rdquo;</p>
+                            <p className="text-[#7E7E8E] text-[11px] italic leading-relaxed">&ldquo;{ic.opening_message}&rdquo;</p>
                           )}
                         </div>
                       </details>
@@ -850,10 +850,10 @@ export default function CVReady() {
                       disabled={isComplete || isThisStarting}
                       className="w-full py-2 rounded-lg font-black text-xs transition-all disabled:opacity-50"
                       style={{
-                        background: isComplete ? 'rgba(52,211,153,0.12)'
-                          : isInProgress ? 'rgba(251,191,36,0.12)'
-                          : 'linear-gradient(135deg, #A78BFA, #22D3EE)',
-                        color: isComplete ? '#059669' : isInProgress ? '#D97706' : '#060609',
+                        background: isComplete ? 'rgba(106,168,245,0.12)'
+                          : isInProgress ? 'rgba(240,140,174,0.12)'
+                          : 'linear-gradient(135deg, #F08CAE, #6AA8F5)',
+                        color: isComplete ? '#6AA8F5' : isInProgress ? '#F08CAE' : '#fff',
                       }}
                     >
                       {buttonLabel}
@@ -863,21 +863,21 @@ export default function CVReady() {
               })}
             </div>
             {deepDiveError && (
-              <p className="text-[#E11D48] text-xs mt-3 text-center">{deepDiveError}</p>
+              <p className="text-[#F58E9A] text-xs mt-3 text-center">{deepDiveError}</p>
             )}
           </div>
         )}
 
         {/* Send to yourself */}
         <div className="gradient-border-card rounded-2xl p-5 mb-6">
-          <p className="text-[#8A8A99] text-xs font-bold uppercase tracking-wider mb-1">Send to yourself</p>
-          <p className="text-[#8A8A99] text-xs mb-4">Open on your phone or inbox — then print to PDF from there.</p>
+          <p className="text-[#7E7E8E] text-xs font-bold uppercase tracking-wider mb-1">Send to yourself</p>
+          <p className="text-[#7E7E8E] text-xs mb-4">Open on your phone or inbox — then print to PDF from there.</p>
           <div className="flex gap-3">
             <button
               onClick={() => openSendPicker('whatsapp')}
               disabled={sendWAState === 'sending' || sendWAState === 'sent'}
               className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all disabled:opacity-50"
-              style={{ background: sendWAState === 'sent' ? 'rgba(52,211,153,0.12)' : 'rgba(37,211,102,0.1)', border: `1px solid ${sendWAState === 'sent' ? 'rgba(52,211,153,0.4)' : 'rgba(37,211,102,0.25)'}`, color: sendWAState === 'sent' ? '#059669' : '#25D366' }}
+              style={{ background: sendWAState === 'sent' ? 'rgba(106,168,245,0.12)' : 'rgba(37,211,102,0.1)', border: `1px solid ${sendWAState === 'sent' ? 'rgba(106,168,245,0.4)' : 'rgba(37,211,102,0.25)'}`, color: sendWAState === 'sent' ? '#6AA8F5' : '#25D366' }}
             >
               <span>{sendWAState === 'sent' ? '✓' : sendWAState === 'sending' ? '…' : '💬'}</span>
               {sendWAState === 'sent' ? 'Sent to WhatsApp' : sendWAState === 'sending' ? 'Sending…' : 'Send via WhatsApp'}
@@ -886,30 +886,30 @@ export default function CVReady() {
               onClick={() => openSendPicker('email')}
               disabled={sendEmailState === 'sending' || sendEmailState === 'sent'}
               className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all disabled:opacity-50"
-              style={{ background: sendEmailState === 'sent' ? 'rgba(52,211,153,0.12)' : 'rgba(34,211,238,0.08)', border: `1px solid ${sendEmailState === 'sent' ? 'rgba(52,211,153,0.4)' : 'rgba(34,211,238,0.2)'}`, color: sendEmailState === 'sent' ? '#059669' : '#0891B2' }}
+              style={{ background: sendEmailState === 'sent' ? 'rgba(106,168,245,0.12)' : 'rgba(106,168,245,0.08)', border: `1px solid ${sendEmailState === 'sent' ? 'rgba(106,168,245,0.4)' : 'rgba(106,168,245,0.2)'}`, color: sendEmailState === 'sent' ? '#6AA8F5' : '#6AA8F5' }}
             >
               <span>{sendEmailState === 'sent' ? '✓' : sendEmailState === 'sending' ? '…' : '✉️'}</span>
               {sendEmailState === 'sent' ? 'Sent to email' : sendEmailState === 'sending' ? 'Sending…' : 'Send via email'}
             </button>
           </div>
           {(sendEmailState === 'error' || sendWAState === 'error') && (
-            <p className="text-[#E11D48] text-xs mt-3 text-center">Something went wrong — try again or download directly above.</p>
+            <p className="text-[#F58E9A] text-xs mt-3 text-center">Something went wrong — try again or download directly above.</p>
           )}
-          <p className="text-[#B0B0BC] text-[10px] mt-3 text-center">Links open the CV in your browser — use Ctrl+P / Cmd+P → Save as PDF</p>
+          <p className="text-[#5C5C6A] text-[10px] mt-3 text-center">Links open the CV in your browser — use Ctrl+P / Cmd+P → Save as PDF</p>
         </div>
 
         {/* Shareable link */}
         <div className="gradient-border-card rounded-2xl p-5 mb-8">
-          <p className="text-[#8A8A99] text-xs font-bold uppercase tracking-wider mb-2">Your shareable profile</p>
-          <p className="text-[#8A8A99] text-xs leading-relaxed mb-3">
+          <p className="text-[#7E7E8E] text-xs font-bold uppercase tracking-wider mb-2">Your shareable profile</p>
+          <p className="text-[#7E7E8E] text-xs leading-relaxed mb-3">
             Send this to hiring managers. They see your full verified profile — no login needed.
           </p>
-          <div className="flex items-center gap-3 bg-[#0E0E1A]/[0.04] rounded-xl px-4 py-3">
-            <code className="text-[#0891B2] text-sm font-bold flex-1 truncate">
+          <div className="flex items-center gap-3 bg-[rgba(255,255,255,0.05)] rounded-xl px-4 py-3">
+            <code className="text-[#6AA8F5] text-sm font-bold flex-1 truncate">
               shapi.io/p/{profileId}
             </code>
             <a href={`/p/${profileId}`} target="_blank"
-              className="text-[#8A8A99] text-xs hover:text-[#3F3F4E] flex-shrink-0 transition-colors">
+              className="text-[#7E7E8E] text-xs hover:text-[#C7C7D1] flex-shrink-0 transition-colors">
               Preview →
             </a>
           </div>
@@ -917,11 +917,11 @@ export default function CVReady() {
 
         <div className="flex gap-3">
           <Link href="/profile"
-            className="flex-1 text-center py-3 text-sm text-[#8A8A99] hover:text-[#3F3F4E] transition-colors">
+            className="flex-1 text-center py-3 text-sm text-[#7E7E8E] hover:text-[#C7C7D1] transition-colors">
             View full profile →
           </Link>
           <Link href="/dashboard"
-            className="flex-1 text-center bg-gradient-to-r from-[#22D3EE] to-[#A78BFA] py-3 rounded-full font-black text-sm text-[#060609] hover:opacity-90 transition-opacity">
+            className="flex-1 text-center bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] py-3 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity">
             Dashboard →
           </Link>
         </div>
@@ -940,15 +940,15 @@ export default function CVReady() {
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              background: '#ffffff', border: '1px solid rgba(34,211,238,0.2)', borderRadius: 20,
+              background: '#16161F', border: '1px solid rgba(106,168,245,0.2)', borderRadius: 20,
               padding: 24, maxWidth: 440, width: '100%', maxHeight: '85vh', overflow: 'auto',
             }}
           >
-            <p className="text-[#5A5A6E] text-xs font-bold uppercase tracking-wider mb-1">
+            <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-1">
               {pickerOpen === 'whatsapp' ? '💬 WhatsApp' : '✉️ Email'}
             </p>
-            <h3 className="text-[#0E0E1A] font-black text-lg mb-1">Which CVs to send?</h3>
-            <p className="text-[#8A8A99] text-xs mb-5">English is selected by default. Tick others to send multiple in one bundle.</p>
+            <h3 className="text-[#F4F4F7] font-black text-lg mb-1">Which CVs to send?</h3>
+            <p className="text-[#7E7E8E] text-xs mb-5">English is selected by default. Tick others to send multiple in one bundle.</p>
 
             {(() => {
               const all = availablePickerOptions()
@@ -969,7 +969,7 @@ export default function CVReady() {
                 <div className="space-y-4 mb-5">
                   {groups.map(group => (
                     <div key={group.title}>
-                      <p className="text-[#8A8A99] text-[10px] font-bold uppercase tracking-wider mb-1.5">{group.title}</p>
+                      <p className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider mb-1.5">{group.title}</p>
                       <div className="space-y-1">
                         {group.items.map(opt => {
                           const k = keyOf(opt)
@@ -982,17 +982,17 @@ export default function CVReady() {
                               role="checkbox" aria-checked={checked} tabIndex={0}
                               className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors select-none"
                               style={{
-                                background: checked ? 'rgba(34,211,238,0.08)' : 'rgba(14,14,26,0.04)',
-                                border: `1px solid ${checked ? 'rgba(34,211,238,0.3)' : 'rgba(14,14,26,0.08)'}`,
+                                background: checked ? 'rgba(106,168,245,0.08)' : 'rgba(255,255,255,0.05)',
+                                border: `1px solid ${checked ? 'rgba(106,168,245,0.3)' : 'rgba(255,255,255,0.08)'}`,
                               }}>
                               <span className="flex items-center justify-center w-4 h-4 rounded flex-shrink-0"
                                 style={{
-                                  background: checked ? '#22D3EE' : 'transparent',
-                                  border: `1.5px solid ${checked ? '#22D3EE' : 'rgba(14,14,26,0.3)'}`,
+                                  background: checked ? '#6AA8F5' : 'transparent',
+                                  border: `1.5px solid ${checked ? '#6AA8F5' : 'rgba(255,255,255,0.3)'}`,
                                 }}>
-                                {checked && <span style={{ color: '#060609', fontSize: 11, fontWeight: 900, lineHeight: 1 }}>✓</span>}
+                                {checked && <span style={{ color: '#fff', fontSize: 11, fontWeight: 900, lineHeight: 1 }}>✓</span>}
                               </span>
-                              <span className={`text-sm ${checked ? 'text-[#0E0E1A] font-bold' : 'text-[#5A5A6E]'}`}>
+                              <span className={`text-sm ${checked ? 'text-[#F4F4F7] font-bold' : 'text-[#A6A6B4]'}`}>
                                 {opt.label}
                               </span>
                             </div>
@@ -1008,12 +1008,12 @@ export default function CVReady() {
             <div className="flex gap-2">
               <button onClick={() => setPickerOpen(null)}
                 className="flex-1 py-3 rounded-xl text-sm font-bold transition-colors"
-                style={{ background: 'rgba(14,14,26,0.04)', color: '#3F3F4E' }}>
+                style={{ background: 'rgba(255,255,255,0.05)', color: '#C7C7D1' }}>
                 Cancel
               </button>
               <button onClick={sendSelectedCVs} disabled={pickerChosen.size === 0}
                 className="flex-1 py-3 rounded-xl font-black text-sm transition-opacity disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg,#22D3EE,#A78BFA)', color: '#060609' }}>
+                style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)', color: '#fff' }}>
                 Send {pickerChosen.size} {pickerChosen.size === 1 ? 'CV' : 'CVs'} →
               </button>
             </div>
