@@ -125,10 +125,11 @@ export default function Home() {
               {/* identity */}
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-black text-white flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>A</div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="text-base font-black text-[#F4F4F7]">Ahmed K.</div>
                   <div className="text-xs text-[#7E7E8E]">Operations Director · Dubai</div>
                 </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5] flex-shrink-0">Strongly Verified</span>
               </div>
               {/* profile strength — the one vibrant pop */}
               <div className="flex items-center gap-3 mb-4">
@@ -140,23 +141,29 @@ export default function Home() {
                   <p className="text-[#7E7E8E] text-[10px] mt-1">profile strength</p>
                 </div>
               </div>
-              {/* verification badges */}
-              <div className="flex flex-wrap gap-1.5 mb-4">
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5]">✓ Live</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5]">Strongly Verified</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5]">AI Integrator</span>
+              {/* the USPs — what Shapi verifies that no one else does */}
+              <div className="space-y-2.5">
+                {[
+                  ['References', 'independently sourced — not self-chosen'],
+                  ['Skills', 'proven by evidence + AI cross-check'],
+                  ['AI fluency', 'assessed — Integrator tier'],
+                  ['Right to work', 'UAE · KSA — visa-smart'],
+                  ['Speaks', 'Arabic · English — voice verified'],
+                ].map(([label, sub], i) => (
+                  <div key={i} className="flex items-center gap-2.5">
+                    <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(106,168,245,0.14)' }}>
+                      <svg className="w-3 h-3 text-[#6AA8F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                    </span>
+                    <div className="min-w-0 text-xs">
+                      <span className="font-bold text-[#F4F4F7]">{label}</span>
+                      <span className="text-[#7E7E8E]"> — {sub}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
-              {/* right to work */}
-              <div className="mb-4">
-                <p className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider mb-1.5">Right to work</p>
-                <div className="flex flex-wrap gap-1.5">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#C7C7D1' }}>✓ UAE · Citizen</span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#C7C7D1' }}>✓ KSA · Work Visa</span>
-                </div>
-              </div>
-              {/* footer */}
-              <div className="flex items-center justify-between pt-3 border-t border-white/[0.08]">
-                <span className="text-xs text-[#7E7E8E]">3 references · independently checked</span>
+              {/* footer — two-sided trust */}
+              <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/[0.08]">
+                <span className="text-xs text-[#7E7E8E]">You see the employer&apos;s trust score too</span>
                 <span className="text-xs font-black" style={{ color: '#6AA8F5' }}>Trust 94</span>
               </div>
             </div>
