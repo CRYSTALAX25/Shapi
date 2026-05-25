@@ -11,6 +11,7 @@ type Blueprint = {
   pros?: string[]; cons?: string[]
   better_countries?: { country?: string; why?: string }[]
   structures?: string[]; time_estimate?: string
+  pricing_suggestion?: { labour?: number; materials?: number; overhead_pct?: number; margin_pct?: number; note?: string }
   capital?: { lean?: Tier; standard?: Tier; comfortable?: Tier; note?: string }
   launch_plan?: { phase?: string; steps?: string[] }[]
   contacts?: string[]
@@ -89,6 +90,7 @@ export default function BusinessBlueprint() {
   const [bp, setBp] = useState<Blueprint | null>(null)
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
+  const [suggested, setSuggested] = useState(false)
 
   // Prefill country from career/translate; ignore failures (page works logged-out).
   useEffect(() => {
@@ -145,6 +147,16 @@ export default function BusinessBlueprint() {
       }
       if (!res.ok || !d.blueprint) { setErr(d.error || 'Could not build that blueprint'); return }
       setBp(d.blueprint)
+      // Pre-fill the pricing calculator with typical figures for this field/country
+      // (only if the user hasn't entered their own labour/materials yet).
+      const ps = d.blueprint.pricing_suggestion
+      if (ps && !labour && !materials) {
+        if (ps.labour) setLabour(String(ps.labour))
+        if (ps.materials) setMaterials(String(ps.materials))
+        if (ps.overhead_pct != null) setOverhead(String(ps.overhead_pct))
+        if (ps.margin_pct != null) setMargin(String(ps.margin_pct))
+        setSuggested(true)
+      }
     } catch { setErr('Connection dropped — try again.') } finally { setLoading(false) }
   }
 
@@ -186,6 +198,9 @@ export default function BusinessBlueprint() {
         <div className="rounded-2xl p-5 mb-6" style={cardStyle}>
           <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-1">🧮 Pricing calculator</p>
           <p className="text-[#7E7E8E] text-xs mb-4">What should you charge per job to stay in business? Type your costs — the quote updates live.</p>
+          {suggested && (
+            <p className="text-[#6AA8F5] text-xs mb-4 -mt-2">💡 Pre-filled with typical figures for {field || 'this field'}{country ? ` in ${country}` : ''}{bp?.pricing_suggestion?.note ? ` — ${bp.pricing_suggestion.note}` : ''}. Adjust to your real costs.</p>
+          )}
 
           <div className="grid sm:grid-cols-2 gap-3">
             <div>

@@ -65,6 +65,7 @@ Return ONLY valid JSON (tight; each string ≤ 24 words):
   "better_countries": [ { "country": "...", "why": "1 short reason it may do better" } ],
   "structures": ["common legal structure(s) used in ${country}"],
   "time_estimate": "e.g. 2-6 weeks to be legally operating",
+  "pricing_suggestion": { "labour": 0, "materials": 0, "overhead_pct": 0, "margin_pct": 0, "note": "typical per-job figures for a ${field} business in ${country} (numbers only, local currency)" },
   "capital": {
     "lean": { "range": "local-currency range", "covers": "what this gets you" },
     "standard": { "range": "...", "covers": "..." },
