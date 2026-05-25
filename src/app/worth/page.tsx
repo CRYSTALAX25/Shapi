@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
 const CURRENCIES = ['AED', 'SAR', 'USD', 'GBP', 'EUR', 'QAR', 'KWD']
@@ -27,6 +27,19 @@ export default function WorthPage() {
   const [error, setError] = useState('')
   const [estimate, setEstimate] = useState<Estimate | null>(null)
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle')
+  const [signedIn, setSignedIn] = useState(false)
+
+  // Detect sign-in (and prefill role/location from their profile) via an authed GET.
+  useEffect(() => {
+    fetch('/api/career/translate')
+      .then(r => { if (!r.ok) return null; setSignedIn(true); return r.json() })
+      .then(d => {
+        if (!d) return
+        if (d.from_role) setRole((cur) => cur || d.from_role)
+        if (d.country) setLocation(d.country)
+      })
+      .catch(() => {})
+  }, [])
 
   const fmt = (n: number) => n?.toLocaleString()
 
@@ -82,7 +95,9 @@ export default function WorthPage() {
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
           background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
-        <Link href="/signup" className="text-white text-sm font-bold px-4 py-2 rounded-full" style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}>Get started →</Link>
+        {signedIn
+          ? <Link href="/dashboard" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7]">← Dashboard</Link>
+          : <Link href="/signup" className="text-white text-sm font-bold px-4 py-2 rounded-full" style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}>Get started →</Link>}
       </nav>
 
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-8 pb-20">
@@ -185,16 +200,18 @@ export default function WorthPage() {
                 className="flex-1 py-3.5 rounded-full font-black text-sm text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}>
                 {saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? '✓ Saved to your profile' : 'Use these as my expectations →'}
               </button>
-              <Link href="/signup" className="flex-1 py-3.5 rounded-full font-bold text-sm text-center text-[#F4F4F7]" style={{ border: '1px solid rgba(255,255,255,0.12)', background: '#16161F' }}>
-                Build my verified profile →
+              <Link href={signedIn ? '/profile' : '/signup'} className="flex-1 py-3.5 rounded-full font-bold text-sm text-center text-[#F4F4F7]" style={{ border: '1px solid rgba(255,255,255,0.12)', background: '#16161F' }}>
+                {signedIn ? 'View my profile →' : 'Build my verified profile →'}
               </Link>
             </div>
           </div>
         )}
 
-        <p className="text-center text-[#7E7E8E] text-xs">
-          Want a band employers actually trust? <Link href="/signup" className="font-bold" style={{ color: '#6AA8F5' }}>Get verified on Shapi</Link>.
-        </p>
+        {!signedIn && (
+          <p className="text-center text-[#7E7E8E] text-xs">
+            Want a band employers actually trust? <Link href="/signup" className="font-bold" style={{ color: '#6AA8F5' }}>Get verified on Shapi</Link>.
+          </p>
+        )}
       </div>
     </div>
   )
