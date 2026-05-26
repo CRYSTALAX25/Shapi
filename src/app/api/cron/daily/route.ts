@@ -178,6 +178,8 @@ async function runWhatsAppDigest(): Promise<{
         { count: needFeedbackCount },
         { count: pendingDraftsCount },
         { count: pendingRefsCount },
+        { count: savedCoursesCount },
+        { count: inProgressCoursesCount },
       ] = await Promise.all([
         admin
           .from('interviews')
@@ -201,6 +203,19 @@ async function runWhatsAppDigest(): Promise<{
           .select('id', { count: 'exact', head: true })
           .eq('candidate_id', profile.id)
           .eq('status', 'pending'),
+        // Saved-but-not-started courses (gentle "you wanted to take this" nudge).
+        admin
+          .from('candidate_courses')
+          .select('id', { count: 'exact', head: true })
+          .eq('candidate_id', profile.id)
+          .eq('status', 'interested')
+          .eq('liked', true),
+        // In-progress courses (gentle "pick it back up" nudge).
+        admin
+          .from('candidate_courses')
+          .select('id', { count: 'exact', head: true })
+          .eq('candidate_id', profile.id)
+          .eq('status', 'in_progress'),
       ])
 
       // 'needFeedbackCount' over-counts (we don't subtract interviews the candidate

@@ -407,7 +407,7 @@ export default async function Dashboard() {
                   <div className="relative flex-shrink-0 w-20 h-20">
                     <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
                       <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.10)" strokeWidth="7" />
-                      <circle cx="40" cy="40" r="34" fill="none" stroke="url(#progGrad)" strokeWidth="7" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={dashOffset} />
+                      <circle cx="40" cy="40" r="34" fill="none" stroke={completion >= 100 ? '#34D399' : 'url(#progGrad)'} strokeWidth="7" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={dashOffset} />
                       <defs>
                         <linearGradient id="progGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                           <stop offset="0%" stopColor="#6AA8F5" />
@@ -417,11 +417,13 @@ export default async function Dashboard() {
                       </defs>
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-sm font-black text-[#F4F4F7]">{completion}%</span>
+                      <span className="text-sm font-black" style={{ color: completion >= 100 ? '#34D399' : '#F4F4F7' }}>{completion}%</span>
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h2 className="text-xl font-black mb-0" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{completion}% complete</h2>
+                    <h2 className="text-xl font-black mb-0" style={completion >= 100
+                      ? { color: '#34D399' }
+                      : { background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{completion}% complete</h2>
                     <p className="text-[#7E7E8E] text-xs mt-1">Profile strength</p>
                   </div>
                 </div>

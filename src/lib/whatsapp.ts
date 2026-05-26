@@ -141,6 +141,11 @@ export function buildDigestMessage(opts: {
   needFeedbackCount: number
   pendingDraftsCount: number
   pendingRefsCount: number
+  // Saved but not started yet (status='interested' AND liked=true) — gentle "you
+  // wanted to take this, want to start?" nudge.
+  savedCoursesCount?: number
+  // In-progress (status='in_progress') — gentle "pick it back up" nudge.
+  inProgressCoursesCount?: number
   profileCompletion?: number | null
 }): string | null {
   const lines: string[] = []
@@ -160,6 +165,16 @@ export function buildDigestMessage(opts: {
   if (opts.pendingRefsCount > 0) {
     const word = opts.pendingRefsCount === 1 ? 'reference' : 'references'
     lines.push(`• ${opts.pendingRefsCount} ${word} still pending`)
+  }
+  if ((opts.inProgressCoursesCount ?? 0) > 0) {
+    const n = opts.inProgressCoursesCount as number
+    const word = n === 1 ? 'course' : 'courses'
+    lines.push(`• ${n} ${word} in progress — pick back up?`)
+  }
+  if ((opts.savedCoursesCount ?? 0) > 0) {
+    const n = opts.savedCoursesCount as number
+    const word = n === 1 ? 'saved course' : 'saved courses'
+    lines.push(`• ${n} ${word} waiting to start`)
   }
   if (typeof opts.profileCompletion === 'number' && opts.profileCompletion < 80) {
     lines.push(`• Profile ${opts.profileCompletion}% complete — finish it to surface to companies`)

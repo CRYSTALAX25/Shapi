@@ -228,15 +228,27 @@ function UpskillContent() {
               }
               const freeRecs = padTo2(freeFromAI, freeFallback)
               const paidRecs = padTo2(paidFromAI, paidFallback)
-              const isSaved = (name: string) =>
-                optimisticSaved.has(name.toLowerCase()) ||
-                courses.some(x => (x.course_name || '').toLowerCase() === name.toLowerCase())
-              const saveRec = (c: SuggestedCourse) => {
-                setOptimisticSaved(prev => {
-                  const next = new Set(prev)
-                  next.add(c.name.toLowerCase())
-                  return next
-                })
+              // Key by name + platform so fallback rows that share gap.skill as
+              // their name (e.g. Coursera + YouTube + Udemy + LinkedIn fallbacks)
+              // are still treated as distinct hearts.
+              const keyOf = (n: string | null | undefined, p: string | null | undefined) =>
+                `${(n || '').toLowerCase()}|${(p || '').toLowerCase()}`
+              const isSavedKP = (c: SuggestedCourse) => {
+                const k = keyOf(c.name, c.platform)
+                return optimisticSaved.has(k) ||
+                  courses.some(x => keyOf(x.course_name, x.platform) === k && x.liked !== false)
+              }
+              const toggleRec = (c: SuggestedCourse) => {
+                const k = keyOf(c.name, c.platform)
+                const currentlySaved = isSavedKP(c)
+                if (currentlySaved) {
+                  // Unsave: drop from optimistic + flip liked=false on the row.
+                  setOptimisticSaved(prev => { const n = new Set(prev); n.delete(k); return n })
+                  const row = courses.find(x => keyOf(x.course_name, x.platform) === k)
+                  if (row) return trackCourse({ id: row.id, liked: false })
+                  return Promise.resolve()
+                }
+                setOptimisticSaved(prev => { const n = new Set(prev); n.add(k); return n })
                 return trackCourse({
                   course_name: c.name, platform: c.platform || null, course_url: courseSearchUrl(c.platform, c.name),
                   skill: gap.skill, status: 'interested', tier: recCost(c.cost).tier, liked: true,
@@ -266,7 +278,7 @@ function UpskillContent() {
                           <p className="text-[#6AA8F5] text-[10px] font-bold uppercase tracking-wider mb-2">Free</p>
                           <div className="space-y-1.5">
                             {freeRecs.length > 0
-                              ? freeRecs.map((c, k) => <RecRow key={k} c={c} saved={isSaved(c.name)} onSave={() => saveRec(c)} />)
+                              ? freeRecs.map((c, k) => <RecRow key={k} c={c} saved={isSavedKP(c)} onSave={() => toggleRec(c)} />)
                               : <p className="text-[#7E7E8E] text-[10px]">No standout free pick — search below.</p>}
                           </div>
                         </div>
@@ -275,7 +287,7 @@ function UpskillContent() {
                           <p className="text-[#F08CAE] text-[10px] font-bold uppercase tracking-wider mb-2">Paid</p>
                           <div className="space-y-1.5">
                             {paidRecs.length > 0
-                              ? paidRecs.map((c, k) => <RecRow key={k} c={c} saved={isSaved(c.name)} onSave={() => saveRec(c)} />)
+                              ? paidRecs.map((c, k) => <RecRow key={k} c={c} saved={isSavedKP(c)} onSave={() => toggleRec(c)} />)
                               : <p className="text-[#7E7E8E] text-[10px]">No standout paid pick — search below.</p>}
                           </div>
                         </div>
@@ -390,9 +402,9 @@ function RecRow({ c, saved, onSave }: { c: SuggestedCourse; saved: boolean; onSa
   return (
     <div className="bg-white/[0.05] rounded-lg px-3 py-2">
       <div className="flex items-center gap-2">
-        <button type="button" onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (!saved) onSave() }}
-          title={saved ? 'Saved to My courses' : 'Save to My courses'}
-          aria-label={saved ? 'Saved to My courses' : 'Save to My courses'}
+        <button type="button" onClick={(e) => { e.stopPropagation(); e.preventDefault(); onSave() }}
+          title={saved ? 'Saved — tap to unsave' : 'Save to My courses'}
+          aria-label={saved ? 'Unsave from My courses' : 'Save to My courses'}
           className="flex-shrink-0 text-base leading-none p-1.5 -m-1.5 rounded-full transition-transform hover:scale-110 active:scale-95">{saved ? '❤️' : '🤍'}</button>
         <a href={url} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-0 flex items-center justify-between gap-2 hover:opacity-90">
           <span className="text-[#F4F4F7] text-xs font-bold truncate">{c.name}{c.platform ? <span className="text-[#A6A6B4] font-normal"> · {c.platform}</span> : null}</span>
