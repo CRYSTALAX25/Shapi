@@ -707,6 +707,74 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
     return new NextResponse('', { status: 200 })
   }
 
+  // ═══ Hiring-manager WhatsApp commands — STRATEGY §14 Tier 1 ═════════════
+  // Runs BEFORE the JD-intake chat so a hiring manager can ask quick things
+  // ("shortlist for X", "research Y") without entering an interview-style loop.
+  if (profile.type === 'company') {
+    // "shortlist for [role]" — list the top verified candidates for a role.
+    const shortlistMatch = lowerMsg.match(/^(?:shortlist|matches|candidates)(?:\s+for)?\s+(.+?)$/)
+    if (shortlistMatch && shortlistMatch[1].length > 1 && shortlistMatch[1].length < 80) {
+      const roleQuery = shortlistMatch[1].trim().toLowerCase()
+      try {
+        const { data: roleRows } = await admin
+          .from('roles').select('id, title, description, location, requirements')
+          .eq('company_id', profile.id).eq('status', 'active')
+        const role = (roleRows || []).find(r => (r.title || '').toLowerCase().includes(roleQuery))
+        if (!role) {
+          await sendWhatsApp(phone, `Couldn't find an active role matching "${roleQuery}". Try the exact title, or post the role first: ${SITE}/company/roles/new`)
+          return new NextResponse('', { status: 200 })
+        }
+        const { data: cands } = await admin
+          .from('profiles').select('id, full_name, headline, location, skills, completion_pct, verification_tier')
+          .eq('type', 'candidate').gte('completion_pct', 40).limit(80)
+        // Lightweight scoring on the WhatsApp side — title keyword + skill hits.
+        const t = `${role.title || ''} ${role.description || ''} ${role.requirements || ''}`.toLowerCase()
+        const ranked = (cands || [])
+          .map(c => {
+            const skills = ((c.skills as string[]) || []).map(s => s.toLowerCase())
+            const hits = skills.filter(s => t.includes(s)).length
+            const score = hits * 10 + Math.min(20, ((c.completion_pct as number) || 0) / 5)
+            return { ...c, score }
+          })
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 5)
+        const lines = ranked.map((c, i) => `${i + 1}. ${c.full_name || 'Candidate'}${c.headline ? ` — ${c.headline}` : ''}${c.verification_tier ? ` · ${c.verification_tier}` : ''}\n   ${SITE}/p/${(c.id as string).slice(0, 8)}`).join('\n\n')
+        await sendWhatsApp(phone, `🎯 Top 5 for *${role.title}*:\n\n${lines || 'No matches yet — try widening your requirements.'}\n\nReply "shortlist [name]" to flag any.`)
+      } catch (e) {
+        console.error('[webhook] company shortlist failed:', e)
+        await sendWhatsApp(phone, `Hit a snag pulling that shortlist. Try in the dashboard: ${SITE}/company/dashboard`)
+      }
+      return new NextResponse('', { status: 200 })
+    }
+
+    // "research [candidate name]" — companies asking Shapi to look up a candidate
+    // they saw elsewhere. Logs to company_research_requests + mirrors STRATEGY §13
+    // flywheel for the demand side. (Phase 2 will invite the candidate onto Shapi.)
+    const coResearchMatch = lowerMsg.match(/^(?:research|look up|find out about|tell me about)\s+(.+?)$/)
+    if (coResearchMatch && coResearchMatch[1].length > 1 && coResearchMatch[1].length < 100) {
+      const person = coResearchMatch[1].trim()
+      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+      try {
+        const completion = await anthropic.messages.create({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 600,
+          tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 2 } as unknown as Anthropic.Tool],
+          messages: [{ role: 'user', content: `A hiring manager wants to know about "${person}" — likely a candidate they saw on LinkedIn. In ~120 words: (1) likely role/seniority + current employer if public, (2) any notable public work or shipped projects, (3) one honest read of fit-signals from public info. Use web search. If you can't be confident, say so. NO markdown.` }],
+        })
+        const text = completion.content.filter(b => b.type === 'text').map(b => (b as { text?: string }).text || '').join('\n').trim()
+        const summary = text.slice(0, 1100)
+        try {
+          await admin.from('company_research_requests').insert({ candidate_id: profile.id, company_name: person, ai_summary: summary, source: 'whatsapp-company' })
+        } catch (e) { console.warn('[webhook] company research log skipped:', e) }
+        await sendWhatsApp(phone, `${summary || `Couldn't find much on ${person} just now.`}\n\n— Logged. If they're not on Shapi we'll invite them onto the platform with a verified profile (STRATEGY §14).`)
+      } catch (e) {
+        console.error('[webhook] company research failed:', e)
+        await sendWhatsApp(phone, `Couldn't research that just now — try again in a minute.`)
+      }
+      return new NextResponse('', { status: 200 })
+    }
+  }
+
   // ═══ PRIORITY 0.5: Company JD-via-WhatsApp intake ════════════════════════
   // If the matched profile is a company user, this conversation isn't a
   // candidate interview — it's a hiring manager describing a role they want

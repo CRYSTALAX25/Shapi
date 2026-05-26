@@ -189,3 +189,39 @@ export function buildDigestMessage(opts: {
 
   return `${header}\n${lines.join('\n')}\n\n${footer}`
 }
+
+// Company-side equivalent — mirrors the candidate digest for hiring managers.
+// See STRATEGY §14 Tier 1.
+export function buildCompanyDigestMessage(opts: {
+  companyName?: string | null
+  newInterestsCount: number
+  upcomingInterviewsCount: number
+  needCompanyFeedbackCount: number
+  profileCompletion?: number | null
+}): string | null {
+  const lines: string[] = []
+
+  if (opts.newInterestsCount > 0) {
+    const word = opts.newInterestsCount === 1 ? 'candidate' : 'candidates'
+    lines.push(`• ${opts.newInterestsCount} new ${word} interested in your roles this week`)
+  }
+  if (opts.upcomingInterviewsCount > 0) {
+    const word = opts.upcomingInterviewsCount === 1 ? 'interview' : 'interviews'
+    lines.push(`• ${opts.upcomingInterviewsCount} ${word} scheduled this week`)
+  }
+  if (opts.needCompanyFeedbackCount > 0) {
+    const word = opts.needCompanyFeedbackCount === 1 ? 'interview' : 'interviews'
+    lines.push(`• ${opts.needCompanyFeedbackCount} ${word} need your feedback`)
+  }
+  if (typeof opts.profileCompletion === 'number' && opts.profileCompletion < 100) {
+    lines.push(`• Profile ${opts.profileCompletion}% complete — finish for the verified-employer badge`)
+  }
+
+  if (lines.length === 0) return null
+
+  const greeting = opts.companyName ? `Morning ${opts.companyName} 👋` : 'Morning 👋'
+  const header = `${greeting} — quick run-down for today:`
+  const footer = `Reply "shortlist for [role]" or "research [name]" — or just ask me anything.`
+
+  return `${header}\n${lines.join('\n')}\n\n${footer}`
+}

@@ -101,6 +101,38 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
     .eq('role_id', selectedRoleId || '')
   const shortlistedIds = new Set((shortlistData || []).map(s => s.candidate_id))
 
+  // ── Today / profile-completion data for the action card + ring ──
+  const nowIsoCo = new Date().toISOString()
+  const sevenDaysFromNowCo = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+  const roleIds = allRoles.map(r => r.id)
+  const [interestRes, upcomingIvsRes, completedIvsRes, coFbRes] = await Promise.all([
+    roleIds.length
+      ? admin.from('candidate_interests').select('id', { count: 'exact', head: true }).in('role_id', roleIds).gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+      : Promise.resolve({ count: 0 }),
+    admin.from('interviews').select('id', { count: 'exact', head: true }).eq('company_id', user.id).eq('status', 'scheduled').gte('scheduled_at', nowIsoCo).lte('scheduled_at', sevenDaysFromNowCo),
+    admin.from('interviews').select('role_id, candidate_id').eq('company_id', user.id).eq('status', 'completed'),
+    admin.from('interview_feedback').select('role_id, candidate_id').eq('company_id', user.id).eq('author', 'company'),
+  ])
+  const newInterestsCount = interestRes.count ?? 0
+  const upcomingIvsCount = upcomingIvsRes.count ?? 0
+  const completedIvs = (completedIvsRes.data ?? []) as Array<{ role_id: string; candidate_id: string }>
+  const coFbKeys = new Set(((coFbRes.data ?? []) as Array<{ role_id: string; candidate_id: string }>).map(f => `${f.role_id}|${f.candidate_id}`))
+  const needCompanyFeedbackCount = completedIvs.filter(i => !coFbKeys.has(`${i.role_id}|${i.candidate_id}`)).length
+
+  // Company profile completion — simple signal-based score (drives trust + Today card).
+  const cdAny = (companyData || {}) as Record<string, unknown>
+  const sigs = [
+    !!company.company_name,
+    !!company.company_size,
+    !!cdAny.description,
+    !!cdAny.glassdoor_rating,
+    allRoles.length > 0,
+    allRoles.some(r => r.salary_min && r.salary_max),
+  ]
+  const companyCompletion = Math.round((sigs.filter(Boolean).length / sigs.length) * 100)
+  const compCircumference = 2 * Math.PI * 34
+  const compDashOffset = compCircumference * (1 - companyCompletion / 100)
+
   // Score and sort candidates if a role is selected
   const candidates: Candidate[] = selectedRole
     ? allCandidates
@@ -200,6 +232,87 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
             className="flex-shrink-0 bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] px-5 py-2.5 rounded-full font-black text-xs text-[#fff] hover:opacity-90 transition-opacity">
             + Post a role
           </Link>
+        </div>
+
+        {/* Compact hero — profile completion ring + Today action card side-by-side */}
+        <div className="grid lg:grid-cols-[260px_1fr] gap-4 mb-5 items-stretch">
+          {/* Profile completion ring — green at 100, brand gradient otherwise */}
+          <div className="gradient-border-card rounded-2xl p-5 flex items-center gap-4">
+            <div className="relative flex-shrink-0 w-20 h-20">
+              <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.10)" strokeWidth="7" />
+                <circle cx="40" cy="40" r="34" fill="none" stroke={companyCompletion >= 100 ? '#34D399' : 'url(#coGrad)'} strokeWidth="7" strokeLinecap="round" strokeDasharray={compCircumference} strokeDashoffset={compDashOffset} />
+                <defs>
+                  <linearGradient id="coGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#6AA8F5" />
+                    <stop offset="50%" stopColor="#F08CAE" />
+                    <stop offset="100%" stopColor="#F58E9A" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-sm font-black" style={{ color: companyCompletion >= 100 ? '#34D399' : '#F4F4F7' }}>{companyCompletion}%</span>
+              </div>
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-0.5">Profile completion</p>
+              <h2 className="text-base font-black" style={companyCompletion >= 100 ? { color: '#34D399' } : { background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{companyCompletion >= 100 ? 'Verified employer ✓' : `${companyCompletion}% complete`}</h2>
+              <p className="text-[#7E7E8E] text-[11px] mt-0.5">Higher = stronger trust score</p>
+            </div>
+          </div>
+
+          {/* Today action card — only shows items that need action; hides when empty */}
+          {(newInterestsCount + upcomingIvsCount + needCompanyFeedbackCount + (companyCompletion < 100 ? 1 : 0)) > 0 && (
+            <div className="gradient-border-card rounded-2xl p-5">
+              <p className="text-[#F08CAE] text-[10px] font-bold uppercase tracking-wider mb-3">✦ What needs you today</p>
+              <ul className="space-y-1.5">
+                {newInterestsCount > 0 && (
+                  <li>
+                    <Link href="/company/pipeline" className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-white/[0.04] transition-colors">
+                      <span className="flex items-center gap-2 text-[#F4F4F7] text-sm">
+                        <span className="text-base leading-none">👋</span>
+                        <span>{newInterestsCount} new candidate{newInterestsCount === 1 ? '' : 's'} interested in your roles this week</span>
+                      </span>
+                      <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">→</span>
+                    </Link>
+                  </li>
+                )}
+                {upcomingIvsCount > 0 && (
+                  <li>
+                    <Link href="/company/pipeline" className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-white/[0.04] transition-colors">
+                      <span className="flex items-center gap-2 text-[#F4F4F7] text-sm">
+                        <span className="text-base leading-none">📅</span>
+                        <span>{upcomingIvsCount} interview{upcomingIvsCount === 1 ? '' : 's'} scheduled this week</span>
+                      </span>
+                      <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">→</span>
+                    </Link>
+                  </li>
+                )}
+                {needCompanyFeedbackCount > 0 && (
+                  <li>
+                    <Link href="/company/pipeline" className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-white/[0.04] transition-colors">
+                      <span className="flex items-center gap-2 text-[#F4F4F7] text-sm">
+                        <span className="text-base leading-none">📝</span>
+                        <span>{needCompanyFeedbackCount} interview{needCompanyFeedbackCount === 1 ? '' : 's'} need your feedback</span>
+                      </span>
+                      <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">→</span>
+                    </Link>
+                  </li>
+                )}
+                {companyCompletion < 100 && (
+                  <li>
+                    <Link href="/company/onboarding" className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-white/[0.04] transition-colors">
+                      <span className="flex items-center gap-2 text-[#F4F4F7] text-sm">
+                        <span className="text-base leading-none">✦</span>
+                        <span>Finish your profile — you&apos;re at {companyCompletion}%</span>
+                      </span>
+                      <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">→</span>
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* Company intelligence */}

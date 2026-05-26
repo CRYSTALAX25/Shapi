@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { runNurtureSweep } from '@/lib/nurture'
 import { runConciergeScanForAll, sendPendingConciergeOutreach } from '@/lib/concierge'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { buildDigestMessage, sendWhatsApp } from '@/lib/whatsapp'
+import { buildDigestMessage, buildCompanyDigestMessage, sendWhatsApp } from '@/lib/whatsapp'
 
 // Consolidated daily cron (Vercel Hobby allows only 1-2 daily crons, so this
 // single endpoint drives the whole automated pipeline, in order):
@@ -81,7 +81,112 @@ export async function GET(request: Request) {
     summary.whatsappDigest = { error: String(err) }
   }
 
+  // 5. Daily WhatsApp digest for COMPANIES (STRATEGY §14 Tier 1)
+  try {
+    summary.companyWhatsappDigest = await runCompanyWhatsAppDigest()
+  } catch (err) {
+    console.error('[cron/daily] company whatsapp digest failed:', err)
+    summary.companyWhatsappDigest = { error: String(err) }
+  }
+
   return NextResponse.json({ ok: true, ...summary })
+}
+
+// ── Daily WhatsApp digest — COMPANY side ─────────────────────────────────────
+// Mirrors runWhatsAppDigest: one short morning message per opted-in company
+// summarising new interests this week, upcoming interviews, and interviews
+// missing their feedback. Eligibility: type='company' + opted-in + has a
+// whatsapp_number. Dedupe via same whatsapp_digest_last_sent_at column.
+async function runCompanyWhatsAppDigest(): Promise<{
+  companiesConsidered: number
+  sent: number
+  skipped: number
+  failed: number
+}> {
+  const admin = createAdminClient()
+
+  const { data: companies, error } = await admin
+    .from('profiles')
+    .select('id, company_name, full_name, whatsapp_number, whatsapp_digest_last_sent_at, company_data, company_size')
+    .eq('type', 'company')
+    .eq('whatsapp_digest_opt_in', true)
+    .not('whatsapp_number', 'is', null)
+
+  if (error) {
+    console.error('[cron/daily] company digest fetch failed:', error)
+    return { companiesConsidered: 0, sent: 0, skipped: 0, failed: 0 }
+  }
+
+  const rows = (companies || []) as Array<{
+    id: string; company_name: string | null; full_name: string | null; whatsapp_number: string | null
+    whatsapp_digest_last_sent_at: string | null; company_data: Record<string, unknown> | null; company_size: string | null
+  }>
+  let sent = 0, skipped = 0, failed = 0
+  const sevenAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+  const nowIsoCo = new Date().toISOString()
+  const sevenFromNowCo = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+
+  for (const co of rows) {
+    try {
+      if (!co.whatsapp_number) { skipped++; continue }
+      if (sentTodayAlready(co.whatsapp_digest_last_sent_at)) { skipped++; continue }
+
+      // Fetch this company's role IDs once.
+      const { data: roleRows } = await admin
+        .from('roles').select('id').eq('company_id', co.id)
+      const roleIds = (roleRows || []).map(r => r.id as string)
+
+      const [interestsRes, upcomingRes, completedRes, fbRes] = await Promise.all([
+        roleIds.length
+          ? admin.from('candidate_interests').select('id', { count: 'exact', head: true }).in('role_id', roleIds).gte('created_at', sevenAgo)
+          : Promise.resolve({ count: 0 }),
+        admin.from('interviews').select('id', { count: 'exact', head: true }).eq('company_id', co.id).eq('status', 'scheduled').gte('scheduled_at', nowIsoCo).lte('scheduled_at', sevenFromNowCo),
+        admin.from('interviews').select('role_id, candidate_id').eq('company_id', co.id).eq('status', 'completed'),
+        admin.from('interview_feedback').select('role_id, candidate_id').eq('company_id', co.id).eq('author', 'company'),
+      ])
+
+      const completedRows = (completedRes.data || []) as Array<{ role_id: string; candidate_id: string }>
+      const fbKeys = new Set(((fbRes.data || []) as Array<{ role_id: string; candidate_id: string }>).map(f => `${f.role_id}|${f.candidate_id}`))
+      const needCompanyFeedbackCount = completedRows.filter(i => !fbKeys.has(`${i.role_id}|${i.candidate_id}`)).length
+
+      // Profile completion — same 6 signals as the company dashboard.
+      const cd = (co.company_data || {}) as Record<string, unknown>
+      const sigs = [
+        !!co.company_name,
+        !!co.company_size,
+        !!cd.description,
+        !!cd.glassdoor_rating,
+        roleIds.length > 0,
+        // We don't pull salary visibility here — approximate by "has roles" only for
+        // the digest's completion %; the dashboard ring has the precise version.
+      ]
+      const profileCompletion = Math.round((sigs.filter(Boolean).length / sigs.length) * 100)
+
+      const msg = buildCompanyDigestMessage({
+        companyName: co.company_name || co.full_name || null,
+        newInterestsCount: interestsRes.count || 0,
+        upcomingInterviewsCount: upcomingRes.count || 0,
+        needCompanyFeedbackCount,
+        profileCompletion,
+      })
+
+      if (!msg) { skipped++; continue }
+
+      const result = await sendWhatsApp(co.whatsapp_number, msg)
+      if (result.success) {
+        sent++
+        await admin.from('profiles').update({ whatsapp_digest_last_sent_at: new Date().toISOString() }).eq('id', co.id)
+      } else {
+        failed++
+        console.warn('[cron/daily] company digest send failed for', co.id, result.error)
+      }
+    } catch (e) {
+      failed++
+      console.error('[cron/daily] company digest loop error for', co.id, e)
+    }
+  }
+
+  return { companiesConsidered: rows.length, sent, skipped, failed }
 }
 
 // ── Daily WhatsApp digest ────────────────────────────────────────────────────

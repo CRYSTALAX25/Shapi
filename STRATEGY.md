@@ -381,3 +381,41 @@ white collar, WhatsApp-native**, expanding from once-a-year perm into high-frequ
   - **(b) Spam fear** — cap outreach to **one email per company per quarter**; one-click
     unsubscribe.
   - **(c) Quality** — surface only **candidate-confirmed** roles, not auto-scraped speculation.
+
+---
+
+## 14. Client-side mirrors of candidate products [LOCKED Phase-2 roadmap, decided 2026-05-26]
+
+> **One-liner:** Every candidate-side tool we've built has a client-side mirror that drives recurring revenue, engagement, or moat. Locking the list so Phase 2 build order is clear.
+
+Each candidate-side product has a symmetric company-side equivalent that reuses the same infra (webhook, digest builder, Concierge cron, AI cross-check, trust score). Grouping by tier so we don't rebuild from scratch — and so the pre-launch crunch only pulls in the mirrors that already share plumbing with shipped candidate features.
+
+### Tier 1 — direct revenue / engagement mirrors (build first post-launch)
+1. **Active Hiring subscription tier** — daily AI-shortlisted verified candidates per open role + drafted outreach awaiting approval. Mirrors **Shapi Active** ($29/mo). New SKU; needs Stripe wiring + cron.
+   **Why:** new recurring revenue line; reuses the same infra as candidate Active / Concierge.
+2. **Company daily WhatsApp digest** (opt-in, once/day cap). Reuses `buildDigestMessage`.
+   **Why:** retention; WhatsApp open rates beat email (see §12).
+3. **Company "Today" action card** — applicants to respond to, interviews to schedule, drafts to approve, candidates shortlisted by competitors. Mirrors the candidate Today card.
+   **Why:** reduces "where do I start?" friction; surfaces the day's highest-leverage actions.
+4. **Hiring-manager WhatsApp commands** — *"shortlist for X"*, *"post a role"*, *"research [candidate]"*, *"draft offer for X"*. Mirrors candidate commands; same webhook.
+   **Why:** hiring managers live in WhatsApp; the assistant pattern from §12 generalises to the demand side.
+5. **Company salary benchmark** — what's competitive for this role in this country. Mirrors candidate **"What you're worth"** (§4a); fights ghost-salary roles.
+   **Why:** lead-magnet + anti-bad-actor signal; pairs with "salary as advertised" verification.
+
+### Tier 2 — strategic / advisory (build next)
+6. **Hiring Roadmap** — given team + open roles + market, what skills to hire next, what to reskill internally, what's AI-at-risk. Mirrors the candidate Career Roadmap.
+   **Why:** positions Shapi as a strategic advisor, not just sourcing.
+7. **"Is this role AI-proof?"** — score a JD; warn if hiring for something likely to compress. Mirrors candidate AI-Proof check.
+   **Why:** counter-intuitive but high-value; differentiator that ties into the §11 displacement narrative.
+8. **Company profile completion %** with green-at-100 + a **verified-employer badge** tied to it (mission, perks, salary transparency, paid-on-time, glassdoor link).
+   **Why:** turns trust into a game with a clear finish line; drives the company trust score (§2 leakage / §4c responsiveness).
+9. **Plan your hiring strategy** — given industry / stage / budget, perm vs temp vs fractional split, approx total comp burden. Mirrors candidate **"Plan your own business"**.
+   **Why:** pre-sales tool; walks non-clients into a Shapi product (top-of-funnel like the candidate version).
+
+### Tier 3 — speculative but moat-y
+10. **Employee-side culture references** — past/current employees vouch (anonymously aggregated) for *"paid on time / real hours / manager quality"*; feeds the company trust score. Mirrors candidate independent reference chains.
+    **Why:** anti-employer-manipulation; same fountain-of-truth pattern; potentially the deepest moat we have.
+11. **Research a candidate → invite them to Shapi** — symmetric lead-gen flywheel: company sees candidate on LinkedIn → asks Shapi → we email candidate *"[Company] wants to see your verified profile."* Mirrors §13.
+    **Why:** pulls demand-side leads into the platform; closes the loop on the §13 flywheel.
+
+> **Pre-launch (before 2 June 2026):** ship features 2, 3, 4, 5, 7, 8, 9 in tight/MVP form (they reuse candidate-side infra). Features 1, 6, 10, 11 are Phase 2 proper — they need new SKUs / deeper data work and shouldn't be rushed.
