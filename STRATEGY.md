@@ -559,7 +559,51 @@ Single 0-100 score per organisation. Composite of:
 **Why:** CEO conversation-opener. "Your company is 47/100 ready for the future workforce — here's what to raise it to 75." A single number is the dopamine moment. Drives both the audit (what's your score) and the plan (here's how we raise it).
 
 ### Team Compatibility Matrix (Phase 2/3)
-Visual: dominant thinkers / executors / collaborators / innovators across a team. Prevents teams of all-strategists / no-executors.
+Concrete deliverable: a **2×2 visual** plotting team members across four behavioural archetypes — *dominant thinkers, dominant executors, dominant collaborators, dominant innovators*. Weighted by H/H/H/S scores. Prevents the four classic team-design failure modes:
+- Too many strategists / no executors → slow delivery.
+- Too many executors / no innovators → stagnation.
+- Too many innovators / no collaborators → chaos.
+- Too many collaborators / no thinkers → groupthink.
+
+**Why:** one of the most concrete, demoable artifacts in the product. Sells itself in a screenshot.
+
+### Six Core Engines — product architecture (LOCKED)
+The product is built on six discrete AI engines (think Slack/Linear's "primitives" model). Each is a named AI agent customers can interact with directly via the slash-command grammar:
+1. **Workforce Intelligence Engine** — forecasting, attrition prediction, hiring demand.
+2. **Behavioural Intelligence Engine** — Head/Heart/Hand/Spark scoring + Role/Team/Org fit.
+3. **AI Exposure Engine** — role-by-role automation risk scoring (already shipped at `/role/ai-proof`).
+4. **Team Dynamics Engine** — compatibility, balance, succession, leadership-risk detection.
+5. **Skills Graph Engine** — enterprise capability mapping + skills-marketplace allocation.
+6. **Organisational Simulation Engine** — scenario planning ("what if 30% of ops is automated?"), org-design generation, autonomous staffing recommendations.
+
+**Why:** clean engineering breakdown + cleaner sales narrative. *"Your team of six AI agents"* is a stronger story than *"our AI platform."*
+
+### Command grammar — power-user UX (LOCKED)
+The product exposes a slash-command vocabulary across in-app + WhatsApp (extending the existing webhook commands). Lock the namespace:
+
+```
+/operating-model centralized:hr        /evaluate head|heart|hand|spark
+/operating-model agile-pod:engineering /calculate role-fit|team-fit|organization-fit
+/forecast workforce-3y                 /calculate ai-risk
+/generate talent-gap-analysis          /recommend reskilling|redeployment
+/predict attrition                     /generate ai-transition-plan
+/optimize workforce|workforce-cost     /analyze organizational-dna
+/recommend team-structure              /simulate workforce-scenario
+/map enterprise-skills                 /generate succession-map
+/calculate future-readiness            /detect leadership-risk
+```
+
+**Why:** sophisticated buyers (Workday/Eightfold-grade) reward command-first UX. It's also the natural extension of our WhatsApp commands (§14 Tier 1) — same grammar across both channels.
+
+### Positioning tagline (LOCKED)
+> *"Verified human compatibility + AI workforce intelligence — the plan you'd get from McKinsey, the talent you'd get from LinkedIn, the verification nobody else has."*
+
+Single line use anywhere — sales deck, homepage, pitch. Combines our verification moat (Hand), behavioural depth (H/H/S), and execution edge (talent supply) in one sentence.
+
+### Phase 2 / Phase 3 extensions worth banking now
+- **AI-generated organisational design** (Phase 2) — given strategy + AI integration plan, generate the *target-state* org chart. Heavy-lift, premium sell.
+- **Autonomous staffing recommendations** (Phase 3, Tier C) — system proactively suggests staffing changes without being asked. Subscription stickiness.
+- **Cognitive load management** (10y vision) — measure if managers / individuals are overloaded; proactively redistribute work. Unique to anyone with continuous data; one for the OS tier roadmap.
 
 ### Trust-tier data model (LOCKED — applies across all tiers)
 - **L1 (Snapshot)** — categorical inputs only: industry, size, AI maturity, optional role roster with no names. Standard DPA.
