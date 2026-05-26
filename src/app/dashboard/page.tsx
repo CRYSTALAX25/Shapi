@@ -29,13 +29,17 @@ export default async function Dashboard() {
   let evidenceCount = 0
   let completedRefsCount = 0
   let refsTotal = 0
+  // Interviews where the candidate hasn't yet given feedback (upcoming or
+  // past-but-not-yet-rated) — these are the "follow up needed" items the
+  // sidebar badge surfaces, distinct from the informational application count.
+  let needsActionCount = 0
   // Upskilling summary
   let coursesInProgress = 0
   let coursesCompleted = 0
   let eventsBooked = 0
   let eventsAttended = 0
   if (type === 'candidate') {
-    const [interestsRes, shortlistRes, appsRes, evidenceRes, refsRes, refsTotalRes, coursesRes, eventsRes] = await Promise.all([
+    const [interestsRes, shortlistRes, appsRes, evidenceRes, refsRes, refsTotalRes, coursesRes, eventsRes, ivsRes, ivFbRes] = await Promise.all([
       supabase.from('candidate_interests').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('company_shortlists').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('active_applications').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
@@ -44,6 +48,10 @@ export default async function Dashboard() {
       supabase.from('candidate_references').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('candidate_courses').select('status').eq('candidate_id', user.id),
       supabase.from('candidate_events').select('status').eq('candidate_id', user.id),
+      // Action-needed badge for "My applications": interviews scheduled where the
+      // candidate has not yet posted feedback (upcoming OR past-no-feedback).
+      supabase.from('interviews').select('role_id').eq('candidate_id', user.id).not('scheduled_at', 'is', null),
+      supabase.from('interview_feedback').select('role_id').eq('candidate_id', user.id).eq('author', 'candidate'),
     ])
     interestedRolesCount = interestsRes.count ?? 0
     shortlistedByCount = shortlistRes.count ?? 0
@@ -51,6 +59,8 @@ export default async function Dashboard() {
     evidenceCount = evidenceRes.count ?? 0
     completedRefsCount = refsRes.count ?? 0
     refsTotal = refsTotalRes.count ?? 0
+    const fbRoleIds = new Set((ivFbRes.data ?? []).map((f: { role_id: string }) => f.role_id))
+    needsActionCount = (ivsRes.data ?? []).filter((i: { role_id: string }) => !fbRoleIds.has(i.role_id)).length
     for (const c of (coursesRes.data ?? [])) {
       if (c.status === 'completed') coursesCompleted++
       else if (c.status === 'in_progress') coursesInProgress++
@@ -257,7 +267,7 @@ export default async function Dashboard() {
                   { href: '/business', label: 'Plan a business', icon: '🚀' },
                   { href: '/profile?tab=Career', label: 'Career roadmap', icon: '🗺️' },
                   { href: '/roles', label: 'Roles', icon: '💼' },
-                  { href: '/applications', label: 'My applications', icon: '📋' },
+                  { href: '/applications', label: 'My applications', icon: '📋', badge: needsActionCount > 0 ? needsActionCount : undefined },
                   { href: '/active', label: 'Active', icon: '⚡' },
                   { href: '/profile', label: 'My profile', icon: '👤' },
                 ].map(item => (
@@ -275,6 +285,9 @@ export default async function Dashboard() {
                   >
                     <span className="text-base leading-none">{item.icon}</span>
                     <span>{item.label}</span>
+                    {'badge' in item && item.badge && (
+                      <span className="ml-auto text-[10px] font-black px-1.5 py-0.5 rounded-full" style={{ background: '#F08CAE', color: '#0E0E13' }}>{item.badge}</span>
+                    )}
                   </Link>
                 ))}
               </nav>
