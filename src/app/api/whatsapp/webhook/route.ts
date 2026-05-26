@@ -10,6 +10,7 @@ import { interpretAndApplyEdit } from '@/lib/cv-edits'
 import { INDUSTRY_BRIEFS, INDUSTRY_META, type Industry } from '@/lib/industry-briefs'
 import { saveVoiceSample, pickNextLanguageToCapture, type VoiceSamplesMap } from '@/lib/voice-samples'
 import { buildJDPrompt, extractRoleFromChat, saveDraftRole } from '@/lib/jd-extract'
+import { sendPendingConciergeOutreach } from '@/lib/concierge'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
@@ -613,6 +614,96 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
     await admin.from('profiles').update({ awaiting_voice_sample_lang: next }).eq('id', profile.id)
     const remaining = langs.filter(l => !samples[l.language.toLowerCase()]).map(l => l.language)
     await sendWhatsApp(phone, `🎙️ Let's capture your voice samples (${remaining.length} to go: ${remaining.join(', ')}).\n\nSend a 15–30 second voice note in *${next}*. Keep it work-related — for example: *${voicePromptSuggestion(profile)}*. This is what companies hear, so keep it professional.`)
+    return new NextResponse('', { status: 200 })
+  }
+
+  // ═══ Manual command: "approve all" — bulk-approve Concierge drafts ══════
+  // Concierge subscribers can mass-approve every pending draft via WhatsApp.
+  // Each row flips to status='approved', then we run the sender now (rather
+  // than waiting for the cron). See STRATEGY §12.
+  if (/^(approve|send)(\s+(all|everything|them all))?$/i.test(lowerMsg) || /^approve everything i'?ve read$/i.test(lowerMsg)) {
+    try {
+      const { data: pending } = await admin
+        .from('concierge_queue')
+        .select('id')
+        .eq('candidate_id', profile.id)
+        .eq('status', 'pending_approval')
+      const ids = (pending || []).map(p => p.id as string)
+      if (ids.length === 0) {
+        await sendWhatsApp(phone, `Nothing pending to approve — your queue is empty 👌`)
+        return new NextResponse('', { status: 200 })
+      }
+      await admin.from('concierge_queue').update({ status: 'approved' }).in('id', ids)
+      const { sent } = await sendPendingConciergeOutreach(ids.length)
+      await sendWhatsApp(phone, `✓ Approved ${ids.length} draft${ids.length === 1 ? '' : 's'} — ${sent} sent now. Any that need a company email get retried on the next batch.`)
+    } catch (e) {
+      console.error('[webhook] approve-all failed:', e)
+      await sendWhatsApp(phone, `Hit a snag bulk-approving. Approve one at a time in the app for now: ${SITE}/active`)
+    }
+    return new NextResponse('', { status: 200 })
+  }
+
+  // ═══ Manual command: "prep me for X" — interview prep brief ══════════════
+  // Generates a 150-200 word prep brief for a named company via Claude.
+  // See STRATEGY §12.
+  const prepMatch = lowerMsg.match(/^prep(?:\s+me)?(?:\s+for)?\s+(.+?)$/)
+  if (prepMatch && prepMatch[1].length > 1 && prepMatch[1].length < 80) {
+    const company = prepMatch[1].trim()
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+    try {
+      const completion = await anthropic.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 800,
+        messages: [{
+          role: 'user',
+          content: `You're Shapi prepping a candidate for an upcoming interview at "${company}". Their headline: "${profile.headline || 'not provided'}". In 150-200 words, give them: (1) a one-line read of what the company does + who they're for, (2) 3 likely interview questions specific to this company, (3) 3 sharp questions they should ASK the interviewer to stand out. Be specific to "${company}" where you know it; mark anything you're uncertain about with "likely". Use plain text + numbered lists — NO markdown formatting (no **, no #).`,
+        }],
+      })
+      const text = completion.content[0]?.type === 'text' ? completion.content[0].text.trim() : ''
+      await sendWhatsApp(phone, text || `Couldn't generate that prep brief just now — try again in a minute.`)
+    } catch (e) {
+      console.error('[webhook] prep-me failed:', e)
+      await sendWhatsApp(phone, `Couldn't generate that prep brief — try again in a minute.`)
+    }
+    return new NextResponse('', { status: 200 })
+  }
+
+  // ═══ Manual command: "research X" — candidate-driven lead-gen ═══════════
+  // Researches a company via web search, logs the request to
+  // company_research_requests (drives the supply-growth flywheel — STRATEGY §13),
+  // and replies with the summary.
+  const researchMatch = lowerMsg.match(/^(?:research|look up|find out about|tell me about)\s+(.+?)$/)
+  if (researchMatch && researchMatch[1].length > 1 && researchMatch[1].length < 100) {
+    const company = researchMatch[1].trim()
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+    try {
+      const completion = await anthropic.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 700,
+        tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 2 } as unknown as Anthropic.Tool],
+        messages: [{
+          role: 'user',
+          content: `Research "${company}" — a company a Shapi candidate wants to know about. In ~150 words, give: (1) what they do + rough size + HQ, (2) any recent hiring signals (news, growth), (3) what working there is like in 1 line (Glassdoor-style sentiment), (4) 1-2 things a candidate should know before applying. Use web search. Be honest — if you can't find something concrete, say so. NO markdown.`,
+        }],
+      })
+      const text = completion.content
+        .filter(b => b.type === 'text')
+        .map(b => (b as { text?: string }).text || '')
+        .join('\n')
+        .trim()
+      const summary = text.slice(0, 1200)
+      // Log for the lead-gen flywheel (STRATEGY §13). Resilient — if the
+      // migration hasn't run yet, just skip the insert.
+      try {
+        await admin.from('company_research_requests').insert({
+          candidate_id: profile.id, company_name: company, ai_summary: summary, source: 'whatsapp',
+        })
+      } catch (e) { console.warn('[webhook] research log skipped:', e) }
+      await sendWhatsApp(phone, `${summary || `Couldn't find much on ${company} just now.`}\n\n— Logged ${company} as a candidate-requested company. We'll reach out on your behalf if they're not on Shapi yet.`)
+    } catch (e) {
+      console.error('[webhook] research failed:', e)
+      await sendWhatsApp(phone, `Couldn't research that just now — try again in a minute.`)
+    }
     return new NextResponse('', { status: 200 })
   }
 
