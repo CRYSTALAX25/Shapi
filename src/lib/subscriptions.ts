@@ -24,15 +24,18 @@ function products(profile: ProfileWithSubscriptions | null | undefined): Set<str
 
 export function hasOpenRolesBoard(profile: ProfileWithSubscriptions | null | undefined): boolean {
   const p = products(profile)
+  // Tier ladder: Active ($29) and Concierge ($79) both include Roles Board ($19).
   return p.has('roles_board_monthly') || p.has('roles_board_yearly')
+    || p.has('active_monthly') || p.has('active_yearly')
+    || p.has('concierge_monthly')
     || p.has('bundle_monthly') || p.has('bundle_yearly')
 }
 
 export function hasActive(profile: ProfileWithSubscriptions | null | undefined): boolean {
   const p = products(profile)
+  // Tier ladder: Concierge ($79) includes Active ($29).
   return p.has('active_monthly') || p.has('active_yearly')
     || p.has('bundle_monthly') || p.has('bundle_yearly')
-    // Concierge implies Active (it's the auto-send upgrade ON TOP of Active)
     || p.has('concierge_monthly')
 }
 

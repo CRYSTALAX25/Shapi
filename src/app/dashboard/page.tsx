@@ -284,7 +284,7 @@ export default async function Dashboard() {
             <main className="min-w-0">
             {/* Header */}
             <div className="mb-5">
-              <h1 className="text-3xl font-black text-[#F4F4F7] mb-1">
+              <h1 className="text-3xl font-black mb-1" style={{ color: '#FB7185' }}>
                 Welcome{completion > 0 ? ' back' : ''}{firstName ? `, ${firstName}` : ''}.
               </h1>
               {profile?.headline && (
@@ -408,7 +408,7 @@ export default async function Dashboard() {
                     <SubscribeButton product="active_monthly" className="w-full flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors text-left">
                       <div>
                         <p className="text-[#F4F4F7] text-sm font-bold">Shapi Active <span className="text-[#6AA8F5] font-black">$29/mo</span></p>
-                        <p className="text-[#7E7E8E] text-xs">Scan jobs, draft outreach, track applications, prep interviews.</p>
+                        <p className="text-[#7E7E8E] text-xs">Everything in Roles Board, plus: scan jobs, draft outreach, track applications, prep interviews.</p>
                       </div>
                       <span className="text-[#6AA8F5] text-xs font-black flex-shrink-0">Subscribe →</span>
                     </SubscribeButton>
@@ -417,7 +417,7 @@ export default async function Dashboard() {
                     <SubscribeButton product="concierge_monthly" className="w-full flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors text-left">
                       <div>
                         <p className="text-[#F4F4F7] text-sm font-bold">Active Concierge <span className="text-[#6AA8F5] font-black">$79/mo</span></p>
-                        <p className="text-[#7E7E8E] text-xs">AI drafts personalised intros daily — you just approve and send.</p>
+                        <p className="text-[#7E7E8E] text-xs">Everything in Active, plus: AI drafts personalised intros daily — you just approve and send.</p>
                       </div>
                       <span className="text-[#6AA8F5] text-xs font-black flex-shrink-0">Subscribe →</span>
                     </SubscribeButton>
@@ -895,7 +895,7 @@ export default async function Dashboard() {
         {type === 'company' && (
           <>
             <div className="mb-8">
-              <h1 className="text-3xl font-black text-[#F4F4F7] mb-1">
+              <h1 className="text-3xl font-black mb-1" style={{ color: '#FB7185' }}>
                 Welcome{completion > 0 ? ' back' : ''}{firstName ? `, ${firstName}` : ''}.
               </h1>
               <p className="text-[#7E7E8E] text-sm">Post jobs, review verified candidates, manage your pipeline.</p>

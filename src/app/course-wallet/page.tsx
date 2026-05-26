@@ -61,6 +61,9 @@ function UpskillContent() {
   const [loading, setLoading] = useState(true)
   const [addOpen, setAddOpen] = useState(false)
   const [filter, setFilter] = useState<CourseFilter>('all')
+  // Names just saved client-side — fills the heart instantly so we don't wait
+  // on the round-trip + GET to re-render. Reconciles with `courses` on next load.
+  const [optimisticSaved, setOptimisticSaved] = useState<Set<string>>(new Set())
 
   const load = () => {
     fetch('/api/upskill')
@@ -206,9 +209,9 @@ function UpskillContent() {
                 (b.popular ? 1 : 0) - (a.popular ? 1 : 0) || ((b.rating || 0) - (a.rating || 0))
               const freeFromAI = recs.filter(c => c.cost !== 'paid').sort(byRank)
               const paidFromAI = recs.filter(c => c.cost === 'paid').sort(byRank)
-              // Old roadmaps have no cost tag, so everything reads as "free" and the
-              // Paid group would be empty. Guarantee 2 in each group with sensible
-              // platform fallbacks (named picks arrive when the roadmap is regenerated).
+              // Pad each group to 2 with sensible platform fallbacks (deduped by
+              // name+platform) so neither column ever shows just 1 option — even
+              // for old roadmaps that returned 1 generic course with no cost tag.
               const freeFallback: SuggestedCourse[] = [
                 { name: gap.skill, platform: 'Coursera', cost: 'free_audit' },
                 { name: gap.skill, platform: 'YouTube', cost: 'free' },
@@ -217,13 +220,28 @@ function UpskillContent() {
                 { name: gap.skill, platform: 'Udemy', cost: 'paid' },
                 { name: gap.skill, platform: 'LinkedIn Learning', cost: 'paid' },
               ]
-              const freeRecs = (freeFromAI.length ? freeFromAI : freeFallback).slice(0, 2)
-              const paidRecs = (paidFromAI.length ? paidFromAI : paidFallback).slice(0, 2)
-              const isSaved = (name: string) => courses.some(x => (x.course_name || '').toLowerCase() === name.toLowerCase())
-              const saveRec = (c: SuggestedCourse) => trackCourse({
-                course_name: c.name, platform: c.platform || null, course_url: courseSearchUrl(c.platform, c.name),
-                skill: gap.skill, status: 'interested', tier: recCost(c.cost).tier, liked: true,
-              })
+              const padTo2 = (items: SuggestedCourse[], fb: SuggestedCourse[]) => {
+                if (items.length >= 2) return items.slice(0, 2)
+                const seen = new Set(items.map(i => `${i.name}|${i.platform || ''}`.toLowerCase()))
+                const extras = fb.filter(f => !seen.has(`${f.name}|${f.platform || ''}`.toLowerCase()))
+                return [...items, ...extras].slice(0, 2)
+              }
+              const freeRecs = padTo2(freeFromAI, freeFallback)
+              const paidRecs = padTo2(paidFromAI, paidFallback)
+              const isSaved = (name: string) =>
+                optimisticSaved.has(name.toLowerCase()) ||
+                courses.some(x => (x.course_name || '').toLowerCase() === name.toLowerCase())
+              const saveRec = (c: SuggestedCourse) => {
+                setOptimisticSaved(prev => {
+                  const next = new Set(prev)
+                  next.add(c.name.toLowerCase())
+                  return next
+                })
+                return trackCourse({
+                  course_name: c.name, platform: c.platform || null, course_url: courseSearchUrl(c.platform, c.name),
+                  skill: gap.skill, status: 'interested', tier: recCost(c.cost).tier, liked: true,
+                })
+              }
               const highlighted = focusSkill && gap.skill.toLowerCase() === focusSkill.toLowerCase()
               return (
                 <div key={i} className="gradient-border-card rounded-2xl p-5" style={highlighted ? { borderColor: 'rgba(106,168,245,0.4)' } : undefined}>
@@ -372,9 +390,10 @@ function RecRow({ c, saved, onSave }: { c: SuggestedCourse; saved: boolean; onSa
   return (
     <div className="bg-white/[0.05] rounded-lg px-3 py-2">
       <div className="flex items-center gap-2">
-        <button onClick={() => { if (!saved) onSave() }}
+        <button type="button" onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (!saved) onSave() }}
           title={saved ? 'Saved to My courses' : 'Save to My courses'}
-          className="flex-shrink-0 text-sm leading-none transition-transform hover:scale-110">{saved ? '❤️' : '🤍'}</button>
+          aria-label={saved ? 'Saved to My courses' : 'Save to My courses'}
+          className="flex-shrink-0 text-base leading-none p-1.5 -m-1.5 rounded-full transition-transform hover:scale-110 active:scale-95">{saved ? '❤️' : '🤍'}</button>
         <a href={url} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-0 flex items-center justify-between gap-2 hover:opacity-90">
           <span className="text-[#F4F4F7] text-xs font-bold truncate">{c.name}{c.platform ? <span className="text-[#A6A6B4] font-normal"> · {c.platform}</span> : null}</span>
           <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">Open ↗</span>
@@ -437,10 +456,10 @@ function CourseRow({ course, onUpdate, onRemove }: { course: Course; onUpdate: (
         <p className="text-[#A6A6B4] text-xs">{course.platform || '—'} · {course.status === 'completed' ? 'Completed' : course.status === 'in_progress' ? 'In progress' : 'Interested'}{course.course_url ? ' · ' : ''}{course.course_url && <a href={course.course_url} target="_blank" rel="noopener noreferrer" className="text-[#6AA8F5]">open course ↗</a>}{course.credential_url ? ' · ' : ''}{course.credential_url && <a href={course.credential_url} target="_blank" rel="noopener noreferrer" className="text-[#6AA8F5]">view cert ↗</a>}</p>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
-        <button onClick={() => onUpdate({ ...ctx, liked: !liked })}
+        <button type="button" onClick={(e) => { e.stopPropagation(); e.preventDefault(); onUpdate({ ...ctx, liked: !liked }) }}
           aria-label={liked ? 'Unsave course' : 'Save course'}
           title={liked ? 'Saved' : 'Save'}
-          className="text-base leading-none transition-transform hover:scale-110">
+          className="text-base leading-none p-1.5 -m-1.5 rounded-full transition-transform hover:scale-110 active:scale-95">
           {liked ? '❤️' : '🤍'}
         </button>
         {course.status !== 'completed' && (

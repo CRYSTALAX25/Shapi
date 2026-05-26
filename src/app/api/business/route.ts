@@ -134,9 +134,12 @@ Keep it practical and ${country}-specific. After searching, output the JSON as y
         content = response.content as Array<{ type: string; text?: string }>
       }
     } else {
-      // Fast path — no web search, indicative figures.
+      // Fast path — Haiku (no web search, indicative figures). Significantly
+      // faster than Sonnet so the page reliably returns within the function
+      // budget even when the platform is under load. The "Refresh with live
+      // figures" button still uses Sonnet + web search for the deep pass.
       const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-6', max_tokens: 2800,
+        model: 'claude-haiku-4-5-20251001', max_tokens: 2800,
         messages: [{ role: 'user', content: prompt + '\n\n(Give your best indicative figures from knowledge — do NOT use web search. Keep the disclaimer honest that figures are indicative; the user can tap "live figures" to research current ones.)' }],
       })
       content = response.content as Array<{ type: string; text?: string }>
