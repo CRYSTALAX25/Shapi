@@ -1,6 +1,6 @@
 # Shapi — Strategy, Ideas & Decisions
 
-> Living doc — capture everything here so we don't lose ideas. Last updated **25 May 2026**.
+> Living doc — capture everything here so we don't lose ideas. Last updated **26 May 2026**.
 > Sister docs: **COMPETITORS.md** (pricing/model comparison), **BACKLOG.md** (deferred features), **BRAND.md** (visual kit).
 > Status tags: **[LOCKED]** = decided · **[RECOMMENDED]** = my advice, awaiting Ana's final yes · **[IDEA]** = on the table, not decided.
 
@@ -327,3 +327,57 @@ white collar, WhatsApp-native**, expanding from once-a-year perm into high-frequ
   where possible (closed loop: fund → verified credential → placement).
 - **Phase 3 (at scale):** consider a registered "Shapi Foundation" only once volume + legal
   capacity justify the governance overhead.
+
+---
+
+## 12. WhatsApp as the AI assistant interface [LOCKED, decided 2026-05-26]
+
+> **One-liner:** WhatsApp isn't just our interview channel — it's the candidate's command line to Shapi.
+
+- **Pre-launch reality:** today the webhook handles interview turns + a few inline intents
+  (voice / references). The vision is that the **same WhatsApp chat becomes a true assistant**
+  that does work on the candidate's behalf.
+- **Three concrete commands to ship post-launch** (in this priority order):
+  1. **"approve all drafts" / "send everything I've read"** — Concierge auto-sends approved
+     outreach via Resend.
+  2. **"prep me for [company]"** — generates an interview prep brief (we already have the prep
+     engine on the company side; reuse).
+  3. **"research [company X], add it to Shapi"** — see §13. THIS is the high-impact one.
+- **Daily digest** (opt-in, once/day cap): *"2 interviews this week, 3 drafts to approve, 1
+  reference pending."* WhatsApp wins over email here — open rates and reply latency are
+  dramatically better.
+- **Why this matters:** it turns a passive job-search tool into an **active concierge** the
+  candidate can delegate to from anywhere — and it's lock-in only Shapi can do because we own
+  the verified profile + the WhatsApp interview history + the Concierge pipeline.
+
+---
+
+## 13. Candidate-research → Shapi lead-gen flywheel [LOCKED, decided 2026-05-26]
+
+> **The insight:** every time a candidate asks Shapi to research a company that ISN'T on Shapi
+> yet (e.g. they saw a role on LinkedIn), we get a **free, demand-validated lead** for our
+> supply side.
+
+- **The mechanic, in 3 steps:**
+  1. Candidate (in WhatsApp or app) says *"research [Company X] — I saw a role there"*. AI does
+     the research (web search → company info, hiring signals, headcount, location,
+     glassdoor/trust signals).
+  2. We create an **UNCLAIMED company profile** in Shapi with that info + a *"candidate-requested"*
+     flag and a count of how many candidates have asked about them.
+  3. Once **N candidates** request the same company (start with **N=1** to maximise outreach),
+     we send the company an outreach email: *"You were searched by [N] verified candidates on
+     Shapi this week — claim your free profile to see them."* (Co-brand with founder note for
+     warmth.)
+- **Why this is a moat:** most marketplaces have to do paid outreach to fill the supply side.
+  We get **supply growth driven by candidate intent** — meaning every new company we add
+  already has at least one interested verified candidate. That's a vastly stronger first
+  contact than cold sales.
+- **Connects to Concierge** (see §2 pricing): the more companies in Shapi, the more value
+  Concierge subscribers get; the more candidates use Concierge, the more companies they pull
+  in. **Self-reinforcing.**
+- **Risks to manage:**
+  - **(a) ToS on web search results** — mitigate by using only public signals + the candidate's
+    intent as the source.
+  - **(b) Spam fear** — cap outreach to **one email per company per quarter**; one-click
+    unsubscribe.
+  - **(c) Quality** — surface only **candidate-confirmed** roles, not auto-scraped speculation.

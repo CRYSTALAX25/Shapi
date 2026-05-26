@@ -127,3 +127,50 @@ export async function sendReferenceOutreach(opts: {
 }
 
 export { OPENING_MESSAGE, NO_CV_MESSAGE }
+
+// ── Daily digest message builder ─────────────────────────────────────────────
+// Short, warm summary sent once per day to opted-in subscribers. Hides any
+// line whose count is 0; returns null when there's literally nothing to say
+// so the caller can skip the send instead of pinging an empty digest.
+//
+// Kept deliberately tight (< ~600 chars) so WhatsApp doesn't truncate and the
+// candidate can scan it in one breath.
+export function buildDigestMessage(opts: {
+  firstName?: string | null
+  upcomingInterviewsCount: number
+  needFeedbackCount: number
+  pendingDraftsCount: number
+  pendingRefsCount: number
+  profileCompletion?: number | null
+}): string | null {
+  const lines: string[] = []
+
+  if (opts.upcomingInterviewsCount > 0) {
+    const word = opts.upcomingInterviewsCount === 1 ? 'interview' : 'interviews'
+    lines.push(`• ${opts.upcomingInterviewsCount} ${word} this week`)
+  }
+  if (opts.pendingDraftsCount > 0) {
+    const word = opts.pendingDraftsCount === 1 ? 'draft' : 'drafts'
+    lines.push(`• ${opts.pendingDraftsCount} ${word} to approve`)
+  }
+  if (opts.needFeedbackCount > 0) {
+    const word = opts.needFeedbackCount === 1 ? 'interview' : 'interviews'
+    lines.push(`• ${opts.needFeedbackCount} ${word} need your feedback`)
+  }
+  if (opts.pendingRefsCount > 0) {
+    const word = opts.pendingRefsCount === 1 ? 'reference' : 'references'
+    lines.push(`• ${opts.pendingRefsCount} ${word} still pending`)
+  }
+  if (typeof opts.profileCompletion === 'number' && opts.profileCompletion < 80) {
+    lines.push(`• Profile ${opts.profileCompletion}% complete — finish it to surface to companies`)
+  }
+
+  if (lines.length === 0) return null
+
+  const name = (opts.firstName || '').trim().split(' ')[0]
+  const greeting = name ? `Morning ${name} 👋` : 'Morning 👋'
+  const header = `${greeting} — quick run-down for today:`
+  const footer = `Reply anytime — "approve all", "prep me for X", or ask me anything.`
+
+  return `${header}\n${lines.join('\n')}\n\n${footer}`
+}

@@ -33,13 +33,18 @@ export default async function Dashboard() {
   // past-but-not-yet-rated) — these are the "follow up needed" items the
   // sidebar badge surfaces, distinct from the informational application count.
   let needsActionCount = 0
+  // Breakdown for the "What needs you today" action card.
+  let upcomingInterviewsCount = 0
+  let needFeedbackCount = 0
+  let pendingDraftsCount = 0
+  let pendingRefsCount = 0
   // Upskilling summary
   let coursesInProgress = 0
   let coursesCompleted = 0
   let eventsBooked = 0
   let eventsAttended = 0
   if (type === 'candidate') {
-    const [interestsRes, shortlistRes, appsRes, evidenceRes, refsRes, refsTotalRes, coursesRes, eventsRes, ivsRes, ivFbRes] = await Promise.all([
+    const [interestsRes, shortlistRes, appsRes, evidenceRes, refsRes, refsTotalRes, coursesRes, eventsRes, ivsRes, ivFbRes, conciergePendingRes] = await Promise.all([
       supabase.from('candidate_interests').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('company_shortlists').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
       supabase.from('active_applications').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id),
@@ -50,8 +55,11 @@ export default async function Dashboard() {
       supabase.from('candidate_events').select('status').eq('candidate_id', user.id),
       // Action-needed badge for "My applications": interviews scheduled where the
       // candidate has not yet posted feedback (upcoming OR past-no-feedback).
-      supabase.from('interviews').select('role_id').eq('candidate_id', user.id).not('scheduled_at', 'is', null),
+      supabase.from('interviews').select('role_id, scheduled_at').eq('candidate_id', user.id).not('scheduled_at', 'is', null),
       supabase.from('interview_feedback').select('role_id').eq('candidate_id', user.id).eq('author', 'candidate'),
+      // Concierge drafts awaiting the candidate's approval — surfaced in the
+      // "What needs you today" action card (only meaningful if subscribed).
+      supabase.from('concierge_queue').select('id', { count: 'exact', head: true }).eq('candidate_id', user.id).eq('status', 'pending_approval'),
     ])
     interestedRolesCount = interestsRes.count ?? 0
     shortlistedByCount = shortlistRes.count ?? 0
@@ -60,7 +68,13 @@ export default async function Dashboard() {
     completedRefsCount = refsRes.count ?? 0
     refsTotal = refsTotalRes.count ?? 0
     const fbRoleIds = new Set((ivFbRes.data ?? []).map((f: { role_id: string }) => f.role_id))
-    needsActionCount = (ivsRes.data ?? []).filter((i: { role_id: string }) => !fbRoleIds.has(i.role_id)).length
+    const ivRows = (ivsRes.data ?? []) as Array<{ role_id: string; scheduled_at: string | null }>
+    needsActionCount = ivRows.filter(i => !fbRoleIds.has(i.role_id)).length
+    const now = Date.now()
+    upcomingInterviewsCount = ivRows.filter(i => i.scheduled_at && new Date(i.scheduled_at).getTime() > now).length
+    needFeedbackCount = ivRows.filter(i => i.scheduled_at && new Date(i.scheduled_at).getTime() <= now && !fbRoleIds.has(i.role_id)).length
+    pendingDraftsCount = conciergePendingRes.count ?? 0
+    pendingRefsCount = Math.max(0, refsTotal - completedRefsCount)
     for (const c of (coursesRes.data ?? [])) {
       if (c.status === 'completed') coursesCompleted++
       else if (c.status === 'in_progress') coursesInProgress++
@@ -304,6 +318,70 @@ export default async function Dashboard() {
                 <p className="text-[#7E7E8E] text-sm">{profile.headline}</p>
               )}
             </div>
+
+            {/* What needs you today — actionable items only; hides when there's nothing to do. */}
+            {(upcomingInterviewsCount + needFeedbackCount + (isConcierge ? pendingDraftsCount : 0) + pendingRefsCount + (completion < 100 ? 1 : 0)) > 0 && (
+              <div className="gradient-border-card rounded-2xl p-5 mb-5">
+                <p className="text-[#F08CAE] text-[10px] font-bold uppercase tracking-wider mb-3">✦ What needs you today</p>
+                <ul className="space-y-1.5">
+                  {upcomingInterviewsCount > 0 && (
+                    <li>
+                      <Link href="/applications" className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-white/[0.04] transition-colors">
+                        <span className="flex items-center gap-2 text-[#F4F4F7] text-sm">
+                          <span className="text-base leading-none">📅</span>
+                          <span>{upcomingInterviewsCount} upcoming interview{upcomingInterviewsCount === 1 ? '' : 's'} — prep &amp; join</span>
+                        </span>
+                        <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">→</span>
+                      </Link>
+                    </li>
+                  )}
+                  {needFeedbackCount > 0 && (
+                    <li>
+                      <Link href="/applications" className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-white/[0.04] transition-colors">
+                        <span className="flex items-center gap-2 text-[#F4F4F7] text-sm">
+                          <span className="text-base leading-none">📝</span>
+                          <span>{needFeedbackCount} interview{needFeedbackCount === 1 ? '' : 's'} need{needFeedbackCount === 1 ? 's' : ''} your feedback</span>
+                        </span>
+                        <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">→</span>
+                      </Link>
+                    </li>
+                  )}
+                  {isConcierge && pendingDraftsCount > 0 && (
+                    <li>
+                      <Link href="/active" className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-white/[0.04] transition-colors">
+                        <span className="flex items-center gap-2 text-[#F4F4F7] text-sm">
+                          <span className="text-base leading-none">✉️</span>
+                          <span>{pendingDraftsCount} draft{pendingDraftsCount === 1 ? '' : 's'} ready to approve &amp; send</span>
+                        </span>
+                        <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">→</span>
+                      </Link>
+                    </li>
+                  )}
+                  {pendingRefsCount > 0 && (
+                    <li>
+                      <Link href="/profile/references" className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-white/[0.04] transition-colors">
+                        <span className="flex items-center gap-2 text-[#F4F4F7] text-sm">
+                          <span className="text-base leading-none">🤝</span>
+                          <span>{pendingRefsCount} reference{pendingRefsCount === 1 ? '' : 's'} still awaiting a response</span>
+                        </span>
+                        <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">→</span>
+                      </Link>
+                    </li>
+                  )}
+                  {completion < 100 && (
+                    <li>
+                      <Link href="/profile/edit" className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-white/[0.04] transition-colors">
+                        <span className="flex items-center gap-2 text-[#F4F4F7] text-sm">
+                          <span className="text-base leading-none">✦</span>
+                          <span>Finish your profile — you&apos;re at {completion}%</span>
+                        </span>
+                        <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">→</span>
+                      </Link>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )}
 
             {/* Compact hero — guide + progress side by side, key info up top */}
             <div className="grid lg:grid-cols-2 gap-4 mb-5 items-stretch">
