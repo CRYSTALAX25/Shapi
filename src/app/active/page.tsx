@@ -311,7 +311,7 @@ export default function ActivePage() {
             </span>
           </div>
           <p className="text-[#A6A6B4] text-sm">
-            Find roles, draft outreach, track applications, prep for interviews — your entire job hunt in one place.
+            Your job-search command centre — scan for roles, draft personalised outreach, track every application, and prep for interviews, all in one place.
           </p>
         </div>
 

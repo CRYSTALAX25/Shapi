@@ -128,6 +128,9 @@ export default async function RolesBoard() {
       <div className="relative z-10 max-w-4xl mx-auto px-6 pt-8 pb-20">
         <div className="mb-6">
           <h1 className="text-3xl font-black mb-2" style={{ color: '#FB7185' }}>Open roles</h1>
+          <p className="text-[#A6A6B4] text-sm max-w-2xl">
+            Verified company roles, ranked by how well they match you. Every company here is trust-scored &mdash; salary paid on time, real hours, manager quality &mdash; so you can apply with confidence.
+          </p>
         </div>
 
         <RolesList

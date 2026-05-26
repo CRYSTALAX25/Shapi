@@ -76,10 +76,15 @@ function UpskillContent() {
   useEffect(() => { load() }, [])
 
   const trackCourse = async (payload: Record<string, unknown>) => {
-    await fetch('/api/upskill/course', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
+    try {
+      const res = await fetch('/api/upskill/course', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) console.error('[course-wallet] save failed:', await res.text().catch(() => res.status))
+    } catch (e) {
+      console.error('[course-wallet] save error:', e)
+    }
     load()
   }
   const removeCourse = async (id: string) => {

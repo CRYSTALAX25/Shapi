@@ -1,8 +1,14 @@
+// Sent once at the very start of a candidate's WhatsApp chat (see profile/update
+// + whatsapp/resend). Appended to both welcome messages so candidates learn the
+// commands in context — NOT repeated on later interview turns.
+const COMMAND_HINTS =
+  `\n\n💡 Quick tip — anytime you can say: "skip" to move on · "repeat" to hear a question again · "voice" to record a voice note in any language · "references" to check your reference status · or just ask me anything.`
+
 const OPENING_MESSAGE = (name: string) =>
-  `Hi ${name} 👋 I'm Shapi. I just read your CV.\n\nI want to build you a profile that actually shows who you are — not just job titles.\n\nQuick question: What's the achievement you're most proud of from the last 3 years? Something that made you think "I actually did that."\n\nText back or leave a voice note — whatever's easier.`
+  `Hi ${name} 👋 I'm Shapi. I just read your CV.\n\nI want to build you a profile that actually shows who you are — not just job titles.\n\nQuick question: What's the achievement you're most proud of from the last 3 years? Something that made you think "I actually did that."\n\nText back or leave a voice note — whatever's easier.${COMMAND_HINTS}`
 
 const NO_CV_MESSAGE = (name: string) =>
-  `Hi ${name} 👋 I'm Shapi.\n\nNo CV needed — we'll build your profile together through this conversation.\n\nLet's start: What's your current or most recent job title, and where are you based?`
+  `Hi ${name} 👋 I'm Shapi.\n\nNo CV needed — we'll build your profile together through this conversation.\n\nLet's start: What's your current or most recent job title, and where are you based?${COMMAND_HINTS}`
 
 async function twilioSend(from: string, to: string, body: string): Promise<{ success: boolean; sid?: string; errorCode?: number; error?: string }> {
   const accountSid = process.env.TWILIO_ACCOUNT_SID

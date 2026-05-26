@@ -63,25 +63,52 @@ export async function POST(request: Request) {
     payload.duration_hours = Number.isFinite(n) && n > 0 ? Math.round(n) : null
   }
 
+  // Columns added by the course_wallet.sql migration. If that migration hasn't
+  // been applied yet, an insert/update referencing them fails with "column ...
+  // does not exist" — so on that specific error we strip them and retry, keeping
+  // the core save (course_name, status, url) working regardless of migration state.
+  const OPTIONAL_COLS = ['liked', 'subsidy_type', 'subsidy_detail', 'duration_hours']
+  const isMissingColumn = (msg: string | undefined) => !!msg && /column .* does not exist|could not find the .* column/i.test(msg)
+  const stripOptional = (obj: Record<string, unknown>) => {
+    const o = { ...obj }
+    for (const c of OPTIONAL_COLS) delete o[c]
+    return o
+  }
+
   if (id) {
     // Update existing — only fields provided
     const updates = { ...payload }
     delete updates.candidate_id
     if (course_name === undefined) delete updates.course_name
-    const { error } = await supabase
+    let { error } = await supabase
       .from('candidate_courses')
       .update(updates)
       .eq('id', id)
       .eq('candidate_id', user.id)
+    if (error && isMissingColumn(error.message)) {
+      ({ error } = await supabase
+        .from('candidate_courses')
+        .update(stripOptional(updates))
+        .eq('id', id)
+        .eq('candidate_id', user.id))
+    }
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     return NextResponse.json({ ok: true, verification_status })
   }
 
-  const { data, error } = await supabase
+  const insertRow = { ...payload, created_at: new Date().toISOString() }
+  let { data, error } = await supabase
     .from('candidate_courses')
-    .insert({ ...payload, created_at: new Date().toISOString() })
+    .insert(insertRow)
     .select('id')
     .single()
+  if (error && isMissingColumn(error.message)) {
+    ({ data, error } = await supabase
+      .from('candidate_courses')
+      .insert(stripOptional(insertRow))
+      .select('id')
+      .single())
+  }
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true, id: data?.id, verification_status })
 }

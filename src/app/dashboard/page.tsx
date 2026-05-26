@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import ShapiCharacter from '@/components/ShapiCharacter'
+import SubscribeButton from '@/components/SubscribeButton'
 import { computeJobCompletionScore } from '@/lib/references'
 import { hasOpenRolesBoard, hasActive as hasActiveProduct, hasConcierge } from '@/lib/subscriptions'
 
@@ -395,31 +396,31 @@ export default async function Dashboard() {
               {(!isRolesBoard || !isActive || !isConcierge) && (
                 <div className="space-y-2">
                   {!isRolesBoard && (
-                    <Link href="/pay" className="flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <SubscribeButton product="roles_board_monthly" className="w-full flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors text-left" >
                       <div>
                         <p className="text-[#F4F4F7] text-sm font-bold">Open Roles Board <span className="text-[#6AA8F5] font-black">$19/mo</span></p>
                         <p className="text-[#7E7E8E] text-xs">Browse verified roles + get shortlisted by companies.</p>
                       </div>
                       <span className="text-[#6AA8F5] text-xs font-black flex-shrink-0">Subscribe →</span>
-                    </Link>
+                    </SubscribeButton>
                   )}
                   {!isActive && (
-                    <Link href="/pay" className="flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <SubscribeButton product="active_monthly" className="w-full flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors text-left">
                       <div>
                         <p className="text-[#F4F4F7] text-sm font-bold">Shapi Active <span className="text-[#6AA8F5] font-black">$29/mo</span></p>
                         <p className="text-[#7E7E8E] text-xs">Scan jobs, draft outreach, track applications, prep interviews.</p>
                       </div>
                       <span className="text-[#6AA8F5] text-xs font-black flex-shrink-0">Subscribe →</span>
-                    </Link>
+                    </SubscribeButton>
                   )}
                   {!isConcierge && (
-                    <Link href="/pay" className="flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <SubscribeButton product="concierge_monthly" className="w-full flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors text-left">
                       <div>
                         <p className="text-[#F4F4F7] text-sm font-bold">Active Concierge <span className="text-[#6AA8F5] font-black">$79/mo</span></p>
                         <p className="text-[#7E7E8E] text-xs">AI drafts personalised intros daily — you just approve and send.</p>
                       </div>
                       <span className="text-[#6AA8F5] text-xs font-black flex-shrink-0">Subscribe →</span>
-                    </Link>
+                    </SubscribeButton>
                   )}
                 </div>
               )}
@@ -874,108 +875,18 @@ export default async function Dashboard() {
               </div>
             )}
 
-            {/* WhatsApp tips — surfaces hidden intent commands so candidates know what to say */}
+            {/* WhatsApp — just a hint now. The full command list is delivered in the
+                first WhatsApp message (lib/whatsapp.ts), and Ask Shapi (the floating
+                ✦ button) answers anything in-app. Open Roles Board + Shapi Active live
+                in the sidebar nav and each explains itself on its own page. */}
             {profile?.whatsapp_number && (
-              <details className="gradient-border-card rounded-2xl p-4 mt-4">
-                <summary className="cursor-pointer flex items-center gap-2 text-[#C7C7D1] text-sm font-bold list-none">
-                  <span>💡</span>
-                  <span>Things you can say in WhatsApp anytime</span>
-                  <span className="ml-auto text-[#7E7E8E] text-xs">tap to view</span>
-                </summary>
-                <div className="mt-3 pt-3 border-t border-white/[0.08] space-y-3">
-                  <div>
-                    <p className="text-[#A6A6B4] text-[11px] font-bold uppercase tracking-wider mb-1.5">In any interview</p>
-                    <ul className="text-[#C7C7D1] text-xs leading-relaxed space-y-1.5 pl-1">
-                      <li><span className="font-bold text-[#6AA8F5]">&quot;skip&quot;</span> / <span className="font-bold text-[#6AA8F5]">&quot;next&quot;</span> — move to the next question</li>
-                      <li><span className="font-bold text-[#6AA8F5]">&quot;repeat that&quot;</span> — re-ask the previous question</li>
-                      <li><span className="font-bold text-[#6AA8F5]">&quot;done&quot;</span> / <span className="font-bold text-[#6AA8F5]">&quot;pause&quot;</span> — finish or pause (your answers are saved)</li>
-                      <li><span className="font-bold text-[#6AA8F5]">&quot;start over&quot;</span> — wipe + begin the main interview fresh</li>
-                      <li><span className="font-bold text-[#6AA8F5]">&quot;I don&apos;t know&quot;</span> — totally fine, we&apos;ll move on</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <p className="text-[#A6A6B4] text-[11px] font-bold uppercase tracking-wider mb-1.5">Anytime, just text</p>
-                    <ul className="text-[#C7C7D1] text-xs leading-relaxed space-y-1.5 pl-1">
-                      <li><span className="font-bold text-[#6AA8F5]">&quot;voice&quot;</span> — record a voice sample in each language you speak</li>
-                      <li><span className="font-bold text-[#6AA8F5]">&quot;references&quot;</span> — see your reference requests + status</li>
-                    </ul>
-                  </div>
-                  <p className="text-[#A6A6B4] text-xs leading-relaxed pt-1">
-                    🎙 <strong>Voice notes work in any language</strong> — Arabic, Tagalog, Spanish, Hindi, whatever&apos;s easier. We transcribe + respond in the same language.
-                  </p>
-                </div>
-              </details>
+              <div className="gradient-border-card rounded-2xl p-4 mt-4 flex items-start gap-3">
+                <span className="text-lg leading-none">💬</span>
+                <p className="text-[#C7C7D1] text-xs leading-relaxed">
+                  Chat with Shapi on <strong className="text-[#F4F4F7]">WhatsApp</strong> anytime — say <span className="font-bold text-[#6AA8F5]">&quot;voice&quot;</span> to record in any language, <span className="font-bold text-[#6AA8F5]">&quot;references&quot;</span> to check your status, <span className="font-bold text-[#6AA8F5]">&quot;skip&quot;</span> during an interview, or just ask anything.
+                </p>
+              </div>
             )}
-
-            {/* ─── Open Roles Board ─── */}
-            <div className="mt-4">
-              <Link href="/roles" className="gradient-border-card rounded-2xl p-6 flex items-center justify-between hover:bg-white/[0.05] transition-all">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.15), rgba(79,143,232,0.15))' }}>
-                    <svg className="w-5 h-5 text-[#6AA8F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-[#F4F4F7] text-sm mb-0.5">Open roles board</h3>
-                    <p className="text-[#7E7E8E] text-xs">Browse verified company roles ranked by your match score.</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  {interestedRolesCount > 0 && (
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-full"
-                      style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>
-                      {interestedRolesCount} interested
-                    </span>
-                  )}
-                  <svg className="w-4 h-4 text-[#7E7E8E]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </Link>
-            </div>
-
-            {/* ─── Shapi Active ─── */}
-            <div className="mt-4">
-              <Link href="/active" className="block rounded-2xl p-6 hover:opacity-90 transition-opacity"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(106,168,245,0.12) 0%, rgba(79,143,232,0.12) 100%)',
-                  border: '1px solid rgba(106,168,245,0.2)',
-                }}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs font-bold px-2.5 py-1 rounded-full"
-                        style={{ background: 'rgba(106,168,245,0.2)', color: '#6AA8F5' }}>
-                        NEW
-                      </span>
-                      <h3 className="font-bold text-[#F4F4F7]">Shapi Active</h3>
-                    </div>
-                    <p className="text-[#A6A6B4] text-sm mb-3">
-                      Scan for jobs, draft personalised outreach, track applications, prep for interviews — all in one place.
-                    </p>
-                    <div className="flex items-center gap-4 text-xs text-[#7E7E8E]">
-                      <span>🔍 Job scanner</span>
-                      <span>✉️ Email drafter</span>
-                      <span>📋 Application tracker</span>
-                      <span>🎯 Interview prep</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-4">
-                    {activeApplicationsCount > 0 && (
-                      <span className="text-2xl font-black" style={{ color: '#6AA8F5' }}>{activeApplicationsCount}</span>
-                    )}
-                    {activeApplicationsCount > 0 && (
-                      <span className="text-[#7E7E8E] text-[10px]">applications</span>
-                    )}
-                    <svg className="w-5 h-5 text-[#7E7E8E] mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </div>
-                </div>
-              </Link>
-            </div>
             </main>
           </div>
         )}
