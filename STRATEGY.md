@@ -419,3 +419,172 @@ Each candidate-side product has a symmetric company-side equivalent that reuses 
     **Why:** pulls demand-side leads into the platform; closes the loop on the §13 flywheel.
 
 > **Pre-launch (before 2 June 2026):** ship features 2, 3, 4, 5, 7, 8, 9 in tight/MVP form (they reuse candidate-side infra). Features 1, 6, 10, 11 are Phase 2 proper — they need new SKUs / deeper data work and shouldn't be rushed.
+
+---
+
+## 15. Restructuring & outplacement — the enterprise wedge (LOCKED idea; decided 2026-05-26)
+
+> One-liner: Shapi becomes the infrastructure for orderly labour-market change — we help individuals navigate displacement (§11) AND help companies do it humanely. Same fountain-of-truth DNA, both sides, paying enterprise contracts.
+
+As AI compresses roles, more companies will restructure. They currently buy this from McKinsey ($500k-2M), traditional outplacement firms ($5-15k/head), and employment lawyers. Shapi can deliver the same outcomes 5-10× cheaper, with much better unit economics, because we already own the engine — verified profiles, reference chains, AI-Proof scoring, Career Roadmap/Pivot, Train-to-Hire. This is also the natural inversion of §11 (we built the candidate-side displacement playbook; this builds the company-side counterpart). It's the biggest enterprise wedge we have.
+
+### Feature stack (priority order):
+
+1. **[LOCKED] Outplacement-as-a-service** (the lead product). Company pays a per-head fee (~$500-2,000); each laid-off person gets a free 90-day Pro account on Shapi — verified profile + reference chain + Career Translator + AI-Proof + Pivot + Course Wallet + Concierge.
+   **Why:** 10× cheaper than incumbents, better outcomes, and *every laid-off person becomes a verified Shapi candidate at scale* — pure supply-side growth driven by the buyer's spend. The rare product where the more our customer uses it, the stronger our marketplace gets.
+2. **[LOCKED] Restructure Studio.** A workspace where the HR/CEO lead can upload current org chart/headcount CSV, AI tags each role (AI-resilience score × salary × market fit × tenure), they tag keep/reskill/redeploy/let-go, and we generate a before/after structure with cost delta. All decisions auditable, timestamped, defensible.
+   **Why:** layoff decisions are increasingly contested (in court and on LinkedIn) — an auditable, AI-grounded decision trail is a real protection. Also: forces clear thinking instead of gut calls.
+3. **[LOCKED] Reskill-vs-cut simulator.** For each at-risk role: cost of reskilling that person into an adjacent rising role vs cost of severance + new hire. Often reskilling wins on pure economics.
+   **Why:** turns a binary "fire / don't fire" call into a third option that's better for everyone, and often cheaper.
+4. **[LOCKED] Comms drafter.** Drafts the four messages every restructure needs: manager scripts for the 1:1s, individual letters, the all-hands message, and the LinkedIn/external post. Country/cultural tone variants, "warm but honest" vs "legal-minimum" presets.
+   **Why:** the difference between a restructure that destroys your employer brand and one that strengthens it is almost entirely in the comms. Most companies do this badly because they outsource to lawyers who write legalese.
+5. **[LOCKED] Country-aware compliance checker.** Per-country statutory notice + minimum severance + collective-consultation thresholds (UAE, KSA, UK, EU, US-WARN). Strictly **guidance, not legal advice** — explicit disclaimer + "have your lawyer review" everywhere.
+   **Why:** companies routinely get this wrong cross-border. Even a checklist with the right pointers saves them from $$$ mistakes.
+6. **[LOCKED] Survivor retention layer.** After a restructure, identify the high performers most likely to bolt (signals: market salary delta, time since promotion, tenure mismatch) and prompt managers to have a stay-conversation.
+   **Why:** post-layoff regret loss is one of the most expensive parts of a restructure — the people most likely to leave are usually the ones you most wanted to keep.
+7. **[LOCKED] "Verified restructure" badge** on the company trust score for orgs that complete a Shapi-tracked restructure with strong outcomes (placement rate, comms quality, comp fairness).
+   **Why:** brand protection becomes a positive moat — competitors that restructured badly look comparatively worse.
+8. **[IDEA] Sensitive-comms WhatsApp coach.** Manager texts "how do I tell [name]" privately on WhatsApp; Shapi coaches them through the conversation.
+   **Why:** the actual 1:1 is where most managers fail. Real-time coaching at the point of action.
+
+### Business model
+
+- **Pricing benchmarks (what we displace):** McKinsey strategy work $500k-2M per project; traditional outplacement firms (RightManagement, LHH) $5-15k per head and ~30% placement rate.
+- **Shapi pricing:** $500-2,000 per head for outplacement, $25-100k flat for a Restructure Studio engagement (Stripe one-off + per-seat). Lower price, better outcomes, and we cross-subsidise from the supply-side growth (every restructured leaver becomes a verified candidate).
+- **Why this is enterprise-grade revenue:** subscription companies pay monthly; restructure clients pay six-figure project fees. Mix of both = healthier P&L.
+
+### Risks to manage
+
+- **Brand sensitivity** — "Shapi profits from layoffs" reads cynical if framed wrong. Lead with: *we help people land softly + we help companies do this right*. Marketing copy is load-bearing.
+- **Legal exposure** — redundancy law varies massively by jurisdiction. Guidance, never advice. Lawyer-review disclaimer in every drafted document.
+- **Data sensitivity** — handling internal HR + performance data may push us into SOC 2 for enterprise contracts. Budget for compliance work in Phase 2.
+- **Sales-cycle reality** — enterprise restructure deals close on weeks-to-months. F&F launch should *seed the narrative* (case studies, pitch deck) rather than depend on this revenue.
+
+### Connection to other sections
+
+- Builds directly on **§11** (candidate-side displacement playbook).
+- Sits next to **§14 Tier 2** features (Hiring Roadmap, AI-Proof for roles, Hiring Plan — these are the engine).
+- Feeds **§13** (every restructured leaver → verified Shapi candidate; demand-side flywheel inverted).
+
+> **Status:** locked as the post-launch enterprise wedge. Pre-launch the strategic narrative + a one-page sales sheet + (recommended) one quick "AI Talent Audit" prototype — see §16. The full feature stack is Phase 2/3.
+
+---
+
+## 16. Shapi Workforce Intelligence (consolidated framework — LOCKED, decided 2026-05-26)
+
+> One-liner: We're not a job marketplace — we're a Workforce Intelligence platform. We score an org's readiness for the future workforce (Verified), plan their transformation (Workforce + AI), and supply the talent to execute (Outplacement, Hiring, Reskilling). The plan you'd get from McKinsey, the talent you'd get from LinkedIn, the verification nobody else has, in one platform.
+
+The strongest positioning is NOT "recruitment software" — it's Strategic Workforce Intelligence + Organisational Fit. Companies face two intertwined problems: (1) AI will reshape their workforce (who to keep/reskill/cut/protect), and (2) integrating AI itself is expensive, talent-scarce, and full of pitfalls (Google's inference-cost squeeze, Uber-style ROI mirages). These two problems are ONE conversation — you can't plan headcount without an AI rollout plan, and you can't plan AI rollout without a talent plan. We sell both as one product, plus we own the verified talent supply to execute, plus we own the verification layer competitors lack.
+
+### Competitive positioning (LOCKED)
+- Not vs Indeed / LinkedIn (table stakes).
+- Real comparison set: **Workday / SAP** (HRIS giants — slow, expensive, no AI displacement intelligence), **Eightfold / Gloat** (AI-talent platforms — self-reported data, no verification, no execution), **Mercer / McKinsey / BCG** (consulting — $500k-2M, walk away after the report, no talent supply).
+- Our differentiator: **Verified data + AI workforce intelligence + talent supply to execute** — vertical integration nobody else has.
+
+### Tier ladder (LOCKED — supersedes earlier framing)
+- **Tier A — Workforce Snapshot** (launch wedge, 7 days). One-shot. Headline output: **Workforce Future Readiness Score (0-100)**. Plus heatmap, top at-risk roles with 5-way recommendation, AI integration cost estimate, talent gap summary. Free / $1-5k. Top-of-funnel.
+- **Tier B — 5-Year Workforce Plan** (Phase 2). Full engagement. Operating model diagnostic → Org DNA mapping → workforce + AI integration plan (3y / 5y / 10y horizons) → execution playbook. **$25-100k per engagement**, annual refresh (recurring).
+- **Tier C — Workforce OS** (Phase 3, subscription). Continuous monitoring + Team Compatibility Matrix + Succession Intelligence + Leadership Risk Detection. Integrated with marketplace: redeployment → Shapi pool, leavers → outplacement, AI integration talent → sourced from pool. **$5-25k/month enterprise**.
+
+### Six target operating models (diagnostic at start of Tier B)
+Companies select one or hybrid. Each implies different planning logic:
+- **Centralised** (govt, regulated, mega projects) — HR owns planning centrally, governance-heavy.
+- **Decentralised** (holdings, conglomerates, fast-scaling) — BUs own hiring autonomy.
+- **Agile Pod** (tech, startups, innovation teams) — skills-based squads, fluid roles.
+- **Skills Marketplace** (large enterprises in AI transition) — internal gig economy, skill inventory replaces titles.
+- **Hybrid Human + AI** (forward-thinking) — AI agents in teams, workforce measured in human + digital capacity.
+- **Outcome-Based** (consulting, creative, transformation firms) — measured by outcomes not hours.
+
+**Why:** most CEOs can't articulate which model they're running. Diagnosing it + recommending one is the *first* high-value advisory move in the engagement.
+
+#### Selecting / combining models — four valid input modes (LOCKED)
+Real companies almost never fit one model cleanly. The product must support all four input shapes:
+1. **Single primary** — small/early-stage orgs that genuinely run one model end-to-end.
+2. **Hybrid (one company, weighted blend)** — e.g. *"60% Centralised, 30% Agile Pod, 10% Skills Marketplace"*. Tier A's fast input mode.
+3. **Per-BU / per-function** — different model per business unit. The Tier B default. A UAE family holding might be: HR Centralised + Tech Agile Pod + Consulting Outcome-Based + Operations moving to Hybrid Human+AI.
+4. **Transitioning over time** — current model → target model per BU on a 3-year horizon, with cost + risk per transition step. The Tier B deliverable that most consultancies don't produce.
+
+UX per tier:
+- **Tier A** — single radio + optional second pick. ~10 seconds.
+- **Tier B** — visual org map; drag-tag each BU with one of the 6 models; AI suggests a starting tag from their description; transition path modelled per BU.
+- **Tier C** — per-BU model-fit health score + drift alerts when org evolution (growth / new product / M&A) signals a BU's model should change.
+
+Power-user input (extends his slash-command idea):
+```
+/operating-model centralized:hr
+/operating-model agile-pod:engineering
+/operating-model outcome-based:consulting
+/operating-model hybrid-ai:operations
+```
+
+**Misalignment diagnosis is its own deliverable** — pointing out *"your tech BU is running Centralised which is why dev velocity is choking; it should be Agile Pod"* is often more valuable (and more sell-defining) than the target-state recommendation itself. Surface misalignment as a distinct output, not just a step in the path.
+
+### Candidate fit framework: Head / Heart / Hand / Spark (LOCKED)
+Replaces the generic match score on every candidate-role match. Four dimensions:
+- **Head** — intelligence, strategic thinking, problem solving, learning agility.
+- **Heart** — EQ, empathy, team compatibility, leadership maturity.
+- **Hand** — practical execution, delivery, functional expertise. *Our verification engine is the strongest in market on this dimension.*
+- **Spark** — innovation, ambition, creativity, energy, change leadership.
+
+Plus three separate fit scores:
+- **Role fit** — vs the JD.
+- **Team fit** — vs the existing team's behavioural composition.
+- **Organisation fit** — vs the org's DNA / culture.
+
+**Why:** explains why "perfect on paper" hires fail. Cleaner commercial story than competency rubrics. We deeply own **Hand** via verification — H/H/S extends us into the softer dimensions explicitly.
+
+### Five-way per-role recommendation (LOCKED — replaces our 4-way)
+For every role in a restructure / planning exercise: **Replace / Augment / Reskill / Redeploy / Protect strategically.**
+- **Protect strategically** — flag high-performers / hard-to-replace people we should fight to keep. New explicit category vs prior 4-way.
+- **Why:** sharper, more honest, prevents accidentally losing key talent during restructuring.
+
+### AI Exposure Index (sharpened scoring dimensions for /role/ai-proof)
+Replace generic scoring with these 6 explicit dimensions:
+1. Repetitiveness
+2. Rules-based work
+3. Administrative intensity
+4. Data processing dependency
+5. Creativity requirement (inverted — high creativity → low AI risk)
+6. Human interaction dependency (inverted)
+
+### Workforce Future Readiness Score (LOCKED — the headline metric)
+Single 0-100 score per organisation. Composite of:
+- AI exposure (% of org high-risk)
+- Skills maturity (% of needed future skills present)
+- Leadership adaptability
+- Innovation density
+- Workforce resilience
+- Organisational adaptability
+
+**Why:** CEO conversation-opener. "Your company is 47/100 ready for the future workforce — here's what to raise it to 75." A single number is the dopamine moment. Drives both the audit (what's your score) and the plan (here's how we raise it).
+
+### Team Compatibility Matrix (Phase 2/3)
+Visual: dominant thinkers / executors / collaborators / innovators across a team. Prevents teams of all-strategists / no-executors.
+
+### Trust-tier data model (LOCKED — applies across all tiers)
+- **L1 (Snapshot)** — categorical inputs only: industry, size, AI maturity, optional role roster with no names. Standard DPA.
+- **L2 (Plan)** — full anonymised: role IDs, salary bands, tenure, performance band. Per-engagement isolated schema + NDA + DPA + deletable on request.
+- **L3 (OS)** — identifiable data, continuous HRIS integration. **SOC 2 required** + enterprise contract + audit logs visible to customer.
+- Cross-cutting commitments: anonymise at ingest where possible; no-training contractual clause; per-customer schema isolation; encryption at rest + in transit; DPA template Day 1; SOC 2 path on roadmap for L3.
+
+**Why:** enterprise sales gates on data trust. A UAE family business can start at L1 with zero risk and escalate as trust builds — mirrors our verification DNA.
+
+### Cost reliability (LOCKED commitments)
+- Every projection grounded in a real input (their data + our benchmarks — salary, Anthropic/OpenAI public API pricing, cloud rates). Never AI-invented.
+- Confidence bands on everything ("$200-450k Y1" not "$285k Y1").
+- Show our sources at the bottom of every figure.
+- Sandbag honestly: industry data shows ~50-70% of enterprise AI pilots fail to scale. Bake into the model.
+
+### Connection to other sections
+- Builds on **§11** (candidate-side displacement playbook → company-side counterpart).
+- Subsumes the earlier "AI Talent Audit" proposal — that's Tier A here.
+- Sits alongside **§14** (the company-side feature mirrors are the *components* of this product).
+- Feeds **§15** (Outplacement is the natural Tier C execution layer).
+- Feeds **§13** (each engagement reveals companies we want to bring onto Shapi).
+
+### Pre-launch vs Phase 2/3
+- **Pre-launch (before 2 June 2026):** ship **Tier A only** (the Workforce Snapshot wedge) + one-page sales sheet. Tier B + C are full engagements that need real care.
+- **Phase 2 (0-6 months post-launch):** Tier B engagement playbook + first 2-3 design partner engagements.
+- **Phase 3 (6-12 months):** Tier C subscription product + SOC 2 + first enterprise contracts.
+
+> **Status:** locked as the company-side product spine. All earlier company-side feature work (§14) is now framed as components OF this product, not standalone tools. Tier A is the launch wedge.
