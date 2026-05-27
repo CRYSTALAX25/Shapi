@@ -57,14 +57,9 @@ export default async function CompanyPipeline({ searchParams }: { searchParams: 
     <div className="min-h-screen bg-[#0E0E13]">
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
 
-      <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)]">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
-          <div className="flex items-center gap-5 text-sm">
-            <Link href="/company/dashboard" className="text-[#A6A6B4] hover:text-[#F4F4F7]">Candidates</Link>
-            <span className="text-[#F4F4F7] font-bold">Pipeline</span>
-          </div>
-        </div>
+      <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-6xl mx-auto">
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/company/dashboard" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1] transition-colors">← Dashboard</Link>
       </nav>
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 pt-8 pb-20">

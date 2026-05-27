@@ -126,19 +126,9 @@ export default async function CompanyRoles() {
         backgroundSize: '44px 44px',
       }} />
 
-      {/* Nav — company blue band */}
-      <nav className="relative z-10" style={{ background: 'linear-gradient(120deg, #4F8FE8 0%, #4F8FE8 45%, #6AA8F5 100%)' }}>
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <ShapiCharacter mood="happy" size={30} />
-            <span className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</span>
-          </Link>
-          <div className="flex items-center gap-6">
-            <Link href="/company/dashboard" className="text-white/85 text-sm font-bold hover:text-white transition-colors">Dashboard</Link>
-            <Link href="/company/pipeline" className="text-white/85 text-sm font-bold hover:text-white transition-colors">Pipeline →</Link>
-            <span className="text-white/60 text-sm hidden sm:block">{companyName}</span>
-          </div>
-        </div>
+      <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-6xl mx-auto">
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/company/dashboard" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1] transition-colors">← Dashboard</Link>
       </nav>
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 pt-10 pb-20">

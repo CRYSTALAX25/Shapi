@@ -1,11 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function CompanyPricing() {
   const [loading, setLoading] = useState<string | null>(null)
-  const router = useRouter()
 
   const checkout = async (tier: string) => {
     setLoading(tier)
@@ -21,14 +20,9 @@ export default function CompanyPricing() {
 
   return (
     <div className="min-h-screen bg-[#0E0E13]">
-      <nav className="px-6 py-5 flex items-center justify-between max-w-5xl mx-auto border-b border-[rgba(255,255,255,0.08)]">
-        <span className="font-black text-2xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-        }}>shapi</span>
-        <button onClick={() => router.push('/dashboard')} className="text-sm text-[#A6A6B4] hover:text-[#F4F4F7]">
-          ← Back
-        </button>
+      <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-6xl mx-auto">
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/company/dashboard" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1] transition-colors">← Dashboard</Link>
       </nav>
 
       <div className="max-w-4xl mx-auto px-6 pt-12 pb-20">

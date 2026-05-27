@@ -194,31 +194,64 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
         backgroundSize: '44px 44px',
       }} />
 
-      {/* Nav — company blue band */}
-      <nav className="relative z-10" style={{ background: 'linear-gradient(120deg, #4F8FE8 0%, #4F8FE8 45%, #6AA8F5 100%)' }}>
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <ShapiCharacter mood="happy" size={30} />
-            <span className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</span>
-          </Link>
-          <div className="flex items-center gap-6">
-            <Link href="/company/roles" className="text-white/85 text-sm font-bold hover:text-white transition-colors">Manage roles</Link>
-            <Link href="/company/pipeline" className="text-white/85 text-sm font-bold hover:text-white transition-colors">Pipeline →</Link>
-            <span className="text-white/60 text-sm hidden sm:block">{companyName}</span>
+      {/* Minimal nav — matches candidate-side dashboard convention. The old blue
+          gradient bar is gone (too loud); shapi wordmark + Sign out is enough. */}
+      <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08]">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+          <div className="flex items-center gap-5">
             {!isPaid && (
-              <Link href="/company/pricing"
-                className="bg-white text-[#4F8FE8] text-xs font-black px-4 py-2 rounded-full hover:bg-white/90 transition-colors">
+              <Link href="/company/pricing" className="text-[#F08CAE] text-xs font-black border border-[#F08CAE]/30 hover:border-[#F08CAE]/60 px-3 py-1.5 rounded-full transition-colors">
                 Upgrade
               </Link>
             )}
             <form action="/api/auth/signout" method="post">
-              <button className="text-white/60 text-sm hover:text-white transition-colors">Sign out</button>
+              <button className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1] transition-colors">Sign out</button>
             </form>
           </div>
         </div>
       </nav>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 pt-10 pb-20">
+      <div className="relative z-10 max-w-6xl mx-auto px-6 pt-8 pb-20">
+
+        <div className="grid lg:grid-cols-[220px_1fr] gap-6">
+
+          {/* ── Sidebar nav (vertical on lg, horizontal pill row on mobile) ──
+              Same pattern as the candidate dashboard. Active item = blue
+              "you are here" pill + coral text. Hover on others = coral. */}
+          <aside className="lg:sticky lg:top-6 self-start">
+            <nav className="flex flex-row overflow-x-auto lg:flex-col gap-1.5 pb-1 lg:pb-0 -mx-1 px-1 lg:mx-0 lg:px-0">
+              {[
+                { href: '#', label: 'Overview', icon: '🏠', active: true },
+                { href: '/company/workforce-snapshot', label: 'Workforce Snapshot', icon: '✦' },
+                { href: '/company/salary-benchmark', label: 'Salary benchmark', icon: '💸' },
+                { href: '/company/roadmap', label: 'Hiring Roadmap', icon: '🗺️' },
+                { href: '/company/hiring-plan', label: 'Hiring Plan', icon: '🚀' },
+                { href: '/role/ai-proof', label: 'AI-Proof a role', icon: '🛡️' },
+                { href: '/company/roles', label: 'Roles', icon: '💼' },
+                { href: '/company/pipeline', label: 'Pipeline', icon: '📋' },
+                { href: '/candidates', label: 'Candidates', icon: '👥' },
+                { href: '/company/onboarding', label: 'Company profile', icon: '👤' },
+              ].map(item => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={`flex items-center gap-2.5 flex-shrink-0 rounded-xl px-3 py-2 text-sm font-bold transition-colors whitespace-nowrap ${
+                    item.active ? 'text-[#FB7185]' : 'text-[#C7C7D1] hover:text-[#FB7185]'
+                  }`}
+                  style={item.active
+                    ? { background: 'rgba(106,168,245,0.12)', border: '1px solid rgba(106,168,245,0.28)' }
+                    : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                >
+                  <span className="text-base leading-none">{item.icon}</span>
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </nav>
+          </aside>
+
+          {/* ── Main column ── */}
+          <main className="min-w-0">
 
         {/* Header */}
         <div className="flex items-start justify-between gap-4 mb-6">
@@ -638,6 +671,8 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
           </form>
         </div>
 
+          </main>
+        </div>
       </div>
     </div>
   )
