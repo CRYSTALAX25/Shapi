@@ -122,6 +122,14 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   const coFbKeys = new Set(((coFbRes.data ?? []) as Array<{ role_id: string; candidate_id: string }>).map(f => `${f.role_id}|${f.candidate_id}`))
   const needCompanyFeedbackCount = completedIvs.filter(i => !coFbKeys.has(`${i.role_id}|${i.candidate_id}`)).length
 
+  // Has this company ever run a Workforce Snapshot? Used to show a prominent
+  // "Run your free analysis" nudge on the dashboard for fresh accounts.
+  const { count: snapshotCount } = await admin
+    .from('company_workforce_audits')
+    .select('id', { count: 'exact', head: true })
+    .eq('company_id', user.id)
+  const hasRunSnapshot = (snapshotCount ?? 0) > 0
+
   // Company profile completion. Truth source: profile.onboarding_complete (set by
   // /company/onboarding). For accounts pre-dating that flag — or to give credit
   // as fields fill in — fall back to a field-based score on the actual fields
@@ -365,6 +373,24 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
 
         {/* Company intelligence card moved to /company/profile (its proper home).
             Dashboard is now action-oriented only. */}
+
+        {/* Workforce Snapshot nudge — first-touch acquisition wedge.
+            Shown only to companies that haven't yet run one. Free analysis
+            → Tier B upsell. STRATEGY §16 Tier A. */}
+        {!hasRunSnapshot && (
+          <Link href="/company/workforce-snapshot" className="block mb-6 rounded-2xl p-5 hover:opacity-95 transition-opacity" style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.14), rgba(240,140,174,0.14))', border: '1px solid rgba(240,140,174,0.30)' }}>
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#F08CAE' }}>✦ Start here — free</p>
+                <p className="text-[#F4F4F7] text-base font-black mb-1">Run your Workforce Snapshot</p>
+                <p className="text-[#A6A6B4] text-xs leading-relaxed max-w-2xl">
+                  Five inputs, zero confidential data, one honest report — your <strong className="text-[#F4F4F7]">Future Readiness Score</strong>, AI risk heatmap, top at-risk roles, and what AI integration will actually cost. ~30 seconds.
+                </p>
+              </div>
+              <span className="text-[#F08CAE] text-xs font-black flex-shrink-0">Run it →</span>
+            </div>
+          </Link>
+        )}
 
         {/* Active Hiring upsell — only when not subscribed. The product:
             daily AI-shortlist + drafted outreach per open role. STRATEGY §14/§16. */}

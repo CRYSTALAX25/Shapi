@@ -92,6 +92,35 @@ export default function WorkforceSnapshot() {
   const addRole = () => setRoles(prev => [...prev, { role: '', dept: '', count: '' }])
   const removeRole = (i: number) => setRoles(prev => prev.length > 1 ? prev.filter((_, idx) => idx !== i) : prev)
 
+  // Bulk-paste: tab- or comma-separated rows from any spreadsheet.
+  // Format per line: role[, dept[, count]]  — flexible.
+  const [bulkText, setBulkText] = useState('')
+  const [bulkOpen, setBulkOpen] = useState(false)
+  const importBulk = () => {
+    const lines = bulkText.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
+    const parsed: RoleRow[] = []
+    for (const line of lines) {
+      // split on tab first (paste from Excel/Sheets), fall back to commas
+      const parts = (line.includes('\t') ? line.split('\t') : line.split(',')).map(s => s.trim())
+      const role = parts[0] || ''
+      if (!role) continue
+      const dept = parts[1] || ''
+      const countRaw = parts[2] || '1'
+      const count = countRaw.replace(/[^0-9]/g, '') || '1'
+      parsed.push({ role, dept, count })
+    }
+    if (parsed.length === 0) return
+    // Replace whatever was there with the imported set (keeps the form sane).
+    setRoles(parsed)
+    setBulkText('')
+    setBulkOpen(false)
+  }
+  const onCsvFile = (file: File) => {
+    const reader = new FileReader()
+    reader.onload = () => { setBulkText(String(reader.result || '')); setBulkOpen(true) }
+    reader.readAsText(file)
+  }
+
   const run = async () => {
     if (!industry.trim() || !size.trim()) {
       setErr('Industry and company size are required.')
@@ -208,8 +237,45 @@ export default function WorkforceSnapshot() {
             </div>
 
             <div className="rounded-2xl p-5" style={cardStyle}>
-              <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-3">Roles in your org (optional, anonymised counts only)</p>
-              <p className="text-[#7E7E8E] text-[11px] mb-3">No names, no salaries. Just role + count. Skip this and we&apos;ll give you industry-typical guidance.</p>
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div>
+                  <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-1">Roles in your org (optional, anonymised counts only)</p>
+                  <p className="text-[#7E7E8E] text-[11px]">No names, no salaries. Type one row at a time, OR paste from a spreadsheet / upload a CSV.</p>
+                </div>
+                <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                  <button type="button" onClick={() => setBulkOpen(o => !o)}
+                    className="text-[#6AA8F5] text-[10px] font-bold border border-[#6AA8F5]/30 px-2.5 py-1 rounded-full hover:border-[#6AA8F5]/60 transition-colors whitespace-nowrap">
+                    {bulkOpen ? 'Close paste' : '📋 Paste rows'}
+                  </button>
+                  <label className="text-[#F08CAE] text-[10px] font-bold border border-[#F08CAE]/30 px-2.5 py-1 rounded-full hover:border-[#F08CAE]/60 transition-colors cursor-pointer whitespace-nowrap">
+                    📄 Upload CSV
+                    <input type="file" accept=".csv,text/csv,text/plain" className="hidden"
+                      onChange={e => { const f = e.target.files?.[0]; if (f) onCsvFile(f); e.currentTarget.value = '' }} />
+                  </label>
+                </div>
+              </div>
+
+              {bulkOpen && (
+                <div className="mb-3 rounded-lg p-3" style={{ background: 'rgba(106,168,245,0.06)', border: '1px solid rgba(106,168,245,0.18)' }}>
+                  <p className="text-[#A6A6B4] text-[10px] mb-1.5">One role per line. Format: <strong className="text-[#C7C7D1]">role, dept, count</strong> — comma or tab separated. Header row is fine to leave in; we&apos;ll skip empty ones.</p>
+                  <textarea value={bulkText} onChange={e => setBulkText(e.target.value)} rows={5}
+                    placeholder="Engineer, Tech, 5&#10;Designer, Product, 1&#10;Sales Rep, GTM, 2"
+                    className="w-full rounded-lg px-3 py-2 text-xs text-[#F4F4F7] placeholder-[#7E7E8E] outline-none font-mono"
+                    style={inputStyle} />
+                  <div className="flex gap-2 mt-2">
+                    <button type="button" onClick={importBulk} disabled={!bulkText.trim()}
+                      className="text-[10px] font-black px-3 py-1.5 rounded-full text-white disabled:opacity-40"
+                      style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
+                      Import {bulkText.trim() ? `${bulkText.split(/\r?\n/).filter(l => l.trim()).length} rows` : ''}
+                    </button>
+                    <button type="button" onClick={() => { setBulkText(''); setBulkOpen(false) }}
+                      className="text-[10px] font-bold px-3 py-1.5 rounded-full text-[#7E7E8E] border border-white/[0.10] hover:text-[#C7C7D1]">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2">
                 {roles.map((r, i) => (
                   <div key={i} className="flex gap-2">
