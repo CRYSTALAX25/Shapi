@@ -291,10 +291,10 @@ function ForCandidatesInner() {
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-20">
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>
-            How Shapi compares
+            {t('forCandidates.comparison.eyebrow')}
           </div>
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#FB7185' }}>
-            Built where the others stopped.
+            {t('forCandidates.comparison.title')}
           </h2>
         </div>
 
@@ -302,11 +302,18 @@ function ForCandidatesInner() {
           <table className="w-full min-w-[760px] border-collapse">
             <thead>
               <tr>
-                <th className="text-left p-3 text-[#7E7E8E] font-bold text-sm uppercase tracking-wider">Capability</th>
+                <th className="text-left p-3 text-[#7E7E8E] font-bold text-sm uppercase tracking-wider">{t('forCandidates.comparison.colCapability')}</th>
                 <th className="p-3">
-                  <span className="font-black text-base tracking-tighter" style={{ color: '#FB7185' }}>Shapi</span>
+                  <span className="font-black text-base tracking-tighter" style={{ color: '#FB7185' }}>{t('forCandidates.comparison.colShapi')}</span>
                 </th>
-                {['LinkedIn', 'Indeed', 'Bayt', 'Glassdoor', 'GulfTalent', 'Jack & Jill'].map(c => (
+                {[
+                  t('forCandidates.comparison.colLinkedin'),
+                  t('forCandidates.comparison.colIndeed'),
+                  t('forCandidates.comparison.colBayt'),
+                  t('forCandidates.comparison.colGlassdoor'),
+                  t('forCandidates.comparison.colGulftalent'),
+                  t('forCandidates.comparison.colJackJill'),
+                ].map(c => (
                   <th key={c} className="p-3 text-[#7E7E8E] font-bold text-sm">{c}</th>
                 ))}
               </tr>
@@ -336,7 +343,7 @@ function ForCandidatesInner() {
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-20">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#FB7185' }}>
-            How it works.
+            {t('forCandidates.how.title')}
           </h2>
         </div>
 
@@ -378,9 +385,9 @@ function ForCandidatesInner() {
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-20">
         <div className="text-center mb-10">
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#FB7185' }}>
-            Honest pricing.
+            {t('forCandidates.pricing.title')}
           </h2>
-          <p className="text-[#A6A6B4] text-base mt-3">Start free. Layer on the tools when they pay off.</p>
+          <p className="text-[#A6A6B4] text-base mt-3">{t('forCandidates.pricing.subtitle')}</p>
         </div>
 
         <div className="grid md:grid-cols-5 gap-3">
@@ -408,7 +415,7 @@ function ForCandidatesInner() {
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(251,113,133,0.16), transparent 60%)' }} />
           <div className="relative">
             <h2 className="text-4xl md:text-6xl font-black mb-5 tracking-tighter max-w-3xl mx-auto" style={{ color: '#FB7185' }}>
-              Don’t just job-hunt. Become the verified candidate companies fight over.
+              {t('forCandidates.finalCta.title')}
             </h2>
             <p className="text-[#A6A6B4] mb-9 text-base max-w-xl mx-auto">
               Free to start. Verified by independent references. Built for the AI era — in your language, on your phone.

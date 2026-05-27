@@ -1,12 +1,19 @@
-import Link from 'next/link'
+'use client'
 
-export const metadata = {
-  title: 'Shapi for Companies — Verified Workforce Intelligence',
-  description:
-    "The plan you'd get from McKinsey, the talent you'd get from LinkedIn, the verification nobody else has. Run a free Workforce Snapshot, generate your 5-year plan, and execute through Shapi.",
-}
+import Link from 'next/link'
+import LocalePicker from '@/components/LocalePicker'
+import { LocaleProvider, useTranslation } from '@/lib/i18n/LocaleContext'
 
 export default function ForCompaniesPage() {
+  return (
+    <LocaleProvider>
+      <ForCompaniesInner />
+    </LocaleProvider>
+  )
+}
+
+function ForCompaniesInner() {
+  const { t } = useTranslation()
   return (
     <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7] overflow-x-hidden">
       <style>{`
@@ -65,19 +72,20 @@ export default function ForCompaniesPage() {
           </Link>
           <div className="flex items-center gap-4 md:gap-6 text-sm">
             <Link href="/" className="nav-link hidden sm:block">
-              ← Home
+              {t('forCompanies.nav.home')}
             </Link>
             <Link href="/for-candidates" className="nav-link hidden sm:block">
-              For candidates →
+              {t('forCompanies.nav.forCandidates')}
             </Link>
             <Link href="/login" className="nav-link">
-              Sign in
+              {t('forCompanies.nav.signIn')}
             </Link>
+            <LocalePicker />
             <Link
               href="/signup"
               className="btn-outline rounded-full px-4 py-2 text-xs font-black"
             >
-              Get started
+              {t('forCompanies.nav.getStarted')}
             </Link>
           </div>
         </div>
@@ -93,16 +101,16 @@ export default function ForCompaniesPage() {
         <div className="relative">
           <span className="inline-block text-[11px] font-black tracking-[0.25em] uppercase px-3 py-1.5 rounded-full mb-7"
             style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>
-            For companies
+            {t('forCompanies.hero.badge')}
           </span>
           <h1 className="text-5xl md:text-7xl font-black leading-[0.95] tracking-tighter mb-7"
             style={{ color: '#FB7185' }}>
-            Verified workforce intelligence — the plan you&apos;d get from McKinsey, the talent you&apos;d get from LinkedIn, the verification nobody else has.
+            {t('forCompanies.hero.headline')}
           </h1>
           <p className="text-lg md:text-xl text-[#C7C7D1] max-w-3xl leading-relaxed mb-10">
-            Workforce planning and AI integration aren&apos;t two problems — they&apos;re one. You can&apos;t plan headcount without an AI rollout plan, and you can&apos;t plan AI rollout without a talent plan.
+            {t('forCompanies.hero.subhead')}
             <span className="block mt-3 text-[#A6A6B4]">
-              We score your readiness, plan your transformation, and supply the verified talent to execute — all in one platform.
+              {t('forCompanies.hero.subheadExtra')}
             </span>
           </p>
 
@@ -111,13 +119,13 @@ export default function ForCompaniesPage() {
               href="/company/workforce-snapshot"
               className="btn-primary rounded-full px-7 py-4 text-sm font-black text-center"
             >
-              Run your free Workforce Snapshot →
+              {t('forCompanies.hero.ctaSnapshot')}
             </Link>
             <a
               href="mailto:ana.vbarber@gmail.com?subject=Shapi%20-%20Workforce%20Intelligence%20enquiry"
               className="btn-outline rounded-full px-7 py-4 text-sm font-bold text-center"
             >
-              Talk to Ana
+              {t('forCompanies.hero.ctaTalk')}
             </a>
           </div>
 
@@ -142,10 +150,10 @@ export default function ForCompaniesPage() {
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-3"
             style={{ color: '#FB7185' }}>
-            One platform, three layers.
+            {t('forCompanies.pitch.title')}
           </h2>
           <p className="text-[#A6A6B4] text-lg max-w-2xl mx-auto">
-            Verified data feeds the intelligence. Intelligence drives the plan. The plan executes through our talent supply.
+            {t('forCompanies.pitch.subtitle')}
           </p>
         </div>
 
@@ -194,14 +202,14 @@ export default function ForCompaniesPage() {
         <div className="mb-12">
           <span className="inline-block text-[11px] font-black tracking-[0.25em] uppercase px-3 py-1.5 rounded-full mb-5"
             style={{ background: 'rgba(240,140,174,0.12)', color: '#F08CAE' }}>
-            The full product
+            {t('forCompanies.usps.eyebrow')}
           </span>
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter max-w-3xl"
             style={{ color: '#FB7185' }}>
-            Every capability, mapped — no fluff.
+            {t('forCompanies.usps.title')}
           </h2>
           <p className="text-[#A6A6B4] text-lg mt-4 max-w-2xl">
-            Fourteen workforce-intelligence capabilities, all reading from the same verified data layer.
+            {t('forCompanies.usps.subtitle')}
           </p>
         </div>
 
@@ -317,10 +325,10 @@ export default function ForCompaniesPage() {
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-3"
             style={{ color: '#FB7185' }}>
-            How we compare — honestly.
+            {t('forCompanies.comparison.title')}
           </h2>
           <p className="text-[#A6A6B4] text-lg max-w-2xl mx-auto">
-            We&apos;re not vs job boards. The real comparison is workforce intelligence + verified talent supply.
+            {t('forCompanies.comparison.subtitle')}
           </p>
         </div>
 
@@ -328,18 +336,23 @@ export default function ForCompaniesPage() {
           <table className="w-full min-w-[820px] border-collapse">
             <thead>
               <tr>
-                <th className="text-left p-3 text-[#7E7E8E] font-bold text-sm">Capability</th>
+                <th className="text-left p-3 text-[#7E7E8E] font-bold text-sm">{t('forCompanies.comparison.colCapability')}</th>
                 <th className="p-3">
                   <div
                     className="inline-flex items-center justify-center rounded-full px-3 py-1"
                     style={{ background: 'rgba(251,113,133,0.14)' }}
                   >
                     <span className="font-black text-base tracking-tighter" style={{ color: '#FB7185' }}>
-                      shapi
+                      {t('forCompanies.comparison.colShapi')}
                     </span>
                   </div>
                 </th>
-                {['Workday', 'Eightfold / Gloat', 'LinkedIn Recruiter', 'Mercer / McKinsey'].map((c) => (
+                {[
+                  t('forCompanies.comparison.colWorkday'),
+                  t('forCompanies.comparison.colEightfold'),
+                  t('forCompanies.comparison.colLinkedinRecruiter'),
+                  t('forCompanies.comparison.colMercer'),
+                ].map((c) => (
                   <th key={c} className="p-3 text-[#7E7E8E] font-bold text-sm whitespace-nowrap">
                     {c}
                   </th>
@@ -396,7 +409,7 @@ export default function ForCompaniesPage() {
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-3"
             style={{ color: '#FB7185' }}>
-            How it works.
+            {t('forCompanies.how.title')}
           </h2>
         </div>
 
@@ -464,10 +477,10 @@ export default function ForCompaniesPage() {
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-3"
             style={{ color: '#FB7185' }}>
-            Three tiers. Honest pricing.
+            {t('forCompanies.pricing.title')}
           </h2>
           <p className="text-[#A6A6B4] text-lg max-w-2xl mx-auto">
-            Start free. Pay for the plan when you&apos;re ready. Subscribe to the OS once you want it running continuously.
+            {t('forCompanies.pricing.subtitle')}
           </p>
         </div>
 
@@ -563,10 +576,10 @@ export default function ForCompaniesPage() {
           <div className="relative">
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-5"
               style={{ color: '#FB7185' }}>
-              Ready to see your team&apos;s future-readiness?
+              {t('forCompanies.finalCta.title')}
             </h2>
             <p className="text-[#A6A6B4] text-lg mb-10 max-w-2xl mx-auto">
-              Free Snapshot, ~30 seconds of inputs, sourced answers on the way back.
+              {t('forCompanies.finalCta.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
