@@ -11,6 +11,7 @@ import { INDUSTRY_BRIEFS, INDUSTRY_META, type Industry } from '@/lib/industry-br
 import { saveVoiceSample, pickNextLanguageToCapture, type VoiceSamplesMap } from '@/lib/voice-samples'
 import { buildJDPrompt, extractRoleFromChat, saveDraftRole } from '@/lib/jd-extract'
 import { sendPendingConciergeOutreach } from '@/lib/concierge'
+import { randomBytes } from 'crypto'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
@@ -617,6 +618,36 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
     return new NextResponse('', { status: 200 })
   }
 
+  // ═══ "share my profile" / "send my profile link" / "my link" — text back
+  // the public profile URL so the candidate can paste it to any recruiter
+  // they meet on the go (no login required to view; profile is already public).
+  if (/^(share|send)\s+(my\s+)?profile(\s+link)?$|^my\s+profile(\s+link)?$|^profile\s+link$|^send\s+me\s+(my\s+)?profile/i.test(lowerMsg)) {
+    if (!profile.profile_live) {
+      await sendWhatsApp(phone, `Your profile isn't live yet — finish your verification first. Open ${SITE}/profile to see what's left.`)
+      return new NextResponse('', { status: 200 })
+    }
+    const url = `${SITE}/p/${profile.id.slice(0, 8)}`
+    await sendWhatsApp(phone, `Your verified profile (paste this to any recruiter):\n\n${url}\n\nNothing to log into — they can view your verified work history, references and AI-skills tier instantly.`)
+    return new NextResponse('', { status: 200 })
+  }
+
+  // ═══ "send my cv" / "cv link" — same public profile link, framed as the
+  // CV (it IS the verified CV — the verified profile page IS the CV that
+  // companies see). If they bought CV Kit/Pro, pointer to the kit too.
+  if (/^(send|share)\s+(me\s+)?(my\s+)?cv(\s+link)?$|^my\s+cv(\s+link)?$|^cv\s+link$/i.test(lowerMsg)) {
+    if (!profile.profile_live) {
+      await sendWhatsApp(phone, `Your CV isn't ready yet — your verified profile needs to be live first. Finish at ${SITE}/profile.`)
+      return new NextResponse('', { status: 200 })
+    }
+    const url = `${SITE}/p/${profile.id.slice(0, 8)}`
+    const hasKit = profile.cv_tier === 'kit' || profile.cv_tier === 'pro'
+    const kitLine = hasKit
+      ? `\n\nDownloadable CV versions (industry-optimised, native language): ${SITE}/cv-ready`
+      : `\n\nWant a downloadable industry-optimised CV (PDF) too? CV Kit is $25: ${SITE}/pay`
+    await sendWhatsApp(phone, `Your verified CV — the version companies see:\n\n${url}${kitLine}`)
+    return new NextResponse('', { status: 200 })
+  }
+
   // ═══ Manual command: "approve all" — bulk-approve Concierge drafts ══════
   // Concierge subscribers can mass-approve every pending draft via WhatsApp.
   // Each row flips to status='approved', then we run the sender now (rather
@@ -770,6 +801,51 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
       } catch (e) {
         console.error('[webhook] company research failed:', e)
         await sendWhatsApp(phone, `Couldn't research that just now — try again in a minute.`)
+      }
+      return new NextResponse('', { status: 200 })
+    }
+
+    // "send jd link for [role]" / "send the jd for [role]" / "share jd [role]" —
+    // hiring manager wants the mobile review/publish link for a role they own.
+    // Fuzzy-match the title against their open + draft roles, mint a token,
+    // text back the magic link. Pattern duplicates /api/company/roles/share
+    // intentionally (no internal HTTP call).
+    const jdLinkMatch = lowerMsg.match(/^(?:send|share|text)\s+(?:the\s+)?(?:jd|job\s+description)(?:\s+link)?(?:\s+for)?\s+(.+?)$/)
+      || lowerMsg.match(/^jd\s+link(?:\s+for)?\s+(.+?)$/)
+    if (jdLinkMatch && jdLinkMatch[1].length > 1 && jdLinkMatch[1].length < 100) {
+      const titleQuery = jdLinkMatch[1].trim().toLowerCase()
+      try {
+        const { data: roleRows } = await admin
+          .from('roles').select('id, title, description, requirements, salary_min, salary_max, salary_currency, status')
+          .eq('company_id', profile.id)
+          .in('status', ['active', 'draft'])
+        const role = (roleRows || []).find(r => (r.title || '').toLowerCase().includes(titleQuery))
+        if (!role) {
+          await sendWhatsApp(phone, `Couldn't find a role matching "${titleQuery}". Try the exact title, or post the role first: ${SITE}/company/roles/new`)
+          return new NextResponse('', { status: 200 })
+        }
+        // Mint a token (14-day TTL) — matches /api/company/roles/share.
+        const token = randomBytes(24).toString('base64url')
+        const expiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
+        const { error: insErr } = await admin.from('role_share_tokens')
+          .insert({ token, role_id: role.id, company_id: profile.id, expires_at: expiresAt })
+        if (insErr) {
+          console.error('[webhook] jd share token insert failed:', insErr)
+          await sendWhatsApp(phone, `Couldn't generate that link — run supabase/role_share_tokens.sql if you haven't yet.`)
+          return new NextResponse('', { status: 200 })
+        }
+        const salary = (role.salary_min && role.salary_max)
+          ? `${role.salary_currency || ''} ${role.salary_min.toLocaleString()}–${role.salary_max.toLocaleString()}`.trim()
+          : null
+        const jdPreview = [
+          `📄 *${role.title}*${role.status === 'draft' ? ' (draft)' : ''}`,
+          salary ? `💸 ${salary}` : null,
+          role.description ? `\n${(role.description as string).slice(0, 400)}${(role.description as string).length > 400 ? '…' : ''}` : null,
+        ].filter(Boolean).join('\n')
+        await sendWhatsApp(phone, `${jdPreview}\n\n*Review / edit / publish — no login needed:*\n${SITE}/r/${token}\n\nLink valid 14 days.`)
+      } catch (e) {
+        console.error('[webhook] jd link failed:', e)
+        await sendWhatsApp(phone, `Couldn't generate that link — try again in a minute, or open the role in the dashboard: ${SITE}/company/roles`)
       }
       return new NextResponse('', { status: 200 })
     }

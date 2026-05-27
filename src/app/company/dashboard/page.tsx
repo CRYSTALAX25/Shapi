@@ -250,6 +250,8 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                 { href: '/company/org-design', label: 'Org design', icon: '🏛️' },
                 { href: '/company/staffing', label: 'Staffing recs', icon: '🤖' },
                 { href: '/company/cognitive-load', label: 'Cognitive load', icon: '🧠' },
+                { href: '/company/tier-b', label: '5-yr Plan (Tier B)', icon: '📋' },
+                { href: '/company/os', label: 'Workforce OS', icon: '📡' },
                 { href: '/role/ai-proof', label: 'AI-Proof a role', icon: '🛡️' },
                 { href: '/company/roles', label: 'Roles', icon: '💼' },
                 { href: '/company/pipeline', label: 'Pipeline', icon: '📋' },
