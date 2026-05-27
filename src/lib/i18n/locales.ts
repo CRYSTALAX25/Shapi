@@ -1,4 +1,4 @@
-export type Locale = 'en' | 'hi' | 'ur' | 'tl' | 'bn' | 'es' | 'fr' | 'ar'
+export type Locale = 'en' | 'hi' | 'ur' | 'tl' | 'bn' | 'es' | 'fr' | 'hr' | 'ar'
 
 export const LOCALES: { code: Locale; label: string; native: string; rtl?: boolean }[] = [
   { code: 'en', label: 'English', native: 'English' },
@@ -8,6 +8,7 @@ export const LOCALES: { code: Locale; label: string; native: string; rtl?: boole
   { code: 'bn', label: 'Bengali', native: 'বাংলা' },
   { code: 'es', label: 'Spanish', native: 'Español' },
   { code: 'fr', label: 'French', native: 'Français' },
+  { code: 'hr', label: 'Croatian', native: 'Hrvatski' },
   { code: 'ar', label: 'Arabic', native: 'العربية', rtl: true },
 ]
 

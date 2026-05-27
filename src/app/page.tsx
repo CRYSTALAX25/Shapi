@@ -85,6 +85,7 @@ function HomeInner() {
             <Link href="#why" className="nav-link text-sm hidden md:block">{t('common.nav.whyShapi')}</Link>
             <Link href="#pricing" className="nav-link text-sm hidden sm:block">{t('common.nav.pricing')}</Link>
             <Link href="/blog" className="nav-link text-sm hidden sm:block">{t('common.nav.blog')}</Link>
+            <Link href="/for-companies" className="nav-link text-sm hidden md:block">For companies →</Link>
             <Link href="/login" className="nav-link text-sm">{t('common.nav.signIn')}</Link>
             <LocalePicker />
             <Link href="/signup" className="grad-border-cta px-4 py-2 rounded-full text-sm font-black">{t('common.nav.getStarted')}</Link>
@@ -100,11 +101,23 @@ function HomeInner() {
 
         <div className="text-center max-w-5xl mx-auto">
           <div className="flex justify-center mb-5"><ShapiCharacter size={76} mood="happy" /></div>
-          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full mb-8" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full mb-4" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-[#6AA8F5] animate-pulse" />
             <span className="text-[#A6A6B4] text-xs font-medium">{t('home.hero.badgeDate')}</span>
             <span className="text-white/15">·</span>
             <span className="text-xs font-bold" style={{ color: '#F08CAE' }}>{t('home.hero.badgeAccess')}</span>
+          </div>
+
+          {/* Audience chooser — like Stripe/Zapier's gateway. Candidates land
+              on this homepage by default; companies tap through to the dedicated
+              workforce-intelligence page. */}
+          <div className="flex flex-wrap justify-center gap-2 mb-8 text-xs font-bold">
+            <span className="px-3 py-1.5 rounded-full" style={{ background: 'rgba(240,140,174,0.15)', color: '#F08CAE', border: '1px solid rgba(240,140,174,0.30)' }}>
+              👤 I&apos;m a candidate
+            </span>
+            <Link href="/for-companies" className="px-3 py-1.5 rounded-full hover:bg-white/[0.06] transition-colors" style={{ color: '#A6A6B4', border: '1px solid rgba(255,255,255,0.10)' }}>
+              🏢 I&apos;m hiring / restructuring →
+            </Link>
           </div>
 
           <h1 className="text-6xl md:text-[88px] font-black leading-[0.92] tracking-tighter mb-7">
