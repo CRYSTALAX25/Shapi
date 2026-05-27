@@ -2,8 +2,19 @@
 
 import Link from 'next/link'
 import ShapiCharacter from '@/components/ShapiCharacter'
+import LocalePicker from '@/components/LocalePicker'
+import { LocaleProvider, useTranslation } from '@/lib/i18n/LocaleContext'
 
 export default function Home() {
+  return (
+    <LocaleProvider>
+      <HomeInner />
+    </LocaleProvider>
+  )
+}
+
+function HomeInner() {
+  const { t } = useTranslation()
   return (
     <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7] overflow-x-hidden">
       <style>{`
@@ -69,13 +80,14 @@ export default function Home() {
             <span className="font-black text-xl tracking-tighter grad-text">shapi</span>
           </div>
           <div className="flex items-center gap-5">
-            <Link href="/ai-proof" className="nav-link text-sm hidden md:block">AI risk check</Link>
-            <Link href="/worth" className="nav-link text-sm hidden md:block">What you&apos;re worth</Link>
-            <Link href="#why" className="nav-link text-sm hidden md:block">Why Shapi</Link>
-            <Link href="#pricing" className="nav-link text-sm hidden sm:block">Pricing</Link>
-            <Link href="/blog" className="nav-link text-sm hidden sm:block">Blog</Link>
-            <Link href="/login" className="nav-link text-sm">Sign in</Link>
-            <Link href="/signup" className="grad-border-cta px-4 py-2 rounded-full text-sm font-black">Get started →</Link>
+            <Link href="/ai-proof" className="nav-link text-sm hidden md:block">{t('common.nav.aiRiskCheck')}</Link>
+            <Link href="/worth" className="nav-link text-sm hidden md:block">{t('common.nav.worth')}</Link>
+            <Link href="#why" className="nav-link text-sm hidden md:block">{t('common.nav.whyShapi')}</Link>
+            <Link href="#pricing" className="nav-link text-sm hidden sm:block">{t('common.nav.pricing')}</Link>
+            <Link href="/blog" className="nav-link text-sm hidden sm:block">{t('common.nav.blog')}</Link>
+            <Link href="/login" className="nav-link text-sm">{t('common.nav.signIn')}</Link>
+            <LocalePicker />
+            <Link href="/signup" className="grad-border-cta px-4 py-2 rounded-full text-sm font-black">{t('common.nav.getStarted')}</Link>
           </div>
         </div>
       </nav>
@@ -90,27 +102,28 @@ export default function Home() {
           <div className="flex justify-center mb-5"><ShapiCharacter size={76} mood="happy" /></div>
           <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full mb-8" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-[#6AA8F5] animate-pulse" />
-            <span className="text-[#A6A6B4] text-xs font-medium">UAE launch · 2026</span>
+            <span className="text-[#A6A6B4] text-xs font-medium">{t('home.hero.badgeDate')}</span>
             <span className="text-white/15">·</span>
-            <span className="text-xs font-bold" style={{ color: '#F08CAE' }}>Early access open</span>
+            <span className="text-xs font-bold" style={{ color: '#F08CAE' }}>{t('home.hero.badgeAccess')}</span>
           </div>
 
           <h1 className="text-6xl md:text-[88px] font-black leading-[0.92] tracking-tighter mb-7">
-            <span className="block">Hiring that actually</span>
-            <span className="block grad-text">works for humans.</span>
+            <span className="block">{t('home.hero.headlineLine1')}</span>
+            <span className="block grad-text">{t('home.hero.headlineLine2')}</span>
           </h1>
 
           <p className="text-lg md:text-xl text-[#A6A6B4] max-w-2xl mx-auto leading-relaxed mb-10">
-            Not another job board. The <span className="text-[#F4F4F7] font-semibold">verification layer for hiring</span> —
+            {/* TODO: split-string interpolation for embedded highlight span */}
+            Not another job board. The <span className="text-[#F4F4F7] font-semibold">{t('home.hero.subheadHighlight')}</span> —
             references sourced independently, skills proven by evidence, companies you can actually trust.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-16">
             <Link href="/signup" className="btn-dark-hover px-8 py-4 rounded-full text-sm font-black">
-              Build my verified profile — free to start →
+              {t('home.hero.ctaBuild')}
             </Link>
             <Link href="/signup" className="btn-dark-hover px-8 py-4 rounded-full text-sm font-bold">
-              I&apos;m hiring — post a free role →
+              {t('home.hero.ctaHire')}
             </Link>
           </div>
 
@@ -192,10 +205,10 @@ export default function Home() {
       <section className="relative z-10 max-w-6xl mx-auto px-6 py-24">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>
-            How it works
+            {t('home.how.eyebrow')}
           </div>
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter">
-            Three minutes.<br />Then we do the work.
+            {t('home.how.titleLine1')}<br />{t('home.how.titleLine2')}
           </h2>
         </div>
 
@@ -226,10 +239,10 @@ export default function Home() {
       <section id="why" className="relative z-10 max-w-5xl mx-auto px-6 py-24 scroll-mt-20">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(240,140,174,0.12)', color: '#F08CAE' }}>
-            Why Shapi
+            {t('home.comparison.eyebrow')}
           </div>
-          <h2 className="text-5xl md:text-6xl font-black tracking-tighter">One platform built on proof.</h2>
-          <p className="text-[#A6A6B4] text-lg mt-4 max-w-2xl mx-auto">Job boards match. Recruiters gatekeep. We verify — independently, for both sides.</p>
+          <h2 className="text-5xl md:text-6xl font-black tracking-tighter">{t('home.comparison.title')}</h2>
+          <p className="text-[#A6A6B4] text-lg mt-4 max-w-2xl mx-auto">{t('home.comparison.subtitle')}</p>
         </div>
 
         <div className="card rounded-3xl p-4 md:p-6 overflow-x-auto">
@@ -243,25 +256,25 @@ export default function Home() {
                     <span className="grad-text font-black text-base tracking-tighter">shapi</span>
                   </div>
                 </th>
-                {['LinkedIn', 'Job boards', 'Recruiters'].map(c => (
+                {[t('home.comparison.colLinkedin'), t('home.comparison.colJobBoards'), t('home.comparison.colRecruiters')].map(c => (
                   <th key={c} className="p-3 text-[#7E7E8E] font-bold text-sm">{c}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {[
-                ['Independent reference checks — we choose who', true, false, false, false],
-                ['AI cross-check across all references', true, false, false, false],
-                ['Skills proven by evidence', true, false, false, false],
-                ['Company trust score for candidates', true, false, false, false],
-                ['Right-to-work intelligence by country', true, false, false, false],
-                ['Blue + white collar — voice-note first', true, false, false, false],
-                ['AI-displacement risk check for your role', true, false, false, false],
-                ['Career Translator — pivot map + salary forecast', true, false, false, false],
-                ['Upskilling with time + financing, matched to jobs', true, false, false, false],
-                ['Cross-collar pivots (blue ↔ white collar)', true, false, false, false],
-                ['You own your verification report', true, false, false, false],
-                ['No placement / per-hire fees', true, true, true, false],
+                [t('home.comparison.row1'), true, false, false, false],
+                [t('home.comparison.row2'), true, false, false, false],
+                [t('home.comparison.row3'), true, false, false, false],
+                [t('home.comparison.row4'), true, false, false, false],
+                [t('home.comparison.row5'), true, false, false, false],
+                [t('home.comparison.row6'), true, false, false, false],
+                [t('home.comparison.row7'), true, false, false, false],
+                [t('home.comparison.row8'), true, false, false, false],
+                [t('home.comparison.row9'), true, false, false, false],
+                [t('home.comparison.row10'), true, false, false, false],
+                [t('home.comparison.row11'), true, false, false, false],
+                [t('home.comparison.row12'), true, true, true, false],
               ].map((row, i) => (
                 <tr key={i} style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
                   <td className="p-3 text-sm text-[#C7C7D1] font-medium">{row[0] as string}</td>
@@ -292,7 +305,7 @@ export default function Home() {
           <div className="absolute -top-20 -right-20 w-[400px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(240,140,174,0.12) 0%, transparent 70%)' }} />
           <div className="relative max-w-3xl">
             <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-8" style={{ background: 'rgba(240,140,174,0.12)', color: '#F08CAE' }}>
-              Why we built this
+              {t('home.manifesto.eyebrow')}
             </div>
             <div className="space-y-5 text-[#C7C7D1] text-lg leading-relaxed">
               <p>
@@ -321,10 +334,10 @@ export default function Home() {
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-24">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(255,255,255,0.06)', color: '#A6A6B4' }}>
-            What makes Shapi different
+            {t('home.differentiators.eyebrow')}
           </div>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter">The verification layer for hiring.</h2>
-          <p className="text-[#A6A6B4] text-lg mt-4 max-w-2xl mx-auto">Others match people to jobs. We prove who they really are — for both sides.</p>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter">{t('home.differentiators.title')}</h2>
+          <p className="text-[#A6A6B4] text-lg mt-4 max-w-2xl mx-auto">{t('home.differentiators.subtitle')}</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-4">
@@ -360,10 +373,10 @@ export default function Home() {
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-24">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(244,114,182,0.12)', color: '#F08CAE' }}>
-            Built for the AI era
+            {t('home.careerNav.eyebrow')}
           </div>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter">Not just a profile — a career, navigated.</h2>
-          <p className="text-[#A6A6B4] text-lg mt-4 max-w-2xl mx-auto">AI is reshaping work. Shapi shows you where it&apos;s going and the fastest way to stay ahead — all in one place.</p>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter">{t('home.careerNav.title')}</h2>
+          <p className="text-[#A6A6B4] text-lg mt-4 max-w-2xl mx-auto">{t('home.careerNav.subtitle')}</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-4">
@@ -387,9 +400,9 @@ export default function Home() {
       <section id="pricing" className="relative z-10 max-w-6xl mx-auto px-6 pb-24 scroll-mt-20">
         <div className="text-center mb-14">
           <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>
-            Pricing
+            {t('home.pricing.eyebrow')}
           </div>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter">Start free. Pay when it pays off.</h2>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter">{t('home.pricing.title')}</h2>
         </div>
 
         {/* Candidates */}
@@ -508,7 +521,7 @@ export default function Home() {
       {/* FAQ */}
       <section className="relative z-10 max-w-3xl mx-auto px-6 pb-24">
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter">FAQ</h2>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter">{t('home.faq.title')}</h2>
         </div>
         <div className="space-y-3">
           {[
@@ -539,8 +552,8 @@ export default function Home() {
         }}>
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(106,168,245,0.14), transparent 60%)' }} />
           <div className="relative">
-            <h2 className="text-5xl md:text-6xl font-black grad-text mb-4 tracking-tighter">Shape what&apos;s next.</h2>
-            <p className="text-[#A6A6B4] mb-10 text-base">UAE · Saudi Arabia · GCC · Remote MENA</p>
+            <h2 className="text-5xl md:text-6xl font-black grad-text mb-4 tracking-tighter">{t('home.finalCta.title')}</h2>
+            <p className="text-[#A6A6B4] mb-10 text-base">{t('home.finalCta.subtitle')}</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/signup" className="btn-dark-hover px-8 py-4 rounded-full font-black text-sm">
                 Build my verified profile →

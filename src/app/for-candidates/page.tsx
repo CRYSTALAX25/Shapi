@@ -1,10 +1,8 @@
-import Link from 'next/link'
+'use client'
 
-export const metadata = {
-  title: 'Shapi for Candidates — Verified you. Built for the AI era.',
-  description:
-    'Independent references, AI-era career guidance, and a WhatsApp-native assistant that works in any language. Blue and white collar — the verified profile companies actually trust.',
-}
+import Link from 'next/link'
+import LocalePicker from '@/components/LocalePicker'
+import { LocaleProvider, useTranslation } from '@/lib/i18n/LocaleContext'
 
 const usps: Array<{ icon: string; title: string; body: string }> = [
   {
@@ -126,6 +124,15 @@ function Mark({ v }: { v: 1 | 0 | 0.5 }) {
 
 export default function ForCandidatesPage() {
   return (
+    <LocaleProvider>
+      <ForCandidatesInner />
+    </LocaleProvider>
+  )
+}
+
+function ForCandidatesInner() {
+  const { t } = useTranslation()
+  return (
     <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7] overflow-x-hidden">
       <style>{`
         .grad-text {
@@ -178,10 +185,11 @@ export default function ForCandidatesPage() {
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
           <Link href="/" className="font-black text-xl tracking-tighter grad-text">shapi</Link>
           <div className="flex items-center gap-5">
-            <Link href="/" className="nav-link text-sm hidden sm:block">← Home</Link>
-            <Link href="/for-companies" className="nav-link text-sm hidden sm:block">For companies →</Link>
-            <Link href="/login" className="nav-link text-sm">Sign in</Link>
-            <Link href="/signup" className="grad-border-cta px-4 py-2 rounded-full text-sm font-black">Get started →</Link>
+            <Link href="/" className="nav-link text-sm hidden sm:block">{t('forCandidates.nav.home')}</Link>
+            <Link href="/for-companies" className="nav-link text-sm hidden sm:block">{t('forCandidates.nav.forCompanies')}</Link>
+            <Link href="/login" className="nav-link text-sm">{t('forCandidates.nav.signIn')}</Link>
+            <LocalePicker />
+            <Link href="/signup" className="grad-border-cta px-4 py-2 rounded-full text-sm font-black">{t('forCandidates.nav.getStarted')}</Link>
           </div>
         </div>
       </nav>
@@ -191,27 +199,26 @@ export default function ForCandidatesPage() {
         <div className="text-center max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6" style={{ background: 'rgba(251,113,133,0.10)', border: '1px solid rgba(251,113,133,0.25)' }}>
             <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#FB7185' }} />
-            <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: '#FB7185' }}>For candidates</span>
+            <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: '#FB7185' }}>{t('forCandidates.hero.badge')}</span>
           </div>
 
           <h1 className="text-5xl md:text-7xl font-black leading-[0.95] tracking-tighter mb-6" style={{ color: '#FB7185' }}>
-            Verified you.<br />Built for the AI era.
+            {t('forCandidates.hero.headlineLine1')}<br />{t('forCandidates.hero.headlineLine2')}
           </h1>
 
           <p className="text-lg md:text-xl text-[#C7C7D1] max-w-2xl mx-auto leading-relaxed mb-3">
-            Shapi is the verification layer for hiring — independent references, AI cross-check, and an
-            assistant that helps you read the AI era instead of being read by it.
+            {t('forCandidates.hero.subhead')}
           </p>
           <p className="text-base text-[#A6A6B4] max-w-2xl mx-auto leading-relaxed mb-10">
-            Blue collar and white collar. Voice-native in any language. Lives in WhatsApp — no laptop required.
+            {t('forCandidates.hero.subheadExtra')}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/signup" className="btn-primary px-8 py-4 rounded-full text-sm font-black">
-              Build my verified profile →
+              {t('forCandidates.hero.ctaBuild')}
             </Link>
             <Link href="/ai-proof" className="btn-outline px-8 py-4 rounded-full text-sm font-bold">
-              Is your job AI-proof?
+              {t('forCandidates.hero.ctaAiProof')}
             </Link>
           </div>
         </div>
@@ -253,13 +260,13 @@ export default function ForCandidatesPage() {
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-20">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(251,113,133,0.10)', color: '#FB7185' }}>
-            Every tool, mapped
+            {t('forCandidates.usps.eyebrow')}
           </div>
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#FB7185' }}>
-            Fifteen ways Shapi has your back.
+            {t('forCandidates.usps.title')}
           </h2>
           <p className="text-[#A6A6B4] text-base mt-4 max-w-2xl mx-auto">
-            One subscription. Every tool a candidate needs to navigate work in 2026 — and beyond.
+            {t('forCandidates.usps.subtitle')}
           </p>
         </div>
 

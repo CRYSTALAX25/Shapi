@@ -693,3 +693,55 @@ This is the difference between weak hedging and honest professional analysis. Mc
 
 ### Closing tagline (LOCKED)
 > *"We don't give you indicative numbers. We give you sourced answers and honest projections — so you can decide, not guess."*
+
+---
+
+## 17. Launch market reality — Gulf 2026 + defensive positioning (LOCKED, captured 2026-05-27)
+
+> One-liner: The MENA launch thesis stands, but the *narrative* shifts from growth/hiring to **investor-grade workforce intelligence for a contracting market**. Same product, sharper hook.
+
+### What changed on the ground (Ana's on-ground read, 2026-05-27)
+Earlier brand assumptions about Dubai/Saudi as "stable hub absorbing dislocated talent" were wrong by 2026:
+- **Dubai** has been bombed; tourism revenue down significantly, capital outflow, lost confidence.
+- **Saudi** hit less than Dubai but still affected; many people left the region.
+- **NEOM and New Murabba** mega-projects have stalled / flopped.
+- **Qiddiya + Red Sea Global** (PIF-backed) are the survivors that materialised.
+- **Investor confidence shaken** across the board — events being withdrawn, private VC in defence mode.
+
+### What this changes (LOCKED)
+- **Don't change the launch market** — Ana's network IS in UAE/Saudi; cold-launching elsewhere wastes that asset and the product genuinely fits a restructuring market.
+- **Change the narrative**, not the product. The §15 + §16 product mix is *better suited* to a contracting Gulf than the pre-2024 growth-market thesis was.
+- **Target the survivors specifically.** Initial sales list = PIF-backed + government-funded + still-building entities:
+  - Red Sea Global, Qiddiya, ADQ / Mubadala / PIF portfolio companies, Aramco subsidiaries, DP World, plus the surviving names from Ana's network.
+- **Skip events** — conferences are being cancelled. Direct + founder-led + WhatsApp + network referrals only.
+
+### The narrative pivot (LOCKED)
+- **Old hook:** *"Hire faster + verify your candidates"*
+- **New hook:** *"Workforce intelligence your board will trust — verified, sourced, scenario-modelled."*
+- **Why:** when investor confidence is low, every CFO is being asked *"can you justify your headcount? prove your AI plan? show me the cost trajectory?"* — that's literally Shapi. Audit trails, sourced-confidence bands, 5-way Replace/Augment/Reskill/Redeploy/Protect tagging — all sellable *defensively*: "we help you defend every workforce decision to your board."
+
+### Product mix priority for this market (LOCKED)
+Stronger in a contracting Gulf — **lead with these**:
+- **[Lead] Workforce Snapshot** (free top-of-funnel; defensible Future Readiness Score)
+- **[Lead] Restructure Studio + Comms drafter** (exactly built for downsizing)
+- **[Lead] Outplacement-as-a-service** (every laid-off worker → verified Shapi candidate; double-impact)
+- **[Lead] AI-Proof per role** (CHROs need to defend cuts with sourced reasoning)
+- **[Lead] Tier B 5-year Plan** (investor-grade strategic deliverable for the survivors)
+- Career Translator + Pivot + Course Wallet (candidate-side mirror for displaced workers — feeds outplacement flywheel)
+
+Keep but don't lead with — only relevant for the few survivors still hiring:
+- Active Hiring subscription
+- Hiring Roadmap (growth-oriented)
+- Salary Benchmark for new roles
+
+### Sales-cycle expectations (LOCKED)
+- UAE family-business + SME first — faster decisions, often founder-led.
+- Saudi enterprise as Phase 2 — sovereign / PIF entities move slowly but with budget.
+- Direct outreach + warm intros over events. WhatsApp-first sales motion matches our brand.
+
+### What we revisit at launch readiness
+- Re-check the on-ground situation closer to launch (if conditions change, the hook adapts).
+- Refresh the target list — who's still standing then.
+- Re-run the prospect-question test: *"are they asking 'how do we hire?' or 'how do we restructure?'"* — answer determines which framing the homepage leads with.
+
+> **Status:** locked as the Gulf launch positioning. The product (built across §11–§16) doesn't change. The *story we tell* and the *initial target list* do.

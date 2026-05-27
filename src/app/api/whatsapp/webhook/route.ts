@@ -849,6 +849,15 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
       }
       return new NextResponse('', { status: 200 })
     }
+
+    // "design my org" / "org design" / "plan my team" — quick link to the
+    // org-design tool. Voice-driven intake (record team / strategy / AI plan
+    // via voice notes, AI structures into the form) is Phase 2; for now we
+    // just give them the link so they can do it on phone or desktop.
+    if (/^(?:design|plan)\s+(?:my\s+)?(?:org|team|organisation|organization|workforce)$|^org\s+design$|^team\s+design$|^future\s+org$/i.test(lowerMsg)) {
+      await sendWhatsApp(phone, `🏛️ Target-State Org Design — three quick inputs and we generate your future-state org (Y1/Y2/Y5 headcount + cost envelope + risks):\n\n${SITE}/company/org-design\n\n_Voice-driven intake (record straight into WhatsApp) is rolling out next — for now, easiest on a quiet five minutes at desk or on phone._`)
+      return new NextResponse('', { status: 200 })
+    }
   }
 
   // ═══ PRIORITY 0.5: Company JD-via-WhatsApp intake ════════════════════════
