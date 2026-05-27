@@ -18,10 +18,17 @@ import Anthropic from '@anthropic-ai/sdk'
 
 export const maxDuration = 60
 
-export async function POST() {
+export async function POST(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // Optional team composition input — companies can tell us roughly who they
+  // already employ so we don't recommend roles they've already filled.
+  const body = await request.json().catch(() => ({}))
+  const teamComposition: string = typeof body?.team_composition === 'string'
+    ? body.team_composition.trim().slice(0, 1000)
+    : ''
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -52,11 +59,20 @@ export async function POST() {
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-  const rolesBlock = roles.length
-    ? roles.map((r, i) =>
-        `${i + 1}. ${r.title || 'untitled'}${r.status ? ` [${r.status}]` : ''}${r.description ? `\n   ${String(r.description).slice(0, 240)}` : ''}`
-      ).join('\n')
-    : 'No open roles listed — base advice on industry + stage signals only.'
+  // Split roles by status so the prompt can distinguish what's still open
+  // (don't double-recommend) from what's been filled / closed (proves the
+  // function already exists on the team).
+  const openRoles = roles.filter(r => r.status === 'active' || !r.status)
+  const closedRoles = roles.filter(r => r.status && r.status !== 'active')
+  const openRolesBlock = openRoles.length
+    ? openRoles.map((r, i) => `${i + 1}. ${r.title || 'untitled'}${r.description ? ` — ${String(r.description).slice(0, 180)}` : ''}`).join('\n')
+    : 'None posted on Shapi yet.'
+  const closedRolesBlock = closedRoles.length
+    ? closedRoles.map((r, i) => `${i + 1}. ${r.title || 'untitled'} [${r.status}]`).join('\n')
+    : 'None.'
+  const teamBlock = teamComposition
+    ? teamComposition
+    : 'Not provided — work from open roles + industry signals only, and flag the variance driver in your "why" lines (e.g. "scales with team makeup we don\'t yet have").'
 
   const prompt = `You are a senior talent strategist advising a company on how to build the right team for the next 12 months in an AI-disrupted market. Produce a focused Hiring Roadmap.
 
@@ -72,15 +88,23 @@ Summary: ${(profile.summary as string) || 'not provided'}
 ═══ VOICE ═══
 Speak with sourced confidence. NEVER use the words "indicative", "approximate" (as a hedge), or "rough". When uncertain, name the variance driver in one phrase (e.g. "scales with headcount", "depends on funding runway"). Do NOT prefix lines with "Estimate:". Numeric prefixes like "~$15" are fine. Synthesise from Mercer / Glassdoor / Anthropic/OpenAI published API pricing / BLS labour statistics / Shapi platform data.
 
-═══ OPEN ROLES (real context) ═══
-${rolesBlock}
+═══ TEAM YOU ALREADY HAVE (from the company directly) ═══
+${teamBlock}
+
+═══ ROLES STILL OPEN ON SHAPI (do NOT re-recommend these — they are already being hired) ═══
+${openRolesBlock}
+
+═══ ROLES PREVIOUSLY POSTED / NOW CLOSED ON SHAPI (signals the function already exists on the team) ═══
+${closedRolesBlock}
 
 ═══ YOUR ANALYSIS ═══
 
 1. HIRING PRIORITIES — exactly 3-5 roles the company should prioritise hiring in the next 6-12 months.
-   Each: { role (title), why (1 short sentence — tie to the open roles or industry/stage if no roles), urgency ("now" | "next quarter" | "next 6-12 months") }
-   - Be specific to THIS company's industry/stage/open roles. Generic advice = useless.
-   - When inferring without role data, name the variance driver in the "why" instead of hedging.
+   Each: { role (title), why (1 short sentence — explicitly reference their existing team / open roles when you can), urgency ("now" | "next quarter" | "next 6-12 months"), starter_jd (a SHORT job description ready for them to amend — see shape below) }
+   - DO NOT recommend roles that already appear in the OPEN ROLES list above; assume those are being filled.
+   - When the team composition shows a function is already covered, DO NOT recommend duplicating it — recommend an adjacent / complementary role instead. Reference what they already have in the "why".
+   - Be specific to THIS company's industry/stage/team. Generic advice = useless.
+   - starter_jd shape: { headline (1 line, role's purpose), responsibilities ([3-5 bullets, max 14 words each]), must_haves ([3-5 short skills/experience items]), nice_to_haves ([2-3 short items]), salary_band (one sourced range with currency + the source — e.g. "$45-65k base (Mercer MENA / Glassdoor)") } — keep tight; the company can refine on WhatsApp by texting "edit JD for [role]".
 
 2. RESKILL vs HIRE — exactly 3-5 skills the company will need.
    Each: { skill, recommendation ("reskill" | "hire"), why (1 short sentence — explain when reskilling an existing team is faster/cheaper vs hiring fresh) }
@@ -102,7 +126,18 @@ KEEP IT TIGHT so the JSON is complete and valid. Every "why" = 1 short sentence 
 Return ONLY valid JSON in this exact shape:
 {
   "hiring_priorities": [
-    { "role": "...", "why": "...", "urgency": "now|next quarter|next 6-12 months" }
+    {
+      "role": "...",
+      "why": "...",
+      "urgency": "now|next quarter|next 6-12 months",
+      "starter_jd": {
+        "headline": "...",
+        "responsibilities": ["...", "..."],
+        "must_haves": ["...", "..."],
+        "nice_to_haves": ["...", "..."],
+        "salary_band": "..."
+      }
+    }
   ],
   "reskill_vs_hire": [
     { "skill": "...", "recommendation": "reskill|hire", "why": "..." }
@@ -120,7 +155,7 @@ Be specific and honest. Where data is thin, name the variance driver instead of 
   try {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 2200,
+      max_tokens: 3200,
       messages: [{ role: 'user', content: prompt }],
     })
     const text = response.content[0].type === 'text' ? response.content[0].text : ''

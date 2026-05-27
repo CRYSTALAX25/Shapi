@@ -3,7 +3,19 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
-type HiringPriority = { role?: string; why?: string; urgency?: string }
+type StarterJD = {
+  headline?: string
+  responsibilities?: string[]
+  must_haves?: string[]
+  nice_to_haves?: string[]
+  salary_band?: string
+}
+type HiringPriority = {
+  role?: string
+  why?: string
+  urgency?: string
+  starter_jd?: StarterJD
+}
 type ReskillVsHire = { skill?: string; recommendation?: 'reskill' | 'hire' | string; why?: string }
 type AiRisk = { role_or_function?: string; risk?: 'low' | 'medium' | 'high' | string; why?: string; action?: string }
 type Step = { step?: string }
@@ -31,6 +43,9 @@ export default function CompanyRoadmap() {
   const [roadmap, setRoadmap] = useState<Roadmap | null>(null)
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
+  // Free-text team composition so the AI doesn't double-recommend roles you
+  // already have. Optional — defaults are fine for an industry+size read.
+  const [teamComposition, setTeamComposition] = useState('')
 
   const generate = async () => {
     setLoading(true)
@@ -39,6 +54,7 @@ export default function CompanyRoadmap() {
       const res = await fetch('/api/company/roadmap', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ team_composition: teamComposition.trim() || undefined }),
       })
       // Defensive parsing — a 504 returns HTML, not JSON.
       const raw = await res.text()
@@ -105,8 +121,18 @@ export default function CompanyRoadmap() {
         {!roadmap && (
           <div className="rounded-2xl p-6 mb-6" style={cardStyle}>
             <p className="text-[#C7C7D1] text-sm mb-4 leading-relaxed">
-              Generate a fresh roadmap from your company profile and your open roles. Takes ~30 seconds.
+              Tell us roughly who you already employ — that way we won&apos;t recommend roles you&apos;ve already filled. Or skip this and we&apos;ll work from industry + open roles + Shapi&apos;s platform data.
             </p>
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-2">Your team today (optional)</label>
+            <textarea
+              value={teamComposition}
+              onChange={e => setTeamComposition(e.target.value)}
+              placeholder="e.g. 5 engineers, 1 designer, 2 sales reps, 1 marketing lead, 1 ops manager"
+              rows={3}
+              className="w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/50 mb-4"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+            />
+            <p className="text-[#7E7E8E] text-[11px] mb-4">Roles + counts only — no names, no salaries. Better answers in, sharper roadmap out.</p>
             <button
               onClick={generate}
               disabled={loading}
@@ -148,6 +174,53 @@ export default function CompanyRoadmap() {
                           )}
                         </div>
                         {p.why && <p className="text-[#A6A6B4] text-xs leading-relaxed">{p.why}</p>}
+
+                        {/* Starter JD — ready to amend, refine via WhatsApp */}
+                        {p.starter_jd && (p.starter_jd.headline || (p.starter_jd.responsibilities && p.starter_jd.responsibilities.length > 0)) && (
+                          <details className="mt-3 pt-3 border-t border-white/[0.06]">
+                            <summary className="cursor-pointer text-[#F08CAE] text-[11px] font-bold uppercase tracking-wider list-none flex items-center justify-between">
+                              <span>📄 Starter JD — tap to view, refine on WhatsApp</span>
+                              <span className="text-[#7E7E8E] text-[10px]">expand</span>
+                            </summary>
+                            <div className="mt-3 space-y-2.5 text-xs">
+                              {p.starter_jd.headline && (
+                                <p className="text-[#C7C7D1] italic leading-relaxed">{p.starter_jd.headline}</p>
+                              )}
+                              {p.starter_jd.responsibilities && p.starter_jd.responsibilities.length > 0 && (
+                                <div>
+                                  <p className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider mb-1">Responsibilities</p>
+                                  <ul className="space-y-0.5 pl-3">
+                                    {p.starter_jd.responsibilities.map((r, j) => <li key={j} className="text-[#A6A6B4] list-disc leading-relaxed">{r}</li>)}
+                                  </ul>
+                                </div>
+                              )}
+                              {p.starter_jd.must_haves && p.starter_jd.must_haves.length > 0 && (
+                                <div>
+                                  <p className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider mb-1">Must-haves</p>
+                                  <div className="flex flex-wrap gap-1">
+                                    {p.starter_jd.must_haves.map((m, j) => (
+                                      <span key={j} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>{m}</span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              {p.starter_jd.nice_to_haves && p.starter_jd.nice_to_haves.length > 0 && (
+                                <div>
+                                  <p className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider mb-1">Nice-to-haves</p>
+                                  <div className="flex flex-wrap gap-1">
+                                    {p.starter_jd.nice_to_haves.map((m, j) => (
+                                      <span key={j} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#A6A6B4' }}>{m}</span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              {p.starter_jd.salary_band && (
+                                <p className="text-[#34D399] text-[11px] font-bold">💸 {p.starter_jd.salary_band}</p>
+                              )}
+                              <p className="text-[#7E7E8E] text-[10px] italic pt-1">Refine on WhatsApp: text <strong className="text-[#F08CAE]">&quot;edit JD for {p.role || 'this role'}&quot;</strong> to iterate, then text <strong className="text-[#F08CAE]">&quot;[JD_DONE]&quot;</strong> to post it as a draft role.</p>
+                            </div>
+                          </details>
+                        )}
                       </div>
                     )
                   })}
