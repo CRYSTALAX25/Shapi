@@ -14,14 +14,18 @@ type StarterJD = {
   salary_band?: string
 }
 
-export default function JdActions({ role, jd }: { role: string; jd: StarterJD }) {
-  const [busy, setBusy] = useState<'post' | 'scan' | null>(null)
-  const [err, setErr] = useState('')
+type Action = 'post' | 'scan' | 'phone'
 
-  const create = async (after: 'post' | 'scan') => {
+export default function JdActions({ role, jd }: { role: string; jd: StarterJD }) {
+  const [busy, setBusy] = useState<Action | null>(null)
+  const [err, setErr] = useState('')
+  const [ok, setOk] = useState('')
+
+  const create = async (after: Action) => {
     if (busy) return
-    setBusy(after); setErr('')
+    setBusy(after); setErr(''); setOk('')
     try {
+      // Step 1: create the draft role from the JD.
       const res = await fetch('/api/company/roles/from-jd', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ role, starter_jd: jd }),
@@ -32,9 +36,27 @@ export default function JdActions({ role, jd }: { role: string; jd: StarterJD })
         setBusy(null)
         return
       }
-      // Both routes go through the role detail page — the company can review,
-      // tweak, and publish there. "Scan" hints to scroll to the candidate match
-      // section via a hash anchor.
+
+      if (after === 'phone') {
+        // Step 2: ask backend to WhatsApp the JD + the magic link.
+        const shareRes = await fetch('/api/company/roles/share', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role_id: d.id, send_whatsapp: true }),
+        })
+        const sd = await shareRes.json().catch(() => ({}))
+        if (!shareRes.ok) {
+          setErr(sd.error || 'Could not generate share link')
+          setBusy(null)
+          return
+        }
+        setOk(sd.whatsapp_sent
+          ? '✓ Sent to WhatsApp — open from your phone, no login.'
+          : `✓ Link ready: ${sd.link} (we couldn't send WhatsApp — add a number on your profile).`)
+        setBusy(null)
+        return
+      }
+
+      // post + scan → land on the role detail page; "scan" anchors to matches.
       window.location.href = after === 'scan'
         ? `/company/roles/${d.id}#candidates`
         : `/company/roles/${d.id}`
@@ -45,17 +67,24 @@ export default function JdActions({ role, jd }: { role: string; jd: StarterJD })
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 mt-3">
-      <button type="button" onClick={() => create('post')} disabled={!!busy}
-        className="text-[11px] font-black px-3 py-1.5 rounded-full text-white disabled:opacity-50"
-        style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
-        {busy === 'post' ? 'Creating…' : '✚ Post this role'}
-      </button>
-      <button type="button" onClick={() => create('scan')} disabled={!!busy}
-        className="text-[11px] font-bold px-3 py-1.5 rounded-full text-[#6AA8F5] border border-[#6AA8F5]/30 hover:border-[#6AA8F5]/60 disabled:opacity-50">
-        {busy === 'scan' ? 'Creating…' : '🔍 Scan candidates'}
-      </button>
-      {err && <span className="text-[10px] text-[#F58E9A]">{err}</span>}
+    <div className="space-y-2 mt-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <button type="button" onClick={() => create('post')} disabled={!!busy}
+          className="text-[11px] font-black px-3 py-1.5 rounded-full text-white disabled:opacity-50"
+          style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
+          {busy === 'post' ? 'Creating…' : '✚ Post this role'}
+        </button>
+        <button type="button" onClick={() => create('scan')} disabled={!!busy}
+          className="text-[11px] font-bold px-3 py-1.5 rounded-full text-[#6AA8F5] border border-[#6AA8F5]/30 hover:border-[#6AA8F5]/60 disabled:opacity-50">
+          {busy === 'scan' ? 'Creating…' : '🔍 Scan candidates'}
+        </button>
+        <button type="button" onClick={() => create('phone')} disabled={!!busy}
+          className="text-[11px] font-bold px-3 py-1.5 rounded-full text-[#F08CAE] border border-[#F08CAE]/30 hover:border-[#F08CAE]/60 disabled:opacity-50">
+          {busy === 'phone' ? 'Sending…' : '📱 Send to my phone'}
+        </button>
+      </div>
+      {err && <p className="text-[10px] text-[#F58E9A]">{err}</p>}
+      {ok && <p className="text-[10px] text-[#34D399]">{ok}</p>}
     </div>
   )
 }
