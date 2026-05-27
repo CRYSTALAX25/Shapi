@@ -6,9 +6,14 @@
 // (+ optional growth target + country). AI returns a target operating model:
 // teams, headcount glide path, dependencies, growth milestones, risks and a
 // 70%-confidence cost envelope.
+//
+// Magic-link prefill: when the URL has ?intake=<token>, we fetch the 3
+// voice-note transcripts the hiring manager recorded via WhatsApp and
+// pre-populate the form so they can review + generate without re-typing.
 
-import { useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 
 type TargetTeam = {
   team?: string
@@ -44,6 +49,16 @@ function formatMoney(n: number | undefined, currency: string): string {
 }
 
 export default function OrgDesignPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0E0E13]" />}>
+      <OrgDesignInner />
+    </Suspense>
+  )
+}
+
+function OrgDesignInner() {
+  const searchParams = useSearchParams()
+  const intakeToken = searchParams.get('intake')
   const [currentTeam, setCurrentTeam] = useState('')
   const [strategy, setStrategy] = useState('')
   const [aiPlan, setAiPlan] = useState('')
@@ -53,6 +68,31 @@ export default function OrgDesignPage() {
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
   const [design, setDesign] = useState<OrgDesign | null>(null)
+  const [intakeLoaded, setIntakeLoaded] = useState<null | 'ok' | 'fail'>(null)
+
+  // Pre-fill from a WhatsApp voice intake when ?intake=<token> is in the URL.
+  useEffect(() => {
+    if (!intakeToken) return
+    let cancelled = false
+    fetch(`/api/company/org-design/intake/${encodeURIComponent(intakeToken)}`)
+      .then(r => r.text())
+      .then(raw => {
+        if (cancelled) return
+        try {
+          const d = JSON.parse(raw) as { intake?: { current_team_text?: string; strategy_text?: string; ai_plan_text?: string } }
+          if (d.intake) {
+            setCurrentTeam(d.intake.current_team_text || '')
+            setStrategy(d.intake.strategy_text || '')
+            setAiPlan(d.intake.ai_plan_text || '')
+            setIntakeLoaded('ok')
+          } else {
+            setIntakeLoaded('fail')
+          }
+        } catch { setIntakeLoaded('fail') }
+      })
+      .catch(() => { if (!cancelled) setIntakeLoaded('fail') })
+    return () => { cancelled = true }
+  }, [intakeToken])
 
   const run = async () => {
     if (!currentTeam.trim() || !strategy.trim() || !aiPlan.trim()) {
@@ -135,9 +175,36 @@ export default function OrgDesignPage() {
         >
           Target-state org design
         </h1>
-        <p className="text-[#A6A6B4] text-sm mb-6 max-w-2xl">
+        <p className="text-[#A6A6B4] text-sm mb-4 max-w-2xl">
           Given where you&apos;re going + how AI fits, here&apos;s the team you&apos;ll need by year 2.
         </p>
+
+        {/* Voice-design discoverability — companies on the go can record the 3
+            inputs as voice notes on WhatsApp instead of typing here. */}
+        {!intakeToken && (
+          <div className="mb-6 rounded-xl p-3 inline-flex items-center gap-2.5 text-xs" style={{ background: 'rgba(240,140,174,0.10)', border: '1px solid rgba(240,140,174,0.25)' }}>
+            <span className="text-base leading-none">🎙️</span>
+            <span className="text-[#C7C7D1]">
+              On the go? Text <strong className="text-[#F08CAE]">&quot;design my org via voice&quot;</strong> on WhatsApp — three voice notes, no typing. We&apos;ll send you a link back.
+            </span>
+          </div>
+        )}
+
+        {/* Voice-intake prefill notice — shown when the page loaded via a
+            magic link from the WhatsApp voice flow. */}
+        {intakeToken && intakeLoaded === 'ok' && (
+          <div className="mb-6 rounded-xl p-3 flex items-center gap-2.5 text-xs" style={{ background: 'rgba(52,211,153,0.10)', border: '1px solid rgba(52,211,153,0.25)' }}>
+            <span className="text-base leading-none">✓</span>
+            <span className="text-[#C7C7D1]">
+              Pre-filled from your WhatsApp voice notes. Edit anything below, then hit Generate.
+            </span>
+          </div>
+        )}
+        {intakeToken && intakeLoaded === 'fail' && (
+          <div className="mb-6 rounded-xl p-3 text-xs" style={{ background: 'rgba(245,142,154,0.10)', border: '1px solid rgba(245,142,154,0.25)', color: '#F58E9A' }}>
+            That voice-intake link is expired or revoked. Type the inputs below — or text &quot;design my org via voice&quot; on WhatsApp again to get a fresh link.
+          </div>
+        )}
 
         {!design && (
           <div className="space-y-4">
