@@ -33,13 +33,13 @@ type Load = {
 const VERDICT_COLOR: Record<string, string> = {
   sustainable: '#34D399',
   stretched: '#FBBF24',
-  overloaded: '#FB7185',
+  overloaded: '#F58E9A',
 }
 
 const HIRE_TAG_COLOR: Record<string, string> = {
-  hire: '#A78BFA',
+  hire: '#F08CAE',
   redistribute: '#6AA8F5',
-  adopt_ai: '#22D3EE',
+  adopt_ai: '#34D399',
 }
 
 const HIRE_TAG_LABEL: Record<string, string> = {
@@ -62,7 +62,7 @@ function emptyRow(): TeamRow {
 }
 
 function scoreColor(score: number): string {
-  if (score >= 70) return '#FB7185'
+  if (score >= 70) return '#F58E9A'
   if (score >= 50) return '#FBBF24'
   return '#34D399'
 }
@@ -149,7 +149,7 @@ export default function CompanyCognitiveLoad() {
           href="/"
           className="font-black text-xl tracking-tighter"
           style={{
-            background: 'linear-gradient(135deg, #22D3EE, #A78BFA)',
+            background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -183,7 +183,7 @@ export default function CompanyCognitiveLoad() {
                     {rows.length > 1 && (
                       <button
                         onClick={() => removeRow(i)}
-                        className="text-[#7E7E8E] text-xs hover:text-[#FB7185]"
+                        className="text-[#7E7E8E] text-xs hover:text-[#F58E9A]"
                       >
                         Remove
                       </button>
@@ -290,7 +290,7 @@ export default function CompanyCognitiveLoad() {
                               onClick={() => update(i, { ai_tool_adoption: active ? '' : level })}
                               className="text-xs font-bold px-3 py-1.5 rounded-full capitalize"
                               style={active
-                                ? { background: 'rgba(34,211,238,0.18)', color: '#22D3EE', border: '1px solid rgba(34,211,238,0.35)' }
+                                ? { background: 'rgba(106,168,245,0.18)', color: '#6AA8F5', border: '1px solid rgba(106,168,245,0.35)' }
                                 : { background: 'rgba(255,255,255,0.04)', color: '#A6A6B4', border: '1px solid rgba(255,255,255,0.08)' }}
                             >
                               {level}
@@ -333,11 +333,11 @@ export default function CompanyCognitiveLoad() {
                 onClick={submit}
                 disabled={loading}
                 className="px-6 py-3 rounded-full font-black text-sm text-white disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, #22D3EE, #A78BFA)' }}
+                style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}
               >
                 {loading ? 'Reading the load…' : 'Run cognitive load check'}
               </button>
-              {err && <p className="text-[#FB7185] text-xs">{err}</p>}
+              {err && <p className="text-[#F58E9A] text-xs">{err}</p>}
             </div>
           </div>
         )}
@@ -348,8 +348,8 @@ export default function CompanyCognitiveLoad() {
             <div
               className="rounded-2xl p-5"
               style={{
-                background: 'linear-gradient(135deg, rgba(251,113,133,0.10), rgba(167,139,250,0.10))',
-                border: '1px solid rgba(251,113,133,0.25)',
+                background: 'linear-gradient(135deg, rgba(106,168,245,0.10), rgba(240,140,174,0.10))',
+                border: '1px solid rgba(240,140,174,0.25)',
               }}
             >
               <p className={`${labelCls} mb-2`}>Do this first</p>
@@ -439,9 +439,9 @@ export default function CompanyCognitiveLoad() {
                 onClick={() => { setLoad(null); setErr('') }}
                 className="text-xs font-bold px-3 py-1.5 rounded-full"
                 style={{
-                  background: 'rgba(34,211,238,0.12)',
-                  color: '#22D3EE',
-                  border: '1px solid rgba(34,211,238,0.25)',
+                  background: 'rgba(106,168,245,0.12)',
+                  color: '#6AA8F5',
+                  border: '1px solid rgba(106,168,245,0.25)',
                 }}
               >
                 Edit teams & re-run
@@ -450,7 +450,7 @@ export default function CompanyCognitiveLoad() {
             <p className="text-[#7E7E8E] text-[10px] leading-relaxed">
               Sources: <span className="text-[#A6A6B4]">{load.sources}</span>
             </p>
-            {err && <p className="text-[#FB7185] text-xs">{err}</p>}
+            {err && <p className="text-[#F58E9A] text-xs">{err}</p>}
           </div>
         )}
       </div>

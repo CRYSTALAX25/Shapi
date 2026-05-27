@@ -154,7 +154,7 @@ export default function TierBWorkspace() {
           href="/"
           className="font-black text-xl tracking-tighter"
           style={{
-            background: 'linear-gradient(135deg, #22D3EE, #A78BFA)',
+            background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -329,13 +329,13 @@ export default function TierBWorkspace() {
                 onClick={lockEngagement}
                 disabled={!allDone || isLocked || locking}
                 className="ml-4 px-5 py-2.5 rounded-full font-black text-xs text-white disabled:opacity-40 whitespace-nowrap"
-                style={{ background: isLocked ? 'rgba(52,211,153,0.18)' : 'linear-gradient(135deg, #FB7185, #F08CAE)', color: isLocked ? '#34D399' : 'white' }}
+                style={{ background: isLocked ? 'rgba(52,211,153,0.18)' : 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', color: isLocked ? '#34D399' : 'white' }}
               >
                 {isLocked ? 'Locked' : locking ? 'Locking…' : 'Lock engagement'}
               </button>
             </div>
 
-            {err && <p className="text-[#FB7185] text-xs mt-4">{err}</p>}
+            {err && <p className="text-[#F58E9A] text-xs mt-4">{err}</p>}
 
             <p className="text-[#7E7E8E] text-[10px] leading-relaxed mt-6">
               Sources: <span className="text-[#A6A6B4]">Mercer compensation benchmarks · Glassdoor public ratings · Anthropic/OpenAI published API pricing · BLS/government labour statistics · Shapi platform data.</span> Figures are 70%-confidence bands; named variance drivers in-text.
@@ -345,7 +345,7 @@ export default function TierBWorkspace() {
 
         {!loading && !engagement && err && (
           <div className="rounded-2xl p-6" style={cardStyle}>
-            <p className="text-[#FB7185] text-sm">{err}</p>
+            <p className="text-[#F58E9A] text-sm">{err}</p>
           </div>
         )}
       </div>
@@ -394,7 +394,7 @@ function DnaOutput({ data }: { data: Record<string, unknown> }) {
   return (
     <div className="mt-4 space-y-2">
       {data.headline_archetype && (
-        <p className="text-[#FB7185] text-sm font-bold mb-2">{String(data.headline_archetype)}</p>
+        <p className="text-[#F08CAE] text-sm font-bold mb-2">{String(data.headline_archetype)}</p>
       )}
       {dims.map(k => {
         const d = (data[k] as Record<string, unknown> | undefined) || {}
@@ -421,7 +421,7 @@ function WorkforcePlanOutput({ data }: { data: Record<string, unknown> }) {
   return (
     <div className="mt-4 space-y-3">
       {data.headline_call && (
-        <p className="text-[#FB7185] text-sm font-bold">{String(data.headline_call)}</p>
+        <p className="text-[#F08CAE] text-sm font-bold">{String(data.headline_call)}</p>
       )}
       {horizons.map(h => {
         const block = (data[h] as Record<string, unknown> | undefined) || {}

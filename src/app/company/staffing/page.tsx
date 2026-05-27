@@ -18,8 +18,8 @@ type Recommendation = {
 const KIND_COLOR: Record<string, string> = {
   hire: '#6AA8F5',          // blue
   reskill: '#F08CAE',        // pink
-  freeze: '#FB7185',         // red/coral-red
-  redeploy: '#FB7185',       // coral
+  freeze: '#F58E9A',         // light pink / high-risk
+  redeploy: '#F58E9A',       // light pink / high-risk
   restructure: '#FBBF24',    // amber
 }
 
@@ -32,9 +32,9 @@ const KIND_LABEL: Record<string, string> = {
 }
 
 const URGENCY_COLOR: Record<string, string> = {
-  'now': '#FB7185',
+  'now': '#F58E9A',
   'this quarter': '#FBBF24',
-  'next 6 months': '#22D3EE',
+  'next 6 months': '#6AA8F5',
 }
 
 export default function AutonomousStaffingPage() {
@@ -148,7 +148,7 @@ export default function AutonomousStaffingPage() {
           href="/"
           className="font-black text-xl tracking-tighter"
           style={{
-            background: 'linear-gradient(135deg, #22D3EE, #A78BFA)',
+            background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -195,11 +195,11 @@ export default function AutonomousStaffingPage() {
             onClick={generate}
             disabled={generating}
             className="px-6 py-3 rounded-full font-black text-sm text-white disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg, #22D3EE, #A78BFA)' }}
+            style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}
           >
             {generating ? 'Generating…' : 'Generate fresh recommendations'}
           </button>
-          {err && <p className="text-[#FB7185] text-xs mt-3">{err}</p>}
+          {err && <p className="text-[#F58E9A] text-xs mt-3">{err}</p>}
         </div>
 
         {/* Recommendations list */}

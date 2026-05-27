@@ -78,7 +78,7 @@ export default function StepCard({
                 onClick={() => onSave()}
                 disabled={saving}
                 className="px-5 py-2.5 rounded-full font-black text-xs text-white disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, #22D3EE, #A78BFA)' }}
+                style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}
               >
                 {saving ? 'Working…' : saveLabel}
               </button>

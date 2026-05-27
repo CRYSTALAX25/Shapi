@@ -4,97 +4,7 @@ import Link from 'next/link'
 import LocalePicker from '@/components/LocalePicker'
 import { LocaleProvider, useTranslation } from '@/lib/i18n/LocaleContext'
 
-const usps: Array<{ icon: string; title: string; body: string }> = [
-  {
-    icon: '✓',
-    title: 'Verified Profile',
-    body: 'Independent references — we choose who to ask — plus AI cross-check across every answer. Companies see the real you, not a polished CV.',
-  },
-  {
-    icon: '🛡',
-    title: 'AI-Proof Check',
-    body: 'Free, 30 seconds, no signup. An honest read on how exposed your role is to automation, plus the three smartest moves you can make next.',
-  },
-  {
-    icon: '🧭',
-    title: 'Career Translator',
-    body: 'Any role to any role: the salary dip, the 3-year forecast, the courses with real timelines, and pivot paths that actually fit your life.',
-  },
-  {
-    icon: '💸',
-    title: 'What You’re Worth',
-    body: 'Regional-vs-global salary benchmark for your role. Negotiate from facts — not gut feel. Synthesised from Mercer, Glassdoor and Numbeo.',
-  },
-  {
-    icon: '🗺',
-    title: 'Career Roadmap',
-    body: 'A 5-year direction that respects where you are. The next role, the role after that, and the skills that unlock each step.',
-  },
-  {
-    icon: '📚',
-    title: 'Course Wallet',
-    body: 'Heart-save free and paid courses, with ratings and the source. Verified on your profile the moment you finish — no extra paperwork.',
-  },
-  {
-    icon: '💼',
-    title: 'Plan Your Own Business',
-    body: 'Sometimes the answer isn’t another job. We map the founder route — costs, market, what you already have — for your country.',
-  },
-  {
-    icon: '✦',
-    title: 'Ask Shapi',
-    body: 'Concierge for the messy questions — quitting, counter-offers, salary letters, visa paperwork. A human reply when the AI isn’t enough.',
-  },
-  {
-    icon: '🎙',
-    title: 'Voice notes, any language',
-    body: 'Arabic, Tagalog, Spanish, Hindi, Urdu, Tagalog and more. Build your whole profile by voice — no typing, no laptop, no formal CV.',
-  },
-  {
-    icon: '💬',
-    title: 'WhatsApp assistant',
-    body: 'Reply "voice" / "references" / "share my profile" / "send my CV" — and it happens. Magic-link mobile actions, no app to install.',
-  },
-  {
-    icon: '🛰',
-    title: 'Shapi Active',
-    body: 'Daily job scanner across the web. We draft outreach in your voice and walk you through interview prep tailored to each role.',
-  },
-  {
-    icon: '✉',
-    title: 'Active Concierge',
-    body: 'Once you approve, Shapi sends the outreach every morning on your behalf — verified profile attached, employer trust score visible.',
-  },
-  {
-    icon: '🌱',
-    title: 'Shapi Upskilling Fund',
-    body: 'A share of every subscription funds free training for unemployed candidates. Your subscription literally puts someone else back to work.',
-  },
-  {
-    icon: '📄',
-    title: 'CV Kit $25 / CV Pro $59',
-    body: 'Verified profile in every language version that matters — region-targeted, industry-targeted, polished PDF. Yours to keep forever.',
-  },
-  {
-    icon: '🔧',
-    title: 'Blue + white collar',
-    body: 'Voice-first for trades. Phone-only journey. The chef, the supervisor and the ops director are all taken equally seriously here.',
-  },
-]
-
 type Score = 1 | 0 | 0.5
-const comparisonRows: Array<{ label: string; shapi: Score; linkedin: Score; indeed: Score; glassdoor: Score; jackjill: Score; bayt: Score; gulftalent: Score }> = [
-  { label: 'Independent verified references', shapi: 1, linkedin: 0, indeed: 0, glassdoor: 0, jackjill: 0, bayt: 0, gulftalent: 0 },
-  { label: 'AI-displacement scoring (for your role)', shapi: 1, linkedin: 0, indeed: 0, glassdoor: 0, jackjill: 0, bayt: 0, gulftalent: 0 },
-  { label: 'Career pivot / reskill engine', shapi: 1, linkedin: 0.5, indeed: 0, glassdoor: 0, jackjill: 0, bayt: 0, gulftalent: 0 },
-  { label: 'Voice notes in the channel you already use (no app download)', shapi: 1, linkedin: 0, indeed: 0, glassdoor: 0, jackjill: 0, bayt: 0, gulftalent: 0 },
-  { label: 'Multilingual native (Arabic / Tagalog / Urdu / Hindi)', shapi: 1, linkedin: 0, indeed: 0, glassdoor: 0, jackjill: 0, bayt: 0.5, gulftalent: 0 },
-  { label: 'Blue + white collar coverage', shapi: 1, linkedin: 0.5, indeed: 1, glassdoor: 0.5, jackjill: 0, bayt: 1, gulftalent: 0 },
-  { label: 'WhatsApp-first ops (always-on assistant)', shapi: 1, linkedin: 0, indeed: 0, glassdoor: 0, jackjill: 0, bayt: 0, gulftalent: 0 },
-  { label: 'Free upskill fund', shapi: 1, linkedin: 0, indeed: 0, glassdoor: 0, jackjill: 0, bayt: 0, gulftalent: 0 },
-  { label: 'Transparent pricing', shapi: 1, linkedin: 0.5, indeed: 0.5, glassdoor: 1, jackjill: 0.5, bayt: 0.5, gulftalent: 0 },
-  { label: 'MENA-native (regional salary + visa intelligence)', shapi: 1, linkedin: 0.5, indeed: 0.5, glassdoor: 0, jackjill: 0, bayt: 1, gulftalent: 1 },
-]
 
 function Mark({ v }: { v: 1 | 0 | 0.5 }) {
   if (v === 1) {
@@ -132,6 +42,38 @@ export default function ForCandidatesPage() {
 
 function ForCandidatesInner() {
   const { t } = useTranslation()
+
+  const usps: Array<{ icon: string; title: string; body: string }> = [
+    { icon: '✓', title: t('forCandidates.usps.u1Title'), body: t('forCandidates.usps.u1Body') },
+    { icon: '🛡', title: t('forCandidates.usps.u2Title'), body: t('forCandidates.usps.u2Body') },
+    { icon: '🧭', title: t('forCandidates.usps.u3Title'), body: t('forCandidates.usps.u3Body') },
+    { icon: '💸', title: t('forCandidates.usps.u4Title'), body: t('forCandidates.usps.u4Body') },
+    { icon: '🗺', title: t('forCandidates.usps.u5Title'), body: t('forCandidates.usps.u5Body') },
+    { icon: '📚', title: t('forCandidates.usps.u6Title'), body: t('forCandidates.usps.u6Body') },
+    { icon: '💼', title: t('forCandidates.usps.u7Title'), body: t('forCandidates.usps.u7Body') },
+    { icon: '✦', title: t('forCandidates.usps.u8Title'), body: t('forCandidates.usps.u8Body') },
+    { icon: '🎙', title: t('forCandidates.usps.u9Title'), body: t('forCandidates.usps.u9Body') },
+    { icon: '💬', title: t('forCandidates.usps.u10Title'), body: t('forCandidates.usps.u10Body') },
+    { icon: '🛰', title: t('forCandidates.usps.u11Title'), body: t('forCandidates.usps.u11Body') },
+    { icon: '✉', title: t('forCandidates.usps.u12Title'), body: t('forCandidates.usps.u12Body') },
+    { icon: '🌱', title: t('forCandidates.usps.u13Title'), body: t('forCandidates.usps.u13Body') },
+    { icon: '📄', title: t('forCandidates.usps.u14Title'), body: t('forCandidates.usps.u14Body') },
+    { icon: '🔧', title: t('forCandidates.usps.u15Title'), body: t('forCandidates.usps.u15Body') },
+  ]
+
+  const comparisonRows: Array<{ label: string; shapi: Score; linkedin: Score; indeed: Score; glassdoor: Score; jackjill: Score; bayt: Score; gulftalent: Score }> = [
+    { label: t('forCandidates.comparison.row1'), shapi: 1, linkedin: 0, indeed: 0, glassdoor: 0, jackjill: 0, bayt: 0, gulftalent: 0 },
+    { label: t('forCandidates.comparison.row2'), shapi: 1, linkedin: 0, indeed: 0, glassdoor: 0, jackjill: 0, bayt: 0, gulftalent: 0 },
+    { label: t('forCandidates.comparison.row3'), shapi: 1, linkedin: 0.5, indeed: 0, glassdoor: 0, jackjill: 0, bayt: 0, gulftalent: 0 },
+    { label: t('forCandidates.comparison.row4'), shapi: 1, linkedin: 0, indeed: 0, glassdoor: 0, jackjill: 0, bayt: 0, gulftalent: 0 },
+    { label: t('forCandidates.comparison.row5'), shapi: 1, linkedin: 0, indeed: 0, glassdoor: 0, jackjill: 0, bayt: 0.5, gulftalent: 0 },
+    { label: t('forCandidates.comparison.row6'), shapi: 1, linkedin: 0.5, indeed: 1, glassdoor: 0.5, jackjill: 0, bayt: 1, gulftalent: 0 },
+    { label: t('forCandidates.comparison.row7'), shapi: 1, linkedin: 0, indeed: 0, glassdoor: 0, jackjill: 0, bayt: 0, gulftalent: 0 },
+    { label: t('forCandidates.comparison.row8'), shapi: 1, linkedin: 0, indeed: 0, glassdoor: 0, jackjill: 0, bayt: 0, gulftalent: 0 },
+    { label: t('forCandidates.comparison.row9'), shapi: 1, linkedin: 0.5, indeed: 0.5, glassdoor: 1, jackjill: 0.5, bayt: 0.5, gulftalent: 0 },
+    { label: t('forCandidates.comparison.row10'), shapi: 1, linkedin: 0.5, indeed: 0.5, glassdoor: 0, jackjill: 0, bayt: 1, gulftalent: 1 },
+  ]
+
   return (
     <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7] overflow-x-hidden">
       <style>{`
@@ -229,22 +171,22 @@ function ForCandidatesInner() {
         <div className="grid md:grid-cols-3 gap-5">
           {[
             {
-              tag: 'The moat',
+              tag: t('forCandidates.pitch.panel1Tag'),
               color: '#FB7185',
-              title: 'Verified',
-              body: 'Independent references — sourced by us, not curated by you — plus AI cross-check across every answer. Companies actually trust this. So can you.',
+              title: t('forCandidates.pitch.panel1Title'),
+              body: t('forCandidates.pitch.panel1Body'),
             },
             {
-              tag: 'The compass',
+              tag: t('forCandidates.pitch.panel2Tag'),
               color: '#F08CAE',
-              title: 'AI-era guidance',
-              body: 'AI-Proof check, Career Translator, pivot and shield plans, Course Wallet, "What you’re worth", and a "plan your own business" route — all in one place.',
+              title: t('forCandidates.pitch.panel2Title'),
+              body: t('forCandidates.pitch.panel2Body'),
             },
             {
-              tag: 'Always on',
+              tag: t('forCandidates.pitch.panel3Tag'),
               color: '#6AA8F5',
-              title: 'Always on, in WhatsApp',
-              body: 'Voice notes in any language. Voice commands: "skip", "references", "voice". Reply-to-edit your CV. Magic-link actions on your phone — no app to install.',
+              title: t('forCandidates.pitch.panel3Title'),
+              body: t('forCandidates.pitch.panel3Body'),
             },
           ].map((p, i) => (
             <div key={i} className="card rounded-2xl p-6">
@@ -302,7 +244,7 @@ function ForCandidatesInner() {
           <table className="w-full min-w-[760px] border-collapse">
             <thead>
               <tr>
-                <th className="text-left p-3 text-[#7E7E8E] font-bold text-sm uppercase tracking-wider">{t('forCandidates.comparison.colCapability')}</th>
+                <th className="text-start p-3 text-[#7E7E8E] font-bold text-sm uppercase tracking-wider">{t('forCandidates.comparison.colCapability')}</th>
                 <th className="p-3">
                   <span className="font-black text-base tracking-tighter" style={{ color: '#FB7185' }}>{t('forCandidates.comparison.colShapi')}</span>
                 </th>
@@ -335,7 +277,7 @@ function ForCandidatesInner() {
           </table>
         </div>
         <p className="text-center text-xs text-[#7E7E8E] mt-4">
-          <span className="font-black" style={{ color: '#6AA8F5' }}>✓</span> in · <span className="font-black text-[#A6A6B4]">~</span> partial · <span className="font-black" style={{ color: '#F58E9A' }}>✗</span> not offered.
+          <span className="font-black" style={{ color: '#6AA8F5' }}>✓</span> {t('forCandidates.comparison.legendIn')} · <span className="font-black text-[#A6A6B4]">~</span> {t('forCandidates.comparison.legendPartial')} · <span className="font-black" style={{ color: '#F58E9A' }}>✗</span> {t('forCandidates.comparison.legendOut')}.
         </p>
       </section>
 
@@ -349,9 +291,9 @@ function ForCandidatesInner() {
 
         <div className="grid md:grid-cols-3 gap-4">
           {[
-            { step: '01', color: '#6AA8F5', title: 'Build your verified profile', body: 'Drop your CV or send a voice note. Shapi extracts the substance in seconds and asks the right follow-up questions in WhatsApp.' },
-            { step: '02', color: '#F08CAE', title: 'Get referenced + AI-checked', body: 'We source referees independently, cross-check what they say, and publish one honest report — owned by you, trusted by employers.' },
-            { step: '03', color: '#FB7185', title: 'Match (or pivot) confidently', body: 'Apply with real evidence. Or use the Career Translator and Course Wallet to pivot before the market forces the move.' },
+            { step: t('forCandidates.how.step1Number'), color: '#6AA8F5', title: t('forCandidates.how.step1Title'), body: t('forCandidates.how.step1Body') },
+            { step: t('forCandidates.how.step2Number'), color: '#F08CAE', title: t('forCandidates.how.step2Title'), body: t('forCandidates.how.step2Body') },
+            { step: t('forCandidates.how.step3Number'), color: '#FB7185', title: t('forCandidates.how.step3Title'), body: t('forCandidates.how.step3Body') },
           ].map((s, i) => (
             <div key={i} className="card rounded-2xl p-7">
               <div className="flex items-center gap-4 mb-4">
@@ -370,13 +312,9 @@ function ForCandidatesInner() {
           background: 'linear-gradient(135deg, rgba(106,168,245,0.08), rgba(251,113,133,0.06))',
           border: '1px solid rgba(255,255,255,0.10)',
         }}>
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#F08CAE' }}>Sourced confidence</p>
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#F08CAE' }}>{t('forCandidates.sources.eyebrow')}</p>
           <p className="text-base md:text-lg text-[#C7C7D1] leading-relaxed">
-            Synthesised from <span className="font-bold text-[#F4F4F7]">Mercer</span> /{' '}
-            <span className="font-bold text-[#F4F4F7]">Glassdoor</span> /{' '}
-            <span className="font-bold text-[#F4F4F7]">Numbeo</span> /{' '}
-            <span className="font-bold text-[#F4F4F7]">WEF Future of Jobs</span> /{' '}
-            <span className="font-bold text-[#F4F4F7]">your real reference responses</span>.
+            {t('forCandidates.sources.body')}
           </p>
         </div>
       </section>
@@ -392,16 +330,16 @@ function ForCandidatesInner() {
 
         <div className="grid md:grid-cols-5 gap-3">
           {[
-            { name: 'Free', price: '$0', body: 'Verified profile + every free tool', color: '#6AA8F5' },
-            { name: 'CV Kit', price: '$25', body: 'Every language + industry version', color: '#F08CAE' },
-            { name: 'CV Pro', price: '$59', body: 'Full verification + cross-check', color: '#FB7185' },
-            { name: 'Shapi Active', price: '$29/mo', body: 'Job scanner + drafted outreach', color: '#F58E9A' },
-            { name: 'Active Concierge', price: '$79/mo', body: 'Auto-send approved outreach daily', color: '#6AA8F5' },
-          ].map((t, i) => (
+            { name: t('forCandidates.pricing.t1Name'), price: t('forCandidates.pricing.t1Price'), body: t('forCandidates.pricing.t1Body'), color: '#6AA8F5' },
+            { name: t('forCandidates.pricing.t2Name'), price: t('forCandidates.pricing.t2Price'), body: t('forCandidates.pricing.t2Body'), color: '#F08CAE' },
+            { name: t('forCandidates.pricing.t3Name'), price: t('forCandidates.pricing.t3Price'), body: t('forCandidates.pricing.t3Body'), color: '#FB7185' },
+            { name: t('forCandidates.pricing.t4Name'), price: t('forCandidates.pricing.t4Price'), body: t('forCandidates.pricing.t4Body'), color: '#F58E9A' },
+            { name: t('forCandidates.pricing.t5Name'), price: t('forCandidates.pricing.t5Price'), body: t('forCandidates.pricing.t5Body'), color: '#6AA8F5' },
+          ].map((tier, i) => (
             <div key={i} className="card rounded-2xl p-5">
-              <p className="text-xs font-black uppercase tracking-wider mb-2" style={{ color: t.color }}>{t.name}</p>
-              <p className="text-2xl font-black mb-2 text-[#F4F4F7]">{t.price}</p>
-              <p className="text-xs text-[#A6A6B4] leading-relaxed">{t.body}</p>
+              <p className="text-xs font-black uppercase tracking-wider mb-2" style={{ color: tier.color }}>{tier.name}</p>
+              <p className="text-2xl font-black mb-2 text-[#F4F4F7]">{tier.price}</p>
+              <p className="text-xs text-[#A6A6B4] leading-relaxed">{tier.body}</p>
             </div>
           ))}
         </div>
@@ -418,14 +356,14 @@ function ForCandidatesInner() {
               {t('forCandidates.finalCta.title')}
             </h2>
             <p className="text-[#A6A6B4] mb-9 text-base max-w-xl mx-auto">
-              Free to start. Verified by independent references. Built for the AI era — in your language, on your phone.
+              {t('forCandidates.finalCta.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/signup" className="btn-primary px-8 py-4 rounded-full font-black text-sm">
-                Build my profile — free →
+                {t('forCandidates.finalCta.ctaBuild')}
               </Link>
               <Link href="/ai-proof" className="btn-outline px-8 py-4 rounded-full font-bold text-sm">
-                Check if your job is AI-proof
+                {t('forCandidates.finalCta.ctaAiProof')}
               </Link>
             </div>
           </div>
@@ -437,12 +375,12 @@ function ForCandidatesInner() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5">
           <Link href="/" className="font-black text-xl tracking-tighter grad-text">shapi</Link>
           <div className="flex items-center gap-6 text-sm text-[#7E7E8E]">
-            <Link href="/for-companies" className="hover:text-[#F4F4F7] transition-colors">For companies</Link>
-            <Link href="/privacy" className="hover:text-[#F4F4F7] transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-[#F4F4F7] transition-colors">Terms</Link>
-            <a href="mailto:hello@shapi.io" className="hover:text-[#F4F4F7] transition-colors">hello@shapi.io</a>
+            <Link href="/for-companies" className="hover:text-[#F4F4F7] transition-colors">{t('common.footer.forCompanies')}</Link>
+            <Link href="/privacy" className="hover:text-[#F4F4F7] transition-colors">{t('common.footer.privacy')}</Link>
+            <Link href="/terms" className="hover:text-[#F4F4F7] transition-colors">{t('common.footer.terms')}</Link>
+            <a href="mailto:hello@shapi.io" className="hover:text-[#F4F4F7] transition-colors">{t('common.footer.email')}</a>
           </div>
-          <p className="text-[#5C5C6A] text-sm">© 2026 Shapi.</p>
+          <p className="text-[#5C5C6A] text-sm">{t('common.footer.copyright')}</p>
         </div>
       </footer>
     </div>

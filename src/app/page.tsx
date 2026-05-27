@@ -74,7 +74,7 @@ function HomeInner() {
 
       {/* Nav — floating pill island */}
       <nav className="relative z-20 px-4 pt-5 max-w-7xl mx-auto">
-        <div className="flex items-center justify-between gap-3 rounded-full pl-4 pr-2 py-2" style={{ background: 'rgba(22,22,31,0.8)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 8px 30px rgba(0,0,0,0.4)' }}>
+        <div className="flex items-center justify-between gap-3 rounded-full ps-4 pe-2 py-2" style={{ background: 'rgba(22,22,31,0.8)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 8px 30px rgba(0,0,0,0.4)' }}>
           <div className="flex items-center gap-2">
             <ShapiCharacter size={30} />
             <span className="font-black text-xl tracking-tighter grad-text">shapi</span>
@@ -85,7 +85,7 @@ function HomeInner() {
             <Link href="#why" className="nav-link text-sm hidden md:block">{t('common.nav.whyShapi')}</Link>
             <Link href="#pricing" className="nav-link text-sm hidden sm:block">{t('common.nav.pricing')}</Link>
             <Link href="/blog" className="nav-link text-sm hidden sm:block">{t('common.nav.blog')}</Link>
-            <Link href="/for-companies" className="nav-link text-sm hidden md:block">For companies →</Link>
+            <Link href="/for-companies" className="nav-link text-sm hidden md:block">{t('common.nav.forCompanies')}</Link>
             <Link href="/login" className="nav-link text-sm">{t('common.nav.signIn')}</Link>
             <LocalePicker />
             <Link href="/signup" className="grad-border-cta px-4 py-2 rounded-full text-sm font-black">{t('common.nav.getStarted')}</Link>
@@ -126,9 +126,7 @@ function HomeInner() {
           </h1>
 
           <p className="text-lg md:text-xl text-[#A6A6B4] max-w-2xl mx-auto leading-relaxed mb-10">
-            {/* TODO: split-string interpolation for embedded highlight span */}
-            Not another job board. The <span className="text-[#F4F4F7] font-semibold">{t('home.hero.subheadHighlight')}</span> —
-            references sourced independently, skills proven by evidence, companies you can actually trust.
+            {t('home.hero.subhead')}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-16">
@@ -143,19 +141,19 @@ function HomeInner() {
           {/* Floating verified-profile card — the real product, 2 clean chips up top */}
           <div className="relative max-w-md mx-auto">
             <div className="hidden lg:block">
-              <FloatChip text="Independently sourced refs" color="#6AA8F5" pos="-left-28 top-2" />
-              <FloatChip text="AI cross-check passed" color="#F08CAE" pos="-right-28 top-8" />
+              <FloatChip text={t('home.hero.chipRefs')} color="#6AA8F5" pos="-left-28 top-2" />
+              <FloatChip text={t('home.hero.chipCrossCheck')} color="#F08CAE" pos="-right-28 top-8" />
             </div>
             <div className="float-card">
-            <div className="card rounded-2xl p-6 text-left">
+            <div className="card rounded-2xl p-6 text-start">
               {/* identity */}
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-black text-white flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>A</div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-base font-black text-[#F4F4F7]">Ahmed K.</div>
-                  <div className="text-xs text-[#7E7E8E]">Operations Director · Dubai</div>
+                  <div className="text-base font-black text-[#F4F4F7]">{t('home.hero.cardName')}</div>
+                  <div className="text-xs text-[#7E7E8E]">{t('home.hero.cardRole')}</div>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5] flex-shrink-0">Strongly Verified</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5] flex-shrink-0">{t('home.hero.cardVerifiedBadge')}</span>
               </div>
               {/* profile strength — the one vibrant pop */}
               <div className="flex items-center gap-3 mb-4">
@@ -164,17 +162,17 @@ function HomeInner() {
                   <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
                     <div className="h-full rounded-full" style={{ width: '94%', background: 'linear-gradient(90deg,#6AA8F5,#F08CAE,#F58E9A)' }} />
                   </div>
-                  <p className="text-[#7E7E8E] text-[10px] mt-1">profile strength</p>
+                  <p className="text-[#7E7E8E] text-[10px] mt-1">{t('home.hero.cardScoreLabel')}</p>
                 </div>
               </div>
               {/* the USPs — what Shapi verifies that no one else does */}
               <div className="space-y-2.5">
                 {[
-                  ['References', 'independently sourced — not self-chosen'],
-                  ['Skills', 'proven by evidence + AI cross-check'],
-                  ['AI fluency', 'assessed — Integrator tier'],
-                  ['Right to work', 'UAE · KSA — visa-smart'],
-                  ['Speaks', 'Arabic · English — voice verified'],
+                  [t('home.hero.cardItem1Label'), t('home.hero.cardItem1Sub')],
+                  [t('home.hero.cardItem2Label'), t('home.hero.cardItem2Sub')],
+                  [t('home.hero.cardItem3Label'), t('home.hero.cardItem3Sub')],
+                  [t('home.hero.cardItem4Label'), t('home.hero.cardItem4Sub')],
+                  [t('home.hero.cardItem5Label'), t('home.hero.cardItem5Sub')],
                 ].map(([label, sub], i) => (
                   <div key={i} className="flex items-center gap-2.5">
                     <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(106,168,245,0.14)' }}>
@@ -189,8 +187,8 @@ function HomeInner() {
               </div>
               {/* footer — two-sided trust */}
               <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/[0.08]">
-                <span className="text-xs text-[#7E7E8E]">You see the employer&apos;s trust score too</span>
-                <span className="text-xs font-black" style={{ color: '#6AA8F5' }}>Trust 94</span>
+                <span className="text-xs text-[#7E7E8E]">{t('home.hero.cardFooterText')}</span>
+                <span className="text-xs font-black" style={{ color: '#6AA8F5' }}>{t('home.hero.cardFooterTrust')}</span>
               </div>
             </div>
             </div>
@@ -202,9 +200,9 @@ function HomeInner() {
       <section className="relative z-10 py-12 my-4" style={{ background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="max-w-4xl mx-auto px-6 grid grid-cols-3 gap-8 text-center">
           {[
-            { n: '3 min', label: 'to build a complete profile', color: '#6AA8F5' },
-            { n: '100%', label: 'independently verified', color: '#F08CAE' },
-            { n: '0', label: 'forms to fill in — ever', color: '#F58E9A' },
+            { n: t('home.stats.stat1Number'), label: t('home.stats.stat1Label'), color: '#6AA8F5' },
+            { n: t('home.stats.stat2Number'), label: t('home.stats.stat2Label'), color: '#F08CAE' },
+            { n: t('home.stats.stat3Number'), label: t('home.stats.stat3Label'), color: '#F58E9A' },
           ].map((s, i) => (
             <div key={i}>
               <p className="text-4xl md:text-5xl font-black mb-1.5" style={{ color: s.color }}>{s.n}</p>
@@ -227,11 +225,11 @@ function HomeInner() {
 
         <div className="relative grid md:grid-cols-3 gap-5">
           {[
-            { step: '01', title: 'Drop your CV', desc: 'We read everything. No forms. Our AI extracts your experience, skills, and achievements in seconds.', color: '#6AA8F5',
+            { step: t('home.how.step1Number'), title: t('home.how.step1Title'), desc: t('home.how.step1Desc'), color: '#6AA8F5',
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /> },
-            { step: '02', title: 'We ask the right questions', desc: "A few WhatsApp messages — not a form. Text or voice note. We find skills you didn't know you had.", color: '#F08CAE',
+            { step: t('home.how.step2Number'), title: t('home.how.step2Title'), desc: t('home.how.step2Desc'), color: '#F08CAE',
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /> },
-            { step: '03', title: 'Your profile goes live', desc: 'Independently verified. References sourced by us. Companies see the real you — not a polished CV.', color: '#F58E9A',
+            { step: t('home.how.step3Number'), title: t('home.how.step3Title'), desc: t('home.how.step3Desc'), color: '#F58E9A',
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /> },
           ].map((item, i) => (
             <div key={i} className="card rounded-2xl p-8">
@@ -262,7 +260,7 @@ function HomeInner() {
           <table className="w-full min-w-[660px] border-collapse">
             <thead>
               <tr>
-                <th className="text-left p-3"></th>
+                <th className="text-start p-3"></th>
                 <th className="p-3">
                   <div className="flex flex-col items-center gap-1.5">
                     <ShapiCharacter size={40} mood="happy" />
@@ -321,23 +319,10 @@ function HomeInner() {
               {t('home.manifesto.eyebrow')}
             </div>
             <div className="space-y-5 text-[#C7C7D1] text-lg leading-relaxed">
-              <p>
-                AI is taking over tasks that employed millions. Degrees that took four years to earn
-                are becoming optional. Jobs that didn&apos;t exist five years ago are the most in-demand
-                roles on the planet.
-              </p>
-              <p>
-                A construction worker in Dubai has skills no algorithm has properly captured.
-                An ops director leaving a giga-project has achievements no CV template was built to hold.
-              </p>
-              <p className="text-[#F4F4F7] font-bold text-xl">
-                Most platforms respond by adding more filters to screen people out faster.
-                We went the other way.
-              </p>
-              <p className="font-semibold" style={{ color: '#F58E9A' }}>
-                Your skills are real. Your experience is real. Your future is yours to shape.
-                We just make sure the right people see it.
-              </p>
+              <p>{t('home.manifesto.p1')}</p>
+              <p>{t('home.manifesto.p2')}</p>
+              <p className="text-[#F4F4F7] font-bold text-xl">{t('home.manifesto.p3')}</p>
+              <p className="font-semibold" style={{ color: '#F58E9A' }}>{t('home.manifesto.p4')}</p>
             </div>
           </div>
         </div>
@@ -355,17 +340,17 @@ function HomeInner() {
 
         <div className="grid md:grid-cols-3 gap-4">
           {[
-            { title: 'Independent references', tag: 'Our edge', color: '#6AA8F5', desc: "We choose who to contact and keep it confidential — you don't curate the answers. That's a real reference, not a testimonial.",
+            { title: t('home.differentiators.item1Title'), tag: t('home.differentiators.item1Tag'), color: '#6AA8F5', desc: t('home.differentiators.item1Desc'),
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /> },
-            { title: 'AI cross-check', tag: 'The moat', color: '#F08CAE', desc: 'We read every reference at once, confirm what multiple people agree on, and flag conflicts honestly. One report, owned by you.',
+            { title: t('home.differentiators.item2Title'), tag: t('home.differentiators.item2Tag'), color: '#F08CAE', desc: t('home.differentiators.item2Desc'),
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /> },
-            { title: 'Companies rated too', tag: 'Two-sided', color: '#F58E9A', desc: 'Salary paid on time. Manager quality. Real working hours. Candidates see the truth before they apply.',
+            { title: t('home.differentiators.item3Title'), tag: t('home.differentiators.item3Tag'), color: '#F58E9A', desc: t('home.differentiators.item3Desc'),
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /> },
-            { title: 'Blue and white collar', tag: 'Inclusive', color: '#6AA8F5', desc: 'The chef, the construction supervisor, the ops director. One platform. Every person taken seriously — by text or voice note.',
+            { title: t('home.differentiators.item4Title'), tag: t('home.differentiators.item4Tag'), color: '#6AA8F5', desc: t('home.differentiators.item4Desc'),
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /> },
-            { title: 'Right-to-work intelligence', tag: 'Region-smart', color: '#F08CAE', desc: 'Visa and right-to-work captured per country, UAE-first. Skills over paper — no degree required to prove you can do the job.',
+            { title: t('home.differentiators.item5Title'), tag: t('home.differentiators.item5Tag'), color: '#F08CAE', desc: t('home.differentiators.item5Desc'),
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /> },
-            { title: 'Career transition engine', tag: 'Future-proof', color: '#F58E9A', desc: "AI taking over your role? We map your transferable skills and show you exactly where to go next — and how to get there.",
+            { title: t('home.differentiators.item6Title'), tag: t('home.differentiators.item6Tag'), color: '#F58E9A', desc: t('home.differentiators.item6Desc'),
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /> },
           ].map((item, i) => (
             <div key={i} className="card rounded-2xl p-7">
@@ -394,16 +379,16 @@ function HomeInner() {
 
         <div className="grid md:grid-cols-2 gap-4">
           {[
-            { href: '/translate', tag: 'Map your move', color: '#6AA8F5', title: '🧭 Career Translator', desc: 'Any role → any role: the salary dip + 3-year forecast, the exact courses with timelines, and whether to find a job or start your own business — by country.' },
-            { href: '/ai-proof', tag: 'Know your risk', color: '#F08CAE', title: '🛡️ AI-Proof check', desc: 'An honest read on how exposed your role is to automation — and your 3 smartest next moves. Free, 30 seconds, no signup.' },
-            { href: '/course-wallet', tag: 'Free · paid · funded', color: '#F58E9A', title: '📚 Upskilling, sorted', desc: 'Courses matched to your goal with real time estimates and free, paid or financed options — straight to the provider, verified on your profile when you finish.' },
-            { href: '/worth', tag: 'Salary truth', color: '#6AA8F5', title: '💸 What you’re worth', desc: 'Real pay benchmarks by role and country, so you negotiate from facts — not guesses.' },
+            { href: '/translate', tag: t('home.careerNav.item1Tag'), color: '#6AA8F5', title: t('home.careerNav.item1Title'), desc: t('home.careerNav.item1Desc') },
+            { href: '/ai-proof', tag: t('home.careerNav.item2Tag'), color: '#F08CAE', title: t('home.careerNav.item2Title'), desc: t('home.careerNav.item2Desc') },
+            { href: '/course-wallet', tag: t('home.careerNav.item3Tag'), color: '#F58E9A', title: t('home.careerNav.item3Title'), desc: t('home.careerNav.item3Desc') },
+            { href: '/worth', tag: t('home.careerNav.item4Tag'), color: '#6AA8F5', title: t('home.careerNav.item4Title'), desc: t('home.careerNav.item4Desc') },
           ].map((item, i) => (
             <Link key={i} href={item.href} className="card rounded-2xl p-7 block">
               <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: `${item.color}1a`, color: item.color }}>{item.tag}</span>
               <h3 className="font-black text-lg mt-3 mb-2">{item.title}</h3>
               <p className="text-[#A6A6B4] text-sm leading-relaxed">{item.desc}</p>
-              <span className="inline-block mt-3 text-sm font-bold" style={{ color: item.color }}>Try it →</span>
+              <span className="inline-block mt-3 text-sm font-bold" style={{ color: item.color }}>{t('home.careerNav.ctaTry')}</span>
             </Link>
           ))}
         </div>
@@ -420,61 +405,61 @@ function HomeInner() {
 
         {/* Candidates */}
         <div className="mb-6 flex items-center gap-3">
-          <h3 className="text-xl font-black">For candidates</h3>
-          <span className="text-[#7E7E8E] text-sm">Build it free — upgrade when you&apos;re ready.</span>
+          <h3 className="text-xl font-black">{t('home.pricing.candidatesTitle')}</h3>
+          <span className="text-[#7E7E8E] text-sm">{t('home.pricing.candidatesSub')}</span>
         </div>
         <div className="grid md:grid-cols-3 gap-5 mb-6">
           {/* Free */}
           <div className="card rounded-2xl p-7 flex flex-col">
-            <p className="text-sm font-bold text-[#7E7E8E] uppercase tracking-wider mb-2">Free</p>
-            <p className="text-4xl font-black mb-1">$0</p>
-            <p className="text-[#7E7E8E] text-sm mb-6">Get started</p>
+            <p className="text-sm font-bold text-[#7E7E8E] uppercase tracking-wider mb-2">{t('home.pricing.freeName')}</p>
+            <p className="text-4xl font-black mb-1">{t('home.pricing.freePrice')}</p>
+            <p className="text-[#7E7E8E] text-sm mb-6">{t('home.pricing.freeSub')}</p>
             <ul className="space-y-2.5 text-sm text-[#C7C7D1] mb-7 flex-1">
-              {['Drop your CV — AI builds your profile', 'WhatsApp interview (text or voice)', 'Your basic profile page', 'Skills extracted automatically'].map((f, i) => (
+              {[t('home.pricing.freeF1'), t('home.pricing.freeF2'), t('home.pricing.freeF3'), t('home.pricing.freeF4')].map((f, i) => (
                 <li key={i} className="flex gap-2.5"><Check c="#6AA8F5" />{f}</li>
               ))}
             </ul>
-            <Link href="/signup" className="rounded-full py-3 text-center text-sm font-bold text-[#F4F4F7]" style={{ border: '1px solid rgba(255,255,255,0.12)' }}>Start free →</Link>
+            <Link href="/signup" className="rounded-full py-3 text-center text-sm font-bold text-[#F4F4F7]" style={{ border: '1px solid rgba(255,255,255,0.12)' }}>{t('home.pricing.freeCta')}</Link>
           </div>
 
           {/* CV Pro — highlighted */}
           <div className="card-hover rounded-2xl p-7 flex flex-col relative" style={{ background: 'linear-gradient(160deg, #1A1622, #16161F)', border: '1px solid rgba(240,140,174,0.3)', boxShadow: '0 20px 50px rgba(240,140,174,0.18)' }}>
-            <span className="absolute top-5 right-5 text-[10px] font-black px-2.5 py-1 rounded-full text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>MOST POPULAR</span>
-            <p className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: '#F08CAE' }}>CV Pro</p>
-            <p className="text-4xl font-black mb-1">$59 <span className="text-base font-bold text-[#7E7E8E]">one-time</span></p>
-            <p className="text-[#A6A6B4] text-sm mb-6">Everything to get verified &amp; hired</p>
+            <span className="absolute top-5 right-5 text-[10px] font-black px-2.5 py-1 rounded-full text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>{t('home.pricing.proBadge')}</span>
+            <p className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: '#F08CAE' }}>{t('home.pricing.proName')}</p>
+            <p className="text-4xl font-black mb-1">{t('home.pricing.proPrice')} <span className="text-base font-bold text-[#7E7E8E]">{t('home.pricing.proPriceSuffix')}</span></p>
+            <p className="text-[#A6A6B4] text-sm mb-6">{t('home.pricing.proSub')}</p>
             <ul className="space-y-2.5 text-sm text-[#C7C7D1] mb-7 flex-1">
-              {['Multi-language + industry CVs (Kit included)', 'WhatsApp deep-dive interviews', 'Independent reference verification chain', 'AI cross-check report', 'Career Roadmap + upskilling'].map((f, i) => (
+              {[t('home.pricing.proF1'), t('home.pricing.proF2'), t('home.pricing.proF3'), t('home.pricing.proF4'), t('home.pricing.proF5')].map((f, i) => (
                 <li key={i} className="flex gap-2.5"><Check c="#6AA8F5" />{f}</li>
               ))}
             </ul>
-            <Link href="/signup" className="btn-primary rounded-full py-3 text-center text-sm font-black">Get Pro →</Link>
+            <Link href="/signup" className="btn-primary rounded-full py-3 text-center text-sm font-black">{t('home.pricing.proCta')}</Link>
           </div>
 
           {/* CV Kit */}
           <div className="card rounded-2xl p-7 flex flex-col">
-            <p className="text-sm font-bold text-[#7E7E8E] uppercase tracking-wider mb-2">CV Kit</p>
-            <p className="text-4xl font-black mb-1">$25 <span className="text-base font-bold text-[#7E7E8E]">one-time</span></p>
-            <p className="text-[#7E7E8E] text-sm mb-6">Just the CVs</p>
+            <p className="text-sm font-bold text-[#7E7E8E] uppercase tracking-wider mb-2">{t('home.pricing.kitName')}</p>
+            <p className="text-4xl font-black mb-1">{t('home.pricing.kitPrice')} <span className="text-base font-bold text-[#7E7E8E]">{t('home.pricing.kitPriceSuffix')}</span></p>
+            <p className="text-[#7E7E8E] text-sm mb-6">{t('home.pricing.kitSub')}</p>
             <ul className="space-y-2.5 text-sm text-[#C7C7D1] mb-7 flex-1">
-              {['Multi-language CV versions', 'Industry-targeted versions', 'Polished, downloadable PDF', 'Yours to keep forever'].map((f, i) => (
+              {[t('home.pricing.kitF1'), t('home.pricing.kitF2'), t('home.pricing.kitF3'), t('home.pricing.kitF4')].map((f, i) => (
                 <li key={i} className="flex gap-2.5"><Check c="#F08CAE" />{f}</li>
               ))}
             </ul>
-            <Link href="/signup" className="rounded-full py-3 text-center text-sm font-bold text-[#F4F4F7]" style={{ border: '1px solid rgba(255,255,255,0.12)' }}>Get the Kit →</Link>
+            <Link href="/signup" className="rounded-full py-3 text-center text-sm font-bold text-[#F4F4F7]" style={{ border: '1px solid rgba(255,255,255,0.12)' }}>{t('home.pricing.kitCta')}</Link>
           </div>
         </div>
 
         {/* Candidate add-ons */}
         <div className="rounded-2xl p-6 mb-16" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-          <p className="text-sm font-bold mb-1">Power-ups for Pro members</p>
-          <p className="text-[#7E7E8E] text-sm mb-4">Optional subscriptions once you&apos;re verified.</p>
+          <p className="text-sm font-bold mb-1">{t('home.pricing.addonsTitle')}</p>
+          <p className="text-[#7E7E8E] text-sm mb-4">{t('home.pricing.addonsSub')}</p>
           <div className="flex flex-wrap gap-3">
             {[
-              { n: 'Open Roles Board', p: '$19/mo', c: '#6AA8F5' },
-              { n: 'Shapi Active', p: '$29/mo', c: '#F08CAE' },
-              { n: 'Career Bundle', p: '$39/mo', c: '#6AA8F5' },
-              { n: 'Active Concierge', p: '$79/mo', c: '#F58E9A' },
+              { n: t('home.pricing.addon1Name'), p: t('home.pricing.addon1Price'), c: '#6AA8F5' },
+              { n: t('home.pricing.addon2Name'), p: t('home.pricing.addon2Price'), c: '#F08CAE' },
+              { n: t('home.pricing.addon3Name'), p: t('home.pricing.addon3Price'), c: '#6AA8F5' },
+              { n: t('home.pricing.addon4Name'), p: t('home.pricing.addon4Price'), c: '#F58E9A' },
             ].map((a, i) => (
               <div key={i} className="card-hover rounded-xl px-4 py-3 flex items-center gap-3" style={{ background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }}>
                 <span className="text-sm font-bold">{a.n}</span>
@@ -486,32 +471,32 @@ function HomeInner() {
 
         {/* Companies */}
         <div className="mb-2 flex items-center gap-3">
-          <h3 className="text-xl font-black">For companies</h3>
-          <span className="text-[#7E7E8E] text-sm">30-day free trial. Cancel anytime.</span>
+          <h3 className="text-xl font-black">{t('home.pricing.companiesTitle')}</h3>
+          <span className="text-[#7E7E8E] text-sm">{t('home.pricing.companiesSub')}</span>
         </div>
-        <p className="text-sm font-bold mb-6" style={{ color: '#F08CAE' }}>★ Founding Partners: the first 25 companies get 50% off for 3 months.</p>
+        <p className="text-sm font-bold mb-6" style={{ color: '#F08CAE' }}>{t('home.pricing.foundingBadge')}</p>
         <div className="grid md:grid-cols-3 gap-5">
           {[
-            { name: 'Starter', standard: '$299', founding: '$149', per: '/mo', custom: false, popular: false, color: '#6AA8F5',
-              features: ['Post unlimited roles', 'Access verified candidate profiles', 'Match scoring', 'Up to 3 seats'] },
-            { name: 'Growth', standard: '$799', founding: '$399', per: '/mo', custom: false, popular: true, color: '#F08CAE',
-              features: ['Everything in Starter', 'AI shortlisting + outreach', 'Company trust score', 'Priority placement', 'Up to 10 seats'] },
-            { name: 'Enterprise', standard: '', founding: 'Custom', per: '', custom: true, popular: false, color: '#F58E9A',
-              features: ['Everything in Growth', 'Private API + ATS integration', 'Dedicated success manager', 'Custom verification SLAs', 'Unlimited seats'] },
+            { name: t('home.pricing.tierStarterName'), standard: t('home.pricing.tierStarterStandard'), founding: t('home.pricing.tierStarterFounding'), per: t('home.pricing.tierStarterPer'), custom: false, popular: false, color: '#6AA8F5',
+              features: [t('home.pricing.tierStarterF1'), t('home.pricing.tierStarterF2'), t('home.pricing.tierStarterF3'), t('home.pricing.tierStarterF4')] },
+            { name: t('home.pricing.tierGrowthName'), standard: t('home.pricing.tierGrowthStandard'), founding: t('home.pricing.tierGrowthFounding'), per: t('home.pricing.tierGrowthPer'), custom: false, popular: true, color: '#F08CAE',
+              features: [t('home.pricing.tierGrowthF1'), t('home.pricing.tierGrowthF2'), t('home.pricing.tierGrowthF3'), t('home.pricing.tierGrowthF4'), t('home.pricing.tierGrowthF5')] },
+            { name: t('home.pricing.tierEnterpriseName'), standard: '', founding: t('home.pricing.tierEnterpriseFounding'), per: '', custom: true, popular: false, color: '#F58E9A',
+              features: [t('home.pricing.tierEnterpriseF1'), t('home.pricing.tierEnterpriseF2'), t('home.pricing.tierEnterpriseF3'), t('home.pricing.tierEnterpriseF4'), t('home.pricing.tierEnterpriseF5')] },
           ].map((tier, i) => (
             <div key={i} className="card-hover rounded-2xl p-7 flex flex-col"
               style={tier.popular ? { background: 'linear-gradient(160deg, #1A1622, #16161F)', border: '1px solid rgba(240,140,174,0.3)', boxShadow: '0 20px 50px rgba(240,140,174,0.18)' } : { background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }}>
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm font-bold uppercase tracking-wider" style={{ color: tier.popular ? '#F08CAE' : '#7E7E8E' }}>{tier.name}</p>
-                {tier.popular && <span className="text-[10px] font-black px-2.5 py-1 rounded-full text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>POPULAR</span>}
+                {tier.popular && <span className="text-[10px] font-black px-2.5 py-1 rounded-full text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>{t('home.pricing.tierGrowthBadge')}</span>}
               </div>
               {tier.custom ? (
-                <p className="text-4xl font-black mb-6">Custom</p>
+                <p className="text-4xl font-black mb-6">{tier.founding}</p>
               ) : (
                 <div className="mb-6">
                   <p className="text-4xl font-black">{tier.founding}<span className="text-base font-bold text-[#7E7E8E]">{tier.per}</span></p>
                   <p className="text-xs mt-1 text-[#7E7E8E]">
-                    <span className="line-through">{tier.standard}{tier.per}</span> standard · founding rate, 3 mo
+                    <span className="line-through">{tier.standard}{tier.per}</span> {t('home.pricing.ctaStandard')}
                   </p>
                 </div>
               )}
@@ -521,13 +506,13 @@ function HomeInner() {
                 ))}
               </ul>
               <Link href="/signup" className={`rounded-full py-3 text-center text-sm font-black ${tier.popular ? 'btn-primary text-white' : 'text-[#F4F4F7]'}`} style={tier.popular ? undefined : { border: '1px solid rgba(255,255,255,0.12)' }}>
-                {tier.custom ? 'Talk to us →' : 'Start 30-day free trial →'}
+                {tier.custom ? t('home.pricing.ctaTalk') : t('home.pricing.ctaTrial')}
               </Link>
             </div>
           ))}
         </div>
         <p className="text-center text-[#7E7E8E] text-sm mt-6">
-          Simple subscription — <span className="font-bold text-[#F4F4F7]">no placement fees, no per-hire costs</span>. Cancel anytime.
+          {t('home.pricing.tierFootnote')}
         </p>
       </section>
 
@@ -538,16 +523,16 @@ function HomeInner() {
         </div>
         <div className="space-y-3">
           {[
-            { q: 'Is Shapi free to start?', a: 'Yes. Drop your CV and build your profile for free — AI extracts your experience and a few WhatsApp questions fill the gaps. You only pay when you want the CV Kit, full verification, or career tools.' },
-            { q: 'How are references actually verified?', a: 'We source and contact referees ourselves and keep their answers confidential — you don’t pick what they say. That’s a real reference, not a testimonial you curated.' },
-            { q: 'What is the AI cross-check?', a: 'We read every reference together, confirm what multiple people independently agree on, and flag conflicts honestly. The result is one report you own — proof, not spin.' },
-            { q: 'Do I need a degree?', a: 'No. Shapi is skills-first. We capture right-to-work by country and prove ability through evidence and references — paper qualifications are optional.' },
-            { q: 'Blue collar, or no formal CV — can I still join?', a: 'Absolutely. You can build your whole profile by voice note in your own language. The chef, the supervisor and the director are all taken seriously here.' },
-            { q: 'When does Shapi launch?', a: 'UAE-first in 2026, expanding across the GCC and remote MENA. Early access is open now — get in before public launch.' },
+            { q: t('home.faq.q1'), a: t('home.faq.a1') },
+            { q: t('home.faq.q2'), a: t('home.faq.a2') },
+            { q: t('home.faq.q3'), a: t('home.faq.a3') },
+            { q: t('home.faq.q4'), a: t('home.faq.a4') },
+            { q: t('home.faq.q5'), a: t('home.faq.a5') },
+            { q: t('home.faq.q6'), a: t('home.faq.a6') },
           ].map((f, i) => (
             <details key={i} className="group card rounded-2xl px-5 py-4">
               <summary className="flex items-center justify-between cursor-pointer list-none">
-                <span className="font-bold text-[#F4F4F7] pr-4">{f.q}</span>
+                <span className="font-bold text-[#F4F4F7] pe-4">{f.q}</span>
                 <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[#F08CAE] transition-transform group-open:rotate-45" style={{ background: 'rgba(240,140,174,0.12)' }}>
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
                 </span>
@@ -569,10 +554,10 @@ function HomeInner() {
             <p className="text-[#A6A6B4] mb-10 text-base">{t('home.finalCta.subtitle')}</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/signup" className="btn-dark-hover px-8 py-4 rounded-full font-black text-sm">
-                Build my verified profile →
+                {t('home.finalCta.ctaBuild')}
               </Link>
               <Link href="/signup" className="btn-dark-hover px-8 py-4 rounded-full font-bold text-sm">
-                Start hiring →
+                {t('home.finalCta.ctaHire')}
               </Link>
             </div>
           </div>
@@ -584,14 +569,14 @@ function HomeInner() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5">
           <span className="font-black text-xl tracking-tighter grad-text">shapi</span>
           <div className="flex items-center gap-6 text-sm text-[#7E7E8E]">
-            <Link href="/worth" className="hover:text-[#F4F4F7] transition-colors">What you&apos;re worth</Link>
-            <Link href="#pricing" className="hover:text-[#F4F4F7] transition-colors">Pricing</Link>
-            <Link href="/blog" className="hover:text-[#F4F4F7] transition-colors">Blog</Link>
-            <Link href="/privacy" className="hover:text-[#F4F4F7] transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-[#F4F4F7] transition-colors">Terms</Link>
-            <a href="mailto:hello@shapi.io" className="hover:text-[#F4F4F7] transition-colors">hello@shapi.io</a>
+            <Link href="/worth" className="hover:text-[#F4F4F7] transition-colors">{t('common.footer.worth')}</Link>
+            <Link href="#pricing" className="hover:text-[#F4F4F7] transition-colors">{t('common.footer.pricing')}</Link>
+            <Link href="/blog" className="hover:text-[#F4F4F7] transition-colors">{t('common.footer.blog')}</Link>
+            <Link href="/privacy" className="hover:text-[#F4F4F7] transition-colors">{t('common.footer.privacy')}</Link>
+            <Link href="/terms" className="hover:text-[#F4F4F7] transition-colors">{t('common.footer.terms')}</Link>
+            <a href="mailto:hello@shapi.io" className="hover:text-[#F4F4F7] transition-colors">{t('common.footer.email')}</a>
           </div>
-          <p className="text-[#5C5C6A] text-sm">Shape what&apos;s next. © 2026 Shapi.</p>
+          <p className="text-[#5C5C6A] text-sm">{t('common.footer.tagline')}</p>
         </div>
       </footer>
     </div>

@@ -115,7 +115,7 @@ export default function OrgDesignPage() {
           href="/"
           className="font-black text-xl tracking-tighter"
           style={{
-            background: 'linear-gradient(135deg, #22D3EE, #A78BFA)',
+            background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -203,13 +203,13 @@ export default function OrgDesignPage() {
               </div>
             </div>
 
-            {err && <p className="text-[#FB7185] text-sm">{err}</p>}
+            {err && <p className="text-[#F58E9A] text-sm">{err}</p>}
 
             <button
               onClick={run}
               disabled={loading || !currentTeam.trim() || !strategy.trim() || !aiPlan.trim()}
               className="w-full py-4 rounded-full font-black text-white text-sm disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE, #FB7185)' }}
+              style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}
             >
               {loading ? 'Designing your year-2 org…' : 'Design my target org →'}
             </button>
@@ -294,7 +294,7 @@ export default function OrgDesignPage() {
                               <span
                                 key={k}
                                 className="text-[10px] px-2 py-0.5 rounded-full"
-                                style={{ background: 'rgba(167,139,250,0.12)', color: '#A78BFA' }}
+                                style={{ background: 'rgba(240,140,174,0.12)', color: '#F08CAE' }}
                               >
                                 {r}
                               </span>
@@ -324,14 +324,14 @@ export default function OrgDesignPage() {
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span
                           className="text-[11px] font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: 'rgba(34,211,238,0.15)', color: '#22D3EE' }}
+                          style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}
                         >
                           {d.from || '—'}
                         </span>
                         <span className="text-[#7E7E8E] text-sm">→</span>
                         <span
                           className="text-[11px] font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: 'rgba(167,139,250,0.15)', color: '#A78BFA' }}
+                          style={{ background: 'rgba(240,140,174,0.15)', color: '#F08CAE' }}
                         >
                           {d.to || '—'}
                         </span>
@@ -434,7 +434,7 @@ export default function OrgDesignPage() {
                   <ul className="space-y-1">
                     {design.cost_envelope!.drivers!.map((d, i) => (
                       <li key={i} className="text-[#C7C7D1] text-xs leading-relaxed flex gap-2">
-                        <span className="text-[#A78BFA]">·</span>
+                        <span className="text-[#F08CAE]">·</span>
                         <span>{d}</span>
                       </li>
                     ))}

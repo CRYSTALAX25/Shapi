@@ -157,7 +157,7 @@ export default function SalaryBenchmark() {
             {/* Regional vs global gap — explicit one-liner */}
             {bm.regional_vs_global_note && (
               <p className="text-[#F4F4F7] text-sm font-bold leading-relaxed mb-3 rounded-lg px-3 py-2"
-                style={{ background: 'rgba(167,139,250,0.10)', border: '1px solid rgba(167,139,250,0.25)' }}>
+                style={{ background: 'rgba(240,140,174,0.10)', border: '1px solid rgba(240,140,174,0.25)' }}>
                 {bm.regional_vs_global_note}
               </p>
             )}

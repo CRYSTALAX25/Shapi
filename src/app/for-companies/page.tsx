@@ -132,14 +132,14 @@ function ForCompaniesInner() {
           {/* Trusted-by placeholder strip */}
           <div className="pt-8 border-t border-white/[0.06]">
             <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[#7E7E8E] mb-4">
-              Built for hiring teams from
+              {t('forCompanies.hero.trustedByLabel')}
             </p>
             <div className="flex flex-wrap items-center gap-x-10 gap-y-3 text-[#5C5C6A] text-sm font-bold">
-              <span>UAE family holdings</span>
-              <span>GCC mega-projects</span>
-              <span>MENA scale-ups</span>
-              <span>Regional consulting firms</span>
-              <span>Future logos welcome</span>
+              <span>{t('forCompanies.hero.trusted1')}</span>
+              <span>{t('forCompanies.hero.trusted2')}</span>
+              <span>{t('forCompanies.hero.trusted3')}</span>
+              <span>{t('forCompanies.hero.trusted4')}</span>
+              <span>{t('forCompanies.hero.trusted5')}</span>
             </div>
           </div>
         </div>
@@ -161,24 +161,21 @@ function ForCompaniesInner() {
           {[
             {
               icon: '🛡️',
-              title: 'Verified',
+              title: t('forCompanies.pitch.p1Title'),
               color: '#6AA8F5',
-              desc:
-                'Independent references + AI cross-check + work-history verification. Every signal in our intelligence layer is grounded in evidence — not self-reported claims.',
+              desc: t('forCompanies.pitch.p1Desc'),
             },
             {
               icon: '🧠',
-              title: 'Workforce Intelligence',
+              title: t('forCompanies.pitch.p2Title'),
               color: '#F08CAE',
-              desc:
-                'AI-Proof scoring, Hiring Roadmap, Salary Benchmark, Workforce Snapshot, Org Design, Cognitive Load, Hiring Plan, Active Hiring, Autonomous Staffing.',
+              desc: t('forCompanies.pitch.p2Desc'),
             },
             {
               icon: '⚡',
-              title: 'Execution',
+              title: t('forCompanies.pitch.p3Title'),
               color: '#F58E9A',
-              desc:
-                'Outplacement-as-a-service, Train-to-Hire, and talent sourced from the same verified pool. The plan ships through Shapi — not handed to another vendor.',
+              desc: t('forCompanies.pitch.p3Desc'),
             },
           ].map((p) => (
             <div key={p.title} className="card rounded-2xl p-6">
@@ -215,90 +212,20 @@ function ForCompaniesInner() {
 
         <div className="grid md:grid-cols-2 gap-4">
           {[
-            {
-              icon: '📊',
-              title: 'Workforce Future Readiness Score',
-              desc:
-                'A single 0–100 number per organisation — AI exposure, skills maturity, leadership adaptability, innovation density, resilience. The CEO conversation opener.',
-            },
-            {
-              icon: '🎯',
-              title: 'Workforce Snapshot (free)',
-              desc:
-                'Categorical inputs, 7-day turnaround. Headline score, heatmap, top at-risk roles, AI integration cost estimate, talent gap summary.',
-            },
-            {
-              icon: '🛡️',
-              title: 'AI-Proof every role',
-              desc:
-                'Six-dimension scoring — repetitiveness, rules-based work, admin intensity, data dependency, creativity, human interaction. Role-by-role, evidence-backed.',
-            },
-            {
-              icon: '🗺️',
-              title: 'Hiring Roadmap with starter JDs',
-              desc:
-                'Given team + open roles + market, what to hire next, what to reskill internally, what to redeploy — with draft JDs ready to publish in one click.',
-            },
-            {
-              icon: '💸',
-              title: 'Salary Benchmark — regional vs global',
-              desc:
-                'Both regional and global figures shown side-by-side, with the gap named and reasoning shown. Sourced from Mercer, Glassdoor, Numbeo, Shapi placement data.',
-            },
-            {
-              icon: '📋',
-              title: 'Hiring Plan',
-              desc:
-                'Perm / temp / fractional split with monthly comp range and projected burden. Walks you from team-as-is to target-state with cost deltas at every step.',
-            },
-            {
-              icon: '🏗️',
-              title: 'Org Design (target-state Y1/Y2/Y5)',
-              desc:
-                'AI-generated target-state org chart on a 1-, 2- and 5-year horizon. Per-BU operating-model tagging — Centralised, Agile Pod, Skills Marketplace, Hybrid Human+AI.',
-            },
-            {
-              icon: '🧭',
-              title: 'Cognitive Load Check',
-              desc:
-                'Surface managers and individuals running hot, before they burn out or leave. Continuous signal — not an annual survey.',
-            },
-            {
-              icon: '🤖',
-              title: 'Autonomous Staffing Recommendations',
-              desc:
-                'The system proactively flags staffing moves you should make — reskill A, redeploy B, protect C. Subscription stickiness, not a one-shot report.',
-            },
-            {
-              icon: '📨',
-              title: 'Active Hiring subscription',
-              desc:
-                'Daily AI-shortlisted verified candidates per open role, with drafted outreach awaiting your approval. Hiring on autopilot — you stay in control.',
-            },
-            {
-              icon: '💬',
-              title: 'Hiring-manager WhatsApp commands',
-              desc:
-                'Text "shortlist for ops director", "research [company]", "send the JD link" — Shapi does the work and reports back. The same chat you already live in.',
-            },
-            {
-              icon: '🔗',
-              title: 'Magic-link mobile JD review',
-              desc:
-                'Hiring managers approve shortlists, leave feedback, and move candidates through the pipeline on their phone — with no login, ever.',
-            },
-            {
-              icon: '🪞',
-              title: 'Employee-side culture references',
-              desc:
-                'Past and current employees vouch (anonymously aggregated) for paid-on-time, real hours, manager quality. Anti-employer-manipulation; feeds the company trust score.',
-            },
-            {
-              icon: '🤝',
-              title: 'Verified Restructuring + Outplacement',
-              desc:
-                'Restructure Studio + comms drafter + per-country compliance checks + 90-day Pro accounts for every leaver. Done humanely, with auditable decisions.',
-            },
+            { icon: '📊', title: t('forCompanies.usps.u1Title'), desc: t('forCompanies.usps.u1Desc') },
+            { icon: '🎯', title: t('forCompanies.usps.u2Title'), desc: t('forCompanies.usps.u2Desc') },
+            { icon: '🛡️', title: t('forCompanies.usps.u3Title'), desc: t('forCompanies.usps.u3Desc') },
+            { icon: '🗺️', title: t('forCompanies.usps.u4Title'), desc: t('forCompanies.usps.u4Desc') },
+            { icon: '💸', title: t('forCompanies.usps.u5Title'), desc: t('forCompanies.usps.u5Desc') },
+            { icon: '📋', title: t('forCompanies.usps.u6Title'), desc: t('forCompanies.usps.u6Desc') },
+            { icon: '🏗️', title: t('forCompanies.usps.u7Title'), desc: t('forCompanies.usps.u7Desc') },
+            { icon: '🧭', title: t('forCompanies.usps.u8Title'), desc: t('forCompanies.usps.u8Desc') },
+            { icon: '🤖', title: t('forCompanies.usps.u9Title'), desc: t('forCompanies.usps.u9Desc') },
+            { icon: '📨', title: t('forCompanies.usps.u10Title'), desc: t('forCompanies.usps.u10Desc') },
+            { icon: '💬', title: t('forCompanies.usps.u11Title'), desc: t('forCompanies.usps.u11Desc') },
+            { icon: '🔗', title: t('forCompanies.usps.u12Title'), desc: t('forCompanies.usps.u12Desc') },
+            { icon: '🪞', title: t('forCompanies.usps.u13Title'), desc: t('forCompanies.usps.u13Desc') },
+            { icon: '🤝', title: t('forCompanies.usps.u14Title'), desc: t('forCompanies.usps.u14Desc') },
           ].map((u) => (
             <div key={u.title} className="card rounded-2xl p-5">
               <div className="flex items-start gap-4">
@@ -336,7 +263,7 @@ function ForCompaniesInner() {
           <table className="w-full min-w-[820px] border-collapse">
             <thead>
               <tr>
-                <th className="text-left p-3 text-[#7E7E8E] font-bold text-sm">{t('forCompanies.comparison.colCapability')}</th>
+                <th className="text-start p-3 text-[#7E7E8E] font-bold text-sm">{t('forCompanies.comparison.colCapability')}</th>
                 <th className="p-3">
                   <div
                     className="inline-flex items-center justify-center rounded-full px-3 py-1"
@@ -361,14 +288,14 @@ function ForCompaniesInner() {
             </thead>
             <tbody>
               {[
-                ['Verified candidate data (refs + cross-check)', '✓', '✗', '~', '✗', '✗'],
-                ['AI-displacement scoring per role', '✓', '✗', '~', '✗', '~'],
-                ['Workforce Future Readiness Score', '✓', '✗', '~', '✗', '~'],
-                ['5-year scenario modelling', '✓', '~', '~', '✗', '✓'],
-                ['Outplacement-as-a-service', '✓', '✗', '✗', '✗', '~'],
-                ['Talent supplied from same platform', '✓', '✗', '~', '✓', '✗'],
-                ['Mobile / WhatsApp ops', '✓', '✗', '✗', '~', '✗'],
-                ['Pricing transparent ($/mo)', '✓', '✗', '✗', '~', '✗'],
+                [t('forCompanies.comparison.row1'), '✓', '✗', '~', '✗', '✗'],
+                [t('forCompanies.comparison.row2'), '✓', '✗', '~', '✗', '~'],
+                [t('forCompanies.comparison.row3'), '✓', '✗', '~', '✗', '~'],
+                [t('forCompanies.comparison.row4'), '✓', '~', '~', '✗', '✓'],
+                [t('forCompanies.comparison.row5'), '✓', '✗', '✗', '✗', '~'],
+                [t('forCompanies.comparison.row6'), '✓', '✗', '~', '✓', '✗'],
+                [t('forCompanies.comparison.row7'), '✓', '✗', '✗', '~', '✗'],
+                [t('forCompanies.comparison.row8'), '✓', '✗', '✗', '~', '✗'],
               ].map((row, i) => (
                 <tr key={i} style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
                   <td className="p-3 text-sm text-[#C7C7D1] font-medium">{row[0]}</td>
@@ -397,9 +324,9 @@ function ForCompaniesInner() {
             </tbody>
           </table>
           <p className="text-[11px] text-[#7E7E8E] mt-4 px-2">
-            Legend: <span className="font-bold" style={{ color: '#34D399' }}>✓</span> in market ·{' '}
-            <span className="font-bold" style={{ color: '#FBBF24' }}>~</span> partial / limited ·{' '}
-            <span className="font-bold" style={{ color: '#F58E9A' }}>✗</span> not offered.
+            <span className="font-bold" style={{ color: '#34D399' }}>✓</span> {t('forCompanies.comparison.legendIn')} ·{' '}
+            <span className="font-bold" style={{ color: '#FBBF24' }}>~</span> {t('forCompanies.comparison.legendPartial')} ·{' '}
+            <span className="font-bold" style={{ color: '#F58E9A' }}>✗</span> {t('forCompanies.comparison.legendOut')}.
           </p>
         </div>
       </section>
@@ -416,25 +343,22 @@ function ForCompaniesInner() {
         <div className="grid md:grid-cols-3 gap-5">
           {[
             {
-              step: '01',
+              step: t('forCompanies.how.step1Number'),
               color: '#6AA8F5',
-              title: 'Run the free Snapshot',
-              desc:
-                'Categorical inputs — industry, size, AI maturity, roster. 30 seconds in, 7 days to your Workforce Future Readiness Score + at-risk role list.',
+              title: t('forCompanies.how.step1Title'),
+              desc: t('forCompanies.how.step1Desc'),
             },
             {
-              step: '02',
+              step: t('forCompanies.how.step2Number'),
               color: '#F08CAE',
-              title: 'Generate your 5-year Plan',
-              desc:
-                'Operating model diagnostic → Org DNA → workforce + AI integration plan on 3y / 5y / 10y horizons → execution playbook with cost deltas.',
+              title: t('forCompanies.how.step2Title'),
+              desc: t('forCompanies.how.step2Desc'),
             },
             {
-              step: '03',
+              step: t('forCompanies.how.step3Number'),
               color: '#F58E9A',
-              title: 'Execute through Shapi',
-              desc:
-                'Hiring, outplacement, autonomous staffing, train-to-hire — all powered by the same verified talent pool the intelligence layer reads from.',
+              title: t('forCompanies.how.step3Title'),
+              desc: t('forCompanies.how.step3Desc'),
             },
           ].map((s) => (
             <div key={s.step} className="card rounded-2xl p-7">
@@ -460,14 +384,10 @@ function ForCompaniesInner() {
           }}
         >
           <p className="text-[11px] font-black tracking-[0.25em] uppercase mb-3" style={{ color: '#6AA8F5' }}>
-            Sourced, not invented
+            {t('forCompanies.sources.eyebrow')}
           </p>
           <p className="text-[#C7C7D1] text-base md:text-lg leading-relaxed">
-            Every figure on this page and inside the product is synthesised from real, citable data:{' '}
-            <span className="text-[#F4F4F7] font-bold">
-              Mercer · Glassdoor · Anthropic &amp; OpenAI published API pricing · WEF Future of Jobs · Shapi platform data
-            </span>
-            . Confidence bands on projections, named variance drivers, sources footer on every report. We don&apos;t give you hedged numbers — we give you sourced answers and honest projections, so you can decide, not guess.
+            {t('forCompanies.sources.body')}
           </p>
         </div>
       </section>
@@ -487,41 +407,41 @@ function ForCompaniesInner() {
         <div className="grid md:grid-cols-3 gap-5">
           {[
             {
-              name: 'Snapshot',
-              price: 'Free',
+              name: t('forCompanies.pricing.t1Name'),
+              price: t('forCompanies.pricing.t1Price'),
               color: '#6AA8F5',
-              desc:
-                'One-shot Workforce Future Readiness Score, heatmap, top at-risk roles, AI integration cost estimate. 7-day turnaround.',
-              cta: 'Run the Snapshot →',
+              desc: t('forCompanies.pricing.t1Desc'),
+              cta: t('forCompanies.pricing.t1Cta'),
               href: '/company/workforce-snapshot',
+              priceSuffix: '',
+              highlight: false,
             },
             {
-              name: '5-year Plan',
-              price: '$25–100k',
-              priceSuffix: 'per engagement',
+              name: t('forCompanies.pricing.t2Name'),
+              price: t('forCompanies.pricing.t2Price'),
+              priceSuffix: t('forCompanies.pricing.t2Suffix'),
               color: '#F08CAE',
-              desc:
-                'Operating-model diagnostic, Org DNA, workforce + AI integration plan, execution playbook. Annual refresh available.',
-              cta: 'Talk to us →',
+              desc: t('forCompanies.pricing.t2Desc'),
+              cta: t('forCompanies.pricing.t2Cta'),
               href: 'mailto:ana.vbarber@gmail.com?subject=Shapi%20-%205-year%20Workforce%20Plan',
               highlight: true,
             },
             {
-              name: 'Workforce OS',
-              price: '$5–25k',
-              priceSuffix: 'per month',
+              name: t('forCompanies.pricing.t3Name'),
+              price: t('forCompanies.pricing.t3Price'),
+              priceSuffix: t('forCompanies.pricing.t3Suffix'),
               color: '#F58E9A',
-              desc:
-                'Continuous monitoring, Team Compatibility Matrix, succession intelligence, leadership-risk detection. Integrated with the marketplace.',
-              cta: 'Get started →',
+              desc: t('forCompanies.pricing.t3Desc'),
+              cta: t('forCompanies.pricing.t3Cta'),
               href: 'mailto:ana.vbarber@gmail.com?subject=Shapi%20-%20Workforce%20OS',
+              highlight: false,
             },
-          ].map((t) => (
+          ].map((tier) => (
             <div
-              key={t.name}
+              key={tier.name}
               className="card rounded-2xl p-7 flex flex-col"
               style={
-                t.highlight
+                tier.highlight
                   ? {
                       background: 'linear-gradient(160deg, #1A1622, #16161F)',
                       border: '1px solid rgba(240,140,174,0.3)',
@@ -532,25 +452,25 @@ function ForCompaniesInner() {
             >
               <p
                 className="text-sm font-bold uppercase tracking-wider mb-2"
-                style={{ color: t.color }}
+                style={{ color: tier.color }}
               >
-                {t.name}
+                {tier.name}
               </p>
-              <p className="text-4xl font-black mb-1">{t.price}</p>
-              {t.priceSuffix && (
-                <p className="text-xs text-[#7E7E8E] mb-5">{t.priceSuffix}</p>
+              <p className="text-4xl font-black mb-1">{tier.price}</p>
+              {tier.priceSuffix && (
+                <p className="text-xs text-[#7E7E8E] mb-5">{tier.priceSuffix}</p>
               )}
-              {!t.priceSuffix && <div className="mb-5" />}
-              <p className="text-[#C7C7D1] text-sm leading-relaxed mb-7 flex-1">{t.desc}</p>
+              {!tier.priceSuffix && <div className="mb-5" />}
+              <p className="text-[#C7C7D1] text-sm leading-relaxed mb-7 flex-1">{tier.desc}</p>
               <a
-                href={t.href}
+                href={tier.href}
                 className={
-                  t.highlight
+                  tier.highlight
                     ? 'btn-primary rounded-full py-3 text-center text-sm font-black'
                     : 'btn-outline rounded-full py-3 text-center text-sm font-black'
                 }
               >
-                {t.cta}
+                {tier.cta}
               </a>
             </div>
           ))}
@@ -586,13 +506,13 @@ function ForCompaniesInner() {
                 href="/company/workforce-snapshot"
                 className="btn-primary rounded-full px-8 py-4 font-black text-sm"
               >
-                Run the Snapshot — free, ~30s →
+                {t('forCompanies.finalCta.ctaSnapshot')}
               </Link>
               <a
                 href="mailto:ana.vbarber@gmail.com?subject=Shapi%20-%20Workforce%20Intelligence%20enquiry"
                 className="btn-outline rounded-full px-8 py-4 font-bold text-sm"
               >
-                Talk to Ana
+                {t('forCompanies.finalCta.ctaTalk')}
               </a>
             </div>
           </div>
@@ -607,22 +527,22 @@ function ForCompaniesInner() {
           </Link>
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-[#7E7E8E]">
             <Link href="/for-candidates" className="hover:text-[#F4F4F7] transition-colors">
-              For candidates
+              {t('common.footer.forCandidates')}
             </Link>
             <Link href="/company/pricing" className="hover:text-[#F4F4F7] transition-colors">
-              Company pricing
+              {t('common.footer.companyPricing')}
             </Link>
             <Link href="/privacy" className="hover:text-[#F4F4F7] transition-colors">
-              Privacy
+              {t('common.footer.privacy')}
             </Link>
             <Link href="/terms" className="hover:text-[#F4F4F7] transition-colors">
-              Terms
+              {t('common.footer.terms')}
             </Link>
             <a href="mailto:hello@shapi.io" className="hover:text-[#F4F4F7] transition-colors">
-              hello@shapi.io
+              {t('common.footer.email')}
             </a>
           </div>
-          <p className="text-[#5C5C6A] text-sm">Shape what&apos;s next. © 2026 Shapi.</p>
+          <p className="text-[#5C5C6A] text-sm">{t('common.footer.tagline')}</p>
         </div>
       </footer>
     </div>

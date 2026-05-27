@@ -29,15 +29,15 @@ type Roadmap = {
 }
 
 const URGENCY_COLOR: Record<string, string> = {
-  'now': '#FB7185',
+  'now': '#F58E9A',
   'next quarter': '#FBBF24',
-  'next 6-12 months': '#22D3EE',
+  'next 6-12 months': '#6AA8F5',
 }
 
 const RISK_COLOR: Record<string, string> = {
   low: '#34D399',
   medium: '#FBBF24',
-  high: '#FB7185',
+  high: '#F58E9A',
 }
 
 export default function CompanyRoadmap() {
@@ -95,7 +95,7 @@ export default function CompanyRoadmap() {
           href="/"
           className="font-black text-xl tracking-tighter"
           style={{
-            background: 'linear-gradient(135deg, #22D3EE, #A78BFA)',
+            background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -138,11 +138,11 @@ export default function CompanyRoadmap() {
               onClick={generate}
               disabled={loading}
               className="px-6 py-3 rounded-full font-black text-sm text-white disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg, #22D3EE, #A78BFA)' }}
+              style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}
             >
               {loading ? 'Building your roadmap…' : 'Generate Hiring Roadmap'}
             </button>
-            {err && <p className="text-[#FB7185] text-xs mt-3">{err}</p>}
+            {err && <p className="text-[#F58E9A] text-xs mt-3">{err}</p>}
           </div>
         )}
 
@@ -239,7 +239,7 @@ export default function CompanyRoadmap() {
                 <div className="grid sm:grid-cols-2 gap-2.5">
                   {roadmap.reskill_vs_hire!.map((r, i) => {
                     const isReskill = (r.recommendation || '').toLowerCase() === 'reskill'
-                    const rc = isReskill ? '#34D399' : '#A78BFA'
+                    const rc = isReskill ? '#34D399' : '#6AA8F5'
                     const label = isReskill ? 'Reskill' : 'Hire'
                     return (
                       <div
@@ -315,7 +315,7 @@ export default function CompanyRoadmap() {
                     <li key={i} className="flex gap-3 items-start">
                       <span
                         className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black"
-                        style={{ background: 'rgba(34,211,238,0.15)', color: '#22D3EE' }}
+                        style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}
                       >
                         {i + 1}
                       </span>
@@ -338,9 +338,9 @@ export default function CompanyRoadmap() {
                 disabled={loading}
                 className="text-xs font-bold px-3 py-1.5 rounded-full disabled:opacity-40"
                 style={{
-                  background: 'rgba(34,211,238,0.12)',
-                  color: '#22D3EE',
-                  border: '1px solid rgba(34,211,238,0.25)',
+                  background: 'rgba(106,168,245,0.12)',
+                  color: '#6AA8F5',
+                  border: '1px solid rgba(106,168,245,0.25)',
                 }}
               >
                 {loading ? 'Regenerating…' : 'Regenerate'}
@@ -349,7 +349,7 @@ export default function CompanyRoadmap() {
             <p className="text-[#7E7E8E] text-[10px] leading-relaxed">
               Sources: <span className="text-[#A6A6B4]">Mercer · Glassdoor public ratings · Anthropic/OpenAI published API pricing · BLS/government labour statistics · Shapi platform data</span>
             </p>
-            {err && <p className="text-[#FB7185] text-xs">{err}</p>}
+            {err && <p className="text-[#F58E9A] text-xs">{err}</p>}
           </div>
         )}
       </div>

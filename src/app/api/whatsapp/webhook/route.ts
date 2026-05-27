@@ -11,6 +11,13 @@ import { INDUSTRY_BRIEFS, INDUSTRY_META, type Industry } from '@/lib/industry-br
 import { saveVoiceSample, pickNextLanguageToCapture, type VoiceSamplesMap } from '@/lib/voice-samples'
 import { buildJDPrompt, extractRoleFromChat, saveDraftRole } from '@/lib/jd-extract'
 import { sendPendingConciergeOutreach } from '@/lib/concierge'
+import {
+  parseOrgDesignTrigger,
+  parseOrgDesignCancel,
+  getNextPrompt as getOrgDesignNextPrompt,
+  fieldForStep as orgDesignFieldForStep,
+  type OrgDesignVoiceState,
+} from '@/lib/org-design-voice'
 import { randomBytes } from 'crypto'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
@@ -314,7 +321,7 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
   // back to most-recently-created.
   const { data: profileCandidates } = await admin
     .from('profiles')
-    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, languages_spoken, cv_tier, industry_chats, whatsapp_conversation_active, created_at, voice_samples, awaiting_voice_sample_lang, type, company_name, jd_chat, jd_active_role_id')
+    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, languages_spoken, cv_tier, industry_chats, whatsapp_conversation_active, created_at, voice_samples, awaiting_voice_sample_lang, type, company_name, jd_chat, jd_active_role_id, org_design_voice_state')
     .eq('whatsapp_number', phone)
     .order('created_at', { ascending: false })
 
@@ -561,6 +568,116 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
   }
 
   if (!userMessage) return new NextResponse('', { status: 200 })
+
+  // ═══ Org-design voice intake — STATE MACHINE (§16) ═══════════════════════
+  // Runs BEFORE every other command handler so a mid-flow message (voice or
+  // text) lands on the current step instead of accidentally triggering the
+  // candidate interview / JD intake / company shortcut loops below.
+  //
+  // Trigger: company-type profile texts "design my org via voice" (regex in
+  // src/lib/org-design-voice.ts → parseOrgDesignTrigger). Webhook sets
+  // profile.org_design_voice_state = { step: 1 } and prompts Q1.
+  //
+  // Each subsequent inbound (voice transcript OR plain text — userMessage is
+  // already set either way by the transcription block above) is saved to the
+  // current step's field, the step advances, and we send the next prompt.
+  // After step 3 we mint a magic-link token (org_design_intake_tokens) and
+  // WhatsApp the link.
+  //
+  // Cancel: typing "cancel" / "stop" / "quit" mid-flow clears the state.
+  {
+    const existingState = profile.org_design_voice_state as OrgDesignVoiceState | null
+    const isTrigger = profile.type === 'company' && parseOrgDesignTrigger(userMessage)
+
+    // (a) Fresh trigger — start the flow at step 1.
+    if (isTrigger && !existingState) {
+      const newState: OrgDesignVoiceState = { step: 1, started_at: new Date().toISOString() }
+      await admin.from('profiles').update({ org_design_voice_state: newState }).eq('id', profile.id)
+      await sendWhatsApp(phone, getOrgDesignNextPrompt(1))
+      return new NextResponse('', { status: 200 })
+    }
+
+    // (b) Mid-flow — handle the inbound as the current step's answer.
+    if (existingState && (existingState.step === 1 || existingState.step === 2 || existingState.step === 3)) {
+      // Cancel keyword resets the state.
+      if (parseOrgDesignCancel(userMessage)) {
+        await admin.from('profiles').update({ org_design_voice_state: null }).eq('id', profile.id)
+        await sendWhatsApp(phone, `🛑 Org-design intake cancelled. Text *"design my org via voice"* anytime to restart, or visit ${SITE}/company/org-design.`)
+        return new NextResponse('', { status: 200 })
+      }
+
+      // Re-triggering mid-flow → re-send the current step's prompt rather
+      // than starting over (so we don't wipe their prior answers).
+      if (isTrigger) {
+        await sendWhatsApp(phone, `You're already mid-flow (on Q${existingState.step} of 3). Reply with your voice note or text — or type *"cancel"* to start over.\n\n${getOrgDesignNextPrompt(existingState.step)}`)
+        return new NextResponse('', { status: 200 })
+      }
+
+      // Refuse empty answers (shouldn't happen — userMessage guarded above —
+      // but cheap to defend).
+      const answer = userMessage.trim()
+      if (answer.length < 5) {
+        await sendWhatsApp(phone, `That's a bit short — could you send a fuller voice note (or text) for Q${existingState.step}? More detail = better org design.`)
+        return new NextResponse('', { status: 200 })
+      }
+
+      // Save the answer to the right field.
+      const field = orgDesignFieldForStep(existingState.step)
+      const nextState: OrgDesignVoiceState = { ...existingState, [field]: answer.slice(0, 2000) }
+
+      // Steps 1 + 2 → advance and prompt next question.
+      if (existingState.step === 1 || existingState.step === 2) {
+        const nextStep = (existingState.step + 1) as 2 | 3
+        nextState.step = nextStep
+        await admin.from('profiles').update({ org_design_voice_state: nextState }).eq('id', profile.id)
+        await sendWhatsApp(phone, `Got it ✓\n\n${getOrgDesignNextPrompt(nextStep)}`)
+        return new NextResponse('', { status: 200 })
+      }
+
+      // Step 3 — we have all 3 answers. Mint a magic-link token, clear state,
+      // text back the link. Mirrors /api/company/roles/share token pattern.
+      const currentTeam = (nextState.current_team_text || '').slice(0, 2000)
+      const strategy = (nextState.strategy_text || '').slice(0, 2000)
+      const aiPlan = (nextState.ai_plan_text || '').slice(0, 2000)
+
+      if (!currentTeam || !strategy || !aiPlan) {
+        // Defensive — shouldn't happen, but guard against partial state.
+        console.error('[webhook] org-design step 3 reached with missing earlier answers', nextState)
+        await admin.from('profiles').update({ org_design_voice_state: null }).eq('id', profile.id)
+        await sendWhatsApp(phone, `Something got lost between questions — start again with *"design my org via voice"* and I'll re-ask.`)
+        return new NextResponse('', { status: 200 })
+      }
+
+      const token = randomBytes(24).toString('base64url')
+      const expiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
+      const { error: tokErr } = await admin.from('org_design_intake_tokens').insert({
+        token,
+        company_id: profile.id,
+        current_team_text: currentTeam,
+        strategy_text: strategy,
+        ai_plan_text: aiPlan,
+        expires_at: expiresAt,
+      })
+
+      if (tokErr) {
+        console.error('[webhook] org-design token insert failed:', tokErr)
+        // Don't lose their answers if the token table isn't migrated yet —
+        // keep the state so they can retry, and point them at the web form.
+        await sendWhatsApp(phone, `I captured your 3 answers but couldn't generate a magic link (run *supabase/org_design_intake_state.sql*). Open ${SITE}/company/org-design to finish — your answers are saved.`)
+        return new NextResponse('', { status: 200 })
+      }
+
+      // Clear the in-flight state. The answers now live on the token row.
+      await admin.from('profiles').update({ org_design_voice_state: null }).eq('id', profile.id)
+
+      const link = `${SITE}/company/org-design?intake=${token}`
+      await sendWhatsApp(
+        phone,
+        `🏛️ Got all 3 — designing your target-state org now.\n\n*Open your draft (no login needed for 14 days):*\n${link}\n\nReview the inputs, tweak country / growth target if you like, then hit *Generate*. You'll get teams + headcount glide path + cost envelope + risks.`
+      )
+      return new NextResponse('', { status: 200 })
+    }
+  }
 
   // ═══ Manual "references" command — safety hatch if routing missed ═════
   // If the candidate types "references" / "refs" / "ref status" we list

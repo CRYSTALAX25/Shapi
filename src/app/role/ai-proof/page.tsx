@@ -138,8 +138,8 @@ export default function RoleAIProof() {
 
             {/* Redesign */}
             {report.redesign_suggestion && (
-              <div className="rounded-2xl p-5" style={{ background: 'linear-gradient(135deg, rgba(167,139,250,0.10), rgba(251,191,36,0.08))', border: '1px solid rgba(167,139,250,0.25)' }}>
-                <p className="text-[#A78BFA] text-[10px] font-bold uppercase tracking-wider mb-2">🧬 Redesign suggestion</p>
+              <div className="rounded-2xl p-5" style={{ background: 'linear-gradient(135deg, rgba(240,140,174,0.10), rgba(251,191,36,0.08))', border: '1px solid rgba(240,140,174,0.25)' }}>
+                <p className="text-[#F08CAE] text-[10px] font-bold uppercase tracking-wider mb-2">🧬 Redesign suggestion</p>
                 <p className="text-[#F4F4F7] text-sm leading-relaxed">{report.redesign_suggestion}</p>
               </div>
             )}

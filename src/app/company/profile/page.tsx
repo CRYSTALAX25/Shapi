@@ -93,12 +93,12 @@ export default async function CompanyProfilePage() {
               )}
               {!!cd.reddit_sentiment && (
                 <div className={`rounded-xl px-4 py-3 text-center min-w-[100px] ${
-                  cd.reddit_sentiment === 'positive' ? 'bg-emerald-500/15' :
+                  cd.reddit_sentiment === 'positive' ? 'bg-[#34D399]/15' :
                   cd.reddit_sentiment === 'negative' ? 'bg-[#F58E9A]/15' :
                   'bg-[#FBBF24]/15'
                 }`}>
                   <p className={`text-base font-black capitalize ${
-                    cd.reddit_sentiment === 'positive' ? 'text-emerald-400' :
+                    cd.reddit_sentiment === 'positive' ? 'text-[#34D399]' :
                     cd.reddit_sentiment === 'negative' ? 'text-[#F58E9A]' :
                     'text-[#FBBF24]'
                   }`}>{String(cd.reddit_sentiment)}</p>
