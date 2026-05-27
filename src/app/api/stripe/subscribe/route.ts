@@ -16,6 +16,8 @@ const DESCRIPTIONS: Record<SubscriptionProduct, string> = {
   concierge_monthly: 'AI drafts personalised intros daily — you just approve and send.',
   bundle_monthly: 'Open Roles Board + Shapi Active together.',
   bundle_yearly: 'Open Roles Board + Shapi Active together.',
+  active_hiring_monthly: 'Daily AI-shortlisted verified candidates per open role, with drafted outreach awaiting your one-tap approval.',
+  active_hiring_yearly: 'Daily AI-shortlisted verified candidates per open role, with drafted outreach awaiting your one-tap approval. Annual save.',
 }
 
 export async function POST(request: Request) {

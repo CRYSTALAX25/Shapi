@@ -20,6 +20,9 @@ const SUBSCRIPTION_PRODUCT_COLUMN: Record<string, string> = {
   concierge_monthly: 'concierge_subscription_id',
   bundle_monthly: 'bundle_subscription_id',
   bundle_yearly: 'bundle_subscription_id',
+  // Company-side products (STRATEGY §14 / §16)
+  active_hiring_monthly: 'active_hiring_subscription_id',
+  active_hiring_yearly: 'active_hiring_subscription_id',
 }
 
 function isCandidateSubscriptionProduct(p: string | undefined): boolean {

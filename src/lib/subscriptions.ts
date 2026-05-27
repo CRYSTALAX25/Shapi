@@ -10,6 +10,8 @@ export type SubscriptionProduct =
   | 'active_monthly' | 'active_yearly'
   | 'concierge_monthly'
   | 'bundle_monthly' | 'bundle_yearly'
+  // Company-side products (STRATEGY §14 Tier 1 / §16 Tier B)
+  | 'active_hiring_monthly' | 'active_hiring_yearly'
 
 export type ProfileWithSubscriptions = {
   cv_tier?: string | null
@@ -44,6 +46,13 @@ export function hasConcierge(profile: ProfileWithSubscriptions | null | undefine
   return p.has('concierge_monthly')
 }
 
+// Company-side: Active Hiring subscription — daily AI-shortlisted candidates
+// per open role + drafted outreach awaiting one-tap approval.
+export function hasActiveHiring(profile: ProfileWithSubscriptions | null | undefined): boolean {
+  const p = products(profile)
+  return p.has('active_hiring_monthly') || p.has('active_hiring_yearly')
+}
+
 // CV access — paid Kit or Pro tier (one-time, not subscription)
 export function hasCVAccess(profile: ProfileWithSubscriptions | null | undefined): boolean {
   return profile?.cv_tier === 'kit' || profile?.cv_tier === 'pro'
@@ -72,6 +81,8 @@ export const PRODUCT_LABELS: Record<SubscriptionProduct, string> = {
   concierge_monthly: 'Active Concierge',
   bundle_monthly: 'Career Bundle',
   bundle_yearly: 'Career Bundle',
+  active_hiring_monthly: 'Active Hiring',
+  active_hiring_yearly: 'Active Hiring',
 }
 
 export const PRODUCT_PRICES: Record<SubscriptionProduct, { amount: number; interval: 'month' | 'year' }> = {
@@ -82,4 +93,8 @@ export const PRODUCT_PRICES: Record<SubscriptionProduct, { amount: number; inter
   concierge_monthly: { amount: 79, interval: 'month' },
   bundle_monthly: { amount: 39, interval: 'month' },
   bundle_yearly: { amount: 349, interval: 'year' },
+  // Active Hiring — sits between Starter ($299) and Growth ($799) tiers.
+  // Daily AI-shortlist of verified candidates + drafted outreach per open role.
+  active_hiring_monthly: { amount: 499, interval: 'month' },
+  active_hiring_yearly: { amount: 4990, interval: 'year' },
 }

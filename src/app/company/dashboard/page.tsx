@@ -5,6 +5,8 @@ import ShapiCharacter from '@/components/ShapiCharacter'
 import { createAdminClient } from '@/lib/supabase/admin'
 import ShortlistButton from './ShortlistButton'
 import { scoreCandidateForRole, matchLabel } from '@/lib/matching'
+import SubscribeButton from '@/components/SubscribeButton'
+import { hasActiveHiring } from '@/lib/subscriptions'
 
 type Candidate = {
   id: string
@@ -48,7 +50,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   const [companyResult, membersResult] = await Promise.all([
     supabase
       .from('profiles')
-      .select('full_name, type, paid, subscription_status, company_name, company_data, company_size, location, summary, company_website, onboarding_complete')
+      .select('full_name, type, paid, subscription_status, company_name, company_data, company_size, location, summary, company_website, onboarding_complete, subscription_product')
       .eq('id', user.id)
       .single(),
     supabase
@@ -63,6 +65,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   if (!company || company.type !== 'company') redirect('/dashboard')
 
   const isPaid = company?.paid && company?.subscription_status === 'active'
+  const hasAH = hasActiveHiring(company as Parameters<typeof hasActiveHiring>[0])
   const companyName = company.company_name || company.full_name || 'Your company'
   const companyData = company.company_data as Record<string, unknown> | null
 
@@ -393,6 +396,19 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
               </div>
             )}
           </div>
+        )}
+
+        {/* Active Hiring upsell — only when not subscribed. The product:
+            daily AI-shortlist + drafted outreach per open role. STRATEGY §14/§16. */}
+        {!hasAH && (
+          <SubscribeButton product="active_hiring_monthly" className="w-full mb-6 rounded-2xl p-5 text-left hover:bg-white/[0.04] transition-colors gradient-border-card flex items-center justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#F08CAE] mb-1">✦ Upgrade to Active Hiring</p>
+              <p className="text-[#F4F4F7] text-base font-black mb-1">$499/mo · daily AI-shortlist per open role + drafted outreach</p>
+              <p className="text-[#A6A6B4] text-xs">We scan the verified candidate pool every day, score the top matches for each open role, and draft personalised intro emails awaiting your one-tap approval. Annual $4,990 (save ~17%).</p>
+            </div>
+            <span className="text-[#F08CAE] text-xs font-black flex-shrink-0">Subscribe →</span>
+          </SubscribeButton>
         )}
 
         {/* Hiring at a glance — compact overview. Full browsing lives in the
