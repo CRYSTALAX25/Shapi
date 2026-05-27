@@ -48,7 +48,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   const [companyResult, membersResult] = await Promise.all([
     supabase
       .from('profiles')
-      .select('full_name, type, paid, subscription_status, company_name, company_data, company_size')
+      .select('full_name, type, paid, subscription_status, company_name, company_data, company_size, location, summary, company_website, onboarding_complete')
       .eq('id', user.id)
       .single(),
     supabase
@@ -119,17 +119,26 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   const coFbKeys = new Set(((coFbRes.data ?? []) as Array<{ role_id: string; candidate_id: string }>).map(f => `${f.role_id}|${f.candidate_id}`))
   const needCompanyFeedbackCount = completedIvs.filter(i => !coFbKeys.has(`${i.role_id}|${i.candidate_id}`)).length
 
-  // Company profile completion — simple signal-based score (drives trust + Today card).
+  // Company profile completion. Truth source: profile.onboarding_complete (set by
+  // /company/onboarding). For accounts pre-dating that flag — or to give credit
+  // as fields fill in — fall back to a field-based score on the actual fields
+  // the onboarding form writes (name, size, location, about, website). Roles +
+  // glassdoor are separate ACTIVITY signals, not profile completion.
   const cdAny = (companyData || {}) as Record<string, unknown>
-  const sigs = [
-    !!company.company_name,
-    !!company.company_size,
-    !!cdAny.description,
-    !!cdAny.glassdoor_rating,
-    allRoles.length > 0,
-    allRoles.some(r => r.salary_min && r.salary_max),
+  type CompanyRow = { onboarding_complete?: boolean | null; location?: string | null; summary?: string | null; company_website?: string | null }
+  const co = company as typeof company & CompanyRow
+  const fieldSigs = [
+    !!co.company_name,
+    !!co.company_size,
+    !!co.location,
+    !!co.summary || !!cdAny.description,
+    !!co.company_website || !!cdAny.glassdoor_rating,
   ]
-  const companyCompletion = Math.round((sigs.filter(Boolean).length / sigs.length) * 100)
+  const fieldScore = Math.round((fieldSigs.filter(Boolean).length / fieldSigs.length) * 100)
+  // onboarding_complete is the binary truth signal — if Ana clicked through the
+  // onboarding form, we trust it and show 100% even if enrichment hasn't filled
+  // every cosmetic field yet.
+  const companyCompletion = co.onboarding_complete ? 100 : fieldScore
   const compCircumference = 2 * Math.PI * 34
   const compDashOffset = compCircumference * (1 - companyCompletion / 100)
 
