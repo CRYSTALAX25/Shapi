@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import JdActions from './JdActions'
 
 type StarterJD = {
   headline?: string
@@ -218,6 +219,7 @@ export default function CompanyRoadmap() {
                                 <p className="text-[#34D399] text-[11px] font-bold">💸 {p.starter_jd.salary_band}</p>
                               )}
                               <p className="text-[#7E7E8E] text-[10px] italic pt-1">Refine on WhatsApp: text <strong className="text-[#F08CAE]">&quot;edit JD for {p.role || 'this role'}&quot;</strong> to iterate, then text <strong className="text-[#F08CAE]">&quot;[JD_DONE]&quot;</strong> to post it as a draft role.</p>
+                              <JdActions role={p.role || 'Untitled role'} jd={p.starter_jd} />
                             </div>
                           </details>
                         )}
