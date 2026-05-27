@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import CompMenu from './CompMenu'
 
 const ADMIN_EMAIL = 'ana.vbarber@gmail.com'
 
@@ -52,6 +53,56 @@ export default async function AdminPanel() {
 
   const candidates = all.filter(p => p.type === 'candidate')
   const companies = all.filter(p => p.type === 'company')
+
+  // Workforce Audit leads — every Snapshot run (signed-in OR anonymous).
+  // Sorted by readiness_score ASC: low scores = best Tier B prospects.
+  const { data: auditRows } = await admin
+    .from('company_workforce_audits')
+    .select('id, company_id, industry, company_size, country, ai_maturity, operating_model, readiness_score, report, created_at')
+    .order('readiness_score', { ascending: true, nullsFirst: false })
+    .limit(100)
+  type AuditRow = {
+    id: string; company_id: string | null; industry: string | null
+    company_size: string | null; country: string | null
+    ai_maturity: string | null; operating_model: string | null
+    readiness_score: number | null
+    report: Record<string, unknown> | null
+    created_at: string
+  }
+  const audits = (auditRows ?? []) as AuditRow[]
+
+  // Company research requests — candidates asking about non-Shapi companies (§13 flywheel).
+  // Group by lowercase company_name so we can see "5 candidates asked about Qiddiya".
+  const { data: researchRows } = await admin
+    .from('company_research_requests')
+    .select('candidate_id, company_name, ai_summary, source, created_at')
+    .order('created_at', { ascending: false })
+    .limit(300)
+  type ResearchRow = { candidate_id: string; company_name: string; ai_summary: string | null; source: string | null; created_at: string }
+  const researchAll = (researchRows ?? []) as ResearchRow[]
+  const researchAgg = new Map<string, { name: string; count: number; last: string; latestSummary: string | null; sources: Set<string> }>()
+  for (const r of researchAll) {
+    const key = (r.company_name || '').toLowerCase().trim()
+    if (!key) continue
+    const existing = researchAgg.get(key)
+    if (existing) {
+      existing.count++
+      if (new Date(r.created_at).getTime() > new Date(existing.last).getTime()) {
+        existing.last = r.created_at
+        existing.latestSummary = r.ai_summary
+      }
+      if (r.source) existing.sources.add(r.source)
+    } else {
+      researchAgg.set(key, {
+        name: r.company_name,
+        count: 1,
+        last: r.created_at,
+        latestSummary: r.ai_summary,
+        sources: new Set(r.source ? [r.source] : []),
+      })
+    }
+  }
+  const researchAggregated = [...researchAgg.values()].sort((a, b) => b.count - a.count).slice(0, 50)
 
   const verified = candidates.filter(c => c.profile_live)
   const withWhatsApp = candidates.filter(c => c.whatsapp_number && Array.isArray(c.whatsapp_chat) && (c.whatsapp_chat as unknown[]).length > 0)
@@ -185,6 +236,99 @@ export default async function AdminPanel() {
           </div>
         )}
 
+        {/* Workforce Audit leads — STRATEGY §16 Tier A sales pipeline */}
+        {audits.length > 0 && (
+          <div className="gradient-border-card rounded-2xl mb-6 overflow-hidden">
+            <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.08)]">
+              <p className="text-[#F4F4F7] font-bold">Workforce Audit leads ({audits.length})</p>
+              <p className="text-[#7E7E8E] text-xs">Sorted by readiness score — lowest first = best Tier B prospects. Anonymous prospects shown without a profile link.</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Score</th>
+                    <th>Industry</th>
+                    <th>Size</th>
+                    <th>Country</th>
+                    <th>AI maturity</th>
+                    <th>Operating model</th>
+                    <th>Headline</th>
+                    <th>Account</th>
+                    <th>When</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {audits.map(a => {
+                    const score = a.readiness_score ?? null
+                    const scoreColor = score == null ? 'rgba(255,255,255,0.25)'
+                      : score < 40 ? '#F58E9A'
+                      : score < 70 ? '#FCD34D'
+                      : '#34D399'
+                    const headline = (a.report as { headline?: string } | null)?.headline || '—'
+                    const acct = a.company_id ? all.find(p => p.id === a.company_id) : null
+                    return (
+                      <tr key={a.id}>
+                        <td style={{ color: scoreColor, fontWeight: 700, fontSize: '15px' }}>{score ?? '—'}</td>
+                        <td className="text-[#C7C7D1]">{a.industry || '—'}</td>
+                        <td className="text-[#A6A6B4]">{a.company_size || '—'}</td>
+                        <td className="text-[#A6A6B4]">{a.country || '—'}</td>
+                        <td className="text-[#A6A6B4]">{a.ai_maturity || '—'}</td>
+                        <td className="text-[#A6A6B4]">{a.operating_model || '—'}</td>
+                        <td className="text-[#7E7E8E] text-xs" style={{ maxWidth: '320px' }}>{headline}</td>
+                        <td>
+                          {acct ? (
+                            <Link href={`/p/${acct.id.slice(0, 8)}`} target="_blank" className="text-[#6AA8F5] text-xs hover:text-[#F08CAE]">
+                              {acct.company_name || acct.email || acct.full_name || acct.id.slice(0, 6)}
+                            </Link>
+                          ) : (
+                            <span className="text-[#5C5C6A] text-xs italic">anonymous</span>
+                          )}
+                        </td>
+                        <td className="text-[#7E7E8E] text-xs">{new Date(a.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Company research requests — STRATEGY §13 lead-gen flywheel */}
+        {researchAggregated.length > 0 && (
+          <div className="gradient-border-card rounded-2xl mb-6 overflow-hidden">
+            <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.08)]">
+              <p className="text-[#F4F4F7] font-bold">Company research requests ({researchAggregated.length} unique · {researchAll.length} total)</p>
+              <p className="text-[#7E7E8E] text-xs">Companies people asked Shapi about. Count = how many candidates / hiring managers requested research on each. Outreach targets — most-asked first.</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Requests</th>
+                    <th>Company</th>
+                    <th>Source</th>
+                    <th>Latest summary</th>
+                    <th>Last asked</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {researchAggregated.map((r, i) => (
+                    <tr key={i}>
+                      <td style={{ color: r.count >= 3 ? '#F58E9A' : r.count >= 2 ? '#FCD34D' : '#A6A6B4', fontWeight: 700 }}>{r.count}</td>
+                      <td className="text-[#F4F4F7] font-semibold">{r.name}</td>
+                      <td className="text-[#7E7E8E] text-xs">{[...r.sources].join(', ') || '—'}</td>
+                      <td className="text-[#7E7E8E] text-xs" style={{ maxWidth: '400px' }}>{(r.latestSummary || '').slice(0, 160)}{r.latestSummary && r.latestSummary.length > 160 ? '…' : ''}</td>
+                      <td className="text-[#7E7E8E] text-xs">{new Date(r.last).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {/* All candidates */}
         <div className="gradient-border-card rounded-2xl mb-6 overflow-hidden">
           <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.08)]">
@@ -204,6 +348,7 @@ export default async function AdminPanel() {
                   <th>Kit</th>
                   <th>Live</th>
                   <th>Joined</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -247,6 +392,7 @@ export default async function AdminPanel() {
                         )}
                       </td>
                       <td className="text-[#7E7E8E] text-xs">{new Date(c.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</td>
+                      <td><CompMenu userId={c.id} kind="candidate" /></td>
                     </tr>
                   )
                 })}
@@ -269,6 +415,7 @@ export default async function AdminPanel() {
                   <th>Paid</th>
                   <th>Enriched</th>
                   <th>Joined</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -287,10 +434,11 @@ export default async function AdminPanel() {
                     </td>
                     <td><span className={`dot dot-yellow`} /></td>
                     <td className="text-[#7E7E8E] text-xs">{new Date(c.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</td>
+                    <td><CompMenu userId={c.id} kind="company" /></td>
                   </tr>
                 ))}
                 {companies.length === 0 && (
-                  <tr><td colSpan={5} style={{ color: 'rgba(255,255,255,0.2)', textAlign: 'center', padding: 32 }}>No companies yet</td></tr>
+                  <tr><td colSpan={6} style={{ color: 'rgba(255,255,255,0.2)', textAlign: 'center', padding: 32 }}>No companies yet</td></tr>
                 )}
               </tbody>
             </table>
