@@ -41,6 +41,10 @@ const tl: typeof en = {
   },
 
   home: {
+    chooser: {
+      candidate: "👤 Kandidato ako",
+      company: "🏢 Nag-hire ako / nag-restructure →",
+    },
     hero: {
       badgeDate: 'UAE launch · 2026',
       badgeAccess: 'Bukas na ang early access',

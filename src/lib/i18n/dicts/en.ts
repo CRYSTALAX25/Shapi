@@ -39,6 +39,10 @@ const en = {
   },
 
   home: {
+    chooser: {
+      candidate: "👤 I'm a candidate",
+      company: "🏢 I'm hiring / restructuring →",
+    },
     hero: {
       badgeDate: 'UAE launch · 2026',
       badgeAccess: 'Early access open',

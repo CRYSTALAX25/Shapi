@@ -35,6 +35,10 @@ const fr: typeof en = {
   },
 
   home: {
+    chooser: {
+      candidate: "👤 Je suis candidat·e",
+      company: "🏢 Je recrute / restructure →",
+    },
     hero: {
       badgeDate: 'Lancement EAU · 2026',
       badgeAccess: 'Accès anticipé ouvert',

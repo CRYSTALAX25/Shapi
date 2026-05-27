@@ -41,6 +41,10 @@ const bn: typeof en = {
   },
 
   home: {
+    chooser: {
+      candidate: "👤 আমি একজন candidate",
+      company: "🏢 আমি hiring / restructuring করছি →",
+    },
     hero: {
       badgeDate: 'UAE launch · 2026',
       badgeAccess: 'Early access চালু',

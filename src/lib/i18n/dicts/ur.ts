@@ -35,6 +35,10 @@ const ur: typeof en = {
   },
 
   home: {
+    chooser: {
+      candidate: "👤 میں امیدوار ہوں",
+      company: "🏢 میں ہائرنگ / ری اسٹرکचرنگ کر رہا ہوں →",
+    },
     hero: {
       badgeDate: 'UAE لانچ · 2026',
       badgeAccess: 'ابتدائی رسائی کھلی ہے',

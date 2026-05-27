@@ -113,10 +113,10 @@ function HomeInner() {
               workforce-intelligence page. */}
           <div className="flex flex-wrap justify-center gap-2 mb-8 text-xs font-bold">
             <span className="px-3 py-1.5 rounded-full" style={{ background: 'rgba(240,140,174,0.15)', color: '#F08CAE', border: '1px solid rgba(240,140,174,0.30)' }}>
-              👤 I&apos;m a candidate
+              {t('home.chooser.candidate')}
             </span>
             <Link href="/for-companies" className="px-3 py-1.5 rounded-full hover:bg-white/[0.06] transition-colors" style={{ color: '#A6A6B4', border: '1px solid rgba(255,255,255,0.10)' }}>
-              🏢 I&apos;m hiring / restructuring →
+              {t('home.chooser.company')}
             </Link>
           </div>
 

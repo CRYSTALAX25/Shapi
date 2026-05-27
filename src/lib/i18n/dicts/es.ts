@@ -40,6 +40,10 @@ const es: typeof en = {
   },
 
   home: {
+    chooser: {
+      candidate: "👤 Soy candidato",
+      company: "🏢 Estoy contratando / reestructurando →",
+    },
     hero: {
       badgeDate: 'Lanzamiento EAU · 2026',
       badgeAccess: 'Acceso anticipado abierto',

@@ -40,6 +40,10 @@ const hi: typeof en = {
   },
 
   home: {
+    chooser: {
+      candidate: "👤 मैं कैंडिडेट हूँ",
+      company: "🏢 मैं हायर कर रहा हूँ / रिस्ट्रक्चर कर रहा हूँ →",
+    },
     hero: {
       badgeDate: 'UAE लॉन्च · 2026',
       badgeAccess: 'अर्ली एक्सेस खुला',

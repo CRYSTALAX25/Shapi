@@ -43,6 +43,10 @@ const ar: typeof en = {
   },
 
   home: {
+    chooser: {
+      candidate: "👤 أنا مرشَّح",
+      company: "🏢 أُوظّف / أُعيد الهيكلة →",
+    },
     hero: {
       badgeDate: 'انطلاق الإمارات · 2026',
       badgeAccess: 'الوصول المبكر مفتوح',

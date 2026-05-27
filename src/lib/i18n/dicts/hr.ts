@@ -39,6 +39,10 @@ const hr: typeof en = {
   },
 
   home: {
+    chooser: {
+      candidate: "👤 Ja sam kandidat",
+      company: "🏢 Zapošljavam / restrukturiram →",
+    },
     hero: {
       badgeDate: 'UAE lansiranje · 2026',
       badgeAccess: 'Rani pristup otvoren',
