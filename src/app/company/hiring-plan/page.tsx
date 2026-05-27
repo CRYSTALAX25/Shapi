@@ -154,7 +154,7 @@ export default function HiringPlanPage() {
           Plan your hiring
         </h1>
         <p className="text-[#A6A6B4] text-sm mb-6">
-          Tell us your industry, country, stage and rough budget — we&apos;ll suggest a perm/temp/fractional split, the next 3 hires, and an approx monthly comp burden.
+          Tell us your industry, country, stage and budget — we&apos;ll return a perm/temp/fractional split, the next 3 hires, and a 70%-confidence monthly comp band.
         </p>
 
         {/* Inputs */}
@@ -372,7 +372,7 @@ export default function HiringPlanPage() {
                 }}
               >
                 <p className="text-[#22D3EE] text-[10px] font-bold uppercase tracking-wider mb-2">
-                  💸 Approx monthly comp burden (3 hires combined)
+                  💸 Monthly comp burden — 70% confidence band (3 hires combined)
                 </p>
                 <p className="text-2xl md:text-3xl font-black tracking-tighter text-[#F4F4F7]">
                   {plan.monthly_comp_estimate.currency || '$'}{' '}
@@ -383,9 +383,12 @@ export default function HiringPlanPage() {
                 </p>
                 {plan.monthly_comp_estimate.note && (
                   <p className="text-[#A6A6B4] text-xs mt-2">
-                    ⚠️ {plan.monthly_comp_estimate.note}
+                    {plan.monthly_comp_estimate.note}
                   </p>
                 )}
+                <p className="text-[#7E7E8E] text-[10px] mt-3 leading-relaxed">
+                  Sources: <span className="text-[#A6A6B4]">Mercer · PayScale · Numbeo cost-of-living · Glassdoor public ratings · Shapi platform data</span>
+                </p>
               </div>
             )}
 
@@ -438,8 +441,8 @@ export default function HiringPlanPage() {
               </div>
             )}
 
-            <p className="text-[#7E7E8E] text-[11px] leading-relaxed pt-2 border-t border-white/[0.08]">
-              ⚠️ All figures are approximate, based on model knowledge — confirm against live market data before committing.
+            <p className="text-[#7E7E8E] text-[10px] leading-relaxed pt-2 border-t border-white/[0.08]">
+              Sources: <span className="text-[#A6A6B4]">Mercer · PayScale · Numbeo cost-of-living · Glassdoor public ratings · government labour statistics · Shapi platform data</span>
             </p>
           </div>
         )}

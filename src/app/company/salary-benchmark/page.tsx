@@ -8,6 +8,8 @@ type Benchmark = {
   min?: number
   max?: number
   median?: number
+  global_median?: number
+  regional_vs_global_note?: string
   notes?: string
   sources?: string
 }
@@ -68,7 +70,7 @@ export default function SalaryBenchmark() {
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 pt-8 pb-20">
         <h1 className="text-3xl md:text-4xl font-black tracking-tighter mb-2" style={{ color: '#FB7185' }}>Salary benchmark</h1>
-        <p className="text-[#A6A6B4] text-sm mb-6">What&apos;s a competitive annual offer for this role in this country? Type the role, the country and (optionally) a level — we&apos;ll suggest an indicative band in local currency. All figures are approximate and vary by company size, equity, visa context and sector.</p>
+        <p className="text-[#A6A6B4] text-sm mb-6">What&apos;s a competitive annual offer for this role in this country? Type the role, the country and (optionally) a level — we&apos;ll return a 70%-confidence band in local currency, the global median, and the regional-vs-global gap.</p>
 
         {/* Inputs */}
         <div className="rounded-2xl p-5 mb-6" style={cardStyle}>
@@ -109,7 +111,7 @@ export default function SalaryBenchmark() {
           <button onClick={submit} disabled={loading || !role.trim() || !country.trim()}
             className="mt-5 w-full sm:w-auto px-6 py-3 rounded-full font-black text-sm text-white disabled:opacity-40"
             style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
-            {loading ? 'Building band…' : '💰 Get salary band'}
+            {loading ? 'Building band…' : '💰 Get salary band + global gap'}
           </button>
           {err && <p className="text-[#F58E9A] text-xs mt-3">{err}</p>}
         </div>
@@ -118,7 +120,7 @@ export default function SalaryBenchmark() {
         {bm && (
           <div className="rounded-2xl p-6" style={cardStyle}>
             <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-1">
-              Indicative annual band{level ? ` · ${level}` : ''} · {country}
+              70%-confidence annual band{level ? ` · ${level}` : ''} · {country}
             </p>
             <p className="text-[#F4F4F7] text-sm font-bold mb-4">{role}</p>
 
@@ -134,13 +136,30 @@ export default function SalaryBenchmark() {
               </span>
             </div>
 
-            {/* Median */}
-            {typeof bm.median === 'number' && (
-              <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 mb-4"
-                style={{ background: 'rgba(240,140,174,0.12)', border: '1px solid rgba(240,140,174,0.3)' }}>
-                <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#F08CAE' }}>Median</span>
-                <span className="text-sm font-black" style={{ color: '#F08CAE' }}>{bm.currency || ''} {fmt(bm.median)}</span>
-              </div>
+            {/* Regional median + Global median */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {typeof bm.median === 'number' && (
+                <div className="inline-flex items-center gap-2 rounded-full px-3 py-1"
+                  style={{ background: 'rgba(240,140,174,0.12)', border: '1px solid rgba(240,140,174,0.3)' }}>
+                  <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#F08CAE' }}>{country} median</span>
+                  <span className="text-sm font-black" style={{ color: '#F08CAE' }}>{bm.currency || ''} {fmt(bm.median)}</span>
+                </div>
+              )}
+              {typeof bm.global_median === 'number' && (
+                <div className="inline-flex items-center gap-2 rounded-full px-3 py-1"
+                  style={{ background: 'rgba(106,168,245,0.12)', border: '1px solid rgba(106,168,245,0.3)' }}>
+                  <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#6AA8F5' }}>Global median (USD)</span>
+                  <span className="text-sm font-black" style={{ color: '#6AA8F5' }}>$ {fmt(bm.global_median)}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Regional vs global gap — explicit one-liner */}
+            {bm.regional_vs_global_note && (
+              <p className="text-[#F4F4F7] text-sm font-bold leading-relaxed mb-3 rounded-lg px-3 py-2"
+                style={{ background: 'rgba(167,139,250,0.10)', border: '1px solid rgba(167,139,250,0.25)' }}>
+                {bm.regional_vs_global_note}
+              </p>
             )}
 
             {/* Notes */}
@@ -148,9 +167,9 @@ export default function SalaryBenchmark() {
               <p className="text-[#C7C7D1] text-sm leading-relaxed mb-3">{bm.notes}</p>
             )}
 
-            {/* Sources / caveat */}
-            <p className="text-[#7E7E8E] text-[11px] leading-relaxed pt-3 border-t border-white/[0.08]">
-              ⚠️ {bm.sources || 'Indicative range — confirm against your hiring market'}. Approximate figures; varies by company size, equity, visa context and sector.
+            {/* Sources */}
+            <p className="text-[#7E7E8E] text-[10px] leading-relaxed pt-3 border-t border-white/[0.08]">
+              Sources: <span className="text-[#A6A6B4]">Mercer · PayScale · Numbeo cost-of-living · Glassdoor public ratings · government labour statistics · Shapi platform data</span>
             </p>
           </div>
         )}

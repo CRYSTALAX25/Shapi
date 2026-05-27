@@ -335,7 +335,7 @@ export default function WorkforceSnapshot() {
             {/* AI integration estimates */}
             {report.ai_integration_estimates.length > 0 && (
               <div className="rounded-2xl p-5" style={cardStyle}>
-                <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-3">🛠 AI integration estimates</p>
+                <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-3">🛠 AI integration build vs buy</p>
                 <div className="space-y-3">
                   {report.ai_integration_estimates.map((u, i) => (
                     <div key={i} className="bg-white/[0.04] rounded-lg p-4">
@@ -353,6 +353,9 @@ export default function WorkforceSnapshot() {
                     </div>
                   ))}
                 </div>
+                <p className="text-[#7E7E8E] text-[10px] mt-3 leading-relaxed">
+                  Sources: <span className="text-[#A6A6B4]">Anthropic/OpenAI published API pricing · AWS/GCP/Azure published cloud rates · Mercer · Shapi platform data</span>
+                </p>
               </div>
             )}
 

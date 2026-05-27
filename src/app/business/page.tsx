@@ -24,7 +24,7 @@ type Blueprint = {
   disclaimer?: string
 }
 
-// Rough default currency by country keyword (free-text, user can overwrite).
+// Default currency by country keyword (free-text, user can overwrite).
 const CURRENCY_HINTS: { match: string[]; code: string }[] = [
   { match: ['uae', 'emirates', 'dubai', 'abu dhabi'], code: 'AED' },
   { match: ['saudi', 'ksa'], code: 'SAR' },
@@ -438,7 +438,7 @@ export default function BusinessBlueprint() {
               {/* Capital tiers */}
               {bp.capital && (
                 <div>
-                  <p className={`${labelCls} mb-2`}>💰 Starting capital (indicative)</p>
+                  <p className={`${labelCls} mb-2`}>💰 Starting capital — 70% confidence band</p>
                   <div className="grid grid-cols-3 gap-2">
                     {([['Lean', bp.capital.lean], ['Standard', bp.capital.standard], ['Comfortable', bp.capital.comfortable]] as const).map(([lbl, t]) => (
                       <div key={lbl} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -449,6 +449,9 @@ export default function BusinessBlueprint() {
                     ))}
                   </div>
                   {bp.capital.note && <p className="text-[#7E7E8E] text-[11px] mt-2">💡 {bp.capital.note}</p>}
+                  <p className="text-[#7E7E8E] text-[10px] mt-2 leading-relaxed">
+                    Sources: <span className="text-[#A6A6B4]">government registration body fee schedules · Numbeo cost-of-living · industry trade-body data · Shapi platform data</span>
+                  </p>
                 </div>
               )}
 

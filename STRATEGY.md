@@ -632,3 +632,64 @@ Single line use anywhere — sales deck, homepage, pitch. Combines our verificat
 - **Phase 3 (6-12 months):** Tier C subscription product + SOC 2 + first enterprise contracts.
 
 > **Status:** locked as the company-side product spine. All earlier company-side feature work (§14) is now framed as components OF this product, not standalone tools. Tier A is the launch wedge.
+
+---
+
+## 16.5. Brand voice & sources policy — how we talk about confidence (LOCKED, decided 2026-05-27)
+
+> One-liner: We're a verification brand. Hedge-words ("indicative", "approximate") undermine that. Three confidence tiers, three voice registers, sourced citations on every output — *that* is our source-of-truth claim.
+
+Verification is meaningless if every number we produce is caveated to death. Our outputs span three confidence levels — each gets its own voice, NOT generic hedging. The rule: **never say "indicative" or "approximate" as a hedge.** Either we know it (state as fact, cite the source), we synthesised it (state with confidence + cite the inputs), or we projected it (state with a confidence band + name the variance drivers). Read like McKinsey, not like an AI assistant.
+
+### The three voice tiers (LOCKED)
+1. **Verified** — data we own (references, credentials, work history, performance signals captured in Shapi). State as fact. No hedging.
+   - Example: *"Verified at Emirates Group 2018–2022 by manager + 2 colleagues."*
+2. **Sourced** — aggregated benchmarks from real public/market data + our analysis. State with confidence; cite sources.
+   - Example: *"Regional band $50–75k; global median $80–120k for the same role. MENA pays ~30% less than US for equivalent roles. Sources: Mercer MENA 2024, Glassdoor public ratings, Numbeo cost-of-living."*
+3. **Projected** — forward-looking estimates (future costs, AI displacement timelines, scenario outcomes). Confidence bands + named variance drivers.
+   - Example: *"Year 1 cost: $200–450k (70% confidence). Variance driven by build vs buy, in-house vs partner, pilot success rate."*
+
+### Banned hedge phrases (LOCKED — strike from all product copy)
+- "indicative" → use a confidence band + cite the source
+- "approximate" (as hedge) → cite source instead; numeric prefix "~$15" is fine
+- "rough estimate" → confidence band + driver
+- "confirm on the platform" → cite + explicit confidence
+- "AI-generated" (as hedge alone) → "synthesised from [sources]"
+
+**Why:** hedge words tell the reader to discount our answer. We're the source of truth — own it.
+
+### Sources whitelist (LOCKED — we ONLY cite from this list)
+Real, citable, public data (no scraping / no ToS-violating sources):
+- **Salary & comp:** Mercer (free reports), PayScale public benchmarks, Robert Half published rates, Numbeo cost-of-living, government labour statistics (UAE PRA, KSA GOSI, UK ONS, EU Eurostat).
+- **Company info:** Glassdoor public ratings, Crunchbase public profiles, LinkedIn public company pages (public only, never scraped at scale).
+- **Tech / AI costs:** Anthropic published API pricing, OpenAI published API pricing, AWS / GCP / Azure published service pricing.
+- **Analyst reports (free pages only):** Gartner free articles, McKinsey/BCG free Insights, WEF Future of Jobs, OECD labour market data.
+- **Shapi's own data:** verified placements, reference signal patterns, regional salary deltas we observe. *This is the moat — grows over time.*
+
+**Forbidden:** fabricated stats, citations we didn't actually pull, scraped data that violates ToS.
+
+### Citation pattern (LOCKED — every report has a Sources footer)
+Format:
+```
+Sources: Mercer MENA Compensation 2024 · Numbeo cost-of-living (UAE) · Anthropic API published pricing · Shapi placement data (n = N where applicable).
+```
+- AI synthesis: "Synthesised from [sources]" — never "AI-generated" alone.
+- Shapi data: include the N when it's a real signal: "Shapi placement data (n = 47 verified placements Q1 2026)".
+- Forward projections: "Projected by Shapi model based on [inputs]."
+
+### The regional vs global differentiator (LOCKED)
+**Every salary, cost, and benchmark output explicitly shows BOTH the regional figure AND the global figure, with the gap named.**
+- Example: *"Junior data analyst (UAE): $35–48k. Same role (global median): $58–72k. MENA discount: ~35%. This reflects local talent supply + cost-of-living parity."*
+
+**Why:** nobody does this credibly for MENA. McKinsey gives Western figures; LinkedIn/Glassdoor give global averages. Showing the regional vs global split *with named reasoning* is what makes us the source of truth here. Lead with this on Salary Benchmark + any cost output.
+
+### Honest about uncertainty — confidence, not hedges (LOCKED)
+When genuinely uncertain, we don't bury it in caveats. We:
+- Show the confidence band ("70% confidence: $200–450k Y1").
+- Name what would tighten it ("Tier B narrows this to ±15% by gathering [inputs]").
+- Distinguish what we *know* from what we *projected*.
+
+This is the difference between weak hedging and honest professional analysis. McKinsey produces uncertain forecasts every day; they don't write "indicative" — they write "Y1 cost: $200–450k, 70% confidence, driven by ABC."
+
+### Closing tagline (LOCKED)
+> *"We don't give you indicative numbers. We give you sourced answers and honest projections — so you can decide, not guess."*

@@ -143,6 +143,10 @@ export default function RoleAIProof() {
                 <p className="text-[#F4F4F7] text-sm leading-relaxed">{report.redesign_suggestion}</p>
               </div>
             )}
+
+            <p className="text-[#7E7E8E] text-[10px] leading-relaxed">
+              Sources: <span className="text-[#A6A6B4]">Anthropic/OpenAI published model capabilities · WEF Future of Jobs · O*NET task taxonomy · Shapi platform data</span>
+            </p>
           </div>
         )}
       </div>

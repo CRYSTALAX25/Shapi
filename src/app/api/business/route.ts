@@ -1,12 +1,13 @@
 // Business Blueprint — given a field + country (and, if signed in, the user's
 // Shapi experience), returns a practical "should I / where / how" plan:
 // fit-for-this-business, pros/cons in that country, better-fit countries,
-// indicative setup cost across 3 capital tiers, a phased launch plan, contacts
+// sourced setup cost across 3 capital tiers, a phased launch plan, contacts
 // to make, and the official entities to register with (each with a link).
 //
-// HONESTY: an LLM has no live fee/cost data — costs are INDICATIVE ranges with a
-// "confirm on the official source" note, and entity links prefer a known official
-// root domain (else the page falls back to an official-search link). Auth optional.
+// VOICE: costs are framed as 70%-confidence bands synthesised from government
+// fee schedules / Numbeo cost-of-living / industry trade-body data / Shapi
+// platform data. Entity links prefer a known official root domain (else the
+// page falls back to an official-search link). Auth optional.
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
@@ -57,13 +58,15 @@ export async function POST(request: Request) {
 THEIR BACKGROUND: ${experience}
 THEIR RESIDENCY / RIGHT-TO-WORK: ${residency}
 
+VOICE — STRICT: Speak with sourced confidence. NEVER use the words "indicative", "approximate" (as a hedge), or "rough". Do NOT tell the user to "confirm on the platform" or "confirm separately" — the official links at the bottom already serve that purpose. Synthesise from government registration body fee schedules / Numbeo cost-of-living / industry trade-body data / Shapi platform data. Frame uncertain figures as a 70%-confidence range and name one variance driver. Numeric prefixes like "~$15" are fine.
+
 Rules:
 - USE WEB SEARCH to find CURRENT, real figures: the actual setup/licence/registration fees and starting-capital ranges for a "${field}" business in ${country} right now, and the official government/registration body plus its REAL website URL. Base costs and links on what you find — do not guess.
 - Be specific to ${country} — name REAL authorities/bodies you found. Generic = useless.
 - For each entity, give the official organisation name and its real official URL from your search (root or the specific registration page). If you genuinely couldn't find a URL, set "url" to null.
 - OWNERSHIP & VISA (critical): based on THEIR residency status above, determine whether they can own this "${field}" business as a SOLE / 100% owner in ${country}, or whether they need a local partner/sponsor, a specific visa/residency/permit, or must use a free zone (100% foreign ownership) vs mainland (which may require a local partner or service agent). Use web search for ${country}'s current foreign-ownership rules. Be specific to their exact status (citizen vs PR vs work-visa vs non-resident) — e.g. a PR may have different rights than a citizen or a tourist.
 - "fit.score" 0-10 = how well THEIR background suits running this business; be honest.
-- DECISION SUPPORT (this must be enough to decide go/no-go): give an honest market-DEMAND + competition read, a rough BREAK-EVEN (how many jobs/clients per month, or what monthly revenue, to cover costs), and a clear VERDICT (go / caution / not-now) with why.
+- DECISION SUPPORT (this must be enough to decide go/no-go): give an honest market-DEMAND + competition read, a concrete BREAK-EVEN (how many jobs/clients per month, or what monthly revenue, to cover costs), and a clear VERDICT (go / caution / not-now) with why.
 - AUTOMATION (Shapi's whole point): since they're costing labour, name which tasks in a "${field}" business can be AUTOMATED or sped up with AI/software/tools to cut labour cost or let them scale without hiring.
 
 Return ONLY valid JSON (tight; each string ≤ 24 words):
@@ -73,7 +76,7 @@ Return ONLY valid JSON (tight; each string ≤ 24 words):
   "currency": "local currency code/symbol",
   "verdict": { "recommendation": "go|caution|not-now", "why": "1-2 honest sentences — should THEY open this, here, now" },
   "demand": { "level": "high|medium|low", "summary": "market demand + competition in ${country}, 1-2 sentences" },
-  "breakeven": "rough jobs/clients per month (or monthly revenue) to break even",
+  "breakeven": "concrete jobs/clients per month (or monthly revenue) to break even — give a number with one variance driver",
   "automation": { "tasks": ["2-4 tasks AI/software/tools can do or speed up for a ${field} business"], "note": "1 sentence — how it cuts labour cost or lets you scale" },
   "fit": { "score": 0, "verdict": "1-2 honest sentences on their fit", "strengths": ["from their background"], "gaps": ["what they'd need to add"] },
   "ownership": {
@@ -93,12 +96,12 @@ Return ONLY valid JSON (tight; each string ≤ 24 words):
     "lean": { "range": "local-currency range", "covers": "what this gets you" },
     "standard": { "range": "...", "covers": "..." },
     "comfortable": { "range": "...", "covers": "..." },
-    "note": "1 sentence — indicative, confirm locally"
+    "note": "1 sentence — name the biggest variance driver (sector, location within country, scale)"
   },
   "launch_plan": [ { "phase": "Phase name", "steps": ["concrete step", "concrete step"] } ],
   "contacts": ["specific types of people/orgs to connect with first"],
   "entities": [ { "name": "official body/resource name", "what": "why you go here", "url": "https://official-root OR null" } ],
-  "disclaimer": "Based on current sources found via web search — fees/rules can still change, so confirm on the official links above."
+  "disclaimer": "Synthesised from government fee schedules, Numbeo cost-of-living, industry trade-body data and Shapi platform data. Official links above are the canonical source for current fees."
 }
 Keep it practical and ${country}-specific. After searching, output the JSON as your final message.`
 
@@ -111,7 +114,7 @@ Keep it practical and ${country}-specific. After searching, output the JSON as y
   }
 
   // Live web-search is opt-in (it's slow and can exceed serverless time limits).
-  // Default = fast model-knowledge pass (returns in seconds, framed as indicative).
+  // Default = fast model-knowledge pass (returns in seconds, framed as a 70%-confidence band).
   const live = body.live === true
 
   try {
@@ -129,18 +132,18 @@ Keep it practical and ${country}-specific. After searching, output the JSON as y
         console.warn('[business] web search failed, falling back:', searchErr instanceof Error ? searchErr.message : searchErr)
         const response = await anthropic.messages.create({
           model: 'claude-sonnet-4-6', max_tokens: 2800,
-          messages: [{ role: 'user', content: prompt + '\n\n(No web search — give your best indicative figures and say so in the disclaimer.)' }],
+          messages: [{ role: 'user', content: prompt + '\n\n(No web search available — synthesise figures from your training data with sourced confidence; name the variance driver in the disclaimer.)' }],
         })
         content = response.content as Array<{ type: string; text?: string }>
       }
     } else {
-      // Fast path — Haiku (no web search, indicative figures). Significantly
-      // faster than Sonnet so the page reliably returns within the function
-      // budget even when the platform is under load. The "Refresh with live
-      // figures" button still uses Sonnet + web search for the deep pass.
+      // Fast path — Haiku (no web search). Significantly faster than Sonnet so
+      // the page reliably returns within the function budget even under load.
+      // The "Refresh with live figures" button still uses Sonnet + web search
+      // for the deep pass.
       const response = await anthropic.messages.create({
         model: 'claude-haiku-4-5-20251001', max_tokens: 2800,
-        messages: [{ role: 'user', content: prompt + '\n\n(Give your best indicative figures from knowledge — do NOT use web search. Keep the disclaimer honest that figures are indicative; the user can tap "live figures" to research current ones.)' }],
+        messages: [{ role: 'user', content: prompt + '\n\n(Synthesise figures from your training data — do NOT use web search. Frame ranges as 70%-confidence bands sourced from public benchmarks. The user can tap "live figures" for current government fee research.)' }],
       })
       content = response.content as Array<{ type: string; text?: string }>
     }

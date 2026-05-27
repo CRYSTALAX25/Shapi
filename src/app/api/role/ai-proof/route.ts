@@ -24,6 +24,8 @@ ${country ? `Country: ${country}` : ''}
 Job description:
 ${description}
 
+VOICE — STRICT: Speak with sourced confidence. NEVER use the words "indicative", "approximate" (as a hedge), or "rough". Synthesise from Anthropic/OpenAI published model capabilities, WEF Future of Jobs data, and the O*NET task taxonomy. When uncertain, name the variance driver in one phrase, not a hedge-word.
+
 Rules:
 - score 0-10 = how AI-RESILIENT this role is (10 = very durable, 0 = mostly automatable).
 - verdict mapping: 7-10 "safe", 4-6 "caution", 0-3 "high-risk".

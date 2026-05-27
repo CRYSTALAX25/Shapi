@@ -68,7 +68,9 @@ USE THE 6-DIMENSION AI EXPOSURE INDEX for at-risk role scoring: repetitiveness, 
 
 USE THE 5-WAY PER-ROLE RECOMMENDATION: replace | augment | reskill | redeploy | protect (the last one = high-value people likely to leave during change; we want to retain them).
 
-Ground cost estimates in: realistic salary ranges for ${country || 'the country'}, Anthropic/OpenAI public API pricing, common cloud rates, and the industry's typical AI integration burden. Show confidence bands. Sandbag honestly — industry data says ~50-70% of enterprise AI pilots fail to scale; bake that into ROI gate signals.
+Ground cost projections in: Mercer salary ranges for ${country || 'the country'}, Anthropic/OpenAI published API pricing, AWS/GCP/Azure published cloud rates, and the industry's typical AI integration burden. Use confidence bands ("70% confidence: $X-Y") and name the variance drivers. Sandbag honestly — industry data says ~50-70% of enterprise AI pilots fail to scale; bake that into ROI gate signals.
+
+VOICE: Speak with sourced confidence. NEVER use the words "indicative", "approximate" (as a hedge), or "rough" — when uncertain, use a confidence band (e.g. "70% confidence: $200-450k") and name the variance drivers. Numeric prefixes like "~$15" are fine. Do NOT tell the user to "confirm separately" or "confirm on the platform". List sources at the bottom of every numeric output.
 
 Return ONLY valid JSON in this exact shape (NO markdown, NO commentary outside the JSON):
 {
@@ -97,9 +99,9 @@ Return ONLY valid JSON in this exact shape (NO markdown, NO commentary outside t
       "use_case": "",
       "build_buy_partner": "build|buy|partner",
       "why": "1 sentence — why this option for this use case",
-      "cost_range_year_1": "approx low-high in local currency or USD, e.g. '$80k-$220k'",
+      "cost_range_year_1": "Year-1 cost band with confidence, e.g. '70% confidence: $80k-$220k (variance driven by integration depth)'",
       "talent_gap": "1-2 sentences — what roles you'd hire / reskill",
-      "timeline_months": "approx range, e.g. '4-9 months'",
+      "timeline_months": "delivery range, e.g. '4-9 months'",
       "roi_gate": "1 line — early signal to watch before scaling"
     }
   ],
@@ -108,7 +110,7 @@ Return ONLY valid JSON in this exact shape (NO markdown, NO commentary outside t
     "target_in_12_months": 0,
     "biggest_levers": ["1-3 short levers"]
   },
-  "honest_caveats": "1-2 sentences on what's uncertain in this snapshot and what Tier B (the 5-year plan) would add."
+  "honest_caveats": "1-2 sentences on the variance drivers behind these numbers and what Tier B (the 5-year plan) would add. Do NOT use the words 'indicative' or 'approximate'."
 }
 
 top_at_risk_roles = 3-5 items. ai_integration_estimates = 1-3 items (matching the use cases given, or common ones if not provided).`

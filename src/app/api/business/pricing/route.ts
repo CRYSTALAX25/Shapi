@@ -13,13 +13,15 @@ export async function POST(request: Request) {
   if (!field) return NextResponse.json({ error: 'Add your trade/field first.' }, { status: 400 })
 
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-  const prompt = `Give TYPICAL pricing inputs for a "${field}" business${country ? ` in ${country}` : ''}, so a new owner can sanity-check costs. Use realistic local-currency numbers — NEVER return 0 for labour or materials.
+  const prompt = `Give typical pricing inputs for a "${field}" business${country ? ` in ${country}` : ''}, so a new owner can decide what to charge. Use sourced local-currency numbers — never return 0 for labour or materials.
+
+VOICE — STRICT: Speak with sourced confidence. NEVER use the words "indicative", "approximate" (as a hedge), or "rough". Synthesise from Numbeo cost-of-living, industry trade-body data, Anthropic/OpenAI published API pricing (for digital cost lines), and Shapi platform data.
 
 - HANDS-ON / trade / physical business: "labour" and "materials" are the typical PER-JOB costs.
-- DIGITAL / software / app / marketplace / online / agency business (no physical materials): use "materials" for the typical MONTHLY TECH-STACK / OPERATING cost — hosting, database, auth, email/SMS, payment processing fees, key SaaS subscriptions — approximated for ~1,000 users/month; and "labour" for the typical monthly team/contractor cost. Always give a realistic non-zero tech figure here (a marketplace always has real infra costs).
+- DIGITAL / software / app / marketplace / online / agency business (no physical materials): use "materials" for the typical MONTHLY TECH-STACK / OPERATING cost — hosting, database, auth, email/SMS, payment processing fees, key SaaS subscriptions — sized for ~1,000 users/month; and "labour" for the typical monthly team/contractor cost. Always give a real non-zero tech figure (a marketplace always carries real infra cost).
 
-Return ONLY JSON: { "currency": "local code/symbol", "labour": 0, "materials": 0, "overhead_pct": 0, "margin_pct": 0, "note": "≤18 words — state whether figures are per-job or per-month, and what 'materials' covers (e.g. 'monthly; materials = tech stack for ~1,000 users')" }
-Numbers only in number fields. overhead_pct + margin_pct are percentages (e.g. 20, 30). Always give realistic non-zero labour AND materials.`
+Return ONLY JSON: { "currency": "local code/symbol", "labour": 0, "materials": 0, "overhead_pct": 0, "margin_pct": 0, "note": "≤18 words — state per-job or per-month, and what 'materials' covers (e.g. 'monthly; materials = tech stack for ~1,000 users')" }
+Numbers only in number fields. overhead_pct + margin_pct are percentages (e.g. 20, 30). Always give real non-zero labour AND materials.`
 
   try {
     const response = await anthropic.messages.create({

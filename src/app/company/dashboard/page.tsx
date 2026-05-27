@@ -243,7 +243,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                 { href: '/company/roles', label: 'Roles', icon: '💼' },
                 { href: '/company/pipeline', label: 'Pipeline', icon: '📋' },
                 { href: '/candidates', label: 'Candidates', icon: '👥' },
-                { href: '/company/onboarding', label: 'Company profile', icon: '👤' },
+                { href: '/company/profile', label: 'Company profile', icon: '👤' },
               ].map(item => (
                 <Link
                   key={item.label}
@@ -360,43 +360,8 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
           )}
         </div>
 
-        {/* Company intelligence */}
-        {companyData && (
-          <div className="gradient-border-card rounded-2xl p-5 mb-5">
-            <div className="flex items-start justify-between gap-4 mb-3">
-              <div>
-                <p className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-widest mb-1">Company intelligence</p>
-                <p className="text-[#C7C7D1] text-sm leading-relaxed">{companyData.description as string}</p>
-              </div>
-              {!!companyData.glassdoor_rating && (
-                <div className="flex-shrink-0 text-center bg-[#6AA8F5]/10 rounded-xl px-4 py-3">
-                  <div className="text-2xl font-black text-[#6AA8F5]">{String(companyData.glassdoor_rating)}</div>
-                  <div className="text-[#7E7E8E] text-[10px]">Glassdoor</div>
-                </div>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {!!companyData.industry && <span className="bg-[rgba(255,255,255,0.05)] text-[#A6A6B4] text-xs px-3 py-1 rounded-full">{String(companyData.industry)}</span>}
-              {!!companyData.size && <span className="bg-[rgba(255,255,255,0.05)] text-[#A6A6B4] text-xs px-3 py-1 rounded-full">{String(companyData.size)} employees</span>}
-              {!!companyData.headquarters && <span className="bg-[rgba(255,255,255,0.05)] text-[#A6A6B4] text-xs px-3 py-1 rounded-full">📍 {String(companyData.headquarters)}</span>}
-              {!!companyData.reddit_sentiment && (
-                <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
-                  companyData.reddit_sentiment === 'positive' ? 'bg-emerald-500/15 text-emerald-400' :
-                  companyData.reddit_sentiment === 'negative' ? 'bg-[#F58E9A]/15 text-[#F58E9A]' :
-                  'bg-[rgba(255,255,255,0.05)] text-[#A6A6B4]'
-                }`}>Reddit: {String(companyData.reddit_sentiment)}</span>
-              )}
-            </div>
-            {Array.isArray(companyData.recent_news) && companyData.recent_news.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-[rgba(255,255,255,0.08)]">
-                <p className="text-[#7E7E8E] text-[10px] uppercase tracking-wider mb-1">Recent news</p>
-                {(companyData.recent_news as string[]).map((n, i) => (
-                  <p key={i} className="text-[#A6A6B4] text-xs py-0.5">· {n}</p>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        {/* Company intelligence card moved to /company/profile (its proper home).
+            Dashboard is now action-oriented only. */}
 
         {/* Active Hiring upsell — only when not subscribed. The product:
             daily AI-shortlist + drafted outreach per open role. STRATEGY §14/§16. */}

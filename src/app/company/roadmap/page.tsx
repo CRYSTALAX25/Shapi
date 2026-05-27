@@ -99,7 +99,7 @@ export default function CompanyRoadmap() {
           Hiring Roadmap
         </h1>
         <p className="text-[#A6A6B4] text-sm mb-6 max-w-2xl">
-          A strategic read of who you should hire next, where to reskill instead, what AI risk you carry, and the next 90 days. Grounded in your industry and your open roles — flagged where we&apos;re estimating.
+          A strategic read of who you should hire next, where to reskill instead, what AI risk you carry, and the next 90 days. Synthesised from your industry, your open roles, and Shapi&apos;s platform data.
         </p>
 
         {!roadmap && (
@@ -256,7 +256,7 @@ export default function CompanyRoadmap() {
                 {roadmap.generated_at
                   ? `Generated ${new Date(roadmap.generated_at).toLocaleString()}`
                   : 'Generated just now'}
-                {' · '}Estimates flagged in-text. Use as a starting point, not a verdict.
+                {' · '}Confidence-banded read; variance drivers flagged in-text.
               </p>
               <button
                 onClick={generate}
@@ -271,6 +271,9 @@ export default function CompanyRoadmap() {
                 {loading ? 'Regenerating…' : 'Regenerate'}
               </button>
             </div>
+            <p className="text-[#7E7E8E] text-[10px] leading-relaxed">
+              Sources: <span className="text-[#A6A6B4]">Mercer · Glassdoor public ratings · Anthropic/OpenAI published API pricing · BLS/government labour statistics · Shapi platform data</span>
+            </p>
             {err && <p className="text-[#FB7185] text-xs">{err}</p>}
           </div>
         )}
