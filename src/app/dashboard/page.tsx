@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import ShapiCharacter from '@/components/ShapiCharacter'
 import SubscribeButton from '@/components/SubscribeButton'
+import WhatsAppConnectCard from '@/components/WhatsAppConnectCard'
 import { computeJobCompletionScore } from '@/lib/references'
 import { hasOpenRolesBoard, hasActive as hasActiveProduct, hasConcierge } from '@/lib/subscriptions'
 
@@ -380,6 +381,15 @@ export default async function Dashboard() {
                     </li>
                   )}
                 </ul>
+              </div>
+            )}
+
+            {/* Connect Shapi WhatsApp — first-encounter discovery hook for
+                voice notes, reference reminders, profile nudges. Hidden once
+                the candidate has paired their number with Shapi. */}
+            {!profile?.whatsapp_number && (
+              <div className="mb-5">
+                <WhatsAppConnectCard role="candidate" />
               </div>
             )}
 

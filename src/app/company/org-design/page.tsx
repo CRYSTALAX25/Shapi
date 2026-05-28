@@ -14,6 +14,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { getShapiTriggerUrl, getShapiWhatsAppDisplay } from '@/lib/shapi-whatsapp-url'
 
 type TargetTeam = {
   team?: string
@@ -180,14 +181,21 @@ function OrgDesignInner() {
         </p>
 
         {/* Voice-design discoverability — companies on the go can record the 3
-            inputs as voice notes on WhatsApp instead of typing here. */}
+            inputs as voice notes on WhatsApp instead of typing here.
+            One-tap deep-link: opens WhatsApp with the trigger pre-typed. */}
         {!intakeToken && (
-          <div className="mb-6 rounded-xl p-3 inline-flex items-center gap-2.5 text-xs" style={{ background: 'rgba(240,140,174,0.10)', border: '1px solid rgba(240,140,174,0.25)' }}>
+          <a
+            href={getShapiTriggerUrl('design my org via voice')}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-6 rounded-xl p-3 inline-flex items-center gap-2.5 text-xs hover:opacity-90 transition-opacity"
+            style={{ background: 'rgba(37,211,102,0.10)', border: '1px solid rgba(37,211,102,0.30)' }}
+          >
             <span className="text-base leading-none">🎙️</span>
             <span className="text-[#C7C7D1]">
-              On the go? Text <strong className="text-[#F08CAE]">&quot;design my org via voice&quot;</strong> on WhatsApp — three voice notes, no typing. We&apos;ll send you a link back.
+              On the go? <strong className="text-[#34D399]">Tap here to text &quot;design my org via voice&quot;</strong> on WhatsApp — three voice notes, no typing. Number: <span className="font-mono text-[#A6A6B4]">{getShapiWhatsAppDisplay()}</span>
             </span>
-          </div>
+          </a>
         )}
 
         {/* Voice-intake prefill notice — shown when the page loaded via a

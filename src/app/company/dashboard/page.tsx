@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import ShortlistButton from './ShortlistButton'
 import { scoreCandidateForRole, matchLabel } from '@/lib/matching'
 import SubscribeButton from '@/components/SubscribeButton'
+import WhatsAppConnectCard from '@/components/WhatsAppConnectCard'
 import { hasActiveHiring } from '@/lib/subscriptions'
 
 type Candidate = {
@@ -50,7 +51,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   const [companyResult, membersResult] = await Promise.all([
     supabase
       .from('profiles')
-      .select('full_name, type, paid, subscription_status, company_name, company_data, company_size, location, summary, company_website, onboarding_complete, subscription_product')
+      .select('full_name, type, paid, subscription_status, company_name, company_data, company_size, location, summary, company_website, onboarding_complete, subscription_product, whatsapp_number')
       .eq('id', user.id)
       .single(),
     supabase
@@ -66,6 +67,9 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
 
   const isPaid = company?.paid && company?.subscription_status === 'active'
   const hasAH = hasActiveHiring(company as Parameters<typeof hasActiveHiring>[0])
+  // Has the company already paired their WhatsApp with Shapi? If not, surface
+  // the "Run Shapi from WhatsApp" card as a first-encounter discovery hook.
+  const hasWhatsApp = !!(company as { whatsapp_number?: string | null })?.whatsapp_number
   const companyName = company.company_name || company.full_name || 'Your company'
   const companyData = company.company_data as Record<string, unknown> | null
 
@@ -375,6 +379,15 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
 
         {/* Company intelligence card moved to /company/profile (its proper home).
             Dashboard is now action-oriented only. */}
+
+        {/* Connect Shapi WhatsApp — first-encounter entry point. Shown until
+            the company has paired their number. Once paired, they know the
+            number; we don't need to re-prompt every visit. */}
+        {!hasWhatsApp && (
+          <div className="mb-6">
+            <WhatsAppConnectCard role="company" />
+          </div>
+        )}
 
         {/* Workforce Snapshot nudge — first-touch acquisition wedge.
             Shown only to companies that haven't yet run one. Free analysis

@@ -14,10 +14,17 @@ function isHidden(path: string | null): boolean {
   return false
 }
 
-const INTRO: Msg = {
+// Two intros — Shapi serves candidates AND companies. The widget detects the
+// signed-in user's profile.type on first open and shows the right one.
+const INTRO_CANDIDATE: Msg = {
   role: 'assistant',
   content:
     "Hi, I'm Shapi ✦ — your career guide for the AI era. Ask me about pivots, courses, salaries by country, or starting something of your own.",
+}
+const INTRO_COMPANY: Msg = {
+  role: 'assistant',
+  content:
+    "Hi, I'm Shapi ✦ — your workforce co-pilot. Ask me about hiring plans, comp benchmarks, role definition, restructuring, AI exposure, org design, or how to get the most out of Shapi's tools.",
 }
 
 // Theme tokens
@@ -33,12 +40,41 @@ const CTA = 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)'
 
 export default function AskShapi() {
   const [open, setOpen] = useState(false)
-  const [messages, setMessages] = useState<Msg[]>([INTRO])
+  // Start neutral with the candidate intro; switched to company once we know.
+  // Storing intro separately so we can swap it without losing user messages.
+  const [intro, setIntro] = useState<Msg>(INTRO_CANDIDATE)
+  const [role, setRole] = useState<'candidate' | 'company' | null>(null)
+  const [messages, setMessages] = useState<Msg[]>([INTRO_CANDIDATE])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const pathname = usePathname()
+
+  // Detect role on first open so the intro + placeholder match the audience.
+  useEffect(() => {
+    if (!open || role) return
+    let cancelled = false
+    fetch('/api/profile/get')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (cancelled) return
+        // /api/profile/get returns { profile: { ... } }. We then look up `type`
+        // on the row. (Note: the current endpoint doesn't select `type` so we
+        // fall back to candidate.) See companion fix in /api/profile/get.
+        const type = d?.profile?.type === 'company' ? 'company' : 'candidate'
+        setRole(type)
+        const nextIntro = type === 'company' ? INTRO_COMPANY : INTRO_CANDIDATE
+        setIntro(nextIntro)
+        setMessages(prev => {
+          // If the user hasn't sent anything yet, just swap the intro.
+          if (prev.length === 1 && prev[0].role === 'assistant') return [nextIntro]
+          return prev
+        })
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [open, role])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -61,7 +97,7 @@ export default function AskShapi() {
     setLoading(true)
     try {
       // Only send real conversation turns (skip the canned intro)
-      const payload = next.filter((m) => m !== INTRO)
+      const payload = next.filter((m) => m !== intro)
       const res = await fetch('/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -249,7 +285,7 @@ export default function AskShapi() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder="Ask about your career…"
+              placeholder={role === 'company' ? 'Ask about hiring, comp, org design…' : 'Ask about your career…'}
               disabled={loading}
               style={{
                 flex: 1,
