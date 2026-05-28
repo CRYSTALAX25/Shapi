@@ -26,9 +26,17 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { product } = await request.json().catch(() => ({}))
+  const { product, trial } = await request.json().catch(() => ({}))
   const price = PRODUCT_PRICES[product as SubscriptionProduct]
   if (!price) return NextResponse.json({ error: 'Invalid product' }, { status: 400 })
+
+  // Trial is opt-in via the request body. Only Active Hiring offers a trial
+  // today (peak-intent moment is right after a company posts a role). Other
+  // products fall through to immediate billing. Cap at 14 days to keep the
+  // semantics narrow.
+  const trialDays = product === 'active_hiring_monthly' && typeof trial === 'number' && trial > 0
+    ? Math.min(trial, 14)
+    : null
 
   const site = process.env.NEXT_PUBLIC_SITE_URL
   const session = await stripe.checkout.sessions.create({
@@ -49,9 +57,12 @@ export async function POST(request: Request) {
         quantity: 1,
       },
     ],
-    success_url: `${site}/dashboard?subscribed=${product}`,
+    // Trial is on the Stripe side — they collect the card now, charge after
+    // the trial window. Cancel anytime during trial = no charge.
+    ...(trialDays ? { subscription_data: { trial_period_days: trialDays } } : {}),
+    success_url: `${site}/dashboard?subscribed=${product}${trialDays ? `&trial=${trialDays}` : ''}`,
     cancel_url: `${site}/dashboard`,
-    metadata: { user_id: user.id, product },
+    metadata: { user_id: user.id, product, ...(trialDays ? { trial_days: String(trialDays) } : {}) },
   })
 
   return NextResponse.json({ url: session.url })

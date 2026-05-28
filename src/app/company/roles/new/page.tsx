@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ShapiCharacter from '@/components/ShapiCharacter'
+import SubscribeButton from '@/components/SubscribeButton'
 
 type Stage = 'form' | 'generating' | 'done'
 
@@ -134,21 +135,50 @@ export default function NewRole() {
   if (stage === 'done') {
     return (
       <Screen>
-        <div className="text-center max-w-sm">
+        <div className="text-center max-w-md w-full">
           <ShapiCharacter mood="happy" size={90} className="mx-auto mb-6" />
           <h2 className="text-2xl font-black text-[#F4F4F7] mb-3">Role posted.</h2>
-          <p className="text-[#A6A6B4] text-sm leading-relaxed mb-8">
+          <p className="text-[#A6A6B4] text-sm leading-relaxed mb-6">
             Claude has written your job description. We&apos;ll start matching verified candidates to it now.
           </p>
+
+          {/* Active Hiring 7-day trial — STRATEGY: peak-intent moment.
+              They JUST posted a role; offering Shapi to AI-shortlist
+              + draft outreach converts 3-5x better here than on
+              /company/pricing. Card collected via Stripe Checkout;
+              auto-charges after 7 days unless cancelled. */}
+          <div className="rounded-2xl p-5 mb-5 text-left" style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.14), rgba(240,140,174,0.10))', border: '1px solid rgba(106,168,245,0.40)' }}>
+            <div className="flex items-start gap-3 mb-3">
+              <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>⚡</div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[#F4F4F7] font-black text-sm mb-0.5">Let Shapi do the shortlisting for you</p>
+                <p className="text-[#A6A6B4] text-[11px] leading-relaxed">
+                  <strong className="text-[#F4F4F7]">Active Hiring ($499/mo) — 7 days free.</strong> Daily AI-shortlist of verified candidates + drafted intro emails awaiting your one-tap approval.
+                </p>
+              </div>
+            </div>
+            <SubscribeButton
+              product="active_hiring_monthly"
+              trial={7}
+              className="w-full py-3 rounded-full font-black text-xs text-white hover:opacity-90 transition-opacity disabled:opacity-60"
+              style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}
+            >
+              Start 7-day free trial → no charge for a week
+            </SubscribeButton>
+            <p className="text-[#7E7E8E] text-[10px] mt-2 leading-relaxed">
+              Card on file via Stripe. Cancel anytime in the next 7 days — you won&apos;t be charged. After that, $499/month.
+            </p>
+          </div>
+
           <div className="space-y-3">
             <button
               onClick={() => router.push('/company/dashboard')}
-              className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity">
-              View all roles →
+              className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.10)] py-3 rounded-full font-bold text-sm text-[#C7C7D1] hover:bg-[rgba(255,255,255,0.07)] transition-colors">
+              Maybe later — view roles
             </button>
             <button
               onClick={() => { setStage('form'); setTitle(''); setProblemToSolve(''); setSalaryMin(''); setSalaryMax('') }}
-              className="w-full py-3 text-sm text-[#7E7E8E] hover:text-[#C7C7D1] transition-colors">
+              className="w-full py-2 text-xs text-[#7E7E8E] hover:text-[#C7C7D1] transition-colors">
               Post another role
             </button>
           </div>

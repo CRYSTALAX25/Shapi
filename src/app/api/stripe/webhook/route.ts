@@ -2,7 +2,10 @@ import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import { sendCvKitEmail } from '@/lib/email'
+import { sendWhatsApp } from '@/lib/whatsapp'
 import { getStripe, getWebhookSecret, stripeMode } from '@/lib/stripe'
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -192,6 +195,87 @@ export async function POST(request: Request) {
     // from subscription_product[] so gating turns off immediately.
     if (subscription.status === 'canceled' || subscription.status === 'unpaid' || subscription.status === 'incomplete_expired') {
       await removeSubscriptionBySubscriptionId(subscription.id)
+    }
+  }
+
+  // ── Dunning: payment failed ───────────────────────────────────────────────
+  // Up to 40% of all SaaS churn is involuntary payment failure. Stripe retries
+  // the card on its own schedule; our job is the COMMUNICATION layer. Stamp
+  // the moment of failure, kick the user a WhatsApp NOW with a Customer
+  // Portal link to update their card, and let the cron handle Day 3 + Day 7
+  // follow-ups. Requires the supabase/dunning.sql migration; degrades quietly
+  // if columns aren't present yet.
+  if (event.type === 'invoice.payment_failed') {
+    const invoice = event.data.object as Stripe.Invoice
+    const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id
+    if (customerId) {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, full_name, company_name, whatsapp_number')
+          .eq('stripe_customer_id', customerId)
+          .single()
+        if (profile) {
+          // Stamp the failure + reset dunning_step to 0 (start of cycle).
+          await supabase
+            .from('profiles')
+            .update({ payment_failed_at: new Date().toISOString(), dunning_step: 0 })
+            .eq('id', profile.id)
+            .then(() => undefined, () => undefined)
+
+          if (profile.whatsapp_number) {
+            // Build a Customer Portal URL so they can update card in one tap.
+            let portalUrl = `${SITE}/company/pricing`
+            try {
+              const portal = await stripe.billingPortal.sessions.create({
+                customer: customerId,
+                return_url: `${SITE}/company/dashboard`,
+              })
+              portalUrl = portal.url
+            } catch (e) {
+              console.warn('[stripe/webhook] portal session failed:', e)
+            }
+            const name = (profile.company_name as string | null) || (profile.full_name as string | null) || 'there'
+            await sendWhatsApp(
+              profile.whatsapp_number as string,
+              `Hi ${name} — your Shapi payment just failed.\n\nMost common cause: expired card or insufficient funds. *Tap to update in 30 seconds:*\n\n${portalUrl}\n\nYour access stays live for the next 7 days while we sort this. After that we&apos;ll keep all your data but pause paid features until the card is updated.`
+            )
+          }
+        }
+      } catch (e) {
+        console.error('[stripe/webhook] payment_failed handler error:', e)
+      }
+    }
+  }
+
+  // Payment recovered — clear the dunning state so the cron stops nudging.
+  if (event.type === 'invoice.payment_succeeded') {
+    const invoice = event.data.object as Stripe.Invoice
+    const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id
+    if (customerId) {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, payment_failed_at, whatsapp_number, company_name, full_name')
+          .eq('stripe_customer_id', customerId)
+          .single()
+        if (profile && (profile as { payment_failed_at?: string | null }).payment_failed_at) {
+          await supabase
+            .from('profiles')
+            .update({ payment_failed_at: null, dunning_step: 0 })
+            .eq('id', profile.id)
+            .then(() => undefined, () => undefined)
+          if (profile.whatsapp_number) {
+            const name = (profile.company_name as string | null) || (profile.full_name as string | null) || 'there'
+            await sendWhatsApp(
+              profile.whatsapp_number as string,
+              `✓ Payment received, ${name}. You're all set — thanks for sorting that out.`,
+            )
+          }
+        }
+      } catch (e) {
+        console.error('[stripe/webhook] payment_succeeded recovery handler error:', e)
+      }
     }
   }
 

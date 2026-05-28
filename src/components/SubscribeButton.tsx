@@ -7,11 +7,17 @@ import { useState } from 'react'
 // "Your plan" upsell rows.
 export default function SubscribeButton({
   product,
+  trial,
   className,
+  style,
   children,
 }: {
   product: string
+  // Number of trial days to request. Server caps to 14 and rejects on
+  // products that don't support trials.
+  trial?: number
   className?: string
+  style?: React.CSSProperties
   children: React.ReactNode
 }) {
   const [loading, setLoading] = useState(false)
@@ -23,7 +29,7 @@ export default function SubscribeButton({
       const res = await fetch('/api/stripe/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product }),
+        body: JSON.stringify({ product, ...(trial ? { trial } : {}) }),
       })
       const raw = await res.text()
       let d: { url?: string } = {}
@@ -36,7 +42,7 @@ export default function SubscribeButton({
   }
 
   return (
-    <button type="button" onClick={go} disabled={loading} className={className}>
+    <button type="button" onClick={go} disabled={loading} className={className} style={style}>
       {loading ? 'Loading…' : children}
     </button>
   )

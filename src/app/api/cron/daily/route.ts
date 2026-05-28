@@ -48,6 +48,8 @@ export async function GET(request: Request) {
     whatsappDigest: unknown
     companyWhatsappDigest?: unknown
     monthlyRoiDigest?: unknown
+    trialEndingNudge?: unknown
+    dunningSweep?: unknown
   } = {
     ranAt: new Date().toISOString(),
     nurture: null,
@@ -119,6 +121,27 @@ export async function GET(request: Request) {
   } catch (err) {
     console.error('[cron/daily] company whatsapp digest failed:', err)
     summary.companyWhatsappDigest = { error: String(err) }
+  }
+
+  // 5.5. Trial-ending WhatsApp nudge — for companies in their Stripe trial
+  // window with 1 day left. Cheap to run, big save on churn.
+  try {
+    summary.trialEndingNudge = await runTrialEndingNudge()
+  } catch (err) {
+    console.error('[cron/daily] trial ending nudge failed:', err)
+    summary.trialEndingNudge = { error: String(err) }
+  }
+
+  // 5.7. Dunning sweep — Day 3 + Day 7 follow-ups for payment failures.
+  // Webhook fires the initial WA at the moment of failure; this cron keeps
+  // chasing on a humane schedule. On Day 7 with no recovery, sets
+  // subscription_status=grace_expired and clears subscription_product[] so
+  // gates lock down. Requires supabase/dunning.sql; degrades quietly.
+  try {
+    summary.dunningSweep = await runDunningSweep()
+  } catch (err) {
+    console.error('[cron/daily] dunning sweep failed:', err)
+    summary.dunningSweep = { error: String(err) }
   }
 
   // 6. Monthly ROI digest for COMPANIES — runs only on the 25th of each
@@ -674,6 +697,179 @@ async function runGhostingFeedbackNudges(): Promise<{
 
 // SITE constant — same default as the webhook.
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
+
+// ── Trial-ending WhatsApp nudge ─────────────────────────────────────────────
+// Pulls Stripe subscriptions in `trialing` state whose trial ends within
+// ~24 hours, and WhatsApps the company a heads-up + "what they got" recap so
+// the auto-charge isn't a surprise. Tracks notification via the same
+// whatsapp_digest_last_sent_at field — coarse but sufficient (same-day re-
+// runs of cron/daily won't double-text).
+async function runTrialEndingNudge(): Promise<{
+  considered: number
+  notified: number
+  failed: number
+  note?: string
+}> {
+  // Stripe import is lazy to avoid loading the SDK when there's nothing to do.
+  const { getStripe } = await import('@/lib/stripe')
+  const stripe = getStripe()
+  const admin = createAdminClient()
+
+  // Pull all trialing subscriptions. We don't expect huge volume yet so a
+  // single fetch is fine — paginate when we have >100 trials concurrently.
+  let subs
+  try {
+    subs = await stripe.subscriptions.list({ status: 'trialing', limit: 100 })
+  } catch (e) {
+    return { considered: 0, notified: 0, failed: 0, note: `stripe list failed: ${String(e)}` }
+  }
+
+  const now = Date.now()
+  const oneDay = 24 * 60 * 60 * 1000
+  let notified = 0, failed = 0, considered = 0
+
+  for (const sub of subs.data) {
+    const trialEndMs = (sub.trial_end || 0) * 1000
+    if (!trialEndMs) continue
+    // Fire when trial ends within the next 36h (some slack for cron timing).
+    if (trialEndMs - now > 36 * 60 * 60 * 1000 || trialEndMs - now < -oneDay) continue
+    considered++
+
+    try {
+      const customerId = typeof sub.customer === 'string' ? sub.customer : sub.customer?.id
+      if (!customerId) continue
+
+      const { data: profile } = await admin
+        .from('profiles')
+        .select('id, company_name, full_name, whatsapp_number')
+        .eq('stripe_customer_id', customerId)
+        .single()
+      if (!profile?.whatsapp_number) continue
+
+      const companyName = (profile.company_name as string | null) || (profile.full_name as string | null) || 'there'
+      const hoursLeft = Math.max(1, Math.round((trialEndMs - now) / (60 * 60 * 1000)))
+      const msg = `Hi ${companyName} 👋\n\n*Your Shapi Active Hiring trial ends in ~${hoursLeft}h.* No action needed — we&apos;ll continue your subscription from then.\n\n• Want to keep it: do nothing 🎉\n• Want to cancel: tap below and pause, no charge.\n\nManage: ${SITE}/company/pricing\n\n_Your roles stay live either way._`
+
+      const r = await sendWhatsApp(profile.whatsapp_number as string, msg)
+      if (r.success) notified++
+      else { failed++; console.warn('[cron/daily] trial nudge send failed for', profile.id, r.error) }
+    } catch (e) {
+      failed++
+      console.error('[cron/daily] trial nudge loop error:', e)
+    }
+  }
+
+  console.log(`[cron/daily] trial-ending nudge — considered: ${considered}, notified: ${notified}, failed: ${failed}`)
+  return { considered, notified, failed }
+}
+
+// ── Dunning sweep ────────────────────────────────────────────────────────────
+// Day 3 + Day 7 follow-ups on payment failures. Webhook fires the initial
+// "your payment failed" WA + stamps payment_failed_at. We chase from here.
+// Schedule:
+//   payment_failed_at + ~3d  + dunning_step=0  → Day 3 reminder, bump to 1
+//   payment_failed_at + ~7d  + dunning_step=1  → Final warning + grace-expired,
+//                                                clear subscription_product[],
+//                                                bump to 2
+async function runDunningSweep(): Promise<{
+  considered: number
+  day3Sent: number
+  day7Sent: number
+  failed: number
+  note?: string
+}> {
+  const admin = createAdminClient()
+  const now = Date.now()
+
+  const { data: rows, error } = await admin
+    .from('profiles')
+    .select('id, full_name, company_name, whatsapp_number, payment_failed_at, dunning_step, stripe_customer_id, subscription_product')
+    .not('payment_failed_at', 'is', null)
+  if (error) {
+    // Column-not-found case (migration not run) — degrade silently.
+    if (/payment_failed_at|dunning_step|does not exist/i.test(error.message)) {
+      return { considered: 0, day3Sent: 0, day7Sent: 0, failed: 0, note: 'dunning.sql migration not yet run' }
+    }
+    return { considered: 0, day3Sent: 0, day7Sent: 0, failed: 0, note: String(error.message) }
+  }
+
+  let day3Sent = 0, day7Sent = 0, failed = 0
+  const sevenDaysMs = 7 * 24 * 60 * 60 * 1000
+  const threeDaysMs = 3 * 24 * 60 * 60 * 1000
+
+  for (const row of rows || []) {
+    try {
+      const failedAt = new Date(row.payment_failed_at as string).getTime()
+      const age = now - failedAt
+      const step = (row.dunning_step as number | null) ?? 0
+      const name = (row.company_name as string | null) || (row.full_name as string | null) || 'there'
+
+      // Day 3 reminder.
+      if (step === 0 && age >= threeDaysMs && age < sevenDaysMs) {
+        if (!row.whatsapp_number) { continue }
+        const { getStripe } = await import('@/lib/stripe')
+        let portalUrl = `${SITE}/company/pricing`
+        try {
+          const portal = await getStripe().billingPortal.sessions.create({
+            customer: row.stripe_customer_id as string,
+            return_url: `${SITE}/company/dashboard`,
+          })
+          portalUrl = portal.url
+        } catch { /* fall back to pricing */ }
+        const r = await sendWhatsApp(
+          row.whatsapp_number as string,
+          `Hi ${name} — quick reminder. Your payment is still failing on Shapi. 4 days left before we pause paid features (we keep your data).\n\nUpdate your card here, takes 30 seconds:\n${portalUrl}`,
+        )
+        if (r.success) {
+          day3Sent++
+          await admin.from('profiles').update({ dunning_step: 1 }).eq('id', row.id).then(() => undefined, () => undefined)
+        } else { failed++ }
+        continue
+      }
+
+      // Day 7 final + grace-expired lockdown.
+      if (step <= 1 && age >= sevenDaysMs) {
+        const { getStripe } = await import('@/lib/stripe')
+        let portalUrl = `${SITE}/company/pricing`
+        try {
+          const portal = await getStripe().billingPortal.sessions.create({
+            customer: row.stripe_customer_id as string,
+            return_url: `${SITE}/company/dashboard`,
+          })
+          portalUrl = portal.url
+        } catch { /* fall back to pricing */ }
+        if (row.whatsapp_number) {
+          await sendWhatsApp(
+            row.whatsapp_number as string,
+            `Hi ${name} — last note from us. After 7 days without payment we&apos;ve paused your paid Shapi features. *Your data + roles are kept intact.* Update your card to bring everything back instantly:\n\n${portalUrl}`,
+          )
+        }
+        // Clear all paid product flags + mark grace_expired. Subscription is
+        // still alive on Stripe's side until they fully cancel it.
+        await admin
+          .from('profiles')
+          .update({
+            dunning_step: 2,
+            subscription_status: 'grace_expired',
+            subscription_product: [],
+            paid: false,
+          })
+          .eq('id', row.id)
+          .then(() => undefined, () => undefined)
+        day7Sent++
+        continue
+      }
+    } catch (e) {
+      failed++
+      console.error('[cron/daily] dunning loop error for', row.id, e)
+    }
+  }
+
+  console.log(
+    `[cron/daily] dunning sweep — considered: ${(rows || []).length}, day3: ${day3Sent}, day7: ${day7Sent}, failed: ${failed}`,
+  )
+  return { considered: (rows || []).length, day3Sent, day7Sent, failed }
+}
 
 // ── Monthly ROI digest (companies) ──────────────────────────────────────────
 // Once-a-month quantified value recap. Fires only on the 25th UTC. Per opted-
