@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
+import SignupWhatsApp from './SignupWhatsApp'
 
 function SignUpForm() {
   const searchParams = useSearchParams()
@@ -16,6 +17,10 @@ function SignUpForm() {
   const [showPw, setShowPw] = useState(false)
   // If arriving via company invite, type is locked to 'company'
   const [type, setType] = useState<'candidate' | 'company' | null>(companyInvite ? 'company' : null)
+  // Channel toggle — WhatsApp is the recommended MENA path (bypasses the
+  // email-confirm wall, the #1 activation killer). Email signup remains the
+  // fallback for users without WhatsApp on the device.
+  const [mode, setMode] = useState<'whatsapp' | 'email'>('whatsapp')
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [marketingOptIn, setMarketingOptIn] = useState(false)
   const [referralSource, setReferralSource] = useState('')
@@ -225,6 +230,39 @@ function SignUpForm() {
             </div>
           )}
 
+          {/* Channel toggle — WhatsApp default (one-tap MENA UX) with Email
+              as the fallback. */}
+          <div className="flex gap-1 text-[11px] font-bold uppercase tracking-wider mt-1 mb-1">
+            <button
+              type="button"
+              onClick={() => setMode('whatsapp')}
+              className={`flex-1 py-2 rounded-lg transition-colors ${mode === 'whatsapp' ? 'text-[#34D399]' : 'text-[#7E7E8E] hover:text-[#A6A6B4]'}`}
+              style={mode === 'whatsapp' ? { background: 'rgba(52,211,153,0.10)', border: '1px solid rgba(52,211,153,0.30)' } : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+            >
+              💬 WhatsApp · fastest
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('email')}
+              className={`flex-1 py-2 rounded-lg transition-colors ${mode === 'email' ? 'text-[#6AA8F5]' : 'text-[#7E7E8E] hover:text-[#A6A6B4]'}`}
+              style={mode === 'email' ? { background: 'rgba(106,168,245,0.10)', border: '1px solid rgba(106,168,245,0.30)' } : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+            >
+              ✉ Email
+            </button>
+          </div>
+
+          {mode === 'whatsapp' ? (
+            <SignupWhatsApp
+              initialType={type}
+              agreedToTerms={agreedToTerms}
+              marketingOptIn={marketingOptIn}
+              referralSource={referralSource}
+              companyInvite={companyInvite}
+              inviteEmail={inviteEmail}
+              setError={setError}
+            />
+          ) : (
+          <>
           <input
             type="email"
             placeholder="Email address"
@@ -271,6 +309,8 @@ function SignUpForm() {
             <option value="press" style={{ color: '#000' }}>News / press</option>
             <option value="other" style={{ color: '#000' }}>Other</option>
           </select>
+          </>
+          )}
 
           {/* Consent ticks */}
           <label className="flex items-start gap-3 cursor-pointer px-1 pt-1">
@@ -310,13 +350,15 @@ function SignUpForm() {
             <p className="text-[#7E7E8E] text-xs text-center">Select candidate or hiring above first</p>
           )}
 
-          <button
-            type="submit"
-            disabled={!type || !agreedToTerms || loading}
-            className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed mt-2"
-          >
-            {loading ? 'Creating account...' : 'Create account →'}
-          </button>
+          {mode === 'email' && (
+            <button
+              type="submit"
+              disabled={!type || !agreedToTerms || loading}
+              className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed mt-2"
+            >
+              {loading ? 'Creating account...' : 'Create account →'}
+            </button>
+          )}
 
           <p className="text-center text-xs text-[#7E7E8E] pt-1">
             Already have an account?{' '}
