@@ -8,8 +8,9 @@
 // cost estimates, and a 30-day quick-wins list. Anyone can run it (no auth
 // required) — signed-in companies get it logged to their account.
 
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 type RoleRow = { role: string; dept: string; count: string }
 
@@ -74,6 +75,22 @@ function scoreColor(score: number): string {
 }
 
 export default function WorkforceSnapshot() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0E0E13]" />}>
+      <WorkforceSnapshotInner />
+    </Suspense>
+  )
+}
+
+function WorkforceSnapshotInner() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  // ?first=true is set when the user arrives here straight from
+  // /company/onboarding. Suppresses the back-to-dashboard escape, and on
+  // report-generation auto-redirects to /company/dashboard?snapshot=done so
+  // the dashboard can throw the Growth trial toast at peak intent.
+  const isFirstRun = searchParams.get('first') === 'true'
+
   const [industry, setIndustry] = useState('')
   const [size, setSize] = useState('')
   const [country, setCountry] = useState('')
@@ -169,7 +186,11 @@ export default function WorkforceSnapshot() {
 
       <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-4xl mx-auto">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
-        <Link href="/company/dashboard" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1]">← Dashboard</Link>
+        {/* Hide the Dashboard escape during the forced first-run flow — the
+            Snapshot is the wedge experience, we want them through it. */}
+        {!isFirstRun && (
+          <Link href="/company/dashboard" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1]">← Dashboard</Link>
+        )}
       </nav>
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 pt-8 pb-20">
@@ -457,18 +478,53 @@ export default function WorkforceSnapshot() {
               </div>
             </div>
 
-            {/* CTA — Tier B upsell */}
+            {/* CTA 1 — Growth trial (the SaaS upsell). 14-day trial = peak
+                intent moment. They just saw their AI-risk heatmap; the
+                Hiring Roadmap turns that diagnosis into action. */}
+            <div className="rounded-2xl p-5" style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.14), rgba(52,211,153,0.10))', border: '1px solid rgba(106,168,245,0.40)' }}>
+              <div className="flex items-start gap-3.5">
+                <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg,#6AA8F5,#34D399)' }}>🚀</div>
+                <div className="flex-1">
+                  <p className="text-[#F4F4F7] font-black text-base mb-1">Turn this report into a hiring plan</p>
+                  <p className="text-[#A6A6B4] text-sm mb-3 leading-relaxed">
+                    You&apos;ve seen the gaps. <strong className="text-[#F4F4F7]">Growth ($799/mo)</strong> unlocks the full Hiring Roadmap, AI-shortlisted candidates per role, and salary benchmarks for every at-risk role above.
+                  </p>
+                  <div className="flex flex-wrap gap-3 items-center">
+                    <Link href="/company/pricing?plan=growth&trial=14" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-black text-white"
+                      style={{ background: 'linear-gradient(135deg,#6AA8F5,#34D399)' }}>
+                      Start free 14-day trial →
+                    </Link>
+                    <span className="text-[#7E7E8E] text-[11px]">No card required. Cancel anytime.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* CTA 2 — Tier B (enterprise consulting). Distinct buyer + ask;
+                kept as the secondary, premium-bookable path. */}
             <div className="rounded-2xl p-5 text-center" style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.10), rgba(240,140,174,0.10))', border: '1px solid rgba(240,140,174,0.30)' }}>
-              <p className="text-[#F4F4F7] font-black text-base mb-1">Want the full 5-year plan?</p>
+              <p className="text-[#F4F4F7] font-black text-base mb-1">Need the full 5-year plan?</p>
               <p className="text-[#A6A6B4] text-sm mb-4">Operating-model diagnostic, per-BU mapping, scenario modelling, execution playbook, talent sourced from our verified pool.</p>
               <a href="mailto:ana.vbarber@gmail.com?subject=Shapi%20Workforce%20Plan%20-%20design%20partner%20enquiry" className="inline-block px-6 py-3 rounded-full font-black text-sm" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', color: '#fff' }}>
                 Book a strategy call →
               </a>
             </div>
 
-            <button onClick={() => { setReport(null); setErr('') }} className="w-full py-3 rounded-full font-bold text-sm border border-white/[0.12] text-[#C7C7D1] hover:bg-white/[0.04]">
-              Run another snapshot
-            </button>
+            {/* During the first-run flow, primary action is "Done — to my
+                dashboard"; the Growth trial CTA above is the upsell. Otherwise
+                show the existing "Run another snapshot" button. */}
+            {isFirstRun ? (
+              <button
+                onClick={() => router.push('/company/dashboard?snapshot=done')}
+                className="w-full py-3 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity"
+                style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
+                Take me to my dashboard →
+              </button>
+            ) : (
+              <button onClick={() => { setReport(null); setErr('') }} className="w-full py-3 rounded-full font-bold text-sm border border-white/[0.12] text-[#C7C7D1] hover:bg-white/[0.04]">
+                Run another snapshot
+              </button>
+            )}
           </div>
         )}
       </div>

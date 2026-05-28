@@ -394,6 +394,28 @@ export default async function Dashboard() {
               </div>
             )}
 
+            {/* Persistent "Your CV is ready — unlock" upsell. Shown for
+                candidates with a complete profile (≥80%) who haven't yet
+                purchased Kit or Pro. The CV interview itself shows a blurred
+                preview gate at [PROFILE_READY]; this card is the dashboard
+                fallback for users who dismissed it. */}
+            {!profile?.cv_tier && (profile?.completion_pct ?? 0) >= 80 && (
+              <Link
+                href="/cv-ready"
+                className="block mb-5 rounded-2xl p-5 transition-opacity hover:opacity-95"
+                style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.14), rgba(240,140,174,0.14))', border: '1px solid rgba(240,140,174,0.40)' }}
+              >
+                <div className="flex items-center gap-3.5">
+                  <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>📄</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[#F4F4F7] font-black text-base mb-0.5">Your CV is ready ✨</p>
+                    <p className="text-[#A6A6B4] text-xs leading-relaxed">Industry-styled, ATS-optimised, native + English. Unlock from <strong className="text-[#F4F4F7]">$25</strong> (Kit) or <strong className="text-[#F4F4F7]">$59</strong> (Pro).</p>
+                  </div>
+                  <span className="flex-shrink-0 text-[#F08CAE] text-xs font-black">Unlock →</span>
+                </div>
+              </Link>
+            )}
+
             {/* Compact hero — guide + progress side by side, key info up top */}
             <div className="grid lg:grid-cols-2 gap-4 mb-5 items-stretch">
               {/* Shapi guide */}

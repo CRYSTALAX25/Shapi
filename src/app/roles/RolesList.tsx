@@ -33,10 +33,14 @@ export default function RolesList({
   roles,
   companyMap,
   interestedRoleIds,
+  blurred = false,
 }: {
   roles: ScoredRole[]
   companyMap: Record<string, CompanyInfo>
   interestedRoleIds: string[]
+  // When true: this list is the free 3-role preview. Description text is
+  // CSS-blurred and the Interest button is replaced by an unlock CTA.
+  blurred?: boolean
 }) {
   const [pivotOnly, setPivotOnly] = useState(false)
 
@@ -149,7 +153,12 @@ export default function RolesList({
                       </p>
                     )}
                     {role.description && (
-                      <p className="text-[#A6A6B4] text-xs leading-relaxed line-clamp-2">{role.description}</p>
+                      <p
+                        className="text-[#A6A6B4] text-xs leading-relaxed line-clamp-2"
+                        style={blurred ? { filter: 'blur(5px)', userSelect: 'none', pointerEvents: 'none' } : undefined}
+                      >
+                        {role.description}
+                      </p>
                     )}
                   </div>
 
@@ -158,7 +167,17 @@ export default function RolesList({
                       <div className="text-2xl font-black" style={{ color: matchColor }}>{role.match_score}%</div>
                       <div className="text-[#5C5C6A] text-[10px]">match</div>
                     </div>
-                    <RoleInterestButton roleId={role.id} initialInterested={isInterested} />
+                    {blurred ? (
+                      <a
+                        href="/pay?product=roles_board_monthly"
+                        className="px-3 py-2 rounded-full text-[11px] font-black text-white whitespace-nowrap"
+                        style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}
+                      >
+                        Unlock · $19/mo
+                      </a>
+                    ) : (
+                      <RoleInterestButton roleId={role.id} initialInterested={isInterested} />
+                    )}
                   </div>
                 </div>
               </div>

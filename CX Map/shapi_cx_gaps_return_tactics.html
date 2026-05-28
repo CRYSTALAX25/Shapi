@@ -1,0 +1,583 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.root{font-family:var(--font-sans);padding:16px 0}
+.tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1.5px solid var(--color-border-secondary);padding-bottom:0}
+.tab{padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer;color:var(--color-text-secondary);border-radius:8px 8px 0 0;border:1px solid transparent;border-bottom:none;transition:all .15s;white-space:nowrap}
+.tab.active{color:var(--color-text-primary);background:var(--color-background-secondary);border-color:var(--color-border-secondary)}
+.tab:hover:not(.active){color:var(--color-text-primary)}
+.panel{display:none}.panel.active{display:block}
+
+/* Journey map shared */
+.jmap{display:flex;flex-direction:column;gap:0}
+.jrow{display:grid;gap:0;border-bottom:1px solid var(--color-border-tertiary)}
+.jrow.r5{grid-template-columns:90px repeat(5,1fr)}
+.jrow.r4{grid-template-columns:90px repeat(4,1fr)}
+.jrow.header{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--color-text-tertiary)}
+.jcell{padding:8px 7px;border-right:1px solid var(--color-border-tertiary);font-size:11px;line-height:1.4;color:var(--color-text-secondary)}
+.jcell:last-child{border-right:none}
+.jcell.label{font-size:10px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--color-text-tertiary);display:flex;align-items:flex-start;padding-top:10px}
+.jcell.hdr{font-size:10px;font-weight:500;color:var(--color-text-primary);padding:6px 7px}
+
+/* Stage pill */
+.stage{font-weight:500;font-size:11px;color:var(--color-text-primary);display:block;margin-bottom:3px}
+
+/* Gap badge */
+.gap{background:#FCEBEB;border:0.5px solid #E24B4A;color:#791F1F;border-radius:6px;padding:3px 6px;font-size:10px;font-weight:500;display:inline-block;margin:2px 2px 2px 0}
+@media(prefers-color-scheme:dark){
+.gap{background:#501313;border-color:#F09595;color:#F7C1C1}
+}
+
+/* Tactic badge */
+.tac{border-radius:6px;padding:3px 6px;font-size:10px;font-weight:500;display:inline-block;margin:2px 2px 2px 0}
+.tac-up{background:#E1F5EE;border:0.5px solid #0F6E56;color:#085041}
+.tac-ret{background:#EEEDFE;border:0.5px solid #534AB7;color:#3C3489}
+.tac-re{background:#FAEEDA;border:0.5px solid #854F0B;color:#633806}
+@media(prefers-color-scheme:dark){
+.tac-up{background:#085041;border-color:#5DCAA5;color:#9FE1CB}
+.tac-ret{background:#3C3489;border-color:#AFA9EC;color:#CECBF6}
+.tac-re{background:#633806;border-color:#EF9F27;color:#FAC775}
+}
+
+/* Severity dot */
+.sev{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle;flex-shrink:0}
+.sev-h{background:#E24B4A}.sev-m{background:#EF9F27}.sev-l{background:#639922}
+
+/* Implementation panel */
+.impl{display:flex;flex-direction:column;gap:8px}
+.impl-row{border:0.5px solid var(--color-border-secondary);border-radius:10px;overflow:hidden}
+.impl-head{display:grid;grid-template-columns:28px 1fr 80px 80px;gap:0;background:var(--color-background-secondary);padding:8px 10px;align-items:center;cursor:pointer;user-select:none}
+.impl-head:hover{opacity:.85}
+.impl-num{font-size:11px;font-weight:500;color:var(--color-text-tertiary)}
+.impl-title{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.impl-persona{font-size:10px;color:var(--color-text-secondary);text-align:right}
+.impl-pri{font-size:10px;font-weight:500;text-align:right}
+.pri-p1{color:#A32D2D}.pri-p2{color:#854F0B}.pri-p3{color:#3B6D11}
+.impl-body{padding:10px 12px;display:none;font-size:11px;line-height:1.6;color:var(--color-text-secondary);border-top:1px solid var(--color-border-tertiary)}
+.impl-body.open{display:block}
+.impl-body strong{font-weight:500;color:var(--color-text-primary)}
+.impl-section{margin-top:6px;margin-bottom:2px;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-tertiary)}
+code{font-family:var(--font-mono);font-size:10px;background:var(--color-background-tertiary);padding:1px 4px;border-radius:3px;color:var(--color-text-primary)}
+ul{padding-left:16px;margin:2px 0}
+
+/* Legend row */
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;font-size:11px;color:var(--color-text-secondary)}
+.leg{display:flex;align-items:center;gap:5px}
+</style>
+
+<div class="root">
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('gaps')">1 · Drop-off gaps</div>
+  <div class="tab" onclick="switchTab('tactics')">2 · Return tactics</div>
+  <div class="tab" onclick="switchTab('impl')">3 · Implementation spec</div>
+</div>
+
+<!-- TAB 1: GAPS -->
+<div class="panel active" id="tab-gaps">
+<div class="legend">
+  <div class="leg"><span class="sev sev-h"></span>Critical (kills activation)</div>
+  <div class="leg"><span class="sev sev-m"></span>High (kills retention)</div>
+  <div class="leg"><span class="sev sev-l"></span>Medium (kills expansion)</div>
+</div>
+<div class="jmap">
+  <!-- Header -->
+  <div class="jrow r5 header">
+    <div class="jcell hdr">Stage</div>
+    <div class="jcell hdr">Candidate gaps</div>
+    <div class="jcell hdr">Company gaps</div>
+    <div class="jcell hdr">Shared gaps</div>
+    <div class="jcell hdr">Root cause</div>
+  </div>
+
+  <!-- 1 Acquisition -->
+  <div class="jrow r5">
+    <div class="jcell label">Acquisition</div>
+    <div class="jcell">
+      <span class="sev sev-h"></span><span class="gap">No social proof on /for-candidates</span>
+      <span class="sev sev-m"></span><span class="gap">Pricing hidden until post-signup</span>
+    </div>
+    <div class="jcell">
+      <span class="sev sev-h"></span><span class="gap">No ROI number on /for-companies</span>
+      <span class="sev sev-m"></span><span class="gap">$499/mo ask before showing value</span>
+    </div>
+    <div class="jcell">
+      <span class="sev sev-m"></span><span class="gap">No live candidate/company count (trust signal)</span>
+    </div>
+    <div class="jcell" style="font-size:10px;color:var(--color-text-tertiary)">
+      Value proposition unproven before friction begins. Industry data: 40-60% drop-off at signup if no trust anchors.
+    </div>
+  </div>
+
+  <!-- 2 Auth -->
+  <div class="jrow r5">
+    <div class="jcell label">Auth / signup</div>
+    <div class="jcell">
+      <span class="sev sev-h"></span><span class="gap">Email confirm wall — dead end if email delayed</span>
+      <span class="sev sev-h"></span><span class="gap">No magic-link fallback / resend prompt</span>
+    </div>
+    <div class="jcell">
+      <span class="sev sev-h"></span><span class="gap">Same email confirm wall</span>
+      <span class="sev sev-m"></span><span class="gap">Company vs candidate toggle not obvious</span>
+    </div>
+    <div class="jcell">
+      <span class="sev sev-h"></span><span class="gap">No WhatsApp signup option (ironic given WhatsApp is the killer surface)</span>
+    </div>
+    <div class="jcell" style="font-size:10px;color:var(--color-text-tertiary)">
+      Email confirm is the #1 activation killer in MENA/Gulf market where WhatsApp is primary communication.
+    </div>
+  </div>
+
+  <!-- 3 Onboarding -->
+  <div class="jrow r5">
+    <div class="jcell label">Onboarding</div>
+    <div class="jcell">
+      <span class="sev sev-h"></span><span class="gap">CV builder has no progress indicator — users feel trapped</span>
+      <span class="sev sev-h"></span><span class="gap">No skip-to-dashboard option visible</span>
+      <span class="sev sev-m"></span><span class="gap">Upload CV path (/upload-cv) not surfaced early enough</span>
+      <span class="sev sev-m"></span><span class="gap">Payment gate ($25/$59) before any perceived value</span>
+    </div>
+    <div class="jcell">
+      <span class="sev sev-h"></span><span class="gap">Workforce Snapshot is the wedge but is buried below fold</span>
+      <span class="sev sev-m"></span><span class="gap">No estimated time shown for onboarding form</span>
+      <span class="sev sev-m"></span><span class="gap">No team-invite path during onboarding</span>
+    </div>
+    <div class="jcell">
+      <span class="sev sev-h"></span><span class="gap">WhatsApp pairing not shown until dashboard — should be step 1</span>
+    </div>
+    <div class="jcell" style="font-size:10px;color:var(--color-text-tertiary)">
+      No progress bar = 20-30% lower completion (Stanford lab data). Time-to-first-value must be &lt;15 min for self-serve SaaS.
+    </div>
+  </div>
+
+  <!-- 4 Post-onboard engagement -->
+  <div class="jrow r5">
+    <div class="jcell label">Engagement</div>
+    <div class="jcell">
+      <span class="sev sev-h"></span><span class="gap">References: no automated nudge to referee — stalls verification tier</span>
+      <span class="sev sev-m"></span><span class="gap">/active (Concierge) invisible to free users — no preview of what they're missing</span>
+      <span class="sev sev-m"></span><span class="gap">Voice sample capture only post-[DONE] — no WhatsApp reminder if not captured</span>
+    </div>
+    <div class="jcell">
+      <span class="sev sev-h"></span><span class="gap">Workforce Snapshot: no re-engagement if they abandon mid-form</span>
+      <span class="sev sev-m"></span><span class="gap">No "hired via Shapi" milestone event = no social proof flywheel</span>
+      <span class="sev sev-h"></span><span class="gap">Pipeline feedback loop missing — companies ghost candidates, no penalty or prompt</span>
+    </div>
+    <div class="jcell">
+      <span class="sev sev-m"></span><span class="gap">No in-app notification surface — only WhatsApp/email, so dark users stay dark</span>
+      <span class="sev sev-m"></span><span class="gap">AskShapi widget doesn't know which persona it's talking to until login — cold start</span>
+    </div>
+    <div class="jcell" style="font-size:10px;color:var(--color-text-tertiary)">
+      44% of candidates cite ghosting as top frustration. If Shapi enables ghosting (no feedback loop), trust collapses on both sides.
+    </div>
+  </div>
+
+  <!-- 5 Hiring flow -->
+  <div class="jrow r5">
+    <div class="jcell label">Hiring flow</div>
+    <div class="jcell">
+      <span class="sev sev-h"></span><span class="gap">/roles gated at $19/mo — candidates see nothing free, no taste of value</span>
+      <span class="sev sev-m"></span><span class="gap">No application status visibility unless subscribed</span>
+    </div>
+    <div class="jcell">
+      <span class="sev sev-h"></span><span class="gap">Placement fee ($500) only triggered if company self-reports a hire — no enforcement</span>
+      <span class="sev sev-m"></span><span class="gap">/company/prep brief not surfaced proactively before interviews</span>
+      <span class="sev sev-m"></span><span class="gap">No candidate rejection template = silence = bad rep</span>
+    </div>
+    <div class="jcell">
+      <span class="sev sev-m"></span><span class="gap">Magic-link /r/[token] has 14-day TTL with no renewal prompt</span>
+    </div>
+    <div class="jcell" style="font-size:10px;color:var(--color-text-tertiary)">
+      Free candidates need a taste — 3 role previews (blurred) converts better than hard gate. HR SaaS sees 6-8% annual churn without clear hire outcomes.
+    </div>
+  </div>
+
+  <!-- 6 Monetisation -->
+  <div class="jrow r5">
+    <div class="jcell label">Monetisation</div>
+    <div class="jcell">
+      <span class="sev sev-h"></span><span class="gap">Kit/Pro are one-time — no recurring hook post-purchase</span>
+      <span class="sev sev-m"></span><span class="gap">No downgrade path: if Concierge ($79) is too expensive, user churns entirely</span>
+    </div>
+    <div class="jcell">
+      <span class="sev sev-h"></span><span class="gap">No trial for $499/mo Active Hiring — cold ask with no proof</span>
+      <span class="sev sev-m"></span><span class="gap">Enterprise/Tier B has no self-serve entry — fully gated behind sales call</span>
+      <span class="sev sev-h"></span><span class="gap">Up to 40% of churn can be involuntary (failed payments) — no dunning sequence defined</span>
+    </div>
+    <div class="jcell">
+      <span class="sev sev-m"></span><span class="gap">No annual plan shown at signup moment — monthly-only framing loses LTV</span>
+    </div>
+    <div class="jcell" style="font-size:10px;color:var(--color-text-tertiary)">
+      B2C SaaS churn 6.5-8% annually without expansion hooks. One-time buyers need a subscription pathway or they don't come back.
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- TAB 2: TACTICS -->
+<div class="panel" id="tab-tactics">
+<div class="legend">
+  <div class="leg"><span class="tac tac-up">Upsell</span> upgrade existing user to higher tier</div>
+  <div class="leg"><span class="tac tac-ret">Retain</span> prevent churn / re-engage</div>
+  <div class="leg"><span class="tac tac-re">Re-activate</span> win back lapsed users</div>
+</div>
+
+<div class="jmap">
+  <div class="jrow r4 header">
+    <div class="jcell hdr">Trigger / moment</div>
+    <div class="jcell hdr">Candidate tactics</div>
+    <div class="jcell hdr">Company tactics</div>
+    <div class="jcell hdr">Mechanic</div>
+  </div>
+
+  <div class="jrow r4">
+    <div class="jcell label">End of CV builder</div>
+    <div class="jcell">
+      <span class="tac tac-up">Upsell</span> Show blurred Pro CV preview immediately post-[DONE]. One-tap upgrade to Kit/Pro inside the same flow.<br><br>
+      <span class="tac tac-ret">Retain</span> Auto-send WhatsApp: "Your profile is live — tap to see how companies see you" with /p/[id] link.
+    </div>
+    <div class="jcell" style="color:var(--color-text-tertiary);font-size:10px">n/a</div>
+    <div class="jcell" style="font-size:10px;color:var(--color-text-tertiary)">
+      Strike at peak motivation. User just invested 10 min — conversion likelihood highest here. Blurred preview exploits the Zeigarnik effect (unfinished task anxiety).
+    </div>
+  </div>
+
+  <div class="jrow r4">
+    <div class="jcell label">Reference completed</div>
+    <div class="jcell">
+      <span class="tac tac-up">Upsell</span> "Reference 1 of 6 verified — upgrade to Active ($29) and get matched to roles that require 3+ refs."<br><br>
+      <span class="tac tac-ret">Retain</span> WhatsApp: "Maria confirmed your reference. Your Verification Tier just increased."
+    </div>
+    <div class="jcell">
+      <span class="tac tac-ret">Retain</span> "Verified candidate {name} now has 2 confirmed references — [shortlist for your role]"
+    </div>
+    <div class="jcell" style="font-size:10px;color:var(--color-text-tertiary)">
+      Verification tier bumps are natural celebration moments and natural upsell triggers. Each ref completion is a re-engagement event for both sides.
+    </div>
+  </div>
+
+  <div class="jrow r4">
+    <div class="jcell label">7-day inactivity (candidate)</div>
+    <div class="jcell">
+      <span class="tac tac-re">Re-activate</span> WhatsApp: "3 companies viewed your profile this week. Complete your work-style assessment to appear in more shortlists."<br><br>
+      <span class="tac tac-ret">Retain</span> Show profile view count on dashboard even on free tier — manufactured urgency.
+    </div>
+    <div class="jcell" style="color:var(--color-text-tertiary);font-size:10px">n/a</div>
+    <div class="jcell" style="font-size:10px;color:var(--color-text-tertiary)">
+      Profile views are a zero-cost engagement hook. Even if views are organic impressions not real company clicks, the signal pulls candidates back.
+    </div>
+  </div>
+
+  <div class="jrow r4">
+    <div class="jcell label">Workforce Snapshot completed</div>
+    <div class="jcell" style="color:var(--color-text-tertiary);font-size:10px">n/a</div>
+    <div class="jcell">
+      <span class="tac tac-up">Upsell</span> Snapshot shows 3 at-risk roles. CTA: "Get the full Hiring Roadmap — free 14-day trial of Growth ($799)."<br><br>
+      <span class="tac tac-ret">Retain</span> Monthly re-run reminder: "Run your May Snapshot — AI risk landscape has shifted."
+    </div>
+    <div class="jcell" style="font-size:10px;color:var(--color-text-tertiary)">
+      Snapshot is the free wedge into Tier B. Never let it be a one-shot — make it a monthly ritual to create habitual return.
+    </div>
+  </div>
+
+  <div class="jrow r4">
+    <div class="jcell label">Role posted (company)</div>
+    <div class="jcell" style="color:var(--color-text-tertiary);font-size:10px">n/a</div>
+    <div class="jcell">
+      <span class="tac tac-up">Upsell</span> "Your JD is live. Active Hiring subscribers get a daily AI-shortlist. Start 7-day trial →"<br><br>
+      <span class="tac tac-ret">Retain</span> WhatsApp 48hrs later: "5 verified candidates match {role title}. [See matches]"
+    </div>
+    <div class="jcell" style="font-size:10px;color:var(--color-text-tertiary)">
+      Peak buying intent moment for companies is right after posting. Trial offer converts 3-5x better here than on pricing page.
+    </div>
+  </div>
+
+  <div class="jrow r4">
+    <div class="jcell label">First hire confirmed</div>
+    <div class="jcell" style="color:var(--color-text-tertiary);font-size:10px">n/a</div>
+    <div class="jcell">
+      <span class="tac tac-up">Upsell</span> "Congrats on placing {name}. Post your next role free for 30 days with Growth ($799)."<br><br>
+      <span class="tac tac-ret">Retain</span> Trigger placement fee invoice + 30-day check-in: "How is {name} settling in?" — builds relationship, flags issues before churn.
+    </div>
+    <div class="jcell" style="font-size:10px;color:var(--color-text-tertiary)">
+      Placement event is the strongest proof-of-value moment. Use it to upgrade and to collect social proof for /for-companies.
+    </div>
+  </div>
+
+  <div class="jrow r4">
+    <div class="jcell label">Kit/Pro one-time buyer (30 days post)</div>
+    <div class="jcell">
+      <span class="tac tac-re">Re-activate</span> WhatsApp + email: "Your CV is ready — but so are 12 new roles matching your profile. Try Roles Board $19/mo."<br><br>
+      <span class="tac tac-up">Upsell</span> In-dashboard nudge: "You've been viewed 8x this month. Go Active ($29) and Shapi starts outreach for you."
+    </div>
+    <div class="jcell" style="color:var(--color-text-tertiary);font-size:10px">n/a</div>
+    <div class="jcell" style="font-size:10px;color:var(--color-text-tertiary)">
+      One-time buyers are the highest-intent free users. 30-day window is critical before job search fatigue sets in.
+    </div>
+  </div>
+
+  <div class="jrow r4">
+    <div class="jcell label">Pre-renewal (7 days before)</div>
+    <div class="jcell">
+      <span class="tac tac-ret">Retain</span> WhatsApp: "{N} applications sent on your behalf this month. You had {M} interviews scheduled. Here's your month in review."
+    </div>
+    <div class="jcell">
+      <span class="tac tac-ret">Retain</span> Email: "This month Shapi saved your team ~{X} hours of shortlisting. [See your ROI report]" + annual plan offer (2 months free).
+    </div>
+    <div class="jcell" style="font-size:10px;color:var(--color-text-tertiary)">
+      Quantified ROI recap is the single highest-leverage retention tool for B2B SaaS. Companies with NRR 100%+ grow 2x faster (ChartMogul 2024).
+    </div>
+  </div>
+
+  <div class="jrow r4">
+    <div class="jcell label">Payment failure</div>
+    <div class="jcell">
+      <span class="tac tac-ret">Retain</span> WhatsApp within 2hrs: "Card issue — tap to update in 30 sec. Your profile stays live until [date]."
+    </div>
+    <div class="jcell">
+      <span class="tac tac-ret">Retain</span> Same WhatsApp dunning + email to billing contact. Grace period 7 days before access drops.
+    </div>
+    <div class="jcell" style="font-size:10px;color:var(--color-text-tertiary)">
+      Up to 40% of total churn is involuntary payment failure. WhatsApp dunning outperforms email by 3-5x in Gulf market. Must be automated.
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- TAB 3: IMPLEMENTATION -->
+<div class="panel" id="tab-impl">
+<div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:10px">
+  Ordered by priority. Each item = one Claude Code task. Click to expand spec.
+</div>
+<div class="impl">
+
+  <div class="impl-row">
+    <div class="impl-head" onclick="toggleImpl(this)">
+      <span class="impl-num">01</span>
+      <span class="impl-title">WhatsApp signup — bypass email confirm</span>
+      <span class="impl-persona">Candidate + Company</span>
+      <span class="impl-pri pri-p1">P1 critical</span>
+    </div>
+    <div class="impl-body">
+      <strong>Problem:</strong> Email confirm wall kills activation, especially in MENA where WhatsApp is primary.<br><br>
+      <div class="impl-section">What to build</div>
+      On <code>/signup</code> add "Sign up with WhatsApp" button. Generate a 6-digit OTP, send via Twilio WhatsApp. On confirm, create Supabase user with <code>phone_confirmed=true</code>, skip email confirm, redirect to CV builder (candidate) or onboarding (company).<br><br>
+      <div class="impl-section">Claude Code tasks</div>
+      <ul>
+        <li>Add <code>whatsapp_phone</code> column to <code>profiles</code> table (Supabase migration)</li>
+        <li>New API route <code>/api/auth/whatsapp-otp</code> — send OTP via Twilio, store in Redis with 10min TTL</li>
+        <li>New API route <code>/api/auth/whatsapp-verify</code> — verify OTP, upsert Supabase user, return session</li>
+        <li>Update <code>/signup</code> UI — add WhatsApp toggle above email form</li>
+        <li>Pair WhatsApp at this step (not at dashboard) — saves the pairing step later</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="impl-row">
+    <div class="impl-head" onclick="toggleImpl(this)">
+      <span class="impl-num">02</span>
+      <span class="impl-title">CV builder progress bar + estimated time</span>
+      <span class="impl-persona">Candidate</span>
+      <span class="impl-pri pri-p1">P1 critical</span>
+    </div>
+    <div class="impl-body">
+      <strong>Problem:</strong> No progress indicator = users feel trapped = 40-60% drop-off (2024 SaaS data).<br><br>
+      <div class="impl-section">What to build</div>
+      Add a step counter to CV builder state. Show "Step 3 of 8 · ~4 min left" fixed at top of interview UI. Add subtle progress bar (filled left-to-right). Show "Skip to dashboard — finish later" link from step 2 onward.<br><br>
+      <div class="impl-section">Claude Code tasks</div>
+      <ul>
+        <li>Track <code>interview_step</code> and <code>total_steps</code> in CV builder state</li>
+        <li>Add sticky header component with step pill + progress bar</li>
+        <li>Add "Save &amp; continue later" route — stores partial <code>cv_draft</code> in Supabase, redirects to dashboard</li>
+        <li>Dashboard shows "Finish your CV" card if <code>cv_draft</code> exists and <code>completion_pct &lt; 80</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="impl-row">
+    <div class="impl-head" onclick="toggleImpl(this)">
+      <span class="impl-num">03</span>
+      <span class="impl-title">Workforce Snapshot as step 1 in company onboarding</span>
+      <span class="impl-persona">Company</span>
+      <span class="impl-pri pri-p1">P1 critical</span>
+    </div>
+    <div class="impl-body">
+      <strong>Problem:</strong> Snapshot is currently buried below fold on dashboard. It is the wedge — it must be the first experience.<br><br>
+      <div class="impl-section">What to build</div>
+      After <code>/company/onboarding</code> completes, redirect to a full-screen Snapshot flow (5 inputs, ~2 min), not to dashboard. On Snapshot completion, redirect to dashboard with results pre-loaded. Store <code>snapshot_count</code> on company profile — hide the nudge on dashboard once &gt;0.<br><br>
+      <div class="impl-section">Claude Code tasks</div>
+      <ul>
+        <li>Update <code>/company/onboarding</code> final step redirect: <code>/company/workforce-snapshot?first=true</code></li>
+        <li>Add <code>?first=true</code> flag to Snapshot page — hides back button, shows "See your results" CTA only</li>
+        <li>On Snapshot submit, store <code>snapshot_count++</code> and redirect to <code>/company/dashboard?snapshot=done</code></li>
+        <li>Dashboard: if <code>snapshot=done</code> in query, show inline upsell toast for Growth ($799) 7-day trial</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="impl-row">
+    <div class="impl-head" onclick="toggleImpl(this)">
+      <span class="impl-num">04</span>
+      <span class="impl-title">Reference automated nudge sequence</span>
+      <span class="impl-persona">Candidate</span>
+      <span class="impl-pri pri-p1">P1 critical</span>
+    </div>
+    <div class="impl-body">
+      <strong>Problem:</strong> Referee completion is the verification flywheel — currently stalls because there's no automated chasing.<br><br>
+      <div class="impl-section">What to build</div>
+      When reference request is sent, start a 3-step drip: Day 1 email to referee, Day 3 WhatsApp to candidate ("Chase {Name}?"), Day 7 email reminder to referee with new link. Auto-expire the token at Day 14 and prompt candidate to re-send.<br><br>
+      <div class="impl-section">Claude Code tasks</div>
+      <ul>
+        <li>Add <code>ref_status</code> enum: <code>sent | reminded | completed | expired</code> to reference tokens table</li>
+        <li>Add cron job <code>/api/cron/references</code> — runs daily, checks <code>sent_at</code> age, fires Day3/Day7 messages</li>
+        <li>WhatsApp template: "Your reference from [Name] is outstanding. Tap to send a reminder →"</li>
+        <li>On ref completion: trigger upsell to Active ($29) via WhatsApp — "You now have {N} verified refs. Companies with 3+ get priority shortlisting."</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="impl-row">
+    <div class="impl-head" onclick="toggleImpl(this)">
+      <span class="impl-num">05</span>
+      <span class="impl-title">Post-[DONE] upsell: blurred CV preview</span>
+      <span class="impl-persona">Candidate</span>
+      <span class="impl-pri pri-p2">P2 high</span>
+    </div>
+    <div class="impl-body">
+      <strong>Problem:</strong> Kit/Pro one-time payment is asked cold, with no preview of what's behind the gate.<br><br>
+      <div class="impl-section">What to build</div>
+      Immediately after [DONE] token fires in CV builder, render a blurred PDF preview overlay with a lock icon. Two CTAs: "Unlock Kit · $25" and "Unlock Pro · $59" with a 3-bullet feature diff. If dismissed, add a persistent "Your CV is ready" card to dashboard with same blur.<br><br>
+      <div class="impl-section">Claude Code tasks</div>
+      <ul>
+        <li>Generate a partial PDF preview (first page only) server-side after [DONE], stored in Supabase storage</li>
+        <li>CV builder: on [DONE] detection, replace interview UI with <code>CVPreviewGate</code> component</li>
+        <li><code>CVPreviewGate</code>: blurred <code>&lt;img&gt;</code> + lock overlay + Kit/Pro CTA buttons linking to <code>/pay?tier=kit</code> or <code>/pay?tier=pro</code></li>
+        <li>Dashboard: if <code>cv_tier = null</code> and <code>completion_pct &gt; 80</code>, show persistent CV upsell card</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="impl-row">
+    <div class="impl-head" onclick="toggleImpl(this)">
+      <span class="impl-num">06</span>
+      <span class="impl-title">Active Hiring 7-day trial trigger at role post</span>
+      <span class="impl-persona">Company</span>
+      <span class="impl-pri pri-p2">P2 high</span>
+    </div>
+    <div class="impl-body">
+      <strong>Problem:</strong> $499/mo is a cold ask. Highest intent moment is right after posting a role — trial must be offered there.<br><br>
+      <div class="impl-section">What to build</div>
+      After <code>/company/roles/new</code> saves the role, show a modal: "Your role is live. Want Shapi to shortlist verified candidates daily? 7-day free trial — no card required." If accepted, set <code>trial_active=true</code>, <code>trial_expires=now+7days</code>, enable Active Hiring features. On day 6, send WhatsApp: "Your trial ends tomorrow — {N} candidates shortlisted this week."<br><br>
+      <div class="impl-section">Claude Code tasks</div>
+      <ul>
+        <li>Add <code>trial_active</code>, <code>trial_product</code>, <code>trial_expires</code> to company profiles table</li>
+        <li>Post-role-save: render <code>TrialOfferModal</code> component (not a redirect)</li>
+        <li>Trial activation API: <code>POST /api/company/trial/start</code> — sets trial fields, queues Day6 WhatsApp via cron</li>
+        <li>Feature flag check: <code>hasActiveHiring(company)</code> = <code>subscribed OR trial_active AND trial_expires &gt; now</code></li>
+        <li>Trial expiry cron: downgrade gracefully, send "upgrade or lose access" WhatsApp</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="impl-row">
+    <div class="impl-head" onclick="toggleImpl(this)">
+      <span class="impl-num">07</span>
+      <span class="impl-title">Monthly ROI digest — company retention</span>
+      <span class="impl-persona">Company</span>
+      <span class="impl-pri pri-p2">P2 high</span>
+    </div>
+    <div class="impl-body">
+      <strong>Problem:</strong> No quantified value recap = CFO cuts the tool at next audit. B2B SaaS CFOs cut any tool not used daily (2026 data).<br><br>
+      <div class="impl-section">What to build</div>
+      On the 25th of each month, generate a 1-page ROI digest per company: candidates shortlisted, interviews scheduled, hours saved (shortlisting time estimate), roles filled. Send via WhatsApp (summary) + email (full). Include annual plan offer (2 months free = saves 16%) at the bottom.<br><br>
+      <div class="impl-section">Claude Code tasks</div>
+      <ul>
+        <li>New cron <code>/api/cron/monthly-roi</code> — runs on 25th, queries pipeline activity per company</li>
+        <li>ROI calculation: <code>hours_saved = shortlists_sent × 1.5</code> (recruiter hours per manual shortlist)</li>
+        <li>WhatsApp template: "📊 May recap: {N} candidates reviewed, {M} interviews, ~{H}hrs saved. [Full report →]"</li>
+        <li>Email: render ROI report page as React PDF or HTML email via Resend</li>
+        <li>Inline CTA: "Switch to annual — pay {10×monthly}, get 12 months." with Stripe annual plan link</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="impl-row">
+    <div class="impl-head" onclick="toggleImpl(this)">
+      <span class="impl-num">08</span>
+      <span class="impl-title">Payment failure dunning via WhatsApp</span>
+      <span class="impl-persona">Candidate + Company</span>
+      <span class="impl-pri pri-p2">P2 high</span>
+    </div>
+    <div class="impl-body">
+      <strong>Problem:</strong> Up to 40% of SaaS churn is involuntary (failed payments). No dunning = pure preventable loss.<br><br>
+      <div class="impl-section">What to build</div>
+      Stripe webhook on <code>invoice.payment_failed</code>: send WhatsApp within 2hrs with update-card link. Day 3 follow-up. Day 7 final warning — downgrade gracefully (don't delete data). Stripe's smart retry handles card attempts; Shapi handles communication.<br><br>
+      <div class="impl-section">Claude Code tasks</div>
+      <ul>
+        <li>In <code>/api/stripe/webhook</code>: add handler for <code>invoice.payment_failed</code> event</li>
+        <li>Generate Stripe Customer Portal session URL (one-click card update)</li>
+        <li>Send WhatsApp: "Payment issue — tap to update your card in 30 seconds: [link]. Access stays live until [date+7]."</li>
+        <li>Schedule Day3/Day7 follow-ups via cron queue (store <code>dunning_step</code> on subscription record)</li>
+        <li>On Day7 no payment: set <code>subscription_status=grace_expired</code>, hide paid features, preserve all data</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="impl-row">
+    <div class="impl-head" onclick="toggleImpl(this)">
+      <span class="impl-num">09</span>
+      <span class="impl-title">Feedback loop — candidate ghosting prevention</span>
+      <span class="impl-persona">Candidate + Company</span>
+      <span class="impl-pri pri-p3">P3 medium</span>
+    </div>
+    <div class="impl-body">
+      <strong>Problem:</strong> 44% of candidates cite ghosting as top frustration. If Shapi enables ghosting, it damages trust on both sides.<br><br>
+      <div class="impl-section">What to build</div>
+      After interview is scheduled, set a 5-day feedback timer. If company hasn't logged feedback in <code>/company/pipeline</code>, send WhatsApp nudge. If still nothing after 10 days, auto-send a templated "thanks but not progressing" message to candidate on company's behalf (with opt-out). Track "feedback rate" as a company health score visible in /admin.<br><br>
+      <div class="impl-section">Claude Code tasks</div>
+      <ul>
+        <li>Add <code>feedback_deadline</code> to pipeline stage records (interview_date + 5 days)</li>
+        <li>Cron: check overdue feedback daily, send WhatsApp to hiring manager</li>
+        <li>Auto-message opt-in: company settings toggle "Allow Shapi to send closure messages on my behalf"</li>
+        <li>Admin panel: add "Feedback rate %" column to company table — flag &lt;50% for outreach</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="impl-row">
+    <div class="impl-head" onclick="toggleImpl(this)">
+      <span class="impl-num">10</span>
+      <span class="impl-title">3 free role previews (blurred) for unsubscribed candidates</span>
+      <span class="impl-persona">Candidate</span>
+      <span class="impl-pri pri-p3">P3 medium</span>
+    </div>
+    <div class="impl-body">
+      <strong>Problem:</strong> /roles is fully gated — candidates see zero value before paying. Hard gate with no taste converts poorly.<br><br>
+      <div class="impl-section">What to build</div>
+      Show 3 role cards on <code>/roles</code> with salary and company name visible, description blurred. "See full role" triggers upgrade prompt to Roles Board ($19/mo). Rotate the 3 previews weekly so return visitors see fresh content (reason to check back).<br><br>
+      <div class="impl-section">Claude Code tasks</div>
+      <ul>
+        <li>Roles query: if <code>!hasRolesBoard(user)</code>, return top 3 roles with <code>description_preview</code> only</li>
+        <li>Role card: <code>blur(4px)</code> on description, lock icon, "Unlock all roles · $19/mo" CTA</li>
+        <li>Weekly rotation: add <code>preview_featured=true</code> flag to roles table, cron rotates on Monday</li>
+        <li>Track <code>roles_preview_click</code> event in analytics — use as conversion signal</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<script>
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+}
+function toggleImpl(head){
+  const body=head.nextElementSibling;
+  body.classList.toggle('open');
+}
+</script>

@@ -1,0 +1,381 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.root{font-family:var(--font-sans);padding:16px 0}
+.section-label{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-tertiary);margin:20px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--color-border-tertiary)}
+.prompt-card{border:0.5px solid var(--color-border-secondary);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.prompt-head{display:grid;grid-template-columns:24px 1fr auto auto;gap:8px;align-items:center;padding:10px 12px;cursor:pointer;background:var(--color-background-secondary)}
+.prompt-head:hover{opacity:.85}
+.pnum{font-size:11px;color:var(--color-text-tertiary);font-weight:500}
+.ptitle{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.ptag{font-size:10px;padding:2px 7px;border-radius:5px;font-weight:500;white-space:nowrap}
+.tag-gap{background:#FCEBEB;border:0.5px solid #E24B4A;color:#791F1F}
+.tag-ret{background:#EEEDFE;border:0.5px solid #534AB7;color:#3C3489}
+.tag-fix{background:#E1F5EE;border:0.5px solid #0F6E56;color:#085041}
+@media(prefers-color-scheme:dark){
+.tag-gap{background:#501313;border-color:#F09595;color:#F7C1C1}
+.tag-ret{background:#3C3489;border-color:#AFA9EC;color:#CECBF6}
+.tag-fix{background:#085041;border-color:#5DCAA5;color:#9FE1CB}
+}
+.ppersona{font-size:10px;color:var(--color-text-tertiary);white-space:nowrap}
+.prompt-body{display:none;border-top:1px solid var(--color-border-tertiary);padding:12px}
+.prompt-body.open{display:block}
+.evidence{background:var(--color-background-tertiary);border-left:3px solid var(--color-border-secondary);padding:8px 10px;border-radius:0 6px 6px 0;margin-bottom:10px;font-size:11px;color:var(--color-text-secondary);line-height:1.5}
+.evidence strong{font-weight:500;color:var(--color-text-primary)}
+.prompt-box{background:var(--color-background-tertiary);border:0.5px solid var(--color-border-secondary);border-radius:8px;padding:10px 12px;font-size:11px;font-family:var(--font-mono);color:var(--color-text-primary);line-height:1.7;white-space:pre-wrap;word-break:break-word;cursor:pointer;position:relative}
+.prompt-box:hover::after{content:'Copy';position:absolute;top:6px;right:8px;font-size:10px;font-family:var(--font-sans);background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:4px;padding:2px 6px;color:var(--color-text-secondary)}
+.copied::after{content:'Copied!' !important;color:var(--color-text-success) !important}
+.files{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.file{font-size:10px;font-family:var(--font-mono);background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:4px;padding:2px 6px;color:var(--color-text-secondary)}
+.label-sm{font-size:10px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--color-text-tertiary);margin-bottom:4px;display:block}
+</style>
+
+<div class="root">
+
+<div class="section-label">A · Candidate drop-off gaps — grounded in spec</div>
+
+<div class="prompt-card">
+  <div class="prompt-head" onclick="toggle(this)">
+    <span class="pnum">01</span>
+    <span class="ptitle">CV builder — no progress indicator or escape hatch</span>
+    <span class="ptag tag-gap">Drop-off gap</span>
+    <span class="ppersona">Candidate</span>
+  </div>
+  <div class="prompt-body">
+    <div class="evidence"><strong>From spec:</strong> "Known dead-ends to test: Skipping cv-builder lands on /onboarding, not /dashboard. Check both paths complete cleanly." — The spec itself flags this as a known dead-end. The CV builder is a Claude AI multi-turn interview with no stated step count or exit. Users can't see how long it takes or how to leave without losing progress.</div>
+    <span class="label-sm">Claude Code prompt</span>
+    <div class="prompt-box" onclick="copyPrompt(this)">Look at the CV builder flow in /cv-builder. The spec says it runs as a Claude AI conversational interview (~5-10 turns) with no progress indicator and no documented skip path. The known dead-end is: skipping cv-builder lands on /onboarding, not /dashboard.
+
+Audit the current implementation and tell me:
+1. Does the UI show any step counter or progress bar during the interview?
+2. Is there a "skip" or "save and continue later" option visible to the user at any point?
+3. When a user skips cv-builder, does the redirect go to /onboarding or /dashboard — and is that intentional?
+4. Is there any partial state saved if the user closes the tab mid-interview?
+
+Do not make changes yet. Report only what exists today.</div>
+    <div class="files"><span class="file">app/cv-builder/page.tsx</span><span class="file">components/CVBuilder*</span><span class="file">app/onboarding/page.tsx</span></div>
+  </div>
+</div>
+
+<div class="prompt-card">
+  <div class="prompt-head" onclick="toggle(this)">
+    <span class="pnum">02</span>
+    <span class="ptitle">Email confirm wall — no WhatsApp fallback or resend prompt</span>
+    <span class="ptag tag-gap">Drop-off gap</span>
+    <span class="ppersona">Both</span>
+  </div>
+  <div class="prompt-body">
+    <div class="evidence"><strong>From spec:</strong> Auth flow is: /signup → email confirm → user clicks → /cv-builder. The spec describes WhatsApp as "the killer surface" and the dashboard WhatsApp connect card is the first thing shown — yet signup itself requires email confirmation with no WhatsApp alternative, even though the entire retention strategy is WhatsApp-native. The Twilio/WhatsApp stack is already connected.</div>
+    <span class="label-sm">Claude Code prompt</span>
+    <div class="prompt-box" onclick="copyPrompt(this)">Look at the /signup page and the Supabase auth configuration.
+
+Audit and report:
+1. After signup, what does the user see while waiting for the email confirm — is there a resend button or countdown?
+2. Is there any WhatsApp-based OTP or phone signup path currently in the codebase or Supabase config?
+3. What Twilio credentials are already configured in the .env — specifically is TWILIO_WHATSAPP_FROM or equivalent set?
+4. What happens if the user clicks the confirm link after it has expired — does Supabase surface a useful error or a blank page?
+
+Do not make changes. Report what exists today.</div>
+    <div class="files"><span class="file">app/signup/page.tsx</span><span class="file">.env / .env.local</span><span class="file">lib/supabase*</span></div>
+  </div>
+</div>
+
+<div class="prompt-card">
+  <div class="prompt-head" onclick="toggle(this)">
+    <span class="pnum">03</span>
+    <span class="ptitle">/upload-cv path not surfaced during cv-builder</span>
+    <span class="ptag tag-gap">Drop-off gap</span>
+    <span class="ppersona">Candidate</span>
+  </div>
+  <div class="prompt-body">
+    <div class="evidence"><strong>From spec:</strong> "Mid-interview can switch to /upload-cv if they have a CV already." — This path exists but the spec only mentions it as an option mid-interview. It's not in the signup flow or the pre-cv-builder screen. A user who already has a CV will still be funnelled into a conversational interview before they discover the faster path.</div>
+    <span class="label-sm">Claude Code prompt</span>
+    <div class="prompt-box" onclick="copyPrompt(this)">Look at the entry point to /cv-builder and the /upload-cv page.
+
+Audit and report:
+1. Before the CV interview starts, is the user ever shown a choice: "I have a CV already" (→ /upload-cv) vs "Start interview" (→ /cv-builder)?
+2. During the interview, at what point is the /upload-cv option surfaced — is it a button, a message, or not visible at all?
+3. Does /upload-cv currently parse the uploaded CV and seed the profile, or is it a stub?
+
+Do not make changes. Report only what exists.</div>
+    <div class="files"><span class="file">app/cv-builder/page.tsx</span><span class="file">app/upload-cv/page.tsx</span></div>
+  </div>
+</div>
+
+<div class="prompt-card">
+  <div class="prompt-head" onclick="toggle(this)">
+    <span class="pnum">04</span>
+    <span class="ptitle">Reference cascade — no automated referee nudge</span>
+    <span class="ptag tag-gap">Drop-off gap</span>
+    <span class="ppersona">Candidate</span>
+  </div>
+  <div class="prompt-body">
+    <div class="evidence"><strong>From spec:</strong> "Reference cascade — every completed ref bumps verification_tier." The magic-link /reference/[token] is sent to referees, but there is no cron or re-engagement sequence defined in the automation section for chasing incomplete references. The daily cron at /api/cron/daily only covers: nurture sweep, Concierge scan, and WhatsApp digests — references are not listed.</div>
+    <span class="label-sm">Claude Code prompt</span>
+    <div class="prompt-body">
+    <span class="label-sm">Claude Code prompt</span>
+    <div class="prompt-box" onclick="copyPrompt(this)">Look at the reference system: /profile/references, the /reference/[token] magic-link page, and /api/cron/daily.
+
+Audit and report:
+1. When a reference request is sent to a referee, is any follow-up reminder scheduled — in the cron, in the DB, or anywhere?
+2. Does the /api/cron/daily job check for outstanding reference tokens and send reminders to either the referee or the candidate?
+3. What columns exist on the reference_tokens table — specifically is there a status, sent_at, or completed_at field?
+4. If a referee never completes the form, does the token expire silently or does the candidate get notified?
+
+Do not make changes. Report what exists today.</div>
+    <div class="files"><span class="file">app/profile/references/page.tsx</span><span class="file">app/reference/[token]/page.tsx</span><span class="file">api/cron/daily/route.ts</span><span class="file">supabase/migrations/*reference*</span></div>
+  </div>
+  </div>
+</div>
+
+<div class="section-label">B · Company drop-off gaps — grounded in spec</div>
+
+<div class="prompt-card">
+  <div class="prompt-head" onclick="toggle(this)">
+    <span class="pnum">05</span>
+    <span class="ptitle">Workforce Snapshot buried — not forced as first company experience</span>
+    <span class="ptag tag-gap">Drop-off gap</span>
+    <span class="ppersona">Company</span>
+  </div>
+  <div class="prompt-body">
+    <div class="evidence"><strong>From spec:</strong> "First real session: the Workforce Snapshot is the wedge." and "Run your Workforce Snapshot acquisition wedge (free, 30s) — first-time only." But the company journey is: onboarding → /company/dashboard. The Snapshot is a card on the dashboard, not a mandatory step. The spec also notes: "hide Workforce Snapshot nudge once they've run one (snapshotCount > 0)" — meaning snapshotCount is not currently tracked.</div>
+    <span class="label-sm">Claude Code prompt</span>
+    <div class="prompt-box" onclick="copyPrompt(this)">Look at /company/onboarding and /company/dashboard.
+
+Audit and report:
+1. After /company/onboarding completes, where does it redirect — directly to /company/dashboard or to /company/workforce-snapshot?
+2. On /company/dashboard, is the Workforce Snapshot rendered as a full-width prominent wedge or a smaller card among other elements?
+3. Is there a snapshotCount (or equivalent) field tracked on the company profile in Supabase?
+4. The spec flags this as a known dead-end: "hide Workforce Snapshot nudge once they've run one (snapshotCount > 0)" — does this hide logic currently exist?
+
+Do not make changes. Report what exists today.</div>
+    <div class="files"><span class="file">app/company/onboarding/page.tsx</span><span class="file">app/company/dashboard/page.tsx</span><span class="file">app/company/workforce-snapshot/page.tsx</span></div>
+  </div>
+</div>
+
+<div class="prompt-card">
+  <div class="prompt-head" onclick="toggle(this)">
+    <span class="pnum">06</span>
+    <span class="ptitle">Active Hiring upsell shown to non-subscribers only — toggle not verified</span>
+    <span class="ptag tag-gap">Drop-off gap</span>
+    <span class="ppersona">Company</span>
+  </div>
+  <div class="prompt-body">
+    <div class="evidence"><strong>From spec — explicitly listed as a known dead-end:</strong> "Active Hiring $499 upsell only shows if not subscribed — verify the toggle." This is an unverified condition in the spec itself. If the upsell renders for subscribed companies, it's broken UX and will erode trust.</div>
+    <span class="label-sm">Claude Code prompt</span>
+    <div class="prompt-box" onclick="copyPrompt(this)">The spec explicitly flags this as a known dead-end to verify: "Active Hiring $499 upsell only shows if not subscribed — verify the toggle."
+
+Audit and report:
+1. Find where the Active Hiring upsell component is rendered on /company/dashboard. What is the exact conditional that controls its visibility?
+2. What subscription state does it check — which field, on which table, and what value means "subscribed"?
+3. Sign in as a company account that has an active subscription and confirm whether the upsell still renders or correctly hides.
+4. Is the same check used consistently across other upsell surfaces (e.g. /company/pricing, /company/roles)?
+
+Do not make changes. Report what the code does today.</div>
+    <div class="files"><span class="file">app/company/dashboard/page.tsx</span><span class="file">components/ActiveHiringUpsell*</span><span class="file">lib/subscriptions*</span></div>
+  </div>
+</div>
+
+<div class="prompt-card">
+  <div class="prompt-head" onclick="toggle(this)">
+    <span class="pnum">07</span>
+    <span class="ptitle">SQL migrations for magic-link features not confirmed run</span>
+    <span class="ptag tag-gap">Drop-off gap</span>
+    <span class="ppersona">Company</span>
+  </div>
+  <div class="prompt-body">
+    <div class="evidence"><strong>From spec — explicitly listed as known dead-ends:</strong> "'Send JD link for [role]' requires the SQL migration role_share_tokens.sql to have been run on Supabase" and "'Design my org via voice' requires org_design_intake_state.sql to have been run on Supabase." Both WhatsApp commands are inoperable if these migrations haven't run — they silently fail.</div>
+    <span class="label-sm">Claude Code prompt</span>
+    <div class="prompt-box" onclick="copyPrompt(this)">The spec explicitly flags two SQL migrations as required for WhatsApp features to work:
+- role_share_tokens.sql (needed for "send jd link for [role]" WhatsApp command)
+- org_design_intake_state.sql (needed for "design my org via voice" WhatsApp command)
+
+Audit and report:
+1. Do both migration files exist in the supabase/migrations directory?
+2. Have they been applied to the connected Supabase project — check supabase migration list or the schema_migrations table.
+3. Do the tables role_share_tokens and org_design_intake_state currently exist in the database schema?
+4. In the WhatsApp webhook handler, what happens if these tables don't exist when the commands are triggered — does it throw a 500 or return a graceful error message?
+
+Do not make changes. Report current state only.</div>
+    <div class="files"><span class="file">supabase/migrations/role_share_tokens.sql</span><span class="file">supabase/migrations/org_design_intake_state.sql</span><span class="file">api/webhooks/whatsapp/route.ts</span></div>
+  </div>
+</div>
+
+<div class="section-label">C · Shared / infrastructure gaps</div>
+
+<div class="prompt-card">
+  <div class="prompt-head" onclick="toggle(this)">
+    <span class="pnum">08</span>
+    <span class="ptitle">Twilio sandbox 50/day cap — production readiness check</span>
+    <span class="ptag tag-gap">Drop-off gap</span>
+    <span class="ppersona">Both</span>
+  </div>
+  <div class="prompt-body">
+    <div class="evidence"><strong>From spec — explicitly stated:</strong> "Memory of the moment: Twilio is on sandbox, 50/day cap, webhook must use www.shapi.io not apex. If WhatsApp goes silent, check Twilio config before chasing code bugs." WhatsApp is the primary engagement surface. A 50/day cap will hit the ceiling fast on any real user base.</div>
+    <span class="label-sm">Claude Code prompt</span>
+    <div class="prompt-box" onclick="copyPrompt(this)">The spec explicitly notes Twilio is on sandbox with a 50/day message cap, and the webhook must use www.shapi.io not the apex domain.
+
+Audit and report:
+1. In the Twilio config (.env or Twilio dashboard), is the WhatsApp sender still the sandbox number or has it been upgraded to a production-approved number?
+2. In the Vercel config or Next.js routing, does the WhatsApp webhook URL point to www.shapi.io/api/webhooks/whatsapp — not shapi.io (apex)?
+3. Is there any rate-limiting or queue in the codebase that handles the 50/day cap gracefully, or do messages fail silently when the cap is hit?
+4. What is the current Twilio account status — trial or paid?
+
+Do not make changes. Report current state.</div>
+    <div class="files"><span class="file">.env / .env.local</span><span class="file">api/webhooks/whatsapp/route.ts</span><span class="file">vercel.json</span></div>
+  </div>
+</div>
+
+<div class="prompt-card">
+  <div class="prompt-head" onclick="toggle(this)">
+    <span class="pnum">09</span>
+    <span class="ptitle">Stripe payment flow — Kit and Pro not confirmed working</span>
+    <span class="ptag tag-gap">Drop-off gap</span>
+    <span class="ppersona">Candidate</span>
+  </div>
+  <div class="prompt-body">
+    <div class="evidence"><strong>From spec — explicitly listed as known dead-end:</strong> "Stripe payment flow needs STRIPE_* env vars in Vercel — confirm both Kit ($25) and Pro ($59) work." The entire candidate monetisation funnel depends on this. If Stripe env vars aren't set in Vercel production, payments fail silently.</div>
+    <span class="label-sm">Claude Code prompt</span>
+    <div class="prompt-box" onclick="copyPrompt(this)">The spec explicitly flags this as a known dead-end: "Stripe payment flow needs STRIPE_* env vars in Vercel — confirm both Kit ($25) and Pro ($59) work."
+
+Audit and report:
+1. Are STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, and STRIPE_WEBHOOK_SECRET present in the Vercel environment variables for the production deployment?
+2. In the /pay page and the Stripe webhook handler (/api/stripe/webhook), what product IDs or price IDs are used for Kit ($25) and Pro ($59) — do they match real products in the Stripe dashboard?
+3. In the webhook handler, when payment succeeds, does it correctly set cv_tier and paid=true on the user profile in Supabase?
+4. Is there a test mode vs live mode risk — are the Stripe keys test keys in production?
+
+Do not make changes. Report current state.</div>
+    <div class="files"><span class="file">app/pay/page.tsx</span><span class="file">api/stripe/webhook/route.ts</span><span class="file">lib/stripe*</span></div>
+  </div>
+</div>
+
+<div class="section-label">D · Return / retention tactics — grounded in spec</div>
+
+<div class="prompt-card">
+  <div class="prompt-head" onclick="toggle(this)">
+    <span class="pnum">10</span>
+    <span class="ptitle">WhatsApp Connect card — hides once paired (not verified)</span>
+    <span class="ptag tag-ret">Retention</span>
+    <span class="ppersona">Both</span>
+  </div>
+  <div class="prompt-body">
+    <div class="evidence"><strong>From spec:</strong> "NEW Connect WhatsApp card (hides once paired)" — listed on both /dashboard and /company/dashboard. And in priority testing: "make sure the new WhatsApp Connect card renders and the link opens WhatsApp with the join code pre-typed." The hide-once-paired logic is the first thing to test — if it doesn't hide, every return visit shows a redundant card and erodes trust.</div>
+    <span class="label-sm">Claude Code prompt</span>
+    <div class="prompt-box" onclick="copyPrompt(this)">The spec says the WhatsApp Connect card on both /dashboard and /company/dashboard "hides once paired."
+
+Audit and report:
+1. What field on the user/company profile marks WhatsApp as paired — is it whatsapp_paired, phone_verified, or something else?
+2. Does the WhatsApp Connect card component check this field before rendering — show me the conditional logic?
+3. When a user sends the WhatsApp join code and Twilio receives it, does the webhook update the paired field in Supabase automatically?
+4. If the field is set manually (e.g. in /admin), does the card hide on next page load without a hard refresh?
+5. Does the connect link pre-type the join code in WhatsApp as the spec requires — what is the exact href format?
+
+Do not make changes. Report what the code does today.</div>
+    <div class="files"><span class="file">components/WhatsAppConnectCard*</span><span class="file">app/dashboard/page.tsx</span><span class="file">app/company/dashboard/page.tsx</span><span class="file">api/webhooks/whatsapp/route.ts</span></div>
+  </div>
+</div>
+
+<div class="prompt-card">
+  <div class="prompt-head" onclick="toggle(this)">
+    <span class="pnum">11</span>
+    <span class="ptitle">Daily cron — idempotency check</span>
+    <span class="ptag tag-ret">Retention</span>
+    <span class="ppersona">Both</span>
+  </div>
+  <div class="prompt-body">
+    <div class="evidence"><strong>From spec:</strong> "/api/cron/daily (Vercel cron, 1x/day): nurture sweep → Concierge scan + send → WhatsApp digest for opted-in candidates → WhatsApp digest for opted-in companies. Idempotent per UTC day." The spec explicitly requires idempotency — if the cron runs twice (Vercel can double-fire), users must not receive duplicate WhatsApp messages.</div>
+    <span class="label-sm">Claude Code prompt</span>
+    <div class="prompt-box" onclick="copyPrompt(this)">The spec requires /api/cron/daily to be idempotent per UTC day — it must not send duplicate WhatsApp messages if Vercel fires it twice.
+
+Audit and report:
+1. Open /api/cron/daily. Is there an idempotency check — e.g. a cron_runs table, a Redis key, or a last_run_at field — that prevents double execution on the same UTC day?
+2. For each action in the cron (nurture sweep, Concierge scan, WhatsApp digests), are sent messages logged somewhere so they can be skipped on re-run?
+3. Is the Vercel cron schedule set correctly in vercel.json — what is the current cron expression?
+4. Does /api/cron/nurture still exist as a separate route or has it been consolidated into /api/cron/daily?
+
+Do not make changes. Report current state.</div>
+    <div class="files"><span class="file">api/cron/daily/route.ts</span><span class="file">api/cron/nurture/route.ts</span><span class="file">vercel.json</span></div>
+  </div>
+</div>
+
+<div class="prompt-card">
+  <div class="prompt-head" onclick="toggle(this)">
+    <span class="pnum">12</span>
+    <span class="ptitle">AskShapi — persona-aware context not verified</span>
+    <span class="ptag tag-ret">Retention</span>
+    <span class="ppersona">Both</span>
+  </div>
+  <div class="prompt-body">
+    <div class="evidence"><strong>From spec — priority test item 3:</strong> "AskShapi — sign in as a company account, open the widget — confirm it says 'workforce co-pilot' not 'career guide'." This is explicitly listed as an unverified test. If a company sees "career guide" language, the product feels wrong and they disengage immediately.</div>
+    <span class="label-sm">Claude Code prompt</span>
+    <div class="prompt-box" onclick="copyPrompt(this)">The spec lists this as a priority test: "AskShapi — sign in as a company account, open the widget — confirm it says 'workforce co-pilot' not 'career guide'."
+
+Audit and report:
+1. In the AskShapi widget component, how does it determine whether to show candidate-mode ("career guide") vs company-mode ("workforce co-pilot") — which user field or role does it check?
+2. Is the system prompt sent to Claude different depending on the persona — show both system prompts if they exist?
+3. What happens if the widget loads before the user session is confirmed — does it default to candidate, company, or neutral?
+4. Is the widget present on both /dashboard and /company/dashboard, or only one?
+
+Do not make changes. Report current state.</div>
+    <div class="files"><span class="file">components/AskShapi*</span><span class="file">app/dashboard/page.tsx</span><span class="file">app/company/dashboard/page.tsx</span><span class="file">api/askshapi/route.ts</span></div>
+  </div>
+</div>
+
+<div class="prompt-card">
+  <div class="prompt-head" onclick="toggle(this)">
+    <span class="pnum">13</span>
+    <span class="ptitle">Placement fee $500 — no enforcement mechanism</span>
+    <span class="ptag tag-ret">Retention</span>
+    <span class="ppersona">Company</span>
+  </div>
+  <div class="prompt-body">
+    <div class="evidence"><strong>From spec:</strong> "Placement fee $500 per hire (30 days into role)" — listed under company pricing. There is no mention anywhere in the spec of how this is triggered, tracked, or invoiced. The pipeline at /company/pipeline tracks interview stages but there is no "hire confirmed" event described, no Stripe charge for it, and no 30-day reminder.</div>
+    <span class="label-sm">Claude Code prompt</span>
+    <div class="prompt-box" onclick="copyPrompt(this)">The spec lists a $500 placement fee per hire (30 days into role) as part of company pricing. There is no implementation detail for this anywhere in the spec.
+
+Audit and report:
+1. In /company/pipeline, is there a pipeline stage or status that represents "hired" or "offer accepted"?
+2. Is there any code that triggers a Stripe charge or invoice when a candidate is marked as hired?
+3. Is there a 30-day delay mechanism anywhere — a scheduled job, a Stripe payment intent with a future date, or anything else?
+4. Is the placement fee tracked manually (e.g. flagged in /admin) or is there any automated flow?
+
+Do not make changes. Report what exists — even if the answer is nothing exists yet.</div>
+    <div class="files"><span class="file">app/company/pipeline/page.tsx</span><span class="file">api/stripe/webhook/route.ts</span><span class="file">app/admin/page.tsx</span></div>
+  </div>
+</div>
+
+<div class="prompt-card">
+  <div class="prompt-head" onclick="toggle(this)">
+    <span class="pnum">14</span>
+    <span class="ptitle">Magic-link /r/[token] 14-day TTL — expiry UX</span>
+    <span class="ptag tag-fix">Fix</span>
+    <span class="ppersona">Company</span>
+  </div>
+  <div class="prompt-body">
+    <div class="evidence"><strong>From spec:</strong> "/r/[token] — Hiring manager on phone — Review / edit / publish a role draft. 14-day TTL." There is no mention of what happens at expiry — whether the hiring manager sees a blank page, an error, or a prompt to request a new link. An expired link with no recovery path is a dead-end that kills the role-posting flow.</div>
+    <span class="label-sm">Claude Code prompt</span>
+    <div class="prompt-box" onclick="copyPrompt(this)">The spec says /r/[token] magic links have a 14-day TTL.
+
+Audit and report:
+1. In the /r/[token] page, what happens when the token is expired — does it render an error state, a blank page, or a "request new link" prompt?
+2. In the role_share_tokens table (if it exists), what column stores the expiry — is it expires_at or TTL-based?
+3. Is there any cron job or cleanup that deletes or marks expired tokens?
+4. When a company uses the WhatsApp "send jd link for [role]" command, does the response message include an expiry warning ("link valid for 14 days")?
+
+Do not make changes. Report current state.</div>
+    <div class="files"><span class="file">app/r/[token]/page.tsx</span><span class="file">supabase/migrations/role_share_tokens.sql</span><span class="file">api/webhooks/whatsapp/route.ts</span></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function toggle(head){
+  head.nextElementSibling.classList.toggle('open')
+}
+function copyPrompt(el){
+  navigator.clipboard.writeText(el.innerText).then(()=>{
+    el.classList.add('copied')
+    setTimeout(()=>el.classList.remove('copied'),1500)
+  })
+}
+</script>

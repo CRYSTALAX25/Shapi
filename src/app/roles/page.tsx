@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import RolesList from './RolesList'
 import { companyTrustRatings } from '@/lib/trust'
+import { hasOpenRolesBoard } from '@/lib/subscriptions'
 
 type Role = {
   id: string
@@ -30,13 +31,19 @@ export default async function RolesBoard() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('type, industry, skills, location')
+    .select('type, industry, skills, location, cv_tier, paid, subscription_product')
     .eq('id', user.id)
     .single()
 
   // Only bounce actual company accounts — candidates may have type=null
   // (signup doesn't always set it), and they should still see the roles board.
   if (profile?.type === 'company') redirect('/company/dashboard')
+
+  // Roles Board is a paid product (STRATEGY pricing). Free users get a taste —
+  // top 3 roles with the description blurred. Subscribers see everything.
+  // Subscription tiers that unlock: roles_board_*, active_*, concierge_*,
+  // bundle_*. CV Pro / Kit purchase does NOT unlock the board (separate product).
+  const hasBoard = hasOpenRolesBoard(profile)
 
   // Fetch all active roles
   const admin = createAdminClient()
@@ -133,10 +140,28 @@ export default async function RolesBoard() {
           </p>
         </div>
 
+        {/* Free users see the top 3 roles with the description blurred + an
+            inline paywall card. Subscribers see everything. Surface salary +
+            company name in the previews — visible enough to feel real, gated
+            enough to convert. */}
+        {!hasBoard && scoredRoles.length > 0 && (
+          <div className="mb-5 rounded-2xl p-5 flex items-center gap-4" style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.12), rgba(240,140,174,0.12))', border: '1px solid rgba(240,140,174,0.30)' }}>
+            <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>🔓</div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[#F4F4F7] font-black text-base mb-0.5">Unlock all {scoredRoles.length} roles · $19/mo</p>
+              <p className="text-[#A6A6B4] text-xs leading-relaxed">You&apos;re seeing 3 previews. Roles Board unlocks every verified role + applies you straight from WhatsApp.</p>
+            </div>
+            <Link href="/pay?product=roles_board_monthly" className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-black text-white whitespace-nowrap" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
+              Unlock →
+            </Link>
+          </div>
+        )}
+
         <RolesList
-          roles={scoredRoles}
+          roles={hasBoard ? scoredRoles : scoredRoles.slice(0, 3)}
           companyMap={companyMap}
           interestedRoleIds={[...interestedRoleIds]}
+          blurred={!hasBoard}
         />
       </div>
     </div>

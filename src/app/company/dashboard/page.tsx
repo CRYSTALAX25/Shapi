@@ -43,7 +43,7 @@ type Role = {
   created_at: string
 }
 
-export default async function CompanyDashboard({ searchParams }: { searchParams: Promise<{ role?: string }> }) {
+export default async function CompanyDashboard({ searchParams }: { searchParams: Promise<{ role?: string; snapshot?: string }> }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -83,9 +83,11 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   const allRoles: Role[] = roles || []
   const activeRoles = allRoles.filter(r => r.status === 'active')
 
-  // Determine selected role
+  // Determine selected role + whether we just completed the first-run Snapshot
+  // (sent here as ?snapshot=done from /company/workforce-snapshot?first=true).
   const sp = await searchParams
   const selectedRoleId = sp.role || activeRoles[0]?.id || null
+  const justRanSnapshot = sp.snapshot === 'done'
   const selectedRole = allRoles.find(r => r.id === selectedRoleId) || null
 
   // Fetch candidates (admin client)
@@ -379,6 +381,33 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
 
         {/* Company intelligence card moved to /company/profile (its proper home).
             Dashboard is now action-oriented only. */}
+
+        {/* Snapshot-just-completed celebration + Growth $799 trial CTA.
+            Surfaced when the user lands here from the first-run Snapshot
+            flow (/company/workforce-snapshot?first=true → ?snapshot=done).
+            Strike at the peak-intent moment — they just saw their AI-risk
+            heatmap. */}
+        {justRanSnapshot && (
+          <div className="mb-6 rounded-2xl p-5" style={{ background: 'linear-gradient(135deg, rgba(52,211,153,0.14), rgba(106,168,245,0.10))', border: '1px solid rgba(52,211,153,0.40)' }}>
+            <div className="flex items-start gap-3.5">
+              <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: '#34D399' }}>✓</div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[#F4F4F7] font-black text-base mb-1">Snapshot complete — your wedge into Shapi.</p>
+                <p className="text-[#A6A6B4] text-xs mb-3 leading-relaxed">
+                  Turn the diagnosis into action: <strong className="text-[#F4F4F7]">Growth ($799/mo)</strong> unlocks the full Hiring Roadmap, AI-shortlisted candidates per role, and salary benchmarks per role flagged at risk. <strong className="text-[#F4F4F7]">14-day free trial, no card required.</strong>
+                </p>
+                <div className="flex flex-wrap gap-3 items-center">
+                  <Link href="/company/pricing?plan=growth&trial=14" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-black text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#34D399)' }}>
+                    Start free trial →
+                  </Link>
+                  <Link href="/company/workforce-snapshot" className="text-[#34D399] text-xs font-bold hover:underline">
+                    View Snapshot again →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Connect Shapi WhatsApp — first-encounter entry point. Shown until
             the company has paired their number. needsNumber={true} renders the

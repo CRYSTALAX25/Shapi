@@ -44,6 +44,7 @@ export async function GET(request: Request) {
     conciergeScan: unknown
     conciergeSend: unknown
     referenceReminders: unknown
+    ghostingFeedback: unknown
     whatsappDigest: unknown
   } = {
     ranAt: new Date().toISOString(),
@@ -51,6 +52,7 @@ export async function GET(request: Request) {
     conciergeScan: null,
     conciergeSend: null,
     referenceReminders: null,
+    ghostingFeedback: null,
     whatsappDigest: null,
   }
 
@@ -86,6 +88,19 @@ export async function GET(request: Request) {
   } catch (err) {
     console.error('[cron/daily] reference reminders failed:', err)
     summary.referenceReminders = { error: String(err) }
+  }
+
+  // 3.6. Ghosting-prevention: nudge hiring managers whose interviews are 5+
+  // days past their scheduled date with no feedback logged. Trust on both
+  // sides collapses fast if companies ghost — this is the quiet retention
+  // mechanic that keeps the platform from becoming another job-board black-
+  // hole. Idempotent via profiles.feedback_nudge_last_sent_at (engagement_
+  // stamps.sql migration); falls back to "fire daily" if column missing.
+  try {
+    summary.ghostingFeedback = await runGhostingFeedbackNudges()
+  } catch (err) {
+    console.error('[cron/daily] ghosting feedback nudges failed:', err)
+    summary.ghostingFeedback = { error: String(err) }
   }
 
   // 4. Daily WhatsApp digest for opted-in subscribers
@@ -461,19 +476,28 @@ async function runReferenceReminders(): Promise<{
   }>
 
   let sent = 0, skipped = 0, failed = 0
+  let candidateNudges = 0
 
-  // Cache candidate names so we don't refetch the same profile per ref.
-  const candidateNameCache = new Map<string, string>()
-  async function nameFor(candidateId: string): Promise<string> {
-    if (candidateNameCache.has(candidateId)) return candidateNameCache.get(candidateId)!
+  // Cache candidate profiles so we don't refetch the same one per ref.
+  type CandidateLite = { full_name: string | null; whatsapp_number: string | null }
+  const candidateProfileCache = new Map<string, CandidateLite>()
+  async function candidateProfileFor(candidateId: string): Promise<CandidateLite> {
+    if (candidateProfileCache.has(candidateId)) return candidateProfileCache.get(candidateId)!
     const { data: p } = await admin
       .from('profiles')
-      .select('full_name')
+      .select('full_name, whatsapp_number')
       .eq('id', candidateId)
       .single()
-    const name = (p?.full_name as string | null) || 'your former colleague'
-    candidateNameCache.set(candidateId, name)
-    return name
+    const row: CandidateLite = {
+      full_name: (p?.full_name as string | null) || null,
+      whatsapp_number: (p?.whatsapp_number as string | null) || null,
+    }
+    candidateProfileCache.set(candidateId, row)
+    return row
+  }
+  async function nameFor(candidateId: string): Promise<string> {
+    const p = await candidateProfileFor(candidateId)
+    return p.full_name || 'your former colleague'
   }
 
   for (const ref of rows) {
@@ -501,6 +525,28 @@ async function runReferenceReminders(): Promise<{
             reminder_count: (ref.reminder_count ?? 0) + 1,
           })
           .eq('id', ref.id)
+
+        // On the FIRST reminder (count was 0 going in, now 1), also tell the
+        // candidate so they can chase their ref personally — gives them
+        // agency rather than treating Shapi as a black box. We piggyback on
+        // the same trigger condition; the cron's 4-day inter-nudge floor
+        // means a candidate won't get this more than once per ref slot.
+        if ((ref.reminder_count ?? 0) === 0) {
+          try {
+            const cand = await candidateProfileFor(ref.candidate_id)
+            if (cand.whatsapp_number) {
+              const candFirst = (cand.full_name || '').split(' ')[0] || 'there'
+              const refFirst = (ref.referee_name || '').split(' ')[0] || 'your reference'
+              await sendWhatsApp(
+                cand.whatsapp_number,
+                `Hi ${candFirst} 👋 — heads-up: *${refFirst}* hasn't responded to your reference request yet (sent ~3 days ago). I just sent them a gentle nudge from my side. A personal "hey, I really appreciate this" from you on WhatsApp can move things along too.`
+              )
+              candidateNudges++
+            }
+          } catch (e) {
+            console.warn('[cron/daily] candidate-side chase nudge failed for', ref.id, e)
+          }
+        }
       } else {
         failed++
         console.warn('[cron/daily] reference reminder send failed for', ref.id, result.error)
@@ -512,7 +558,101 @@ async function runReferenceReminders(): Promise<{
   }
 
   console.log(
-    `[cron/daily] reference reminders — considered: ${rows.length}, sent: ${sent}, skipped: ${skipped}, failed: ${failed}`,
+    `[cron/daily] reference reminders — considered: ${rows.length}, sent: ${sent}, skipped: ${skipped}, failed: ${failed}, candidateNudges: ${candidateNudges}`,
   )
-  return { considered: rows.length, sent, skipped, failed }
+  return { considered: rows.length, sent, skipped, failed, candidateNudges }
 }
+
+// ── Ghosting-prevention feedback nudges ─────────────────────────────────────
+// Sweep interviews whose scheduled_at was ≥5 days ago and have no entry in
+// interview_feedback for the company side. WhatsApp the hiring manager so
+// candidates aren't left in silence. Cap to once per company per 5-day window
+// via profiles.feedback_nudge_last_sent_at (engagement_stamps.sql). If that
+// column doesn't exist we degrade gracefully and just fire daily for the
+// duration testers will spend in this state — acceptable for v1.
+async function runGhostingFeedbackNudges(): Promise<{
+  companiesConsidered: number
+  nudged: number
+  skipped: number
+  failed: number
+  note?: string
+}> {
+  const admin = createAdminClient()
+  const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+  const fiveDaysAgoFloor = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+
+  // Pull interviews where the meeting has happened (or was scheduled) ≥5d ago.
+  const { data: interviews } = await admin
+    .from('interviews')
+    .select('id, role_id, candidate_id, company_id, scheduled_at, status')
+    .lt('scheduled_at', fiveDaysAgo)
+    .in('status', ['scheduled', 'completed'])
+    .limit(500)
+
+  if (!interviews || interviews.length === 0) {
+    return { companiesConsidered: 0, nudged: 0, skipped: 0, failed: 0 }
+  }
+
+  // Group interviews by company. Then for each company, check which ones the
+  // company hasn't filed feedback on; if any remain, send ONE consolidated
+  // nudge per company.
+  const byCompany = new Map<string, Array<{ role_id: string; candidate_id: string }>>()
+  for (const iv of interviews) {
+    const list = byCompany.get(iv.company_id as string) || []
+    list.push({ role_id: iv.role_id as string, candidate_id: iv.candidate_id as string })
+    byCompany.set(iv.company_id as string, list)
+  }
+
+  let nudged = 0, skipped = 0, failed = 0
+  for (const [companyId, ivs] of byCompany.entries()) {
+    try {
+      // What feedback has this company already logged?
+      const { data: fbRows } = await admin
+        .from('interview_feedback')
+        .select('role_id, candidate_id')
+        .eq('company_id', companyId)
+        .eq('author', 'company')
+      const fbKeys = new Set((fbRows || []).map(f => `${f.role_id}|${f.candidate_id}`))
+      const missing = ivs.filter(i => !fbKeys.has(`${i.role_id}|${i.candidate_id}`))
+      if (missing.length === 0) { skipped++; continue }
+
+      // Pull the company's WhatsApp + the last-nudged stamp.
+      const { data: company } = await admin
+        .from('profiles')
+        .select('id, company_name, full_name, whatsapp_number, feedback_nudge_last_sent_at')
+        .eq('id', companyId)
+        .single()
+      if (!company?.whatsapp_number) { skipped++; continue }
+      const lastNudge = (company as { feedback_nudge_last_sent_at?: string | null }).feedback_nudge_last_sent_at
+      if (lastNudge && lastNudge > fiveDaysAgoFloor) { skipped++; continue }
+
+      const companyName = (company.company_name as string | null) || (company.full_name as string | null) || 'team'
+      const msg = `Hi ${companyName} 👋\n\n*${missing.length}* candidate${missing.length === 1 ? '' : 's'} ${missing.length === 1 ? 'is' : 'are'} waiting on feedback from their interview ≥5 days ago. A 30-second yes/no/why keeps them in the loop — and keeps your trust score high.\n\nLog it in your pipeline: ${SITE}/company/pipeline\n\n_Ghosting candidates is the #1 frustration in hiring (44% cite it). Shapi flags companies with high feedback rates to candidates — your fast-feedback is a recruitment advantage._`
+
+      const result = await sendWhatsApp(company.whatsapp_number as string, msg)
+      if (result.success) {
+        nudged++
+        // Best-effort stamp — ignore failure if engagement_stamps.sql hasn't run.
+        await admin
+          .from('profiles')
+          .update({ feedback_nudge_last_sent_at: new Date().toISOString() })
+          .eq('id', companyId)
+          .then(() => undefined, () => undefined)
+      } else {
+        failed++
+        console.warn('[cron/daily] ghosting feedback nudge send failed for', companyId, result.error)
+      }
+    } catch (e) {
+      failed++
+      console.error('[cron/daily] ghosting feedback loop error for', companyId, e)
+    }
+  }
+
+  console.log(
+    `[cron/daily] ghosting feedback — companies: ${byCompany.size}, nudged: ${nudged}, skipped: ${skipped}, failed: ${failed}`,
+  )
+  return { companiesConsidered: byCompany.size, nudged, skipped, failed }
+}
+
+// SITE constant — same default as the webhook.
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'

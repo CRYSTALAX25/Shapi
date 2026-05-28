@@ -1961,6 +1961,42 @@ async function handleReferenceReply(
       // After any ref completes, recompute profile_live for the candidate
       await recomputeProfileLive(ref.candidate_id)
 
+      // ── Celebration + Active upsell for the CANDIDATE ─────────────────
+      // Strike at peak motivation: a referee just confirmed something. Tell
+      // the candidate, count their refs, and if they're on free tier nudge
+      // them onto Active ($29). Best-effort — failures must not break the
+      // [REF_DONE] cascade.
+      try {
+        const { data: candidateProfile } = await admin
+          .from('profiles')
+          .select('whatsapp_number, full_name, cv_tier, subscription_product, paid')
+          .eq('id', ref.candidate_id)
+          .single()
+        if (candidateProfile?.whatsapp_number) {
+          const { count: completedCount } = await admin
+            .from('candidate_references')
+            .select('id', { count: 'exact', head: true })
+            .eq('candidate_id', ref.candidate_id)
+            .eq('status', 'completed')
+          const candFirst = (candidateProfile.full_name as string | null)?.split(' ')[0] || 'there'
+          const refFirst = (ref.referee_name as string | null)?.split(' ')[0] || 'Your reference'
+          const total = completedCount ?? 1
+          // Subscription gate: don't upsell users who already have Active+.
+          const hasActiveTier = Array.isArray(candidateProfile.subscription_product)
+            && (candidateProfile.subscription_product as string[]).some(p =>
+              p.startsWith('active_') || p.startsWith('concierge_') || p.startsWith('bundle_'))
+          const upsellTail = hasActiveTier
+            ? ''
+            : `\n\n✨ Companies with 3+ verified refs get priority shortlisting. *Shapi Active* ($29/mo) puts your verified profile on companies' daily shortlist — and Shapi can start outreach on your behalf.\n\n${SITE}/pay?product=active_monthly`
+          await sendWhatsApp(
+            ref.referee_phone === candidateProfile.whatsapp_number ? candidateProfile.whatsapp_number : candidateProfile.whatsapp_number,
+            `🎉 ${candFirst}, *${refFirst}* just confirmed your reference.\n\nYou now have *${total} verified reference${total === 1 ? '' : 's'}*. Your verification tier just bumped — companies see this signal first.${upsellTail}`
+          )
+        }
+      } catch (err) {
+        console.warn('[ref-webhook] candidate completion celebration failed:', err)
+      }
+
       // Verification tier + AI cross-check — only triggers cross-check when
       // enough refs are in to give Claude something to analyse (≥3 completed)
       try {

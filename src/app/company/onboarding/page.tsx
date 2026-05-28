@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ShapiCharacter from '@/components/ShapiCharacter'
@@ -80,6 +80,16 @@ export default function CompanyOnboarding() {
     )
   }
 
+  // Auto-redirect to the Workforce Snapshot 2s after the Done celebration —
+  // the Snapshot is the §16 Tier A acquisition wedge and MUST be the first
+  // real experience, not a buried dashboard card. The "Skip — dashboard"
+  // button gives an escape hatch for testers / returning users.
+  useEffect(() => {
+    if (stage !== 'done') return
+    const t = setTimeout(() => router.push('/company/workforce-snapshot?first=true'), 2000)
+    return () => clearTimeout(t)
+  }, [stage, router])
+
   if (stage === 'done') {
     return (
       <Screen>
@@ -87,24 +97,23 @@ export default function CompanyOnboarding() {
         <h2 className="text-2xl font-black text-[#F4F4F7] mb-3 text-center">
           {companyName} is set up.
         </h2>
-        <p className="text-[#A6A6B4] text-sm text-center leading-relaxed mb-8 max-w-xs">
-          We&apos;ve pulled your company intelligence from public sources. Now the 30-second move that anchors everything — your Workforce Snapshot.
+        <p className="text-[#A6A6B4] text-sm text-center leading-relaxed mb-6 max-w-xs">
+          Taking you to your free 30-second Workforce Snapshot — the move that anchors everything else.
         </p>
+        <div className="flex items-center gap-2 mb-8" style={{ color: '#F08CAE' }}>
+          <div className="w-4 h-4 rounded-full border-2 border-[#F08CAE]/30 border-t-[#F08CAE] animate-spin" />
+          <span className="text-xs font-bold">Loading your Snapshot…</span>
+        </div>
         <div className="w-full max-w-sm space-y-3">
           {/* Workforce Snapshot is the wedge (STRATEGY §16 Tier A). It's the
               first thing new companies should run — frames everything else
               (roadmap, org design, AI exposure). Posting a role first means
               hiring blind. */}
           <button
-            onClick={() => router.push('/company/workforce-snapshot')}
+            onClick={() => router.push('/company/workforce-snapshot?first=true')}
             className="w-full py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity"
             style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
-            ✦ Run your Workforce Snapshot — free, 30s →
-          </button>
-          <button
-            onClick={() => router.push('/company/roles/new')}
-            className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.10)] py-3 rounded-full font-bold text-sm text-[#C7C7D1] hover:bg-[rgba(255,255,255,0.07)] transition-colors">
-            Or post your first role
+            ✦ Run your Snapshot now →
           </button>
           <button
             onClick={() => router.push('/company/dashboard')}
