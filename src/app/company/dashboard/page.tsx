@@ -381,11 +381,12 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
             Dashboard is now action-oriented only. */}
 
         {/* Connect Shapi WhatsApp — first-encounter entry point. Shown until
-            the company has paired their number. Once paired, they know the
-            number; we don't need to re-prompt every visit. */}
+            the company has paired their number. needsNumber={true} renders the
+            amber "add your number first" variant because if we sent them to
+            WhatsApp now, the webhook would see an unknown phone and bounce. */}
         {!hasWhatsApp && (
           <div className="mb-6">
-            <WhatsAppConnectCard role="company" />
+            <WhatsAppConnectCard role="company" needsNumber />
           </div>
         )}
 

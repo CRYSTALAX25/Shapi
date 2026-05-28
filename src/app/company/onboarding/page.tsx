@@ -20,6 +20,12 @@ export default function CompanyOnboarding() {
   const [hq, setHq] = useState('')
   const [size, setSize] = useState('')
   const [about, setAbout] = useState('')
+  // WhatsApp number is the primary engagement channel — collect it during
+  // onboarding so the Connect-WhatsApp card on /company/dashboard already
+  // has the user paired by the time they land. Otherwise the dashboard's
+  // "tap to open WhatsApp" link sends a message from an unknown phone and
+  // the webhook can't link it to this account.
+  const [whatsapp, setWhatsapp] = useState('+971 ')
 
   const submit = async () => {
     setError('')
@@ -37,6 +43,8 @@ export default function CompanyOnboarding() {
         company_size: size || null,
         location: hq.trim() || null,
         summary: about.trim() || null,
+        // Only persist whatsapp_number if it's more than the +country-code stub.
+        whatsapp_number: whatsapp.trim().length > 5 ? whatsapp.trim() : null,
         onboarding_complete: true,
         completion_pct: 100,
       }),
@@ -80,18 +88,28 @@ export default function CompanyOnboarding() {
           {companyName} is set up.
         </h2>
         <p className="text-[#A6A6B4] text-sm text-center leading-relaxed mb-8 max-w-xs">
-          We&apos;ve pulled your company intelligence from public sources. Post your first role and we&apos;ll start matching.
+          We&apos;ve pulled your company intelligence from public sources. Now the 30-second move that anchors everything — your Workforce Snapshot.
         </p>
         <div className="w-full max-w-sm space-y-3">
+          {/* Workforce Snapshot is the wedge (STRATEGY §16 Tier A). It's the
+              first thing new companies should run — frames everything else
+              (roadmap, org design, AI exposure). Posting a role first means
+              hiring blind. */}
+          <button
+            onClick={() => router.push('/company/workforce-snapshot')}
+            className="w-full py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity"
+            style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
+            ✦ Run your Workforce Snapshot — free, 30s →
+          </button>
           <button
             onClick={() => router.push('/company/roles/new')}
-            className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity">
-            Post your first role →
+            className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.10)] py-3 rounded-full font-bold text-sm text-[#C7C7D1] hover:bg-[rgba(255,255,255,0.07)] transition-colors">
+            Or post your first role
           </button>
           <button
             onClick={() => router.push('/company/dashboard')}
-            className="w-full py-3 text-sm text-[#7E7E8E] hover:text-[#C7C7D1] transition-colors">
-            Go to dashboard first
+            className="w-full py-2 text-xs text-[#7E7E8E] hover:text-[#C7C7D1] transition-colors">
+            Skip — go to dashboard
           </button>
         </div>
       </Screen>
@@ -179,6 +197,13 @@ export default function CompanyOnboarding() {
             <textarea className="field" rows={3} value={about} onChange={e => setAbout(e.target.value)}
               placeholder="Culture, mission, what kind of people thrive here..."
               style={{ resize: 'vertical' }} />
+          </div>
+
+          <div>
+            <label>WhatsApp number <span className="text-[#5C5C6A] normal-case font-normal">(strongly recommended — most of Shapi runs through WhatsApp)</span></label>
+            <input className="field" type="tel" value={whatsapp} onChange={e => setWhatsapp(e.target.value)}
+              placeholder="+971 50 123 4567" />
+            <p className="text-[10px] text-[#7E7E8E] mt-1.5">Shortlists, role drafts, voice org-design, candidate research — all via WhatsApp. UAE +971 · KSA +966 · UK +44.</p>
           </div>
         </div>
 

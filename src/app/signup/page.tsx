@@ -22,6 +22,43 @@ function SignUpForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
+  // Resend-email state — disabled for 30s after each send to discourage
+  // mash-spamming + avoid Supabase rate-limit errors. Counts down to 0 then
+  // re-enables the button.
+  const [resending, setResending] = useState(false)
+  const [resendCooldown, setResendCooldown] = useState(0)
+  const [resendNote, setResendNote] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return
+    const t = setTimeout(() => setResendCooldown(s => s - 1), 1000)
+    return () => clearTimeout(t)
+  }, [resendCooldown])
+
+  const resendConfirmation = async () => {
+    if (resending || resendCooldown > 0 || !email) return
+    setResending(true)
+    setResendNote(null)
+    const supabase = createClient()
+    const { error: resendError } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: companyInvite
+          ? `${location.origin}/company/dashboard?joined=1`
+          : type === 'company'
+          ? `${location.origin}/company/onboarding`
+          : `${location.origin}/upload-cv`,
+      },
+    })
+    setResending(false)
+    if (resendError) {
+      setResendNote(`Couldn't resend — ${resendError.message}`)
+    } else {
+      setResendNote('Sent again — check your inbox + spam folder.')
+      setResendCooldown(30)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -83,8 +120,27 @@ function SignUpForm() {
             </svg>
           </div>
           <h1 className="text-2xl font-black text-[#F4F4F7] mb-3">Check your email</h1>
-          <p className="text-[#A6A6B4] leading-relaxed text-sm">
+          <p className="text-[#A6A6B4] leading-relaxed text-sm mb-6">
             We sent a confirmation link to <span className="text-[#F4F4F7] font-semibold">{email}</span>. Click it to activate your account and start building your profile.
+          </p>
+
+          {/* Resend + WhatsApp fallback — biggest signup drop-off was users who
+              never got the email, never knew they could resend, and had no
+              other way to reach us. Resend has a 30s cooldown to avoid abuse. */}
+          <button
+            onClick={resendConfirmation}
+            disabled={resending || resendCooldown > 0}
+            className="text-[#6AA8F5] text-xs font-bold border border-[#6AA8F5]/30 hover:border-[#6AA8F5]/60 px-4 py-2 rounded-full transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {resending ? 'Resending…' : resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend confirmation email →'}
+          </button>
+          {resendNote && (
+            <p className="text-[#C7C7D1] text-xs mt-3">{resendNote}</p>
+          )}
+
+          <p className="text-[#7E7E8E] text-[11px] leading-relaxed mt-8">
+            Can&apos;t find it? Check spam, or try a different email.<br />
+            <Link href="/login" className="text-[#6AA8F5] hover:underline">Already confirmed? Sign in</Link>
           </p>
         </div>
       </div>

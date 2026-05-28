@@ -10,7 +10,10 @@ import { buildDigestMessage, buildCompanyDigestMessage, sendWhatsApp } from '@/l
 //   2. runConciergeScanForAll()    — scan roles, draft + queue outreach,
 //                                    nudge candidates with new drafts
 //   3. sendPendingConciergeOutreach(25) — fire approved/auto_send drafts
-//   4. runWhatsAppDigest()         — daily WhatsApp digest for opted-in subs
+//   4. runReferenceReminders()     — nudge referees who were contacted but
+//                                    haven't engaged after 3 days
+//   5. runWhatsAppDigest()         — daily WhatsApp digest for opted-in subs
+//   6. runCompanyWhatsAppDigest()  — same, for opted-in companies
 //
 // Each step is wrapped in its own try/catch so one failure doesn't kill the
 // rest. Cron-safe GET with the same auth guard as the other cron routes.
@@ -40,12 +43,14 @@ export async function GET(request: Request) {
     nurture: unknown
     conciergeScan: unknown
     conciergeSend: unknown
+    referenceReminders: unknown
     whatsappDigest: unknown
   } = {
     ranAt: new Date().toISOString(),
     nurture: null,
     conciergeScan: null,
     conciergeSend: null,
+    referenceReminders: null,
     whatsappDigest: null,
   }
 
@@ -71,6 +76,16 @@ export async function GET(request: Request) {
   } catch (err) {
     console.error('[cron/daily] concierge send failed:', err)
     summary.conciergeSend = { error: String(err) }
+  }
+
+  // 3.5. Nudge referees who were contacted but haven't engaged after 3 days.
+  // Capped at 2 nudges per ref (reminder_count check inside). Requires the
+  // reference_reminders.sql migration — silently no-ops if columns are missing.
+  try {
+    summary.referenceReminders = await runReferenceReminders()
+  } catch (err) {
+    console.error('[cron/daily] reference reminders failed:', err)
+    summary.referenceReminders = { error: String(err) }
   }
 
   // 4. Daily WhatsApp digest for opted-in subscribers
@@ -390,4 +405,114 @@ async function runWhatsAppDigest(): Promise<{
     `[cron/daily] whatsapp digest — considered: ${candidates.length}, sent: ${sent}, skipped: ${skipped}, failed: ${failed}`,
   )
   return { candidatesConsidered: candidates.length, sent, skipped, failed }
+}
+
+// ── Reference reminders ─────────────────────────────────────────────────────
+// Polite WhatsApp nudge to referees who were contacted but never engaged.
+// Eligibility:
+//   • status in ('contacted','opened')
+//   • contacted_at < now() - 3 days
+//   • reminder_count < 2
+//   • reminder_sent_at is null OR < now() - 4 days
+// Cap is 2 nudges per ref — past that we leave them alone. Requires the
+// supabase/reference_reminders.sql migration (adds reminder_sent_at +
+// reminder_count). If the columns don't exist we no-op cleanly.
+async function runReferenceReminders(): Promise<{
+  considered: number
+  sent: number
+  skipped: number
+  failed: number
+  note?: string
+}> {
+  const admin = createAdminClient()
+
+  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+  const fourDaysAgo = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
+
+  // Fetch candidates for the nudge. If columns don't exist yet, Supabase returns
+  // an error — catch + report so the cron still completes.
+  const { data: refs, error } = await admin
+    .from('candidate_references')
+    .select('id, referee_name, referee_phone, candidate_id, candidate_company, ref_type, status, reminder_count, reminder_sent_at, contacted_at')
+    .in('status', ['contacted', 'opened'])
+    .lt('contacted_at', threeDaysAgo)
+    .lt('reminder_count', 2)
+
+  if (error) {
+    // Column-not-found is the migration-not-run case. Skip gracefully.
+    if (/reminder_count|reminder_sent_at|column .* does not exist/i.test(error.message)) {
+      return { considered: 0, sent: 0, skipped: 0, failed: 0, note: 'reference_reminders.sql migration not yet run' }
+    }
+    console.error('[cron/daily] reference reminders fetch failed:', error)
+    return { considered: 0, sent: 0, skipped: 0, failed: 0, note: String(error.message) }
+  }
+
+  const rows = (refs || []) as Array<{
+    id: string
+    referee_name: string | null
+    referee_phone: string | null
+    candidate_id: string
+    candidate_company: string | null
+    ref_type: string | null
+    status: string | null
+    reminder_count: number | null
+    reminder_sent_at: string | null
+    contacted_at: string | null
+  }>
+
+  let sent = 0, skipped = 0, failed = 0
+
+  // Cache candidate names so we don't refetch the same profile per ref.
+  const candidateNameCache = new Map<string, string>()
+  async function nameFor(candidateId: string): Promise<string> {
+    if (candidateNameCache.has(candidateId)) return candidateNameCache.get(candidateId)!
+    const { data: p } = await admin
+      .from('profiles')
+      .select('full_name')
+      .eq('id', candidateId)
+      .single()
+    const name = (p?.full_name as string | null) || 'your former colleague'
+    candidateNameCache.set(candidateId, name)
+    return name
+  }
+
+  for (const ref of rows) {
+    try {
+      if (!ref.referee_phone) { skipped++; continue }
+      // Respect the 4-day inter-nudge gap. (The lt filter above only catches
+      // "before contacted >3d ago"; we still need a recency floor for repeats.)
+      if (ref.reminder_sent_at && ref.reminder_sent_at > fourDaysAgo) { skipped++; continue }
+
+      const candidateName = await nameFor(ref.candidate_id)
+      const firstName = (ref.referee_name || '').split(' ')[0] || 'there'
+      const refLabel = ref.ref_type === 'manager' ? 'manager' : ref.ref_type === 'peer' ? 'peer' : ref.ref_type === 'report' ? 'direct report' : 'colleague'
+
+      const msg = (ref.reminder_count ?? 0) === 0
+        ? `Hi ${firstName} 👋\n\nGentle nudge from Shapi — ${candidateName} listed you as a ${refLabel} reference at ${ref.candidate_company || 'their company'}. We sent you a quick check-in a few days back; takes 2–3 minutes.\n\nIf now's not a good time, just reply *"next week"* and I'll come back then. Or *"stop"* to opt out — no hard feelings.`
+        : `Hi ${firstName} — last nudge from Shapi.\n\n${candidateName} is still waiting on their reference (${refLabel} at ${ref.candidate_company || 'their company'}). Two minutes of your time would mean a lot to them.\n\nReply *"start"* to begin, or *"stop"* and I won't ask again.`
+
+      const result = await sendWhatsApp(ref.referee_phone, msg)
+      if (result.success) {
+        sent++
+        await admin
+          .from('candidate_references')
+          .update({
+            reminder_sent_at: new Date().toISOString(),
+            reminder_count: (ref.reminder_count ?? 0) + 1,
+          })
+          .eq('id', ref.id)
+      } else {
+        failed++
+        console.warn('[cron/daily] reference reminder send failed for', ref.id, result.error)
+      }
+    } catch (e) {
+      failed++
+      console.error('[cron/daily] reference reminder loop error for', ref.id, e)
+    }
+  }
+
+  console.log(
+    `[cron/daily] reference reminders — considered: ${rows.length}, sent: ${sent}, skipped: ${skipped}, failed: ${failed}`,
+  )
+  return { considered: rows.length, sent, skipped, failed }
 }

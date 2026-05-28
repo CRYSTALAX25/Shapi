@@ -12,6 +12,11 @@ const OPENING = `Hi! I'm here to help you build a profile that actually shows wh
 
 Let's start simple: **what's your most recent job title, and what company were you at?**`
 
+// Roughly how many turns the Claude CV interview takes before it emits [DONE].
+// Used only for the visible progress hint — the real `ready` flag is what
+// drives the actual completion CTA, not this number.
+const APPROX_TURNS = 8
+
 export default function CVBuilder() {
   const [messages, setMessages] = useState<Message[]>([
     { role: 'assistant', content: OPENING }
@@ -21,6 +26,10 @@ export default function CVBuilder() {
   const [ready, setReady] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
+
+  // How many user replies the candidate has sent — drives the progress hint.
+  const userTurns = messages.filter(m => m.role === 'user').length
+  const turnPct = ready ? 100 : Math.min(95, Math.round((userTurns / APPROX_TURNS) * 100))
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -63,15 +72,37 @@ export default function CVBuilder() {
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</span>
         <div className="flex items-center gap-4">
-          <span className="text-xs text-[#5C5C6A]">CV Builder</span>
+          <span className="text-xs text-[#5C5C6A] hidden sm:inline">CV Builder</span>
           <button
             onClick={() => router.push('/onboarding')}
             className="text-xs text-[#6AA8F5] font-medium hover:underline"
+            title="Switch to the manual form — your conversation here is not saved"
           >
             Skip to manual form →
           </button>
         </div>
       </nav>
+
+      {/* Progress hint — tells the candidate this is short and how far in
+          they are. Bar fills based on number of replies vs APPROX_TURNS; jumps
+          to 100% the moment the AI emits [DONE] (drives `ready`). */}
+      <div className="px-6 pt-3 pb-1 max-w-2xl mx-auto w-full">
+        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1.5">
+          <span>{ready ? 'Profile ready ✓' : `Question ${Math.max(1, userTurns + 1)} · about ${Math.max(0, APPROX_TURNS - userTurns)} to go`}</span>
+          <span className="text-[#5C5C6A]">~5 min total · save & continue later anytime</span>
+        </div>
+        <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          <div
+            className="h-full transition-all duration-500"
+            style={{
+              width: `${turnPct}%`,
+              background: ready
+                ? '#34D399'
+                : 'linear-gradient(90deg,#6AA8F5,#F08CAE,#F58E9A)',
+            }}
+          />
+        </div>
+      </div>
 
       {/* Chat */}
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 space-y-4 overflow-y-auto">

@@ -476,7 +476,20 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
   // ═══════════════════════════════════════════════════════════════════════
 
   if (!profile) {
-    console.log('[webhook] No profile or reference found for:', phone)
+    // Unknown phone — was previously a silent 200. That's terrible UX for
+    // anyone who taps the Connect link from /dashboard or /company/dashboard
+    // BEFORE adding their number to their profile: they get nothing back and
+    // assume the integration is broken. Send a one-time onboarding nudge so
+    // they know exactly what to do.
+    console.log('[webhook] Unknown phone — sending onboarding nudge:', phone)
+    try {
+      await sendWhatsApp(
+        phone,
+        `👋 Hi! I'm Shapi — but I don't recognise this number yet.\n\n• If you've signed up: open ${SITE}/profile/edit (candidates) or ${SITE}/company/onboarding (companies) and add this WhatsApp number, then text me anything.\n• Brand new? Sign up at ${SITE} — takes a minute.\n\nOnce paired, you can: shortlist candidates, design your org by voice, request a research deep-dive — all from here.`
+      )
+    } catch (e) {
+      console.warn('[webhook] onboarding nudge send failed:', e)
+    }
     return new NextResponse('', { status: 200 })
   }
 

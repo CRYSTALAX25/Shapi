@@ -385,11 +385,12 @@ export default async function Dashboard() {
             )}
 
             {/* Connect Shapi WhatsApp — first-encounter discovery hook for
-                voice notes, reference reminders, profile nudges. Hidden once
-                the candidate has paired their number with Shapi. */}
+                voice notes, reference reminders, profile nudges. needsNumber
+                means the candidate skipped the WhatsApp step in /upload-cv;
+                point them at /profile/edit to fill it in before pairing. */}
             {!profile?.whatsapp_number && (
               <div className="mb-5">
-                <WhatsAppConnectCard role="candidate" />
+                <WhatsAppConnectCard role="candidate" needsNumber />
               </div>
             )}
 
