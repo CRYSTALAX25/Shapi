@@ -54,6 +54,26 @@ Rules:
   const ready = rawReply.includes('[PROFILE_READY]')
   const reply = rawReply.replace('[PROFILE_READY]', '').trim()
 
+  // Persist the running chat so the candidate can resume on next visit even
+  // if they refresh, close the tab, or come back days later. Cleared once the
+  // profile is built (we leave the row but the dashboard hides the resume card
+  // once cv_parsed=true OR completion_pct ≥ 80). Best-effort — failures must
+  // not break the API response. Tolerates missing column (cv_draft.sql).
+  try {
+    const admin = createAdminClient()
+    const persistedChat = [...messages, { role: 'assistant', content: reply }]
+    await admin
+      .from('profiles')
+      .update({
+        cv_builder_chat: persistedChat,
+        cv_builder_chat_updated_at: new Date().toISOString(),
+      })
+      .eq('id', user.id)
+      .then(() => undefined, () => undefined)
+  } catch (e) {
+    console.warn('[cv-builder] draft persist skipped:', e)
+  }
+
   // Strike at peak motivation: the moment Claude emits [PROFILE_READY], fire
   // a WhatsApp to the candidate with their public profile link. This is the
   // user's celebration message + first taste of "your profile is live" + an

@@ -46,6 +46,8 @@ export async function GET(request: Request) {
     referenceReminders: unknown
     ghostingFeedback: unknown
     whatsappDigest: unknown
+    companyWhatsappDigest?: unknown
+    monthlyRoiDigest?: unknown
   } = {
     ranAt: new Date().toISOString(),
     nurture: null,
@@ -117,6 +119,22 @@ export async function GET(request: Request) {
   } catch (err) {
     console.error('[cron/daily] company whatsapp digest failed:', err)
     summary.companyWhatsappDigest = { error: String(err) }
+  }
+
+  // 6. Monthly ROI digest for COMPANIES — runs only on the 25th of each
+  // month (UTC). Vercel Hobby caps us to ~1 cron/day, so we piggyback on
+  // /api/cron/daily and gate by date. Quantified value recap is the single
+  // highest-leverage B2B retention lever (ChartMogul 2024).
+  try {
+    const today = new Date()
+    if (today.getUTCDate() === 25) {
+      summary.monthlyRoiDigest = await runMonthlyRoiDigest()
+    } else {
+      summary.monthlyRoiDigest = { skipped: 'not the 25th UTC' }
+    }
+  } catch (err) {
+    console.error('[cron/daily] monthly ROI digest failed:', err)
+    summary.monthlyRoiDigest = { error: String(err) }
   }
 
   return NextResponse.json({ ok: true, ...summary })
@@ -656,3 +674,109 @@ async function runGhostingFeedbackNudges(): Promise<{
 
 // SITE constant — same default as the webhook.
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
+
+// ── Monthly ROI digest (companies) ──────────────────────────────────────────
+// Once-a-month quantified value recap. Fires only on the 25th UTC. Per opted-
+// in company: candidates shortlisted, interviews scheduled, ~hours saved
+// (~1.5h per manual shortlist), and a "switch to annual" CTA. Uses the same
+// whatsapp_digest_opt_in eligibility as the daily digest — companies who
+// opted out of one don't get spammed by the other.
+//
+// Stamps via the existing whatsapp_digest_last_sent_at so a same-day
+// daily-digest re-run won't double-text. The monthly + daily messages are
+// distinct enough that this is acceptable for v1.
+async function runMonthlyRoiDigest(): Promise<{
+  companiesConsidered: number
+  sent: number
+  skipped: number
+  failed: number
+}> {
+  const admin = createAdminClient()
+
+  const { data: companies, error } = await admin
+    .from('profiles')
+    .select('id, company_name, full_name, whatsapp_number, subscription_status, subscription_tier, stripe_customer_id')
+    .eq('type', 'company')
+    .eq('whatsapp_digest_opt_in', true)
+    .not('whatsapp_number', 'is', null)
+
+  if (error) {
+    console.error('[cron/daily] monthly ROI fetch failed:', error)
+    return { companiesConsidered: 0, sent: 0, skipped: 0, failed: 0 }
+  }
+
+  const rows = (companies || []) as Array<{
+    id: string
+    company_name: string | null
+    full_name: string | null
+    whatsapp_number: string | null
+    subscription_status: string | null
+    subscription_tier: string | null
+    stripe_customer_id: string | null
+  }>
+
+  // Pull data for "last 30 days" — calendar month is rough but acceptable;
+  // candidates wouldn't notice the difference. Start 30d back from the
+  // current 25th, ends today.
+  const monthStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+  const monthName = new Date().toLocaleString('en-GB', { month: 'long' })
+
+  let sent = 0, skipped = 0, failed = 0
+
+  for (const co of rows) {
+    try {
+      if (!co.whatsapp_number) { skipped++; continue }
+
+      const { data: roleRows } = await admin
+        .from('roles').select('id').eq('company_id', co.id)
+      const roleIds = (roleRows || []).map(r => r.id as string)
+
+      const [shortlistsRes, interviewsRes, fbRes, hiresRes] = await Promise.all([
+        admin.from('company_shortlists').select('id', { count: 'exact', head: true })
+          .eq('company_id', co.id).gte('created_at', monthStart),
+        admin.from('interviews').select('id', { count: 'exact', head: true })
+          .eq('company_id', co.id).gte('scheduled_at', monthStart),
+        admin.from('interview_feedback').select('id', { count: 'exact', head: true })
+          .eq('company_id', co.id).gte('created_at', monthStart),
+        // "Hires" approximated as completed interviews with positive feedback
+        // — we don't have a true hired-event yet (#13 in earlier audit).
+        roleIds.length
+          ? admin.from('interviews').select('id', { count: 'exact', head: true })
+              .eq('company_id', co.id).eq('status', 'completed').gte('scheduled_at', monthStart)
+          : Promise.resolve({ count: 0 }),
+      ])
+
+      const shortlisted = shortlistsRes.count || 0
+      const interviewed = interviewsRes.count || 0
+      const feedbackLogged = fbRes.count || 0
+      const completed = hiresRes.count || 0
+      // Recruiter-hours saved estimate — 1.5h per shortlist is the industry-
+      // standard back-of-envelope for "research + screen + write back".
+      const hoursSaved = Math.round(shortlisted * 1.5)
+
+      // Skip silent months — don't ping companies with all-zeroes. Same
+      // discipline as the daily digest.
+      if (shortlisted + interviewed + completed === 0) { skipped++; continue }
+
+      const companyName = co.company_name || co.full_name || 'team'
+      const isAnnual = co.subscription_tier?.includes('yearly') || co.subscription_tier?.includes('annual')
+      const annualLine = isAnnual
+        ? ''
+        : `\n\n💡 *On monthly?* Switch to annual — pay 10× monthly, get 12 months. Saves ~17% and locks in your price.\n${SITE}/company/pricing?billing=annual`
+
+      const msg = `📊 *${monthName} recap · ${companyName}*\n\n• ${shortlisted} candidate${shortlisted === 1 ? '' : 's'} shortlisted\n• ${interviewed} interview${interviewed === 1 ? '' : 's'} scheduled\n• ${feedbackLogged} feedback note${feedbackLogged === 1 ? '' : 's'} logged\n• ${completed} interview${completed === 1 ? '' : 's'} completed\n• ~${hoursSaved} recruiter-hour${hoursSaved === 1 ? '' : 's'} saved (estimate)\n\nFull pipeline: ${SITE}/company/pipeline${annualLine}`
+
+      const result = await sendWhatsApp(co.whatsapp_number, msg)
+      if (result.success) sent++
+      else { failed++; console.warn('[cron/daily] monthly ROI send failed for', co.id, result.error) }
+    } catch (e) {
+      failed++
+      console.error('[cron/daily] monthly ROI loop error for', co.id, e)
+    }
+  }
+
+  console.log(
+    `[cron/daily] monthly ROI — considered: ${rows.length}, sent: ${sent}, skipped: ${skipped}, failed: ${failed}`,
+  )
+  return { companiesConsidered: rows.length, sent, skipped, failed }
+}

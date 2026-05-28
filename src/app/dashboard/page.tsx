@@ -16,9 +16,17 @@ export default async function Dashboard() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased, cv_tier, profile_live, subscription_product, right_to_work, work_style, type')
+    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased, cv_tier, profile_live, subscription_product, right_to_work, work_style, type, cv_builder_chat, cv_builder_chat_updated_at')
     .eq('id', user.id)
     .single()
+
+  // Does the candidate have a /cv-builder draft they haven't finished? Used
+  // to show a "Finish your CV" resume card. We hide it once the profile is
+  // built (cv_parsed=true OR completion_pct ≥ 80) — the draft has served
+  // its purpose by then.
+  const draftRaw = (profile as { cv_builder_chat?: unknown } | null)?.cv_builder_chat
+  const draftTurns = Array.isArray(draftRaw) ? draftRaw.length : 0
+  const hasCvDraft = draftTurns >= 2 && !profile?.cv_parsed && (profile?.completion_pct ?? 0) < 80
 
   // Companies belong on the company dashboard, not the candidate one.
   if (type === 'company' || profile?.type === 'company') redirect('/company/dashboard')
@@ -382,6 +390,27 @@ export default async function Dashboard() {
                   )}
                 </ul>
               </div>
+            )}
+
+            {/* Resume CV-builder draft — shown for candidates who started the
+                Claude interview, closed the tab, and came back. Hidden once
+                the profile is built (cv_parsed or completion ≥ 80%). The
+                chat is restored exactly where they left off on /cv-builder. */}
+            {hasCvDraft && (
+              <Link
+                href="/cv-builder"
+                className="block mb-5 rounded-2xl p-5 transition-opacity hover:opacity-95"
+                style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.14), rgba(106,168,245,0.06))', border: '1px solid rgba(106,168,245,0.40)' }}
+              >
+                <div className="flex items-center gap-3.5">
+                  <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: '#6AA8F5' }}>↩</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[#F4F4F7] font-black text-base mb-0.5">Finish your CV</p>
+                    <p className="text-[#A6A6B4] text-xs leading-relaxed">You&apos;re part-way through — pick up where you left off, takes a few more minutes.</p>
+                  </div>
+                  <span className="flex-shrink-0 text-[#6AA8F5] text-xs font-black">Resume →</span>
+                </div>
+              </Link>
             )}
 
             {/* Connect Shapi WhatsApp — first-encounter discovery hook for

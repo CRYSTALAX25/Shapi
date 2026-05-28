@@ -24,8 +24,28 @@ export default function CVBuilder() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [ready, setReady] = useState(false)
+  const [restored, setRestored] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
+
+  // Restore an in-flight chat saved by /api/cv-builder. The server persists
+  // the running messages array on every turn (cv_draft.sql migration). If we
+  // find one, swap it in so the candidate picks up where they left off.
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/cv-builder/draft')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (cancelled) return
+        const drafted = Array.isArray(d?.messages) ? d.messages as Message[] : []
+        if (drafted.length > 1) {
+          setMessages(drafted)
+          setRestored(true)
+        }
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [])
 
   // How many user replies the candidate has sent — drives the progress hint.
   const userTurns = messages.filter(m => m.role === 'user').length
@@ -74,6 +94,13 @@ export default function CVBuilder() {
         <div className="flex items-center gap-4">
           <span className="text-xs text-[#5C5C6A] hidden sm:inline">CV Builder</span>
           <button
+            onClick={() => router.push('/dashboard')}
+            className="text-xs text-[#A6A6B4] font-medium hover:text-[#C7C7D1]"
+            title="Your chat is saved — come back any time and pick up where you left off"
+          >
+            Save &amp; continue later →
+          </button>
+          <button
             onClick={() => router.push('/onboarding')}
             className="text-xs text-[#6AA8F5] font-medium hover:underline"
             title="Switch to the manual form — your conversation here is not saved"
@@ -87,6 +114,11 @@ export default function CVBuilder() {
           they are. Bar fills based on number of replies vs APPROX_TURNS; jumps
           to 100% the moment the AI emits [DONE] (drives `ready`). */}
       <div className="px-6 pt-3 pb-1 max-w-2xl mx-auto w-full">
+        {restored && (
+          <div className="mb-2 rounded-lg px-3 py-1.5 text-[11px]" style={{ background: 'rgba(106,168,245,0.10)', border: '1px solid rgba(106,168,245,0.25)', color: '#6AA8F5' }}>
+            ✓ Picked up where you left off — your answers are saved as you go.
+          </div>
+        )}
         <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1.5">
           <span>{ready ? 'Profile ready ✓' : `Question ${Math.max(1, userTurns + 1)} · about ${Math.max(0, APPROX_TURNS - userTurns)} to go`}</span>
           <span className="text-[#5C5C6A]">~5 min total · save & continue later anytime</span>
