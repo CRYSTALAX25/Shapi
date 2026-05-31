@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shapi — Company Profile Palette Comparison</title>
+<style>
+  /* ---------- Base / system fonts ---------- */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #050507;
+    color: #fff;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- Page header ---------- */
+  .page-head {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 48px 32px 8px;
+  }
+  .page-head h1 {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .page-head p {
+    margin-top: 8px;
+    color: rgba(255,255,255,0.5);
+    font-size: 15px;
+  }
+  .palette-jump {
+    margin-top: 18px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .palette-jump a {
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 7px 14px;
+    border-radius: 999px;
+  }
+
+  /* ---------- Palette section banner ---------- */
+  .palette-banner {
+    max-width: 1080px;
+    margin: 56px auto 0;
+    padding: 0 32px;
+  }
+  .palette-banner .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+  }
+  .palette-banner h2 {
+    margin-top: 8px;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .swatch {
+    width: 16px; height: 16px;
+    border-radius: 5px;
+    display: inline-block;
+  }
+
+  /* ============================================================
+     THE PROFILE LAYOUT — identical markup in each palette block.
+     Colours come entirely from CSS variables set on .palette-*.
+     ============================================================ */
+  .profile {
+    --radius: 18px;
+    max-width: 1080px;
+    margin: 18px auto 0;
+    padding: 0 32px 8px;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 28px;
+    background: var(--bg);
+    border-radius: 24px;
+    padding-top: 28px;
+    padding-bottom: 40px;
+  }
+  /* fall back to single column on narrow screens */
+  @media (max-width: 860px) {
+    .profile { grid-template-columns: 1fr; }
+    .identity { position: static !important; }
+  }
+
+  .profile .bg-pad {
+    /* wrapper to give the whole layout the palette background */
+  }
+
+  /* ---- Identity card (sticky left) ---- */
+  .identity {
+    position: sticky;
+    top: 20px;
+    align-self: start;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 26px 24px;
+  }
+  .logo-sq {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+  }
+  .co-name {
+    margin-top: 18px;
+    font-size: 21px;
+    font-weight: 800;
+    color: var(--heading);
+    letter-spacing: -0.01em;
+  }
+  .co-industry {
+    margin-top: 4px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .co-loc {
+    margin-top: 2px;
+    font-size: 13px;
+    color: var(--faint);
+  }
+
+  .trust {
+    margin-top: 24px;
+  }
+  .trust-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .trust-score {
+    font-size: 44px;
+    font-weight: 800;
+    color: var(--heading);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .trust-bar {
+    margin-top: 10px;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--track);
+    overflow: hidden;
+  }
+  .trust-bar > i {
+    display: block;
+    height: 100%;
+    width: 96%;
+    border-radius: 999px;
+    background: var(--accent);
+  }
+
+  .pills {
+    margin-top: 22px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .pill {
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .pill.verified {
+    color: var(--ok);
+    border-color: color-mix(in srgb, var(--ok) 40%, transparent);
+    background: color-mix(in srgb, var(--ok) 12%, transparent);
+  }
+
+  .hiring {
+    margin-top: 22px;
+  }
+  .hiring .lbl {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 10px;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 10px;
+    background: var(--chip);
+    color: var(--muted);
+  }
+
+  .btns { margin-top: 24px; display: flex; flex-direction: column; gap: 10px; }
+  .btn {
+    border: none;
+    cursor: pointer;
+    font-size: 14.5px;
+    font-weight: 700;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-family: inherit;
+    text-align: center;
+  }
+  .btn-primary {
+    background: var(--primary-bg);
+    color: var(--primary-ink);
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--heading);
+    border: 1px solid var(--border-strong);
+  }
+
+  /* ---- Right column ---- */
+  .right { min-width: 0; }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 6px;
+  }
+  .tab {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    padding: 9px 16px;
+    border-radius: 9px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .tab.active {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  .card {
+    margin-top: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 26px 26px;
+  }
+  .card h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--heading);
+    letter-spacing: -0.01em;
+  }
+
+  .grid2 {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 28px;
+  }
+  @media (max-width: 560px) { .grid2 { grid-template-columns: 1fr; } }
+  .field .k {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--faint);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .field .v {
+    margin-top: 5px;
+    font-size: 15px;
+    color: var(--body);
+    font-weight: 500;
+  }
+  .new-badge {
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: var(--accent-ink);
+    background: var(--accent);
+    padding: 2px 6px;
+    border-radius: 5px;
+  }
+
+  .about p {
+    margin-top: 14px;
+    font-size: 15px;
+    color: var(--body);
+    line-height: 1.65;
+  }
+
+  .signals {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 560px) { .signals { grid-template-columns: 1fr; } }
+  .signal {
+    background: var(--chip);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .signal .n {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.01em;
+  }
+  .signal .t {
+    margin-top: 4px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .plan-row {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .plan-name {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--heading);
+  }
+  .plan-name span {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-left: 8px;
+  }
+  .plan-price {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .footer-space { height: 40px; }
+</style>
+</head>
+<body>
+
+  <header class="page-head">
+    <h1>Shapi — Company Profile · Palette Comparison</h1>
+    <p>Same redesigned layout, three dark palettes. Compare colour only — pick one.</p>
+    <nav class="palette-jump">
+      <a href="#palette-E">E · Ice / Steel</a>
+      <a href="#palette-D">D · Amber / Charcoal</a>
+      <a href="#palette-H">H-dark · Warm + Pink</a>
+    </nav>
+  </header>
+
+  <!-- ============================================================
+       PALETTE E — ICE / STEEL
+       ============================================================ -->
+  <section class="palette-banner" id="palette-E">
+    <div class="tag"><span class="swatch" style="background:#7c93f5"></span> Palette E</div>
+    <h2>Ice / Steel — near-black blue base, steel-blue accent, WHITE primary button</h2>
+  </section>
+
+  <div class="profile" style="
+      --bg:#0c0e11;
+      --card:#13161b;
+      --border:rgba(255,255,255,0.08);
+      --border-strong:rgba(255,255,255,0.18);
+      --heading:#f4f6f9;
+      --body:rgba(255,255,255,0.82);
+      --muted:rgba(255,255,255,0.6);
+      --faint:rgba(255,255,255,0.4);
+      --accent:#7c93f5;
+      --accent-ink:#0c0e11;
+      --primary-bg:#eef1f6;
+      --primary-ink:#0c0e11;
+      --chip:rgba(255,255,255,0.05);
+      --track:rgba(255,255,255,0.1);
+      --ok:#34d399;
+    ">
+    <!-- Identity card -->
+    <aside class="identity">
+      <div class="logo-sq">NM</div>
+      <div class="co-name">New Murabba</div>
+      <div class="co-industry">Real Estate Development</div>
+      <div class="co-loc">Riyadh, Saudi Arabia</div>
+
+      <div class="trust">
+        <div class="trust-label">Trust score</div>
+        <div class="trust-score">96%</div>
+        <div class="trust-bar"><i></i></div>
+      </div>
+
+      <div class="pills">
+        <span class="pill verified">✓ Verified Employer</span>
+        <span class="pill">Growth plan</span>
+      </div>
+
+      <div class="hiring">
+        <div class="lbl">Hiring in</div>
+        <div class="chips">
+          <span class="chip">Saudi Arabia</span>
+          <span class="chip">UAE</span>
+          <span class="chip">Remote</span>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="btn btn-primary">Edit profile</button>
+        <button class="btn btn-secondary">Post a role</button>
+      </div>
+    </aside>
+
+    <!-- Right column -->
+    <div class="right">
+      <div class="tabs">
+        <div class="tab active">Overview</div>
+        <div class="tab">Trust &amp; Verification</div>
+        <div class="tab">Roles</div>
+        <div class="tab">Team</div>
+        <div class="tab">Plan</div>
+      </div>
+
+      <div class="card">
+        <h3>Basics</h3>
+        <div class="grid2">
+          <div class="field"><div class="k">Industry</div><div class="v">Real Estate Development</div></div>
+          <div class="field"><div class="k">Size</div><div class="v">1,000–5,000 employees</div></div>
+          <div class="field"><div class="k">Budget cycle <span class="new-badge">NEW</span></div><div class="v">Annual · Jan–Dec</div></div>
+          <div class="field"><div class="k">Annual headcount plan <span class="new-badge">NEW</span></div><div class="v">+220 hires in 2026</div></div>
+          <div class="field"><div class="k">Growth prediction <span class="new-badge">NEW</span></div><div class="v">High · +34% YoY</div></div>
+          <div class="field"><div class="k">Website</div><div class="v">newmurabba.com</div></div>
+        </div>
+      </div>
+
+      <div class="card about">
+        <h3>About</h3>
+        <p>New Murabba is building the world's largest modern downtown in the heart of Riyadh — a 19 km² destination centred on the Mukaab. We hire across architecture, engineering, hospitality and technology to deliver one of Saudi Arabia's flagship Vision 2030 developments.</p>
+      </div>
+
+      <div class="card">
+        <h3>Public signals</h3>
+        <div class="signals">
+          <div class="signal"><div class="n">4.6</div><div class="t">Glassdoor rating</div></div>
+          <div class="signal"><div class="n">98%</div><div class="t">Salaries paid on time</div></div>
+          <div class="signal"><div class="n">12 days</div><div class="t">Avg. time to offer</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Plan</h3>
+        <div class="plan-row">
+          <div class="plan-name">Growth <span>$799 / mo</span></div>
+          <div class="plan-price">Renews 12 Jun 2026 · 8 active role slots</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PALETTE D — AMBER / CHARCOAL
+       ============================================================ -->
+  <section class="palette-banner" id="palette-D">
+    <div class="tag"><span class="swatch" style="background:#e0b454"></span> Palette D</div>
+    <h2>Amber / Charcoal — warm charcoal base, amber/gold accent, amber primary button</h2>
+  </section>
+
+  <div class="profile" style="
+      --bg:#0e0d0a;
+      --card:#16140f;
+      --border:rgba(255,255,255,0.08);
+      --border-strong:rgba(255,255,255,0.18);
+      --heading:#f6f3ec;
+      --body:rgba(255,255,255,0.82);
+      --muted:rgba(255,255,255,0.6);
+      --faint:rgba(255,255,255,0.4);
+      --accent:#e0b454;
+      --accent-ink:#1a1610;
+      --primary-bg:#e0b454;
+      --primary-ink:#1a1610;
+      --chip:rgba(255,255,255,0.05);
+      --track:rgba(255,255,255,0.1);
+      --ok:#34d399;
+    ">
+    <aside class="identity">
+      <div class="logo-sq">NM</div>
+      <div class="co-name">New Murabba</div>
+      <div class="co-industry">Real Estate Development</div>
+      <div class="co-loc">Riyadh, Saudi Arabia</div>
+
+      <div class="trust">
+        <div class="trust-label">Trust score</div>
+        <div class="trust-score">96%</div>
+        <div class="trust-bar"><i></i></div>
+      </div>
+
+      <div class="pills">
+        <span class="pill verified">✓ Verified Employer</span>
+        <span class="pill">Growth plan</span>
+      </div>
+
+      <div class="hiring">
+        <div class="lbl">Hiring in</div>
+        <div class="chips">
+          <span class="chip">Saudi Arabia</span>
+          <span class="chip">UAE</span>
+          <span class="chip">Remote</span>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="btn btn-primary">Edit profile</button>
+        <button class="btn btn-secondary">Post a role</button>
+      </div>
+    </aside>
+
+    <div class="right">
+      <div class="tabs">
+        <div class="tab active">Overview</div>
+        <div class="tab">Trust &amp; Verification</div>
+        <div class="tab">Roles</div>
+        <div class="tab">Team</div>
+        <div class="tab">Plan</div>
+      </div>
+
+      <div class="card">
+        <h3>Basics</h3>
+        <div class="grid2">
+          <div class="field"><div class="k">Industry</div><div class="v">Real Estate Development</div></div>
+          <div class="field"><div class="k">Size</div><div class="v">1,000–5,000 employees</div></div>
+          <div class="field"><div class="k">Budget cycle <span class="new-badge">NEW</span></div><div class="v">Annual · Jan–Dec</div></div>
+          <div class="field"><div class="k">Annual headcount plan <span class="new-badge">NEW</span></div><div class="v">+220 hires in 2026</div></div>
+          <div class="field"><div class="k">Growth prediction <span class="new-badge">NEW</span></div><div class="v">High · +34% YoY</div></div>
+          <div class="field"><div class="k">Website</div><div class="v">newmurabba.com</div></div>
+        </div>
+      </div>
+
+      <div class="card about">
+        <h3>About</h3>
+        <p>New Murabba is building the world's largest modern downtown in the heart of Riyadh — a 19 km² destination centred on the Mukaab. We hire across architecture, engineering, hospitality and technology to deliver one of Saudi Arabia's flagship Vision 2030 developments.</p>
+      </div>
+
+      <div class="card">
+        <h3>Public signals</h3>
+        <div class="signals">
+          <div class="signal"><div class="n">4.6</div><div class="t">Glassdoor rating</div></div>
+          <div class="signal"><div class="n">98%</div><div class="t">Salaries paid on time</div></div>
+          <div class="signal"><div class="n">12 days</div><div class="t">Avg. time to offer</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Plan</h3>
+        <div class="plan-row">
+          <div class="plan-name">Growth <span>$799 / mo</span></div>
+          <div class="plan-price">Renews 12 Jun 2026 · 8 active role slots</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PALETTE H-dark — WARM DARK + PINK
+       ============================================================ -->
+  <section class="palette-banner" id="palette-H">
+    <div class="tag"><span class="swatch" style="background:#e8758f"></span> Palette H-dark</div>
+    <h2>Warm Dark + Pink — warm-dark base, pink accent, pink primary button (white text)</h2>
+  </section>
+
+  <div class="profile" style="
+      --bg:#100d0e;
+      --card:#191416;
+      --border:rgba(255,255,255,0.08);
+      --border-strong:rgba(255,255,255,0.18);
+      --heading:#f7f1f2;
+      --body:rgba(255,255,255,0.82);
+      --muted:rgba(255,255,255,0.6);
+      --faint:rgba(255,255,255,0.4);
+      --accent:#e8758f;
+      --accent-ink:#1a0f12;
+      --primary-bg:#e8758f;
+      --primary-ink:#ffffff;
+      --chip:rgba(255,255,255,0.05);
+      --track:rgba(255,255,255,0.1);
+      --ok:#34d399;
+    ">
+    <aside class="identity">
+      <div class="logo-sq">NM</div>
+      <div class="co-name">New Murabba</div>
+      <div class="co-industry">Real Estate Development</div>
+      <div class="co-loc">Riyadh, Saudi Arabia</div>
+
+      <div class="trust">
+        <div class="trust-label">Trust score</div>
+        <div class="trust-score">96%</div>
+        <div class="trust-bar"><i></i></div>
+      </div>
+
+      <div class="pills">
+        <span class="pill verified">✓ Verified Employer</span>
+        <span class="pill">Growth plan</span>
+      </div>
+
+      <div class="hiring">
+        <div class="lbl">Hiring in</div>
+        <div class="chips">
+          <span class="chip">Saudi Arabia</span>
+          <span class="chip">UAE</span>
+          <span class="chip">Remote</span>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="btn btn-primary">Edit profile</button>
+        <button class="btn btn-secondary">Post a role</button>
+      </div>
+    </aside>
+
+    <div class="right">
+      <div class="tabs">
+        <div class="tab active">Overview</div>
+        <div class="tab">Trust &amp; Verification</div>
+        <div class="tab">Roles</div>
+        <div class="tab">Team</div>
+        <div class="tab">Plan</div>
+      </div>
+
+      <div class="card">
+        <h3>Basics</h3>
+        <div class="grid2">
+          <div class="field"><div class="k">Industry</div><div class="v">Real Estate Development</div></div>
+          <div class="field"><div class="k">Size</div><div class="v">1,000–5,000 employees</div></div>
+          <div class="field"><div class="k">Budget cycle <span class="new-badge">NEW</span></div><div class="v">Annual · Jan–Dec</div></div>
+          <div class="field"><div class="k">Annual headcount plan <span class="new-badge">NEW</span></div><div class="v">+220 hires in 2026</div></div>
+          <div class="field"><div class="k">Growth prediction <span class="new-badge">NEW</span></div><div class="v">High · +34% YoY</div></div>
+          <div class="field"><div class="k">Website</div><div class="v">newmurabba.com</div></div>
+        </div>
+      </div>
+
+      <div class="card about">
+        <h3>About</h3>
+        <p>New Murabba is building the world's largest modern downtown in the heart of Riyadh — a 19 km² destination centred on the Mukaab. We hire across architecture, engineering, hospitality and technology to deliver one of Saudi Arabia's flagship Vision 2030 developments.</p>
+      </div>
+
+      <div class="card">
+        <h3>Public signals</h3>
+        <div class="signals">
+          <div class="signal"><div class="n">4.6</div><div class="t">Glassdoor rating</div></div>
+          <div class="signal"><div class="n">98%</div><div class="t">Salaries paid on time</div></div>
+          <div class="signal"><div class="n">12 days</div><div class="t">Avg. time to offer</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Plan</h3>
+        <div class="plan-row">
+          <div class="plan-name">Growth <span>$799 / mo</span></div>
+          <div class="plan-price">Renews 12 Jun 2026 · 8 active role slots</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-space"></div>
+
+</body>
+</html>
