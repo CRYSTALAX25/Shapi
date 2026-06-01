@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shapi — Candidate Profile Palette Comparison (E vs H)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #050507;
+    color: #fff;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-head { max-width: 1080px; margin: 0 auto; padding: 48px 32px 8px; }
+  .page-head h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+  .page-head p { margin-top: 8px; color: rgba(255,255,255,0.5); font-size: 15px; }
+  .palette-jump { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .palette-jump a {
+    text-decoration: none; font-size: 13px; font-weight: 600;
+    color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.15);
+    padding: 7px 14px; border-radius: 999px;
+  }
+
+  .palette-banner { max-width: 1080px; margin: 56px auto 0; padding: 0 32px; }
+  .palette-banner .tag {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: rgba(255,255,255,0.55);
+  }
+  .palette-banner h2 { margin-top: 8px; font-size: 22px; font-weight: 800; letter-spacing: -0.01em; }
+  .swatch { width: 16px; height: 16px; border-radius: 5px; display: inline-block; }
+
+  /* ============================================================
+     CANDIDATE PROFILE LAYOUT — identical markup per palette.
+     Colours come entirely from CSS variables on .profile.
+     ============================================================ */
+  .profile {
+    --radius: 18px;
+    max-width: 1080px;
+    margin: 18px auto 0;
+    padding: 28px 32px 40px;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 28px;
+    background: var(--bg);
+    border-radius: 24px;
+  }
+  @media (max-width: 860px) {
+    .profile { grid-template-columns: 1fr; }
+    .identity { position: static !important; }
+  }
+
+  /* ---- Identity card (sticky left) ---- */
+  .identity {
+    position: sticky; top: 20px; align-self: start;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 26px 24px;
+  }
+  .photo {
+    width: 76px; height: 76px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 45%, var(--card)));
+    color: var(--accent-ink);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 26px; letter-spacing: -0.02em;
+  }
+  .name {
+    margin-top: 16px; font-size: 21px; font-weight: 800;
+    color: var(--heading); letter-spacing: -0.01em;
+  }
+  .role { margin-top: 4px; font-size: 14px; color: var(--muted); }
+  .loc { margin-top: 2px; font-size: 13px; color: var(--faint); }
+
+  .strength { margin-top: 24px; }
+  .strength .lbl {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--faint);
+  }
+  .strength .num {
+    font-size: 44px; font-weight: 800; color: var(--heading);
+    line-height: 1.1; letter-spacing: -0.02em;
+  }
+  .bar { margin-top: 10px; height: 5px; border-radius: 999px; background: var(--track); overflow: hidden; }
+  .bar > i { display: block; height: 100%; width: 100%; border-radius: 999px; background: var(--accent); }
+
+  .pills { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    font-size: 12.5px; font-weight: 600; padding: 6px 12px;
+    border-radius: 999px; border: 1px solid var(--border); color: var(--muted);
+  }
+  .pill.verified {
+    color: var(--ok);
+    border-color: color-mix(in srgb, var(--ok) 40%, transparent);
+    background: color-mix(in srgb, var(--ok) 12%, transparent);
+  }
+
+  .rtw { margin-top: 22px; }
+  .rtw .lbl {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--faint); margin-bottom: 10px;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font-size: 13px; font-weight: 600; padding: 6px 12px;
+    border-radius: 10px; background: var(--chip); color: var(--muted);
+  }
+
+  .btns { margin-top: 24px; display: flex; flex-direction: column; gap: 10px; }
+  .btn {
+    border: none; cursor: pointer; font-size: 14.5px; font-weight: 700;
+    padding: 12px 16px; border-radius: 12px; font-family: inherit; text-align: center;
+  }
+  .btn-primary { background: var(--primary-bg); color: var(--primary-ink); }
+  .btn-secondary { background: transparent; color: var(--heading); border: 1px solid var(--border-strong); }
+  .btn-row { display: flex; gap: 10px; }
+  .btn-row .btn { flex: 1; }
+
+  /* ---- Right column ---- */
+  .right { min-width: 0; }
+
+  .tabs {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 6px;
+  }
+  .tab {
+    font-size: 14px; font-weight: 600; color: var(--muted);
+    padding: 9px 15px; border-radius: 9px; cursor: pointer; white-space: nowrap;
+  }
+  .tab.active { background: var(--accent); color: var(--accent-ink); }
+
+  .card {
+    margin-top: 20px; background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 26px;
+  }
+  .card h3 { font-size: 16px; font-weight: 800; color: var(--heading); letter-spacing: -0.01em; }
+
+  .avail-status {
+    margin-top: 14px; display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 700; color: var(--ok);
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); display: inline-block; }
+
+  .sub {
+    margin-top: 18px; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.04em; text-transform: uppercase; color: var(--faint);
+    margin-bottom: 8px;
+  }
+  .salary { margin-top: 18px; font-size: 15px; color: var(--body); }
+  .salary b { color: var(--heading); font-weight: 700; }
+
+  .about p { margin-top: 14px; font-size: 15px; color: var(--body); line-height: 1.65; }
+
+  .finger {
+    margin-top: 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  }
+  @media (max-width: 560px) { .finger { grid-template-columns: 1fr 1fr; } }
+  .stat { background: var(--chip); border-radius: 12px; padding: 16px; }
+  .stat .n { font-size: 28px; font-weight: 800; color: var(--accent); letter-spacing: -0.01em; }
+  .stat .t {
+    margin-top: 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .stat .o { font-size: 12px; color: var(--faint); }
+
+  .footer-space { height: 40px; }
+</style>
+</head>
+<body>
+
+  <header class="page-head">
+    <h1>Shapi — Candidate Profile · E vs H</h1>
+    <p>Same redesigned candidate layout, two palettes. Compare colour only.</p>
+    <nav class="palette-jump">
+      <a href="#cand-E">Palette E · Ice / Steel</a>
+      <a href="#cand-H">Palette H · Warm Light</a>
+    </nav>
+  </header>
+
+  <!-- ============================================================
+       CANDIDATE PROFILE — PALETTE E (Ice / Steel, dark)
+       ============================================================ -->
+  <section class="palette-banner" id="cand-E">
+    <div class="tag"><span class="swatch" style="background:#7c93f5"></span> Candidate Profile — Palette E</div>
+    <h2>Ice / Steel (Dark) — near-black blue base, steel-blue accent, WHITE primary button</h2>
+  </section>
+
+  <div class="profile" style="
+      --bg:#0c0e11;
+      --card:#13161b;
+      --border:rgba(255,255,255,0.08);
+      --border-strong:rgba(255,255,255,0.18);
+      --heading:#f4f6f9;
+      --body:rgba(255,255,255,0.82);
+      --muted:rgba(255,255,255,0.6);
+      --faint:rgba(255,255,255,0.4);
+      --accent:#7c93f5;
+      --accent-ink:#0c0e11;
+      --primary-bg:#eef1f6;
+      --primary-ink:#0c0e11;
+      --chip:rgba(255,255,255,0.05);
+      --track:rgba(255,255,255,0.1);
+      --ok:#34d399;
+    ">
+    <aside class="identity">
+      <div class="photo">AB</div>
+      <div class="name">Ana O. Barber</div>
+      <div class="role">Business Operations Manager – Studio Operations</div>
+      <div class="loc">Riyadh, Saudi Arabia</div>
+
+      <div class="strength">
+        <div class="lbl">Profile strength</div>
+        <div class="num">100%</div>
+        <div class="bar"><i></i></div>
+      </div>
+
+      <div class="pills">
+        <span class="pill">Live</span>
+        <span class="pill verified">✓ Strongly Verified</span>
+        <span class="pill">AI-Proof Asset</span>
+        <span class="pill">AI Builder</span>
+      </div>
+
+      <div class="rtw">
+        <div class="lbl">Right to work</div>
+        <div class="chips">
+          <span class="chip">Croatia · EU/EEA</span>
+          <span class="chip">England · PR</span>
+          <span class="chip">Saudi Arabia · PR</span>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="btn btn-primary">Open CV Kit</button>
+        <div class="btn-row">
+          <button class="btn btn-secondary">Edit</button>
+          <button class="btn btn-secondary">View public</button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="right">
+      <div class="tabs">
+        <div class="tab active">Overview</div>
+        <div class="tab">Verification</div>
+        <div class="tab">Experience</div>
+        <div class="tab">Career</div>
+        <div class="tab">Learning</div>
+        <div class="tab">Events</div>
+        <div class="tab">Assessments</div>
+      </div>
+
+      <div class="card">
+        <h3>Availability &amp; salary</h3>
+        <div class="avail-status"><span class="dot"></span> Open to offers</div>
+
+        <div class="sub">Open to</div>
+        <div class="chips">
+          <span class="chip">Full-time</span>
+          <span class="chip">Contract</span>
+          <span class="chip">On-site</span>
+          <span class="chip">Hybrid</span>
+        </div>
+
+        <div class="sub">Looking for</div>
+        <div class="chips">
+          <span class="chip">Operations</span>
+          <span class="chip">Studio / Creative ops</span>
+          <span class="chip">Programme delivery</span>
+        </div>
+
+        <div class="salary">Target: <b>SAR 28,000 – 34,000 / mo</b> · negotiable for the right team</div>
+      </div>
+
+      <div class="card about">
+        <h3>About</h3>
+        <p>Operations lead with 9 years turning chaotic studios into calm, measurable machines — budgets, headcount planning, vendor wrangling and the unglamorous systems that let creative teams ship. I care about clean process, honest numbers, and people who do what they say.</p>
+      </div>
+
+      <div class="card">
+        <h3>Skill Fingerprint</h3>
+        <div class="finger">
+          <div class="stat"><div class="n">6<span class="o">/10</span></div><div class="t">Head</div></div>
+          <div class="stat"><div class="n">7<span class="o">/10</span></div><div class="t">Spark</div></div>
+          <div class="stat"><div class="n">7<span class="o">/10</span></div><div class="t">Heart</div></div>
+          <div class="stat"><div class="n">4<span class="o">/10</span></div><div class="t">Hands</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       CANDIDATE PROFILE — PALETTE H (Warm Light)
+       ============================================================ -->
+  <section class="palette-banner" id="cand-H">
+    <div class="tag"><span class="swatch" style="background:#b45309"></span> Candidate Profile — Palette H</div>
+    <h2>Warm Light — warm off-white base, burnt-amber accent, near-black primary button</h2>
+  </section>
+
+  <div class="profile" style="
+      --bg:#f5f3ef;
+      --card:#ffffff;
+      --border:rgba(0,0,0,0.08);
+      --border-strong:rgba(0,0,0,0.18);
+      --heading:#1a1814;
+      --body:rgba(0,0,0,0.7);
+      --muted:rgba(0,0,0,0.55);
+      --faint:rgba(0,0,0,0.42);
+      --accent:#b45309;
+      --accent-ink:#ffffff;
+      --primary-bg:#1a1814;
+      --primary-ink:#f5f3ef;
+      --chip:#faf8f4;
+      --track:rgba(0,0,0,0.1);
+      --ok:#047857;
+    ">
+    <aside class="identity">
+      <div class="photo">AB</div>
+      <div class="name">Ana O. Barber</div>
+      <div class="role">Business Operations Manager – Studio Operations</div>
+      <div class="loc">Riyadh, Saudi Arabia</div>
+
+      <div class="strength">
+        <div class="lbl">Profile strength</div>
+        <div class="num">100%</div>
+        <div class="bar"><i></i></div>
+      </div>
+
+      <div class="pills">
+        <span class="pill">Live</span>
+        <span class="pill verified">✓ Strongly Verified</span>
+        <span class="pill">AI-Proof Asset</span>
+        <span class="pill">AI Builder</span>
+      </div>
+
+      <div class="rtw">
+        <div class="lbl">Right to work</div>
+        <div class="chips">
+          <span class="chip">Croatia · EU/EEA</span>
+          <span class="chip">England · PR</span>
+          <span class="chip">Saudi Arabia · PR</span>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="btn btn-primary">Open CV Kit</button>
+        <div class="btn-row">
+          <button class="btn btn-secondary">Edit</button>
+          <button class="btn btn-secondary">View public</button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="right">
+      <div class="tabs">
+        <div class="tab active">Overview</div>
+        <div class="tab">Verification</div>
+        <div class="tab">Experience</div>
+        <div class="tab">Career</div>
+        <div class="tab">Learning</div>
+        <div class="tab">Events</div>
+        <div class="tab">Assessments</div>
+      </div>
+
+      <div class="card">
+        <h3>Availability &amp; salary</h3>
+        <div class="avail-status"><span class="dot"></span> Open to offers</div>
+
+        <div class="sub">Open to</div>
+        <div class="chips">
+          <span class="chip">Full-time</span>
+          <span class="chip">Contract</span>
+          <span class="chip">On-site</span>
+          <span class="chip">Hybrid</span>
+        </div>
+
+        <div class="sub">Looking for</div>
+        <div class="chips">
+          <span class="chip">Operations</span>
+          <span class="chip">Studio / Creative ops</span>
+          <span class="chip">Programme delivery</span>
+        </div>
+
+        <div class="salary">Target: <b>SAR 28,000 – 34,000 / mo</b> · negotiable for the right team</div>
+      </div>
+
+      <div class="card about">
+        <h3>About</h3>
+        <p>Operations lead with 9 years turning chaotic studios into calm, measurable machines — budgets, headcount planning, vendor wrangling and the unglamorous systems that let creative teams ship. I care about clean process, honest numbers, and people who do what they say.</p>
+      </div>
+
+      <div class="card">
+        <h3>Skill Fingerprint</h3>
+        <div class="finger">
+          <div class="stat"><div class="n">6<span class="o">/10</span></div><div class="t">Head</div></div>
+          <div class="stat"><div class="n">7<span class="o">/10</span></div><div class="t">Spark</div></div>
+          <div class="stat"><div class="n">7<span class="o">/10</span></div><div class="t">Heart</div></div>
+          <div class="stat"><div class="n">4<span class="o">/10</span></div><div class="t">Hands</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-space"></div>
+
+</body>
+</html>
