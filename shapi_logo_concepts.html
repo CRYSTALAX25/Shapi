@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shapi — Logo Concepts (Palette E)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #0c0e11;
+    color: #f4f6f9;
+    -webkit-font-smoothing: antialiased;
+    padding: 48px 32px 80px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+
+  header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+  header p { margin-top: 8px; color: rgba(244,246,249,0.5); font-size: 15px; max-width: 640px; }
+
+  .section { margin-top: 56px; }
+  .section > .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #7c93f5;
+  }
+  .section > h2 { margin-top: 6px; font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+  .section > .desc { margin-top: 8px; color: rgba(244,246,249,0.55); font-size: 14px; max-width: 680px; }
+
+  .specimens {
+    margin-top: 22px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .tile {
+    background: #13161b;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    min-width: 150px;
+  }
+  .tile .cap {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+    color: rgba(244,246,249,0.4);
+  }
+  .tile.lockup { min-width: 260px; }
+
+  .favbox {
+    display: flex; align-items: center; gap: 18px;
+  }
+  .favbox .pair { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .favbox .px { font-size: 10px; color: rgba(244,246,249,0.35); }
+
+  /* wordmark */
+  .wordmark {
+    font-size: 30px; font-weight: 800; letter-spacing: -0.02em;
+    color: #f4f6f9; text-transform: lowercase;
+  }
+  .lock { display: flex; align-items: center; gap: 12px; }
+
+  svg { display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== Shared defs: gradients, masks, symbols ===== -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="gradSteel" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#aeb9ff"/>
+        <stop offset="1" stop-color="#5a6fd6"/>
+      </linearGradient>
+
+      <!-- S negative-space mask -->
+      <mask id="sMask">
+        <rect x="0" y="0" width="100" height="100" fill="white"/>
+        <path d="M68 32 C68 22 55 20 46 26 C34 33 38 46 52 50 C66 54 70 66 60 73 C51 79 37 78 33 68"
+              fill="none" stroke="black" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      </mask>
+
+      <!-- 4-point star (sharp, concave sides) -->
+      <symbol id="sym-star" viewBox="0 0 100 100">
+        <path d="M50 4 C53 38 62 47 96 50 C62 53 53 62 50 96 C47 62 38 53 4 50 C38 47 47 38 50 4 Z"
+              fill="currentColor"/>
+      </symbol>
+      <symbol id="sym-star-grad" viewBox="0 0 100 100">
+        <path d="M50 4 C53 38 62 47 96 50 C62 53 53 62 50 96 C47 62 38 53 4 50 C38 47 47 38 50 4 Z"
+              fill="url(#gradSteel)"/>
+      </symbol>
+
+      <!-- 3a morphing form: square + circle overlapping -->
+      <symbol id="sym-morph" viewBox="0 0 100 100">
+        <circle cx="64" cy="50" r="30" fill="#7c93f5"/>
+        <rect x="14" y="20" width="52" height="60" rx="10" fill="none" stroke="#f4f6f9" stroke-width="6"/>
+      </symbol>
+
+      <!-- 3b S in negative space -->
+      <symbol id="sym-s" viewBox="0 0 100 100">
+        <rect x="6" y="6" width="88" height="88" rx="26" fill="currentColor" mask="url(#sMask)"/>
+      </symbol>
+
+      <!-- 3c nested / aligning shapes -->
+      <symbol id="sym-nested" viewBox="0 0 100 100">
+        <rect x="14" y="14" width="72" height="72" rx="16" fill="none" stroke="#f4f6f9" stroke-opacity="0.35" stroke-width="4" transform="rotate(-16 50 50)"/>
+        <rect x="25" y="25" width="50" height="50" rx="12" fill="none" stroke="#f4f6f9" stroke-opacity="0.7" stroke-width="5" transform="rotate(-8 50 50)"/>
+        <rect x="36" y="36" width="28" height="28" rx="8" fill="#7c93f5"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <header>
+    <h1>Shapi — Logo Concepts</h1>
+    <p>Palette E (dark). Each mark shown large (~120px) and at favicon size (16px) to check it survives small. Symbols in near-white or steel-blue <span style="color:#7c93f5">#7c93f5</span>; wordmark stays near-white, the symbol carries the accent.</p>
+  </header>
+
+  <!-- ============================ DIRECTION 1 ============================ -->
+  <section class="section">
+    <div class="eyebrow">Direction 1</div>
+    <h2>Sharpened 4-point star (no face)</h2>
+    <p class="desc">Geometric sparkle with sharp points and slightly concave sides so it reads precise; vertical &amp; horizontal points lead for a compass / direction feel. Shown solid near-white and with a steel-blue gradient on the points.</p>
+
+    <div class="specimens">
+      <div class="tile">
+        <svg width="120" height="120" style="color:#f4f6f9"><use href="#sym-star"/></svg>
+        <div class="cap">Solid · 120px</div>
+      </div>
+      <div class="tile">
+        <svg width="120" height="120"><use href="#sym-star-grad"/></svg>
+        <div class="cap">Gradient · 120px</div>
+      </div>
+      <div class="tile">
+        <div class="favbox">
+          <div class="pair"><svg width="16" height="16" style="color:#f4f6f9"><use href="#sym-star"/></svg><span class="px">16px solid</span></div>
+          <div class="pair"><svg width="16" height="16"><use href="#sym-star-grad"/></svg><span class="px">16px grad</span></div>
+        </div>
+        <div class="cap">Favicon</div>
+      </div>
+      <div class="tile lockup">
+        <div class="lock">
+          <svg width="34" height="34"><use href="#sym-star-grad"/></svg>
+          <span class="wordmark">shapi</span>
+        </div>
+        <div class="cap">Lockup</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ DIRECTION 3a ============================ -->
+  <section class="section">
+    <div class="eyebrow">Direction 3a</div>
+    <h2>Morphing form — square becoming circle</h2>
+    <p class="desc">Two overlapping geometric shapes (square outline + filled circle) suggesting one shape becoming another — the core "shaping" idea.</p>
+
+    <div class="specimens">
+      <div class="tile">
+        <svg width="120" height="120"><use href="#sym-morph"/></svg>
+        <div class="cap">120px</div>
+      </div>
+      <div class="tile">
+        <div class="favbox">
+          <div class="pair"><svg width="16" height="16"><use href="#sym-morph"/></svg><span class="px">16px</span></div>
+        </div>
+        <div class="cap">Favicon</div>
+      </div>
+      <div class="tile lockup">
+        <div class="lock">
+          <svg width="34" height="34"><use href="#sym-morph"/></svg>
+          <span class="wordmark">shapi</span>
+        </div>
+        <div class="cap">Lockup</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ DIRECTION 3b ============================ -->
+  <section class="section">
+    <div class="eyebrow">Direction 3b</div>
+    <h2>"S" in negative space</h2>
+    <p class="desc">A solid rounded square with an S-curve cut out — the letterform reads through the gap to the background. Shown in steel-blue and near-white.</p>
+
+    <div class="specimens">
+      <div class="tile">
+        <svg width="120" height="120" style="color:#7c93f5"><use href="#sym-s"/></svg>
+        <div class="cap">Steel-blue · 120px</div>
+      </div>
+      <div class="tile">
+        <svg width="120" height="120" style="color:#f4f6f9"><use href="#sym-s"/></svg>
+        <div class="cap">Near-white · 120px</div>
+      </div>
+      <div class="tile">
+        <div class="favbox">
+          <div class="pair"><svg width="16" height="16" style="color:#7c93f5"><use href="#sym-s"/></svg><span class="px">16px blue</span></div>
+          <div class="pair"><svg width="16" height="16" style="color:#f4f6f9"><use href="#sym-s"/></svg><span class="px">16px white</span></div>
+        </div>
+        <div class="cap">Favicon</div>
+      </div>
+      <div class="tile lockup">
+        <div class="lock">
+          <svg width="34" height="34" style="color:#7c93f5"><use href="#sym-s"/></svg>
+          <span class="wordmark">shapi</span>
+        </div>
+        <div class="cap">Lockup</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ DIRECTION 3c ============================ -->
+  <section class="section">
+    <div class="eyebrow">Direction 3c</div>
+    <h2>Nested / aligning shapes</h2>
+    <p class="desc">Concentric forms rotating into alignment — outer layers off-axis, resolving to a solid steel-blue core. Structure emerging from chaos.</p>
+
+    <div class="specimens">
+      <div class="tile">
+        <svg width="120" height="120"><use href="#sym-nested"/></svg>
+        <div class="cap">120px</div>
+      </div>
+      <div class="tile">
+        <div class="favbox">
+          <div class="pair"><svg width="16" height="16"><use href="#sym-nested"/></svg><span class="px">16px</span></div>
+        </div>
+        <div class="cap">Favicon</div>
+      </div>
+      <div class="tile lockup">
+        <div class="lock">
+          <svg width="34" height="34"><use href="#sym-nested"/></svg>
+          <span class="wordmark">shapi</span>
+        </div>
+        <div class="cap">Lockup</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
