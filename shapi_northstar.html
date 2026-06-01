@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shapi — North Star / Compass Mark (Palette E)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #0c0e11;
+    color: #f4f6f9;
+    -webkit-font-smoothing: antialiased;
+    padding: 48px 32px 80px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+  header p { margin-top: 8px; color: rgba(244,246,249,0.5); font-size: 15px; max-width: 660px; }
+
+  .section { margin-top: 48px; }
+  .section > .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #7c93f5;
+  }
+  .section > h2 { margin-top: 6px; font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+  .section > .desc { margin-top: 8px; color: rgba(244,246,249,0.55); font-size: 14px; max-width: 680px; }
+
+  .specimens { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 16px; }
+  .tile {
+    background: #13161b; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;
+    padding: 22px 24px; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 14px; min-width: 150px;
+  }
+  .tile.light { background: #f5f3ef; border-color: rgba(0,0,0,0.08); }
+  .tile .cap {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+    color: rgba(244,246,249,0.4);
+  }
+  .tile.light .cap { color: rgba(0,0,0,0.4); }
+  .tile.lockup { min-width: 260px; }
+
+  .favbox { display: flex; align-items: center; gap: 18px; }
+  .favbox .pair { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .favbox .px { font-size: 10px; color: rgba(244,246,249,0.35); }
+
+  .wordmark { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; color: #f4f6f9; text-transform: lowercase; }
+  .wordmark.dark { color: #1a1814; }
+  .lock { display: flex; align-items: center; gap: 11px; }
+  svg { display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== Shared symbols ===== -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <!-- FULL compass / north star: long vertical axis, medium horizontal, short diagonals.
+           Ownable detail: the north ray carries a single lit facet (a real compass-needle highlight). -->
+      <symbol id="ns-blue" viewBox="0 0 100 100">
+        <polygon points="50,2 54.98,37.99 62.73,37.27 62.01,45.02 80,50 62.01,54.98 62.73,62.73 54.98,62.01 50,90 45.02,62.01 37.27,62.73 37.99,54.98 20,50 37.99,45.02 37.27,37.27 45.02,37.99" fill="#7c93f5"/>
+        <polygon points="50,2 45.02,37.99 50,37.99" fill="#aeb9ff"/>
+      </symbol>
+      <symbol id="ns-mono" viewBox="0 0 100 100">
+        <polygon points="50,2 54.98,37.99 62.73,37.27 62.01,45.02 80,50 62.01,54.98 62.73,62.73 54.98,62.01 50,90 45.02,62.01 37.27,62.73 37.99,54.98 20,50 37.99,45.02 37.27,37.27 45.02,37.99" fill="#f4f6f9"/>
+        <polygon points="50,2 45.02,37.99 50,37.99" fill="#0c0e11" fill-opacity="0.16"/>
+      </symbol>
+      <symbol id="ns-dark" viewBox="0 0 100 100">
+        <polygon points="50,2 54.98,37.99 62.73,37.27 62.01,45.02 80,50 62.01,54.98 62.73,62.73 54.98,62.01 50,90 45.02,62.01 37.27,62.73 37.99,54.98 20,50 37.99,45.02 37.27,37.27 45.02,37.99" fill="#1a1814"/>
+        <polygon points="50,2 45.02,37.99 50,37.99" fill="#ffffff" fill-opacity="0.16"/>
+      </symbol>
+
+      <!-- SIMPLIFIED favicon: drop the short diagonals, keep the long vertical + short horizontal.
+           Reads cleanly at 16px while holding the compass-star feel. -->
+      <symbol id="ns-fav-blue" viewBox="0 0 100 100">
+        <polygon points="50,3 59.9,40.1 77,50 59.9,59.9 50,87 40.1,59.9 23,50 40.1,40.1" fill="#7c93f5"/>
+      </symbol>
+      <symbol id="ns-fav-mono" viewBox="0 0 100 100">
+        <polygon points="50,3 59.9,40.1 77,50 59.9,59.9 50,87 40.1,59.9 23,50 40.1,40.1" fill="#f4f6f9"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <header>
+    <h1>Shapi — North Star Mark</h1>
+    <p>A true pole-star / compass-rose: a dominant vertical axis, shorter horizontal and short diagonal cross-points — not four equal sparkle points. The signature detail is a single lit facet on the north ray, so it reads as <em>Shapi's</em> star at a glance. Steel-blue <span style="color:#7c93f5">#7c93f5</span> star, near-white wordmark.</p>
+  </header>
+
+  <!-- ===== Primary mark ===== -->
+  <section class="section">
+    <div class="eyebrow">Primary</div>
+    <h2>Compass north-star — steel-blue</h2>
+    <p class="desc">Long N–S axis (north slightly longer than south), medium E–W, short diagonals. The lit left facet on the north point is the ownable "needle" detail.</p>
+
+    <div class="specimens">
+      <div class="tile">
+        <svg width="120" height="120"><use href="#ns-blue"/></svg>
+        <div class="cap">120px</div>
+      </div>
+      <div class="tile">
+        <div class="favbox">
+          <div class="pair"><svg width="32" height="32"><use href="#ns-blue"/></svg><span class="px">32px</span></div>
+          <div class="pair"><svg width="16" height="16"><use href="#ns-blue"/></svg><span class="px">16px (full)</span></div>
+        </div>
+        <div class="cap">Favicon · full mark</div>
+      </div>
+      <div class="tile lockup">
+        <div class="lock">
+          <svg width="36" height="36"><use href="#ns-blue"/></svg>
+          <span class="wordmark">shapi</span>
+        </div>
+        <div class="cap">Lockup</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Mono / inverse ===== -->
+  <section class="section">
+    <div class="eyebrow">Mono / inverse</div>
+    <h2>Near-white version</h2>
+    <p class="desc">Single-colour near-white for dark UI, plus the dark version shown on a light surface for inverse / print.</p>
+
+    <div class="specimens">
+      <div class="tile">
+        <svg width="120" height="120"><use href="#ns-mono"/></svg>
+        <div class="cap">Near-white · 120px</div>
+      </div>
+      <div class="tile">
+        <div class="favbox">
+          <div class="pair"><svg width="32" height="32"><use href="#ns-mono"/></svg><span class="px">32px</span></div>
+          <div class="pair"><svg width="16" height="16"><use href="#ns-mono"/></svg><span class="px">16px</span></div>
+        </div>
+        <div class="cap">Favicon · mono</div>
+      </div>
+      <div class="tile lockup">
+        <div class="lock">
+          <svg width="36" height="36"><use href="#ns-mono"/></svg>
+          <span class="wordmark">shapi</span>
+        </div>
+        <div class="cap">Lockup · mono</div>
+      </div>
+      <div class="tile light">
+        <div class="lock">
+          <svg width="36" height="36"><use href="#ns-dark"/></svg>
+          <span class="wordmark dark">shapi</span>
+        </div>
+        <div class="cap">Inverse on light</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Simplified favicon variant ===== -->
+  <section class="section">
+    <div class="eyebrow">Favicon variant</div>
+    <h2>Simplified 4-point compass — for tiny sizes</h2>
+    <p class="desc">At 16px the full mark's short diagonals and the lit facet get muddy. This stripped 4-point compass keeps the long vertical axis and the north-star feel while staying crisp at favicon size.</p>
+
+    <div class="specimens">
+      <div class="tile">
+        <svg width="120" height="120"><use href="#ns-fav-blue"/></svg>
+        <div class="cap">120px</div>
+      </div>
+      <div class="tile">
+        <div class="favbox">
+          <div class="pair"><svg width="32" height="32"><use href="#ns-fav-blue"/></svg><span class="px">32px</span></div>
+          <div class="pair"><svg width="16" height="16"><use href="#ns-fav-blue"/></svg><span class="px">16px blue</span></div>
+          <div class="pair"><svg width="16" height="16"><use href="#ns-fav-mono"/></svg><span class="px">16px white</span></div>
+        </div>
+        <div class="cap">Favicon · simplified</div>
+      </div>
+      <div class="tile lockup">
+        <div class="lock">
+          <svg width="36" height="36"><use href="#ns-fav-blue"/></svg>
+          <span class="wordmark">shapi</span>
+        </div>
+        <div class="cap">Lockup · simplified</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
