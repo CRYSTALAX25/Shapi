@@ -172,10 +172,10 @@ export default function TierBWorkspace() {
           className="text-3xl md:text-4xl font-black tracking-tighter mb-2"
           style={{ color: '#FB7185' }}
         >
-          Tier B — 5-year Workforce Plan
+          Strategic Workforce Plan
         </h1>
         <p className="text-[#A6A6B4] text-sm mb-6 max-w-2xl">
-          Full engagement workspace: operating model diagnostic → org DNA → workforce + AI plan → execution playbook.
+          Full engagement workspace — 1 / 3 / 5 / 10-year horizons. Operating-model diagnostic → org DNA → workforce + AI plan → execution playbook.
         </p>
 
         {loading && (
@@ -290,7 +290,7 @@ export default function TierBWorkspace() {
                 defaultOpen={status2 === 'done' && status3 !== 'done'}
               >
                 <p className="text-[#A6A6B4] text-xs leading-relaxed">
-                  Combines the operating-model diagnostic + org DNA + your latest Workforce Snapshot (if on file) to produce the 5-year plan. No extra inputs needed.
+                  Combines the operating-model diagnostic + org DNA + your latest Workforce Snapshot (if on file) to produce the Strategic Workforce Plan. No extra inputs needed.
                 </p>
                 {engagement.workforce_plan && <WorkforcePlanOutput data={engagement.workforce_plan} />}
               </StepCard>
@@ -307,7 +307,7 @@ export default function TierBWorkspace() {
                 defaultOpen={status3 === 'done' && status4 !== 'done'}
               >
                 <p className="text-[#A6A6B4] text-xs leading-relaxed">
-                  Turns the approved 5-year plan into Monday-morning deliverables — drafts, compliance, hiring plan, milestones.
+                  Turns the approved Strategic Workforce Plan into Monday-morning deliverables — drafts, compliance, hiring plan, milestones.
                 </p>
                 {engagement.execution_playbook && <PlaybookOutput data={engagement.execution_playbook} />}
               </StepCard>

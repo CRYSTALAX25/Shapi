@@ -407,7 +407,7 @@ const bn: typeof en = {
       subhead: 'Workforce planning ও AI integration দুটো আলাদা সমস্যা নয় — এটা একটাই সমস্যা। AI rollout plan ছাড়া headcount plan করা যায় না, এবং talent plan ছাড়া AI rollout plan করা যায় না।',
       subheadExtra: 'আমরা আপনার readiness score করি, transformation plan করি, এবং execute করতে verified talent সরবরাহ করি — সব এক platform-এ।',
       ctaSnapshot: 'আপনার ফ্রি Workforce Snapshot চালান →',
-      ctaTalk: 'Ana-র সাথে কথা বলুন',
+      ctaTalk: 'একটি কল বুক করুন',
       trustedByLabel: 'যাদের জন্য তৈরি — hiring teams',
       trusted1: 'UAE family holdings',
       trusted2: 'GCC mega-projects',
@@ -518,7 +518,7 @@ const bn: typeof en = {
       title: 'আপনার team-এর future-readiness দেখতে প্রস্তুত?',
       subtitle: 'ফ্রি Snapshot, ~30 সেকেন্ডের input, sourced answer ফিরিয়ে।',
       ctaSnapshot: 'Snapshot চালান — ফ্রি, ~30s →',
-      ctaTalk: 'Ana-র সাথে কথা বলুন',
+      ctaTalk: 'একটি কল বুক করুন',
     },
   },
 } as const

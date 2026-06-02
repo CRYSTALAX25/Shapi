@@ -257,7 +257,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                 { href: '/company/org-design', label: 'Org design', icon: '🏛️' },
                 { href: '/company/staffing', label: 'Staffing recs', icon: '🤖' },
                 { href: '/company/cognitive-load', label: 'Cognitive load', icon: '🧠' },
-                { href: '/company/tier-b', label: '5-yr Plan (Tier B)', icon: '📋' },
+                { href: '/company/tier-b', label: 'Strategic Workforce Plan', icon: '📋' },
                 { href: '/company/os', label: 'Workforce OS', icon: '📡' },
                 { href: '/role/ai-proof', label: 'AI-Proof a role', icon: '🛡️' },
                 { href: '/company/roles', label: 'Roles', icon: '💼' },
@@ -395,7 +395,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
               <div className="flex-1 min-w-0">
                 <p className="text-[#F4F4F7] font-black text-base mb-1">Snapshot complete — your wedge into Shapi.</p>
                 <p className="text-[#A6A6B4] text-xs mb-3 leading-relaxed">
-                  Turn the diagnosis into action: <strong className="text-[#F4F4F7]">Growth ($799/mo)</strong> unlocks the full Hiring Roadmap, AI-shortlisted candidates per role, and salary benchmarks per role flagged at risk. <strong className="text-[#F4F4F7]">14-day free trial, no card required.</strong>
+                  Turn the diagnosis into action: <strong className="text-[#F4F4F7]">Growth ($799/mo)</strong> unlocks the full Hiring Roadmap, AI-shortlisted candidates per role, and salary benchmarks per role flagged at risk. <strong className="text-[#F4F4F7]">14-day free trial</strong> — card on file via Stripe, no charge for 14 days, cancel anytime.
                 </p>
                 <div className="flex flex-wrap gap-3 items-center">
                   <Link href="/company/pricing?plan=growth&trial=14" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-black text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#34D399)' }}>

@@ -401,7 +401,7 @@ const fr: typeof en = {
       subhead: 'Planification des effectifs et intégration IA ne sont pas deux problèmes — c’est le même. Pas de plan headcount sans plan IA, et pas de plan IA sans plan talent.',
       subheadExtra: 'Nous notons votre maturité, planifions votre transformation et fournissons le talent vérifié pour exécuter — sur une seule plateforme.',
       ctaSnapshot: 'Lancer votre Workforce Snapshot gratuit →',
-      ctaTalk: 'Parler à Ana',
+      ctaTalk: 'Réserver un appel',
       trustedByLabel: 'Conçu pour des équipes RH issues de',
       trusted1: 'Holdings familiaux EAU',
       trusted2: 'Méga-projets GCC',
@@ -512,7 +512,7 @@ const fr: typeof en = {
       title: 'Prêt à voir l’état de préparation futur de votre équipe ?',
       subtitle: 'Snapshot gratuit, ~30 secondes d’entrées, réponses sourcées en retour.',
       ctaSnapshot: 'Lancer le Snapshot — gratuit, ~30s →',
-      ctaTalk: 'Parler à Ana',
+      ctaTalk: 'Réserver un appel',
     },
   },
 }

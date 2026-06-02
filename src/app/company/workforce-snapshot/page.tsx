@@ -352,7 +352,7 @@ function WorkforceSnapshotInner() {
                     </button>
                   ))}
                 </div>
-                <p className="text-[#7E7E8E] text-[11px] mt-2">Pick the closest, or pick &quot;Hybrid&quot; — Tier B can map per-BU.</p>
+                <p className="text-[#7E7E8E] text-[11px] mt-2">Pick the closest, or pick &quot;Hybrid&quot; — the Strategic Workforce Plan can map per-BU.</p>
               </div>
             </div>
 
@@ -597,20 +597,21 @@ function WorkforceSnapshotInner() {
                       style={{ background: 'linear-gradient(135deg,#6AA8F5,#34D399)' }}>
                       Start free 14-day trial →
                     </Link>
-                    <span className="text-[#7E7E8E] text-[11px]">No card required. Cancel anytime.</span>
+                    <span className="text-[#7E7E8E] text-[11px]">Card on file via Stripe. No charge for 14 days. Cancel anytime.</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* CTA 2 — Tier B (enterprise consulting). Distinct buyer + ask;
-                kept as the secondary, premium-bookable path. */}
+            {/* CTA 2 — Strategic Workforce Plan (enterprise consulting tier).
+                Distinct buyer + ask; kept as the secondary, premium-bookable
+                path. Internally "Tier B" in pricing config / comments. */}
             <div className="rounded-2xl p-5 text-center" style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.10), rgba(240,140,174,0.10))', border: '1px solid rgba(240,140,174,0.30)' }}>
-              <p className="text-[#F4F4F7] font-black text-base mb-1">Need the full 5-year plan?</p>
-              <p className="text-[#A6A6B4] text-sm mb-4">Operating-model diagnostic, per-BU mapping, scenario modelling, execution playbook, talent sourced from our verified pool.</p>
-              <a href="mailto:ana.vbarber@gmail.com?subject=Shapi%20Workforce%20Plan%20-%20design%20partner%20enquiry" className="inline-block px-6 py-3 rounded-full font-black text-sm" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', color: '#fff' }}>
+              <p className="text-[#F4F4F7] font-black text-base mb-1">Want the full Strategic Workforce Plan?</p>
+              <p className="text-[#A6A6B4] text-sm mb-4">1 / 3 / 5 / 10-year operating-model diagnostic, per-BU mapping, scenario modelling, execution playbook, talent sourced from our verified pool.</p>
+              <Link href="/book-call?topic=strategic-plan" className="inline-block px-6 py-3 rounded-full font-black text-sm" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', color: '#fff' }}>
                 Book a strategy call →
-              </a>
+              </Link>
             </div>
 
             {/* During the first-run flow, primary action is "Done — to my

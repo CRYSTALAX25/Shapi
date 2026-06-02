@@ -121,12 +121,12 @@ function ForCompaniesInner() {
             >
               {t('forCompanies.hero.ctaSnapshot')}
             </Link>
-            <a
-              href="mailto:ana.vbarber@gmail.com?subject=Shapi%20-%20Workforce%20Intelligence%20enquiry"
+            <Link
+              href="/book-call?topic=workforce-intelligence"
               className="btn-outline rounded-full px-7 py-4 text-sm font-bold text-center"
             >
               {t('forCompanies.hero.ctaTalk')}
-            </a>
+            </Link>
           </div>
 
           {/* Trusted-by placeholder strip */}
@@ -423,7 +423,7 @@ function ForCompaniesInner() {
               color: '#F08CAE',
               desc: t('forCompanies.pricing.t2Desc'),
               cta: t('forCompanies.pricing.t2Cta'),
-              href: 'mailto:ana.vbarber@gmail.com?subject=Shapi%20-%205-year%20Workforce%20Plan',
+              href: '/book-call?topic=strategic-plan',
               highlight: true,
             },
             {
@@ -433,7 +433,7 @@ function ForCompaniesInner() {
               color: '#F58E9A',
               desc: t('forCompanies.pricing.t3Desc'),
               cta: t('forCompanies.pricing.t3Cta'),
-              href: 'mailto:ana.vbarber@gmail.com?subject=Shapi%20-%20Workforce%20OS',
+              href: '/book-call?topic=workforce-os',
               highlight: false,
             },
           ].map((tier) => (
@@ -508,12 +508,12 @@ function ForCompaniesInner() {
               >
                 {t('forCompanies.finalCta.ctaSnapshot')}
               </Link>
-              <a
-                href="mailto:ana.vbarber@gmail.com?subject=Shapi%20-%20Workforce%20Intelligence%20enquiry"
+              <Link
+                href="/book-call?topic=workforce-intelligence"
                 className="btn-outline rounded-full px-8 py-4 font-bold text-sm"
               >
                 {t('forCompanies.finalCta.ctaTalk')}
-              </a>
+              </Link>
             </div>
           </div>
         </div>

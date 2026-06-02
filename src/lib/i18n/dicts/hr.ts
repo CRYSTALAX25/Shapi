@@ -405,7 +405,7 @@ const hr: typeof en = {
       subhead: 'Planiranje radne snage i AI integracija nisu dva problema — to je jedan problem. Ne možete planirati broj zaposlenih bez plana AI uvođenja, niti AI uvođenje bez plana talenata.',
       subheadExtra: 'Ocjenjujemo vašu spremnost, planiramo vašu transformaciju i isporučujemo provjerene talente za izvedbu — sve na jednoj platformi.',
       ctaSnapshot: 'Pokrenite besplatni Workforce Snapshot →',
-      ctaTalk: 'Razgovarajte s Anom',
+      ctaTalk: 'Rezervirajte poziv',
       trustedByLabel: 'Stvoreno za timove zapošljavanja iz',
       trusted1: 'obiteljskih holdinga u UAE',
       trusted2: 'GCC mega-projekata',
@@ -516,7 +516,7 @@ const hr: typeof en = {
       title: 'Spremni vidjeti budućnost spremnost svog tima?',
       subtitle: 'Besplatan Snapshot, ~30 sekundi unosa, odgovori iz izvora natrag.',
       ctaSnapshot: 'Pokrenite Snapshot — besplatno, ~30s →',
-      ctaTalk: 'Razgovarajte s Anom',
+      ctaTalk: 'Rezervirajte poziv',
     },
   },
 } as const

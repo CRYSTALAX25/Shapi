@@ -407,7 +407,7 @@ const tl: typeof en = {
       subhead: 'Ang workforce planning at AI integration ay hindi dalawang problema — isa lang sila. Hindi mo mapaplano ang headcount kung walang AI rollout plan, at hindi mo mapaplano ang AI rollout kung walang talent plan.',
       subheadExtra: 'Sini-score namin ang readiness mo, pina-plano ang transformation, at sinusuplayan ng verified talent para mai-execute — lahat sa isang platform.',
       ctaSnapshot: 'Patakbuhin ang libreng Workforce Snapshot →',
-      ctaTalk: 'Kausapin si Ana',
+      ctaTalk: 'Mag-book ng tawag',
       trustedByLabel: 'Itinayo para sa mga hiring team galing sa',
       trusted1: 'UAE family holdings',
       trusted2: 'GCC mega-projects',
@@ -518,7 +518,7 @@ const tl: typeof en = {
       title: 'Handa nang makita ang future-readiness ng team mo?',
       subtitle: 'Libreng Snapshot, ~30 segundo ng inputs, sourced answers ang balik.',
       ctaSnapshot: 'Patakbuhin ang Snapshot — libre, ~30s →',
-      ctaTalk: 'Kausapin si Ana',
+      ctaTalk: 'Mag-book ng tawag',
     },
   },
 } as const

@@ -430,13 +430,13 @@ export default function WorkforceOsPage() {
                   </div>
                 ))}
               </div>
-              <a
-                href="mailto:ana.vbarber@gmail.com?subject=Shapi%20Workforce%20OS%20-%20enterprise%20beta%20invite"
+              <Link
+                href="/book-call?topic=workforce-os"
                 className="inline-block text-xs font-black px-4 py-2 rounded-full text-white"
                 style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}
               >
                 Request invite to enterprise beta →
-              </a>
+              </Link>
               <p className="text-[#7E7E8E] text-[11px] mt-3 leading-relaxed">
                 Drivers for the beta queue: HRIS in use, headcount, geographic spread. We let in 10 companies at a time so each integration ships clean.
               </p>

@@ -405,7 +405,7 @@ const en = {
       subhead: "Workforce planning and AI integration aren't two problems — they're one. You can't plan headcount without an AI rollout plan, and you can't plan AI rollout without a talent plan.",
       subheadExtra: 'We score your readiness, plan your transformation, and supply the verified talent to execute — all in one platform.',
       ctaSnapshot: 'Run your free Workforce Snapshot →',
-      ctaTalk: 'Talk to Ana',
+      ctaTalk: 'Book a call',
       trustedByLabel: 'Built for hiring teams from',
       trusted1: 'UAE family holdings',
       trusted2: 'GCC mega-projects',
@@ -516,7 +516,7 @@ const en = {
       title: "Ready to see your team's future-readiness?",
       subtitle: 'Free Snapshot, ~30 seconds of inputs, sourced answers on the way back.',
       ctaSnapshot: 'Run the Snapshot — free, ~30s →',
-      ctaTalk: 'Talk to Ana',
+      ctaTalk: 'Book a call',
     },
   },
 } as const

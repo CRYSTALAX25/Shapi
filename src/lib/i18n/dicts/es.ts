@@ -406,7 +406,7 @@ const es: typeof en = {
       subhead: 'La planificación de plantilla y la integración de IA no son dos problemas — son uno. No puedes planear headcount sin un plan de IA, y no puedes planear IA sin un plan de talento.',
       subheadExtra: 'Puntuamos tu preparación, planeamos tu transformación y aportamos el talento verificado para ejecutar — todo en una plataforma.',
       ctaSnapshot: 'Lanza tu Workforce Snapshot gratis →',
-      ctaTalk: 'Hablar con Ana',
+      ctaTalk: 'Reservar una llamada',
       trustedByLabel: 'Hecho para equipos de contratación de',
       trusted1: 'Holdings familiares EAU',
       trusted2: 'Mega-proyectos del GCC',
@@ -517,7 +517,7 @@ const es: typeof en = {
       title: '¿Listo para ver el future-readiness de tu equipo?',
       subtitle: 'Snapshot gratis, ~30 segundos de inputs, respuestas con fuente de vuelta.',
       ctaSnapshot: 'Lanzar el Snapshot — gratis, ~30s →',
-      ctaTalk: 'Hablar con Ana',
+      ctaTalk: 'Reservar una llamada',
     },
   },
 } as const
