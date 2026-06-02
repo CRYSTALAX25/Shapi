@@ -119,12 +119,32 @@ Return ONLY valid JSON in this exact shape (NO markdown, NO commentary outside t
 
 top_at_risk_roles = 3-5 items. ai_integration_estimates = 1-3 items (matching the use cases given, or common ones if not provided).`
 
-  try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
+  // Try Sonnet first (sharper analysis), fall back to Haiku 4.5 if Sonnet is
+  // overloaded (HTTP 529 — Anthropic's "we're at capacity" signal). The
+  // honest-confidence prompt + JSON-shape contract work well on Haiku too;
+  // a slightly less nuanced report is far better than a broken one.
+  async function callClaude(model: string) {
+    return anthropic.messages.create({
+      model,
       max_tokens: 2600,
       messages: [{ role: 'user', content: prompt }],
     })
+  }
+
+  function isOverloaded(err: unknown): boolean {
+    const m = err instanceof Error ? err.message : String(err)
+    return /529|overloaded|overload_error|capacity/i.test(m)
+  }
+
+  try {
+    let response: Awaited<ReturnType<typeof callClaude>>
+    try {
+      response = await callClaude('claude-sonnet-4-6')
+    } catch (sonnetErr) {
+      if (!isOverloaded(sonnetErr)) throw sonnetErr
+      console.warn('[workforce-snapshot] Sonnet overloaded, falling back to Haiku 4.5')
+      response = await callClaude('claude-haiku-4-5-20251001')
+    }
     const text = response.content[0]?.type === 'text' ? response.content[0].text : ''
     const match = text.match(/\{[\s\S]*\}/)
     if (!match) {
@@ -166,6 +186,20 @@ top_at_risk_roles = 3-5 items. ai_integration_estimates = 1-3 items (matching th
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[workforce-snapshot] error:', msg)
-    return NextResponse.json({ error: msg }, { status: 500 })
+    // Friendlier copy for the common-and-recoverable cases. Raw Anthropic
+    // JSON in the UI was scaring testers.
+    if (/529|overloaded|overload_error|capacity/i.test(msg)) {
+      return NextResponse.json(
+        { error: "Our analysis engine is at capacity right now — try again in 30–60 seconds." },
+        { status: 503 },
+      )
+    }
+    if (/rate.?limit|429/i.test(msg)) {
+      return NextResponse.json(
+        { error: "Hit a rate limit — wait a minute and try again." },
+        { status: 429 },
+      )
+    }
+    return NextResponse.json({ error: 'Snapshot engine hit a snag — try again.' }, { status: 500 })
   }
 }

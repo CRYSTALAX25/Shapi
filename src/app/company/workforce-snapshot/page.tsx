@@ -373,8 +373,9 @@ function WorkforceSnapshotInner() {
                       onChange={e => { const f = e.target.files?.[0]; if (f) onCsvFile(f); e.currentTarget.value = '' }} />
                   </label>
                   <button type="button" onClick={downloadTemplate}
-                    className="text-[#7E7E8E] text-[10px] font-medium hover:text-[#C7C7D1] transition-colors whitespace-nowrap">
-                    ↓ Template
+                    className="text-[#C7C7D1] text-[10px] font-bold border border-white/[0.12] px-2.5 py-1 rounded-full hover:text-[#F4F4F7] hover:border-white/[0.30] transition-colors whitespace-nowrap"
+                    title="Download a populated CSV showing the exact format we expect">
+                    ↓ Download template
                   </button>
                 </div>
               </div>
