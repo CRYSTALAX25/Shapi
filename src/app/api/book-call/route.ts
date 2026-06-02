@@ -17,6 +17,13 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 const TO = 'ana.vbarber@gmail.com'
 
+// Reply-to on outbound emails. We brand from hello@shapi.io but until
+// Cloudflare Email Routing / ImprovMX forwards hello@shapi.io → Ana's
+// Gmail, replies to that address vanish. SHAPI_REPLY_EMAIL env var
+// overrides; default falls through to Ana's reachable inbox so we don't
+// orphan replies during the pre-launch / pre-forwarding window.
+const REPLY_TO_SHAPI = process.env.SHAPI_REPLY_EMAIL || 'ana.vbarber@gmail.com'
+
 export async function POST(request: Request) {
   let body: {
     name?: string; email?: string; company?: string; role?: string
@@ -160,7 +167,7 @@ export async function POST(request: Request) {
     await resend.emails.send({
       from: 'Shapi <hello@shapi.io>',
       to: email,
-      replyTo: 'hello@shapi.io',
+      replyTo: REPLY_TO_SHAPI,
       subject: `We got your request — speak soon, ${firstName}`,
       text: `Hi ${firstName},\n\nThanks for reaching out about ${topicLabel}. We've got your request.${calendlyBlockText}\n\nIf you want to add anything else before the call, just reply to this email.\n\n— The Shapi team\nshapi.io`,
       html: `
