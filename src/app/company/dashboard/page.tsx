@@ -4,6 +4,7 @@ import Link from 'next/link'
 import ShapiCharacter from '@/components/ShapiCharacter'
 import { createAdminClient } from '@/lib/supabase/admin'
 import ShortlistButton from './ShortlistButton'
+import InviteForm from './InviteForm'
 import { scoreCandidateForRole, matchLabel } from '@/lib/matching'
 import SubscribeButton from '@/components/SubscribeButton'
 import WhatsAppConnectCard from '@/components/WhatsAppConnectCard'
@@ -505,19 +506,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
             </div>
           )}
 
-          <form action="/api/company/invite" method="post" className="flex gap-2">
-            <input
-              name="email"
-              type="email"
-              required
-              placeholder="colleague@company.com"
-              className="flex-1 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/40"
-            />
-            <button type="submit"
-              className="flex-shrink-0 bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] text-[#fff] text-xs font-black px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity">
-              Invite
-            </button>
-          </form>
+          <InviteForm />
         </div>
 
           </main>
