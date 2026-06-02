@@ -6,6 +6,27 @@ import Link from 'next/link'
 const CURRENCIES = ['AED', 'SAR', 'USD', 'GBP', 'EUR', 'QAR', 'KWD']
 const EXPERIENCE = ['0–2 years', '3–5 years', '6–10 years', '10+ years']
 
+// Location keyword → currency map. Used to keep the currency dropdown in
+// sync with the location field — Ana's testing surfaced the bug where users
+// typed Riyadh / KSA but the estimate came back in AED because currency
+// defaulted to AED and never updated when location changed. Heuristic only;
+// the user can still override the currency dropdown manually.
+const CURRENCY_BY_LOCATION: Array<[RegExp, string]> = [
+  [/\b(saudi|ksa|riyadh|jeddah|dammam|al[\s-]?khobar|qiddiya|neom|red\s?sea|murabba)\b/i, 'SAR'],
+  [/\b(uae|dubai|abu\s?dhabi|sharjah|ajman|fujairah|emirates)\b/i, 'AED'],
+  [/\b(qatar|doha)\b/i, 'QAR'],
+  [/\b(kuwait)\b/i, 'KWD'],
+  [/\b(uk|united\s?kingdom|london|manchester|edinburgh|britain|england|scotland|wales)\b/i, 'GBP'],
+  [/\b(usa|united\s?states|us|new\s?york|san\s?francisco|los\s?angeles|chicago)\b/i, 'USD'],
+  [/\b(germany|france|italy|spain|netherlands|portugal|ireland|austria|belgium|euro|eu)\b/i, 'EUR'],
+]
+function currencyForLocation(loc: string): string | null {
+  for (const [re, cur] of CURRENCY_BY_LOCATION) {
+    if (re.test(loc)) return cur
+  }
+  return null
+}
+
 type Band = { min: number; max: number }
 type Estimate = {
   currency: string
@@ -20,8 +41,20 @@ export default function WorthPage() {
   const [experience, setExperience] = useState('6–10 years')
   const [location, setLocation] = useState('Dubai, UAE')
   const [currency, setCurrency] = useState('AED')
+  // Tracks whether the user has manually picked a currency. If they have, we
+  // stop auto-deriving it from location so we don't override their choice.
+  const [currencyManual, setCurrencyManual] = useState(false)
   const [pivotField, setPivotField] = useState('')
   const [showPivot, setShowPivot] = useState(false)
+
+  // Auto-sync currency to location until the user manually picks one. Fixes
+  // the AED-for-SAR bug: location was being hydrated from profile (or typed)
+  // while currency stayed at its initial AED default.
+  useEffect(() => {
+    if (currencyManual) return
+    const derived = currencyForLocation(location)
+    if (derived && derived !== currency) setCurrency(derived)
+  }, [location, currencyManual, currency])
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -130,7 +163,7 @@ export default function WorthPage() {
               </div>
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#7E7E8E] mb-2">Currency</label>
-                <select value={currency} onChange={e => setCurrency(e.target.value)}
+                <select value={currency} onChange={e => { setCurrency(e.target.value); setCurrencyManual(true) }}
                   className="w-full px-4 py-3 rounded-xl text-sm bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[#F4F4F7] focus:outline-none">
                   {CURRENCIES.map(c => <option key={c}>{c}</option>)}
                 </select>

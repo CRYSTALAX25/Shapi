@@ -11,7 +11,11 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import Anthropic from '@anthropic-ai/sdk'
 
-export const maxDuration = 60
+// Sonnet 4.6 with max_tokens=2600 can take 30–55s end-to-end. The previous
+// 60s cap was tripping the connection-drop bug Ana hit in testing. Vercel
+// clamps to the plan's max (Hobby 60, Pro 300) so requesting 300 here is
+// safe and gives us the headroom we need without dropping mid-generation.
+export const maxDuration = 300
 
 type RoleInput = { role?: string; dept?: string; count?: number }
 

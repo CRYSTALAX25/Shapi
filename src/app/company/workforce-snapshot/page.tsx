@@ -110,11 +110,22 @@ function WorkforceSnapshotInner() {
   const removeRole = (i: number) => setRoles(prev => prev.length > 1 ? prev.filter((_, idx) => idx !== i) : prev)
 
   // Bulk-paste: tab- or comma-separated rows from any spreadsheet.
-  // Format per line: role[, dept[, count]]  — flexible.
+  // Format per line: role[, dept[, count]] — flexible. Auto-detects a header
+  // row (Ana's testing: CSV with column headers was being parsed as a "role"
+  // called "Role" with no count). The header heuristic looks for the literal
+  // tokens "role", "title", "position", "department", "dept", or "count" in
+  // any case in the first line.
   const [bulkText, setBulkText] = useState('')
   const [bulkOpen, setBulkOpen] = useState(false)
   const importBulk = () => {
-    const lines = bulkText.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
+    let lines = bulkText.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
+    // Strip a header row if line 1 looks like column labels.
+    if (lines.length > 0) {
+      const first = lines[0].toLowerCase()
+      const looksLikeHeader = /\b(role|title|position|department|dept|count|headcount|fte)\b/.test(first)
+        && !/\d/.test(first.replace(/[,;\t]/g, ''))
+      if (looksLikeHeader) lines = lines.slice(1)
+    }
     const parsed: RoleRow[] = []
     for (const line of lines) {
       // split on tab first (paste from Excel/Sheets), fall back to commas
@@ -136,6 +147,26 @@ function WorkforceSnapshotInner() {
     const reader = new FileReader()
     reader.onload = () => { setBulkText(String(reader.result || '')); setBulkOpen(true) }
     reader.readAsText(file)
+  }
+  // Download a populated template so users see the exact format we expect
+  // before they edit. Header row is detected and stripped on import, so the
+  // template is purely educational — it can't break the parse.
+  const downloadTemplate = () => {
+    const csv = [
+      'Role,Department,Count',
+      'Operations Director,Operations,1',
+      'Software Engineer,Engineering,4',
+      'Customer Success Manager,Customer Success,2',
+    ].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'shapi-roles-template.csv'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
   }
 
   const run = async () => {
@@ -162,12 +193,25 @@ function WorkforceSnapshotInner() {
         }),
       })
       const raw = await res.text()
+      // Vercel returns an HTML 504 (not JSON) when a function hits its
+      // max-duration cap. Detect that explicitly so the user sees a useful
+      // message instead of a generic "connection dropped" string.
       let d: { success?: boolean; report?: Report; error?: string } = {}
-      try { d = JSON.parse(raw) } catch { setErr('Connection dropped — try again in a few seconds.'); return }
+      try { d = JSON.parse(raw) } catch {
+        if (res.status === 504 || /timeout|gateway/i.test(raw)) {
+          setErr('The analysis took a bit too long — usually works on the second go. Tap Show me again.')
+        } else if (res.status >= 500) {
+          setErr(`Snapshot engine hit a snag (${res.status}). Try once more — if it keeps failing, the team has been notified.`)
+        } else {
+          setErr('Something interrupted the connection — please try again.')
+        }
+        return
+      }
       if (d.error) { setErr(d.error); return }
       if (d.report) setReport(d.report)
       else setErr('Could not build the snapshot — try again.')
-    } catch {
+    } catch (e) {
+      console.warn('[workforce-snapshot] client error:', e)
       setErr('Connection dropped — try again in a few seconds.')
     } finally { setLoading(false) }
   }
@@ -273,6 +317,10 @@ function WorkforceSnapshotInner() {
                     <input type="file" accept=".csv,text/csv,text/plain" className="hidden"
                       onChange={e => { const f = e.target.files?.[0]; if (f) onCsvFile(f); e.currentTarget.value = '' }} />
                   </label>
+                  <button type="button" onClick={downloadTemplate}
+                    className="text-[#7E7E8E] text-[10px] font-medium hover:text-[#C7C7D1] transition-colors whitespace-nowrap">
+                    ↓ Template
+                  </button>
                 </div>
               </div>
 

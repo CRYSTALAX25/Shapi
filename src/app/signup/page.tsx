@@ -11,12 +11,21 @@ function SignUpForm() {
   const searchParams = useSearchParams()
   const companyInvite = searchParams.get('company_invite') // company owner's user ID
   const inviteEmail = searchParams.get('email') // pre-filled email from invite
+  // Pre-select role via ?type= so homepage CTAs ("I'm a candidate" / "I'm
+  // hiring") don't dump the user on a blank toggle. Honor candidate/company,
+  // ignore anything else.
+  const typeHint = searchParams.get('type')
+  const initialType: 'candidate' | 'company' | null =
+    companyInvite ? 'company'
+    : typeHint === 'candidate' ? 'candidate'
+    : typeHint === 'company' ? 'company'
+    : null
 
   const [email, setEmail] = useState(inviteEmail || '')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
-  // If arriving via company invite, type is locked to 'company'
-  const [type, setType] = useState<'candidate' | 'company' | null>(companyInvite ? 'company' : null)
+  // If arriving via company invite OR ?type=, lock the type accordingly.
+  const [type, setType] = useState<'candidate' | 'company' | null>(initialType)
   // Channel toggle — WhatsApp is the recommended MENA path (bypasses the
   // email-confirm wall, the #1 activation killer). Email signup remains the
   // fallback for users without WhatsApp on the device.

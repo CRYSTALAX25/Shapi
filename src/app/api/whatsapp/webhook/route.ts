@@ -511,8 +511,41 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
       if (!audioRes.ok) throw new Error(`Failed to fetch audio: ${audioRes.status}`)
       const audioBuffer = await audioRes.arrayBuffer()
 
+      // Build a Deepgram keyword bias list from the user's profile so brand /
+      // company names land instead of homophones. Ana's testing: "Luxynest"
+      // came back as "laxatives" and "Crystalax" as "CRISPRS". Each keyword
+      // is repeated with an intensifier (1.5 = strong nudge, 2 = stronger).
+      // Format: keywords=Term:1.5&keywords=Other:1.5.
+      // Sources:
+      //   • candidate work_history → company names + job titles
+      //   • company profile → company_name
+      //   • the candidate's own full_name + Shapi (always biased)
+      const keywords = new Set<string>(['Shapi'])
+      if (typeof profile.full_name === 'string' && profile.full_name.trim()) {
+        for (const part of profile.full_name.split(/\s+/)) {
+          if (part.length >= 3) keywords.add(part)
+        }
+      }
+      if (typeof (profile as { company_name?: string }).company_name === 'string'
+          && (profile as { company_name?: string }).company_name?.trim()) {
+        keywords.add((profile as { company_name: string }).company_name)
+      }
+      if (Array.isArray(profile.work_history)) {
+        for (const wh of profile.work_history as Array<{ company?: string; title?: string }>) {
+          if (wh?.company && wh.company.length >= 3) keywords.add(wh.company)
+          if (wh?.title && wh.title.length >= 3) keywords.add(wh.title)
+        }
+      }
+      // Deepgram URL has a 2k-ish path-length practical limit. Cap at 25
+      // keywords to stay safely inside that and avoid burying the model.
+      const kwParam = Array.from(keywords)
+        .slice(0, 25)
+        .map(k => `keywords=${encodeURIComponent(k.replace(/[^A-Za-zÀ-ſ\s.-]/g, '').trim())}:1.5`)
+        .filter(s => s.length > 'keywords=:1.5'.length)
+        .join('&')
+
       const deepgramRes = await fetch(
-        'https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&detect_language=true',
+        `https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&detect_language=true${kwParam ? `&${kwParam}` : ''}`,
         {
           method: 'POST',
           headers: {

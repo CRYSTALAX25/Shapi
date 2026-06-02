@@ -130,10 +130,14 @@ function HomeInner() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-16">
-            <Link href="/signup" className="btn-dark-hover px-8 py-4 rounded-full text-sm font-black">
+            {/* Pre-select role in signup via ?type=. Without this, both hero
+                CTAs landed on the toggle page with nothing selected, forcing
+                the user to pick AGAIN after they'd already declared their
+                intent on the homepage. */}
+            <Link href="/signup?type=candidate" className="btn-dark-hover px-8 py-4 rounded-full text-sm font-black">
               {t('home.hero.ctaBuild')}
             </Link>
-            <Link href="/signup" className="btn-dark-hover px-8 py-4 rounded-full text-sm font-bold">
+            <Link href="/signup?type=company" className="btn-dark-hover px-8 py-4 rounded-full text-sm font-bold">
               {t('home.hero.ctaHire')}
             </Link>
           </div>
