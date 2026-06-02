@@ -104,6 +104,27 @@ export default async function AdminPanel() {
   }
   const researchAggregated = [...researchAgg.values()].sort((a, b) => b.count - a.count).slice(0, 50)
 
+  // Book-a-call requests — every /book-call form submission. Tolerates the
+  // table not yet existing (so this page doesn't 500 before Ana runs the
+  // book_call_requests.sql migration).
+  type BookCallRow = {
+    id: string; name: string; email: string; company: string
+    role: string | null; company_size: string | null; timeline: string | null
+    message: string | null; topic: string | null; status: string
+    created_at: string
+  }
+  let bookCallRequests: BookCallRow[] = []
+  try {
+    const { data, error: bcError } = await admin
+      .from('book_call_requests')
+      .select('id, name, email, company, role, company_size, timeline, message, topic, status, created_at')
+      .order('created_at', { ascending: false })
+      .limit(50)
+    if (!bcError) bookCallRequests = (data || []) as BookCallRow[]
+  } catch {
+    // Table missing — leave bookCallRequests empty.
+  }
+
   const verified = candidates.filter(c => c.profile_live)
   const withWhatsApp = candidates.filter(c => c.whatsapp_number && Array.isArray(c.whatsapp_chat) && (c.whatsapp_chat as unknown[]).length > 0)
   const cvKitPurchased = candidates.filter(c => c.cv_kit_purchased)
@@ -286,6 +307,65 @@ export default async function AdminPanel() {
                           )}
                         </td>
                         <td className="text-[#7E7E8E] text-xs">{new Date(a.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Book a call requests — every /book-call form submission. Sales pipeline. */}
+        {bookCallRequests.length > 0 && (
+          <div className="gradient-border-card rounded-2xl mb-6 overflow-hidden">
+            <div className="px-5 py-4 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <p className="text-[#F4F4F7] font-bold">Book-a-call requests ({bookCallRequests.length})</p>
+                <p className="text-[#7E7E8E] text-xs">Enterprise / Strategic Workforce Plan enquiries from the /book-call form. Newest first. Reply directly — confirmation email already sent.</p>
+              </div>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.15)', color: '#F08CAE' }}>
+                {bookCallRequests.filter(b => b.status === 'new').length} new
+              </span>
+            </div>
+            <div className="overflow-x-auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>When</th>
+                    <th>Topic</th>
+                    <th>Company</th>
+                    <th>Name + email</th>
+                    <th>Size · timeline</th>
+                    <th>Message</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bookCallRequests.map(b => {
+                    const topicLabel = b.topic === 'strategic-plan' ? 'Strategic Plan'
+                      : b.topic === 'snapshot-followup' ? 'Snapshot follow-up'
+                      : b.topic === 'workforce-os' ? 'Workforce monitoring'
+                      : b.topic === 'workforce-intelligence' ? 'Workforce Intel'
+                      : 'Strategy call'
+                    return (
+                      <tr key={b.id}>
+                        <td className="text-[#7E7E8E] text-xs">
+                          {new Date(b.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}<br />
+                          <span className="text-[#5C5C6A]">{new Date(b.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
+                        </td>
+                        <td>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>{topicLabel}</span>
+                        </td>
+                        <td className="text-[#F4F4F7] font-semibold">{b.company}</td>
+                        <td>
+                          <p className="text-[#C7C7D1] text-xs">{b.name}{b.role ? ` · ${b.role}` : ''}</p>
+                          <a href={`mailto:${b.email}`} className="text-[#6AA8F5] text-[11px] hover:underline">{b.email}</a>
+                        </td>
+                        <td className="text-[#7E7E8E] text-xs">
+                          {b.company_size || '—'}<br />
+                          <span className="text-[#5C5C6A]">{b.timeline || '—'}</span>
+                        </td>
+                        <td className="text-[#7E7E8E] text-xs" style={{ maxWidth: '300px' }}>{(b.message || '').slice(0, 160) || <span className="text-[#5C5C6A]">(no message)</span>}{b.message && b.message.length > 160 ? '…' : ''}</td>
                       </tr>
                     )
                   })}

@@ -87,6 +87,30 @@ function BookCallInner() {
 
   return (
     <div className="min-h-screen bg-[#0E0E13]">
+      {/* Force dark UI for native <select> dropdowns + kill Chrome's white
+          autofill background. Without this, opened dropdowns showed a white
+          panel (impossible to read), and prefilled inputs landed in
+          off-white because of the browser autofill style. */}
+      <style>{`
+        .book-call-form select, .book-call-form option {
+          color-scheme: dark;
+          background-color: #16161F;
+          color: #F4F4F7;
+        }
+        .book-call-form option {
+          background-color: #16161F !important;
+          color: #F4F4F7 !important;
+        }
+        .book-call-form input:-webkit-autofill,
+        .book-call-form input:-webkit-autofill:hover,
+        .book-call-form input:-webkit-autofill:focus,
+        .book-call-form input:-webkit-autofill:active {
+          -webkit-box-shadow: 0 0 0 30px #16161F inset !important;
+          -webkit-text-fill-color: #F4F4F7 !important;
+          caret-color: #F4F4F7 !important;
+          transition: background-color 9999s ease-in-out 0s;
+        }
+      `}</style>
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
 
       <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] max-w-3xl mx-auto flex items-center justify-between">
@@ -99,10 +123,26 @@ function BookCallInner() {
           <div className="rounded-2xl p-8 text-center" style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.30)' }}>
             <div className="w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center text-2xl" style={{ background: '#34D399' }}>✓</div>
             <h1 className="text-2xl font-black text-[#F4F4F7] mb-2">Got it — speak soon.</h1>
-            <p className="text-[#A6A6B4] text-sm leading-relaxed max-w-md mx-auto">
-              We&apos;ll reply within one business day with two or three time slots that suit your timezone. Look out for an email from <strong className="text-[#F4F4F7]">hello@shapi.io</strong>.
+            <p className="text-[#A6A6B4] text-sm leading-relaxed max-w-md mx-auto mb-5">
+              We&apos;ve got your request. {process.env.NEXT_PUBLIC_CALENDLY_URL
+                ? 'Pick a time that suits you below — your invite lands instantly.'
+                : 'We’ll reply within one business day with two or three time slots that suit your timezone.'}
             </p>
-            <Link href="/company/dashboard" className="inline-block mt-6 text-[#6AA8F5] text-sm font-bold hover:underline">
+            {process.env.NEXT_PUBLIC_CALENDLY_URL && (
+              <a
+                href={process.env.NEXT_PUBLIC_CALENDLY_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-6 py-3 rounded-full font-black text-sm text-white"
+                style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}
+              >
+                Pick a time on the calendar →
+              </a>
+            )}
+            <p className="text-[#7E7E8E] text-[11px] mt-5">
+              Confirmation email sent to your inbox. Look out for <strong className="text-[#C7C7D1]">hello@shapi.io</strong>.
+            </p>
+            <Link href="/company/dashboard" className="inline-block mt-3 text-[#6AA8F5] text-sm font-bold hover:underline">
               Back to dashboard
             </Link>
           </div>
@@ -112,11 +152,11 @@ function BookCallInner() {
               <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: '#F08CAE' }}>{topicLabel}</p>
               <h1 className="text-3xl md:text-4xl font-black tracking-tighter mb-2" style={{ color: '#FB7185' }}>Book a call</h1>
               <p className="text-[#A6A6B4] text-sm leading-relaxed">
-                30 minutes with Ana, our founder. We&apos;ll walk through where you are, what you&apos;re trying to solve, and how Shapi (or honestly, not Shapi) fits.
+                30 minutes with our team. We&apos;ll walk through where you are, what you&apos;re trying to solve, and how Shapi (or honestly, not Shapi) fits.
               </p>
             </div>
 
-            <form onSubmit={submit} className="space-y-4">
+            <form onSubmit={submit} className="space-y-4 book-call-form">
               <div className="grid sm:grid-cols-2 gap-3">
                 <Field label="Your name *" value={name} onChange={setName} required />
                 <Field label="Work email *" value={email} onChange={setEmail} type="email" required />
