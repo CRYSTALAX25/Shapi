@@ -9,6 +9,35 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import StepCard, { StepStatus } from './StepCard'
 
+// ─────────────────────────────────────────────────────────────────────────────
+// People Outlay Map types — mirrors the shape produced by
+// /api/company/tier-b → map_people_outlay action (Claude extraction + the
+// post-Claude candidate-pool augmentation pass).
+// ─────────────────────────────────────────────────────────────────────────────
+type MatchedCandidate = {
+  id: string
+  public_id: string
+  full_name: string | null
+  headline: string | null
+  location: string | null
+  verification_tier: string | null
+  match_score: number
+  match_reasons: string[]
+}
+type PeopleOutlayGap = {
+  title?: string
+  seniority?: string
+  when?: string
+  type?: 'new_hire' | 'reskill' | 'redeploy'
+  why?: string
+  must_have_skills?: string[]
+  location_hint?: string
+  headcount?: number
+  time_to_fill_weeks?: string
+  verified_candidates?: MatchedCandidate[]
+  pool_match_count?: number
+}
+
 type Engagement = {
   id: string
   company_id: string
@@ -16,6 +45,7 @@ type Engagement = {
   operating_model_diagnostic: Record<string, unknown> | null
   org_dna: Record<string, unknown> | null
   workforce_plan: Record<string, unknown> | null
+  people_outlay: Record<string, unknown> | null
   execution_playbook: Record<string, unknown> | null
   audit_trail: Array<{ ts: string; who: string; what: string }> | null
   status: 'in_progress' | 'locked' | 'annual_refresh_due'
@@ -136,8 +166,9 @@ export default function TierBWorkspace() {
   const status1: StepStatus = stepStatus(engagement, 1, !!engagement?.operating_model_diagnostic)
   const status2: StepStatus = stepStatus(engagement, 2, !!engagement?.org_dna)
   const status3: StepStatus = stepStatus(engagement, 3, !!engagement?.workforce_plan)
-  const status4: StepStatus = stepStatus(engagement, 4, !!engagement?.execution_playbook)
-  const allDone = status1 === 'done' && status2 === 'done' && status3 === 'done' && status4 === 'done'
+  const status4: StepStatus = stepStatus(engagement, 4, !!engagement?.people_outlay)
+  const status5: StepStatus = stepStatus(engagement, 5, !!engagement?.execution_playbook)
+  const allDone = status1 === 'done' && status2 === 'done' && status3 === 'done' && status4 === 'done' && status5 === 'done'
   const isLocked = engagement?.status === 'locked'
 
   return (
@@ -191,7 +222,7 @@ export default function TierBWorkspace() {
                 <p className={`${labelCls} mb-1`}>Engagement status</p>
                 <p className="text-[#F4F4F7] text-sm font-bold">
                   {isLocked ? 'Locked — final deliverable' : engagement.status === 'annual_refresh_due' ? 'Annual refresh due' : 'In progress'}
-                  <span className="text-[#7E7E8E] font-normal"> · current step {engagement.step}/4</span>
+                  <span className="text-[#7E7E8E] font-normal"> · current step {engagement.step}/5</span>
                 </p>
               </div>
               <p className="text-[#7E7E8E] text-[11px] text-right hidden sm:block">
@@ -295,19 +326,36 @@ export default function TierBWorkspace() {
                 {engagement.workforce_plan && <WorkforcePlanOutput data={engagement.workforce_plan} />}
               </StepCard>
 
-              {/* ── Step 4: Execution playbook ──────────────────────────── */}
+              {/* ── Step 4: People Outlay Map (the consultant-killer) ────── */}
               <StepCard
                 step={4}
-                title="Execution playbook"
-                subtitle="Comms drafts, compliance checklist, outplacement plan, hiring plan, 90-day milestones."
+                title="People Outlay Map"
+                subtitle="Specific role gaps from the plan, matched to verified candidates already in Shapi's pool. The bit no consultant can do."
                 status={status4}
-                onSave={isLocked ? undefined : () => runStep('generate_playbook', {}, 4)}
-                saveLabel={engagement.execution_playbook ? 'Re-generate playbook' : 'Generate playbook'}
+                onSave={isLocked ? undefined : () => runStep('map_people_outlay', {}, 4)}
+                saveLabel={engagement.people_outlay ? 'Re-run map' : 'Build the map'}
                 saving={savingStep === 4}
                 defaultOpen={status3 === 'done' && status4 !== 'done'}
               >
                 <p className="text-[#A6A6B4] text-xs leading-relaxed">
-                  Turns the approved Strategic Workforce Plan into Monday-morning deliverables — drafts, compliance, hiring plan, milestones.
+                  Extracts the concrete role gaps from the workforce plan and matches each one against Shapi&apos;s verified candidate pool — top 5 candidates per gap with match score, verification tier, and click-through to their profile.
+                </p>
+                {engagement.people_outlay && <PeopleOutlayOutput data={engagement.people_outlay} />}
+              </StepCard>
+
+              {/* ── Step 5: Execution playbook ──────────────────────────── */}
+              <StepCard
+                step={5}
+                title="Execution playbook"
+                subtitle="Comms drafts, compliance checklist, outplacement plan, hiring plan, 90-day milestones."
+                status={status5}
+                onSave={isLocked ? undefined : () => runStep('generate_playbook', {}, 5)}
+                saveLabel={engagement.execution_playbook ? 'Re-generate playbook' : 'Generate playbook'}
+                saving={savingStep === 5}
+                defaultOpen={status4 === 'done' && status5 !== 'done'}
+              >
+                <p className="text-[#A6A6B4] text-xs leading-relaxed">
+                  Turns the approved Strategic Workforce Plan + People Outlay Map into Monday-morning deliverables — drafts, compliance, named hiring plan, milestones.
                 </p>
                 {engagement.execution_playbook && <PlaybookOutput data={engagement.execution_playbook} />}
               </StepCard>
@@ -448,6 +496,144 @@ function WorkforcePlanOutput({ data }: { data: Record<string, unknown> }) {
           </div>
         )
       })}
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// People Outlay Map renderer — the consultant-killer view. Each role gap is
+// a card; below each gap the matched verified candidates from the pool. Empty
+// state when the pool is thin (early launch reality) teaches what will appear.
+// ─────────────────────────────────────────────────────────────────────────────
+function PeopleOutlayOutput({ data }: { data: Record<string, unknown> }) {
+  const headline = String(data.headline || '')
+  const gaps = (Array.isArray(data.role_gaps) ? (data.role_gaps as PeopleOutlayGap[]) : [])
+  const summary = (data.outlay_summary as Record<string, number> | undefined) || {}
+
+  const tierColour = (t: string | null | undefined) => {
+    if (t === 'premium') return { bg: 'rgba(251,191,36,0.15)', fg: '#FBBF24', label: 'Premium' }
+    if (t === 'strong') return { bg: 'rgba(52,211,153,0.15)', fg: '#34D399', label: 'Strong' }
+    if (t === 'basic') return { bg: 'rgba(106,168,245,0.15)', fg: '#6AA8F5', label: 'Verified' }
+    return { bg: 'rgba(255,255,255,0.06)', fg: '#A6A6B4', label: 'Unverified' }
+  }
+
+  const typeChip = (t: string | undefined) => {
+    if (t === 'new_hire') return { bg: 'rgba(240,140,174,0.14)', fg: '#F08CAE', label: 'New hire' }
+    if (t === 'reskill') return { bg: 'rgba(251,191,36,0.14)', fg: '#FBBF24', label: 'Reskill' }
+    if (t === 'redeploy') return { bg: 'rgba(106,168,245,0.14)', fg: '#6AA8F5', label: 'Redeploy' }
+    return { bg: 'rgba(255,255,255,0.05)', fg: '#A6A6B4', label: t || 'role' }
+  }
+
+  return (
+    <div className="mt-4 space-y-3">
+      {headline && (
+        <p className="text-[#F08CAE] text-sm font-bold">{headline}</p>
+      )}
+
+      {/* Summary band — at-a-glance moat signal */}
+      {summary.total_role_gaps !== undefined && (
+        <div className="rounded-xl p-3 grid grid-cols-2 sm:grid-cols-4 gap-2" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <Stat label="Role gaps" value={String(summary.total_role_gaps)} />
+          <Stat label="With matches" value={`${summary.gaps_with_matches ?? 0}/${summary.total_role_gaps}`} highlight />
+          <Stat label="Candidates surfaced" value={String(summary.total_candidates_matched ?? 0)} />
+          <Stat label="Avg match score" value={`${summary.average_match_score ?? 0}%`} />
+        </div>
+      )}
+
+      {gaps.map((g, i) => {
+        const type = typeChip(g.type)
+        const candidates = g.verified_candidates || []
+        return (
+          <div key={i} className="rounded-xl p-3.5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="flex items-start justify-between gap-3 flex-wrap mb-2">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                  <p className="text-[#F4F4F7] font-black text-sm">{g.title}{g.headcount && g.headcount > 1 ? ` ×${g.headcount}` : ''}</p>
+                  <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider" style={{ background: type.bg, color: type.fg }}>{type.label}</span>
+                </div>
+                <p className="text-[#7E7E8E] text-[11px]">
+                  {g.seniority || ''} · {g.when || ''}{g.location_hint ? ` · ${g.location_hint}` : ''}
+                </p>
+              </div>
+              {g.time_to_fill_weeks && (
+                <p className="text-[#34D399] text-[10px] font-bold whitespace-nowrap">⏱ {g.time_to_fill_weeks}</p>
+              )}
+            </div>
+
+            {g.why && <p className="text-[#A6A6B4] text-xs leading-relaxed mb-2">{g.why}</p>}
+
+            {Array.isArray(g.must_have_skills) && g.must_have_skills.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-2.5">
+                {g.must_have_skills.slice(0, 6).map((s, j) => (
+                  <span key={j} className="text-[9px] font-medium px-2 py-0.5 rounded" style={{ background: 'rgba(106,168,245,0.10)', color: '#6AA8F5' }}>{s}</span>
+                ))}
+              </div>
+            )}
+
+            {/* Matched candidates */}
+            {candidates.length > 0 ? (
+              <div className="mt-3 pt-3 border-t border-white/[0.06]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#A6A6B4] mb-2">
+                  ✦ {candidates.length} verified candidate{candidates.length === 1 ? '' : 's'} from the Shapi pool
+                </p>
+                <div className="space-y-1.5">
+                  {candidates.map((c) => {
+                    const tier = tierColour(c.verification_tier)
+                    return (
+                      <Link
+                        key={c.id}
+                        href={`/p/${c.public_id}`}
+                        target="_blank"
+                        className="block rounded-lg p-2.5 hover:bg-white/[0.03] transition-colors"
+                        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="text-[#F4F4F7] text-xs font-bold truncate">{c.full_name || 'Verified candidate'}</p>
+                              <span className="text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider" style={{ background: tier.bg, color: tier.fg }}>{tier.label}</span>
+                            </div>
+                            {c.headline && <p className="text-[#7E7E8E] text-[10px] truncate">{c.headline}{c.location ? ` · ${c.location}` : ''}</p>}
+                            {Array.isArray(c.match_reasons) && c.match_reasons.length > 0 && (
+                              <p className="text-[#A6A6B4] text-[10px] mt-0.5 truncate">{c.match_reasons.slice(0, 2).join(' · ')}</p>
+                            )}
+                          </div>
+                          <div className="flex-shrink-0 text-right">
+                            <p className="text-[#6AA8F5] font-black text-sm">{c.match_score}<span className="text-[9px]">%</span></p>
+                            <p className="text-[#7E7E8E] text-[9px]">match</p>
+                          </div>
+                        </div>
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="mt-3 pt-3 border-t border-white/[0.06]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1.5">✦ Verified candidates in the Shapi pool</p>
+                <p className="text-[#7E7E8E] text-xs leading-relaxed italic">
+                  No matched verified candidates for this gap yet — the pool will surface them as Shapi onboards more verified candidates in <strong className="text-[#A6A6B4] not-italic">{g.location_hint || 'this region'}</strong>. The execution playbook below will still produce a hiring plan we can run for you.
+                </p>
+              </div>
+            )}
+          </div>
+        )
+      })}
+
+      {gaps.length === 0 && (
+        <p className="text-[#7E7E8E] text-xs italic">
+          The People Outlay Map turns the workforce plan&apos;s headcount counts into specific role gaps, then matches each against the verified candidate pool. Run the workforce plan first (Step 3), then re-run this step.
+        </p>
+      )}
+    </div>
+  )
+}
+
+function Stat({ label, value, highlight = false }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <div className="text-center">
+      <p className="text-[#7E7E8E] text-[9px] font-bold uppercase tracking-wider mb-0.5">{label}</p>
+      <p className={`font-black text-base ${highlight ? '' : 'text-[#F4F4F7]'}`} style={highlight ? { color: '#34D399' } : undefined}>{value}</p>
     </div>
   )
 }

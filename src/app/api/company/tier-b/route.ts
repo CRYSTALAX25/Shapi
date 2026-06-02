@@ -19,25 +19,29 @@
 //     footer line on each generated artefact.
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { scoreCandidateForRole, type MatchCandidate, type MatchRole } from '@/lib/matching'
 
 export const maxDuration = 60
 
-type Action = 'diagnose_operating_model' | 'map_org_dna' | 'plan_workforce' | 'generate_playbook'
+type Action = 'diagnose_operating_model' | 'map_org_dna' | 'plan_workforce' | 'generate_playbook' | 'map_people_outlay'
 
 const ACTION_TO_COLUMN: Record<Action, string> = {
   diagnose_operating_model: 'operating_model_diagnostic',
   map_org_dna: 'org_dna',
   plan_workforce: 'workforce_plan',
   generate_playbook: 'execution_playbook',
+  map_people_outlay: 'people_outlay',
 }
 
 const ACTION_TO_STEP: Record<Action, number> = {
   diagnose_operating_model: 1,
   map_org_dna: 2,
   plan_workforce: 3,
-  generate_playbook: 4,
+  map_people_outlay: 4,
+  generate_playbook: 5,
 }
 
 const SOURCES_FOOTER = 'Sources: Mercer compensation benchmarks · Glassdoor public ratings · Anthropic/OpenAI published API pricing · BLS/government labour statistics · Shapi platform data. Figures are 70%-confidence bands; named variance drivers in-text.'
@@ -274,8 +278,55 @@ Return ONLY valid JSON in this exact shape:
 Every cost line names its variance driver. No hedge-words.`
   }
 
+  if (action === 'map_people_outlay') {
+    const plan = JSON.stringify(engagement.workforce_plan || {}).slice(0, 3500)
+    const diagnostic = JSON.stringify(engagement.operating_model_diagnostic || {}).slice(0, 2000)
+    prompt = `You are a senior workforce strategist extracting the SPECIFIC role gaps from a 5-year workforce plan so they can be matched to Shapi's verified candidate pool. This is the "People Outlay Map" — the step that turns abstract counts (replace 3, augment 5) into actual hiring needs Shapi can fill.
+
+${COMPANY_BLOCK}
+
+${VOICE_RULES}
+
+═══ APPROVED WORKFORCE PLAN (from step 3) ═══
+${plan}
+
+═══ OPERATING MODEL DIAGNOSTIC (from step 1) ═══
+${diagnostic}
+
+═══ YOUR ANALYSIS ═══
+Translate the counts in the plan (replace/augment/reskill/redeploy/protect) into 5-10 specific role gaps with concrete titles. Each gap = a role the company needs to fill, in a timeframe (Y1 Q1-Q4 / Y2 / Y3+). For each gap, name the seniority level, the must-have skills/experience (3-5 short phrases for skill-matching), the rough city/region the role would be based in (use the company's HQ if not otherwise constrained), and the type of move it represents (new_hire | reskill | redeploy).
+
+Prioritise role gaps that are:
+- Critical-path (the plan depends on them)
+- Most cost-impactful (highest comp, longest time-to-fill)
+- Specific enough that Shapi can match them against verified candidates
+
+Return ONLY valid JSON in this exact shape:
+{
+  "headline": "1 sentence — the most important hiring decision in the plan",
+  "role_gaps": [
+    {
+      "title": "concrete role title — e.g. 'Head of AI/ML Engineering', 'Senior Backend Engineer'",
+      "seniority": "junior | mid | senior | lead | head-of | exec",
+      "when": "Y1 Q1 | Y1 Q2 | Y1 Q3 | Y1 Q4 | Y2 | Y3+",
+      "type": "new_hire | reskill | redeploy",
+      "why": "1 sentence — why the plan needs this role and what it unlocks",
+      "must_have_skills": ["3-5 short skill or domain phrases — used for candidate matching"],
+      "location_hint": "city or region the role would be based in",
+      "headcount": 1,
+      "time_to_fill_weeks": "70%-confidence band, e.g. '6-12 weeks', with one phrase on the variance driver"
+    }
+  ],
+  "sources_footer": "${SOURCES_FOOTER}"
+}
+
+5-10 role_gaps total. The list must total roughly the headcount counts in the plan (replace + augment + new hires). No hedge-words. Be specific — "Senior Backend Engineer" not "Engineering Hire".`
+    maxTokens = 3000
+  }
+
   if (action === 'generate_playbook') {
     const plan = JSON.stringify(engagement.workforce_plan || {}).slice(0, 3500)
+    const peopleOutlay = JSON.stringify(engagement.people_outlay || {}).slice(0, 2000)
     prompt = `You are a senior people-ops partner producing the execution playbook that turns a 5-year workforce plan into Monday-morning actions.
 
 ${COMPANY_BLOCK}
@@ -285,8 +336,11 @@ ${VOICE_RULES}
 ═══ APPROVED 5-YEAR WORKFORCE PLAN (from step 3) ═══
 ${plan}
 
+═══ PEOPLE OUTLAY MAP (from step 4 — specific role gaps + matched candidates) ═══
+${peopleOutlay}
+
 ═══ YOUR DELIVERABLE ═══
-Produce comms drafts, a compliance checklist, an outplacement plan, a hiring plan, and 90-day milestones.
+Produce comms drafts, a compliance checklist, an outplacement plan, a hiring plan (use the specific role gaps from the People Outlay — name them concretely), and 90-day milestones.
 
 Return ONLY valid JSON in this exact shape:
 {
@@ -347,10 +401,98 @@ Tight, actionable, no hedge-words. Comms drafts read like a human wrote them.`
     return NextResponse.json({ error: msg }, { status: 500 })
   }
 
+  // ── People Outlay augmentation ─────────────────────────────────────────
+  // For map_people_outlay only: take Claude's extracted role_gaps[] and
+  // augment each with matched verified candidates from the platform pool.
+  // This is the moat. Without it, this step is just another AI-generated
+  // list; WITH it, the engagement output names actual humans available now.
+  if (action === 'map_people_outlay' && Array.isArray(parsed.role_gaps)) {
+    try {
+      const admin = createAdminClient()
+      // Fetch verified candidates with enough signal to match meaningfully.
+      const { data: pool } = await admin
+        .from('profiles')
+        .select('id, full_name, headline, location, skills, completion_pct, verification_tier, salary_expectations, open_to_engagement, target_roles, industry, ai_tier')
+        .eq('type', 'candidate')
+        .eq('profile_live', true)
+        .gte('completion_pct', 50)
+        .limit(300)
+
+      const candidates = (pool || []) as Array<MatchCandidate & {
+        id: string; full_name: string | null; headline: string | null; location: string | null
+      }>
+
+      const augmentedGaps = (parsed.role_gaps as Array<Record<string, unknown>>).map(gap => {
+        const title = String(gap.title || '')
+        const skills = Array.isArray(gap.must_have_skills) ? (gap.must_have_skills as string[]) : []
+        const location = String(gap.location_hint || '')
+
+        // Synthesise a Role from the gap so scoreCandidateForRole can rank
+        // candidates against it.
+        const syntheticRole: MatchRole = {
+          title,
+          location,
+          requirements: skills.join(', '),
+          description: `${gap.why || ''} ${gap.seniority || ''}`.trim(),
+          engagement_type: 'permanent',
+        }
+
+        const scored = candidates
+          .map(c => ({ c, ...scoreCandidateForRole(c, syntheticRole) }))
+          .filter(s => s.score >= 35) // floor so we don't surface noise
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 5)
+          .map(s => ({
+            id: s.c.id,
+            public_id: s.c.id.slice(0, 8),
+            full_name: s.c.full_name,
+            headline: s.c.headline,
+            location: s.c.location,
+            verification_tier: s.c.verification_tier || 'unverified',
+            match_score: s.score,
+            match_reasons: s.reasons,
+          }))
+
+        return {
+          ...gap,
+          verified_candidates: scored,
+          pool_match_count: scored.length,
+        }
+      })
+
+      // Summary across all gaps.
+      const totalCandidatesMatched = augmentedGaps.reduce((sum, g) => sum + (Array.isArray(g.verified_candidates) ? g.verified_candidates.length : 0), 0)
+      const avgScore = totalCandidatesMatched > 0
+        ? Math.round(
+            augmentedGaps.flatMap(g => Array.isArray(g.verified_candidates) ? (g.verified_candidates as Array<{ match_score: number }>) : [])
+              .reduce((sum, c) => sum + (c.match_score || 0), 0) / totalCandidatesMatched,
+          )
+        : 0
+      const gapsWithMatches = augmentedGaps.filter(g => Array.isArray(g.verified_candidates) && (g.verified_candidates as unknown[]).length > 0).length
+
+      parsed = {
+        ...parsed,
+        role_gaps: augmentedGaps,
+        outlay_summary: {
+          total_role_gaps: augmentedGaps.length,
+          gaps_with_matches: gapsWithMatches,
+          gaps_without_matches: augmentedGaps.length - gapsWithMatches,
+          total_candidates_matched: totalCandidatesMatched,
+          average_match_score: avgScore,
+          pool_size_considered: candidates.length,
+        },
+      }
+    } catch (e) {
+      // Pool augmentation is best-effort. If it fails, we still ship the
+      // Claude-generated role_gaps so the step has visible output.
+      console.warn('[tier-b] people-outlay pool augmentation failed:', e)
+    }
+  }
+
   // Persist: column write + audit trail append + optional step advance.
   const column = ACTION_TO_COLUMN[action]
   const nextStep = advance
-    ? Math.max(engagement.step ?? 1, Math.min(4, ACTION_TO_STEP[action] + 1))
+    ? Math.max(engagement.step ?? 1, Math.min(5, ACTION_TO_STEP[action] + 1))
     : engagement.step
 
   const auditEntry = {
