@@ -29,7 +29,13 @@ function SignUpForm() {
   // Channel toggle — WhatsApp is the recommended MENA path (bypasses the
   // email-confirm wall, the #1 activation killer). Email signup remains the
   // fallback for users without WhatsApp on the device.
-  const [mode, setMode] = useState<'whatsapp' | 'email'>('whatsapp')
+  //
+  // 2026-06-02: defaulting to EMAIL until Twilio is upgraded post-Shapi-
+  // incorporation. The WhatsApp tab is still here + working (with friendly
+  // error if Phone Auth isn't configured), but new testers shouldn't dead-
+  // end on the OTP flow. Flip this back to 'whatsapp' once Phone Auth is
+  // live in Supabase + Twilio is off trial.
+  const [mode, setMode] = useState<'whatsapp' | 'email'>('email')
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [marketingOptIn, setMarketingOptIn] = useState(false)
   const [referralSource, setReferralSource] = useState('')
