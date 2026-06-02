@@ -65,6 +65,7 @@ function BookCallInner() {
           timeline,
           message: message.trim(),
           topic,
+          engagement_id: engagement || undefined,
         }),
       })
       if (!res.ok) {
@@ -83,7 +84,14 @@ function BookCallInner() {
   const topicLabel = topic === 'strategic-plan' ? 'Strategic Workforce Plan'
     : topic === 'snapshot-followup' ? 'Workforce Snapshot follow-up'
     : topic === 'workforce-os' ? 'Workforce monitoring'
+    : topic === 'workforce-intelligence' ? 'Workforce Intelligence'
+    : topic === 'founder-session' ? 'Founder strategy session — included'
     : 'Strategy call'
+
+  // Optional engagement context — when a Strategic Workforce Plan client
+  // taps the in-product Founder Call CTA, this links the booking back to
+  // their engagement so Ana sees it in admin.
+  const engagement = searchParams.get('engagement') || ''
 
   return (
     <div className="min-h-screen bg-[#0E0E13]">
@@ -150,9 +158,11 @@ function BookCallInner() {
           <>
             <div className="mb-8">
               <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: '#F08CAE' }}>{topicLabel}</p>
-              <h1 className="text-3xl md:text-4xl font-black tracking-tighter mb-2" style={{ color: '#FB7185' }}>Book a call</h1>
+              <h1 className="text-3xl md:text-4xl font-black tracking-tighter mb-2" style={{ color: '#FB7185' }}>{topic === 'founder-session' ? 'Book your founder session' : 'Book a call'}</h1>
               <p className="text-[#A6A6B4] text-sm leading-relaxed">
-                30 minutes with our team. We&apos;ll walk through where you are, what you&apos;re trying to solve, and how Shapi (or honestly, not Shapi) fits.
+                {topic === 'founder-session'
+                  ? '30 minutes with Ana, included with your engagement. Tell us what you want to pressure-test and we’ll come prepared. We reply with two or three slots — or pick one straight from the calendar after submit.'
+                  : '30 minutes with our team. We’ll walk through where you are, what you’re trying to solve, and how Shapi (or honestly, not Shapi) fits.'}
               </p>
             </div>
 

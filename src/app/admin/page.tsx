@@ -346,6 +346,7 @@ export default async function AdminPanel() {
                       : b.topic === 'snapshot-followup' ? 'Snapshot follow-up'
                       : b.topic === 'workforce-os' ? 'Workforce monitoring'
                       : b.topic === 'workforce-intelligence' ? 'Workforce Intel'
+                      : b.topic === 'founder-session' ? '👋 Founder session'
                       : 'Strategy call'
                     return (
                       <tr key={b.id}>

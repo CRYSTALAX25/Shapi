@@ -28,6 +28,7 @@ export async function POST(request: Request) {
   let body: {
     name?: string; email?: string; company?: string; role?: string
     company_size?: string; timeline?: string; message?: string; topic?: string
+    engagement_id?: string
   } = {}
   try { body = await request.json() } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
@@ -48,11 +49,13 @@ export async function POST(request: Request) {
   const timeline = (body.timeline || '').trim()
   const message = (body.message || '').trim().slice(0, 4000)
   const topic = (body.topic || '').trim() || 'strategy-call'
+  const engagementId = (body.engagement_id || '').trim() || null
 
   const topicLabel = topic === 'strategic-plan' ? 'Strategic Workforce Plan enquiry'
     : topic === 'snapshot-followup' ? 'Workforce Snapshot follow-up'
     : topic === 'workforce-os' ? 'Workforce monitoring enquiry'
     : topic === 'workforce-intelligence' ? 'Workforce Intelligence enquiry'
+    : topic === 'founder-session' ? 'Founder session (included with engagement)'
     : 'Strategy call request'
 
   // 1. Persist the request first — the email layer is best-effort. Even if
@@ -64,6 +67,12 @@ export async function POST(request: Request) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     const admin = createAdminClient()
+    // If this booking is tied to a Strategic Workforce Plan engagement,
+    // prefix the message so Ana sees the linkage on /admin without adding
+    // a new column to book_call_requests.
+    const messageWithContext = engagementId
+      ? `[Engagement: ${engagementId.slice(0, 8)}]${message ? '\n\n' + message : ''}`
+      : (message || null)
     const { data: row } = await admin
       .from('book_call_requests')
       .insert({
@@ -71,7 +80,7 @@ export async function POST(request: Request) {
         name, email, company, role: role || null,
         company_size: companySize || null,
         timeline: timeline || null,
-        message: message || null,
+        message: messageWithContext,
         topic: topic || 'strategy-call',
       })
       .select('id')
@@ -104,6 +113,7 @@ export async function POST(request: Request) {
     companySize ? `Size:     ${companySize}` : null,
     timeline ? `Timeline: ${timeline}` : null,
     `Topic:    ${topicLabel}`,
+    engagementId ? `Engagement: ${engagementId}` : null,
     ``,
     message ? `--- Message ---\n${message}` : '(No message provided)',
   ].filter(Boolean).join('\n')

@@ -217,6 +217,34 @@ export default function TierBWorkspace() {
 
         {!loading && engagement && (
           <>
+            {/* Founder strategy session — prominent CTA at the top of the
+                workspace. This is the "human insurance" that justifies the
+                price (decided 2026-06-02 pricing session: every engagement
+                ≥$5k includes 30 min of founder time so buyers feel
+                "I talked to a person who built this", not "I bought a
+                chatbot output"). One CTA, hard to miss, links to the
+                existing /book-call form with the founder-session topic. */}
+            <Link
+              href={`/book-call?topic=founder-session&engagement=${engagement.id}`}
+              className="block rounded-2xl p-4 mb-5 transition-opacity hover:opacity-95"
+              style={{
+                background: 'linear-gradient(135deg, rgba(106,168,245,0.14), rgba(240,140,174,0.10))',
+                border: '1px solid rgba(240,140,174,0.40)',
+              }}
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>👋</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#F08CAE' }}>Included with your engagement</p>
+                  <p className="text-[#F4F4F7] font-black text-base mb-0.5">Your founder strategy session — 30 minutes with Ana</p>
+                  <p className="text-[#A6A6B4] text-xs leading-relaxed">
+                    Talk through your plan with the founder. Pressure-test the trickier calls, decide what to action first. Best run after Step 3 (the workforce plan).
+                  </p>
+                </div>
+                <span className="flex-shrink-0 text-[#F08CAE] text-xs font-black whitespace-nowrap hidden sm:inline">Book session →</span>
+              </div>
+            </Link>
+
             <div className="rounded-2xl p-4 mb-5 flex items-center justify-between" style={cardStyle}>
               <div>
                 <p className={`${labelCls} mb-1`}>Engagement status</p>
