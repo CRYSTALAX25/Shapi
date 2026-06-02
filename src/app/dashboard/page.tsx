@@ -571,7 +571,7 @@ export default async function Dashboard() {
                   {!isConcierge && (
                     <SubscribeButton product="concierge_monthly" className="w-full flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors text-left">
                       <div>
-                        <p className="text-[#F4F4F7] text-sm font-bold">Active Concierge <span className="text-[#6AA8F5] font-black">$79/mo</span></p>
+                        <p className="text-[#F4F4F7] text-sm font-bold">Active Concierge <span className="text-[#6AA8F5] font-black">$89/mo</span></p>
                         <p className="text-[#7E7E8E] text-xs">Everything in Active, plus: AI drafts personalised intros daily — you just approve and send.</p>
                       </div>
                       <span className="text-[#6AA8F5] text-xs font-black flex-shrink-0">Subscribe →</span>

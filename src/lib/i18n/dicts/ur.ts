@@ -199,7 +199,7 @@ const ur: typeof en = {
       addon3Name: 'Career Bundle',
       addon3Price: '$39/mo',
       addon4Name: 'Active Concierge',
-      addon4Price: '$79/mo',
+      addon4Price: '$89/mo',
       companiesTitle: 'کمپنیوں کے لیے',
       companiesSub: '30 دن مفت آزمائش۔ کبھی بھی منسوخ کریں۔',
       foundingBadge: '★ بانی پارٹنرز: پہلی 25 کمپنیوں کو 3 ماہ کے لیے 50% رعایت۔',
@@ -377,7 +377,7 @@ const ur: typeof en = {
       t4Price: '$29/mo',
       t4Body: 'جاب اسکینر + لکھے ہوئے رابطے',
       t5Name: 'Active Concierge',
-      t5Price: '$79/mo',
+      t5Price: '$89/mo',
       t5Body: 'منظور شدہ رابطے روزانہ آٹو بھیجیں',
     },
     finalCta: {

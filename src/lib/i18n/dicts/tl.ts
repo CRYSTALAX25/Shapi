@@ -205,7 +205,7 @@ const tl: typeof en = {
       addon3Name: 'Career Bundle',
       addon3Price: '$39/mo',
       addon4Name: 'Active Concierge',
-      addon4Price: '$79/mo',
+      addon4Price: '$89/mo',
       companiesTitle: 'Para sa mga kumpanya',
       companiesSub: '30-day free trial. I-cancel anytime.',
       foundingBadge: '★ Founding Partners: ang unang 25 kumpanya may 50% off for 3 months.',
@@ -383,7 +383,7 @@ const tl: typeof en = {
       t4Price: '$29/mo',
       t4Body: 'Job scanner + drafted outreach',
       t5Name: 'Active Concierge',
-      t5Price: '$79/mo',
+      t5Price: '$89/mo',
       t5Body: 'Auto-send ng approved outreach araw-araw',
     },
     finalCta: {

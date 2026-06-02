@@ -207,7 +207,7 @@ const ar: typeof en = {
       addon3Name: 'Career Bundle',
       addon3Price: '$39/شهر',
       addon4Name: 'Active Concierge',
-      addon4Price: '$79/شهر',
+      addon4Price: '$89/شهر',
       companiesTitle: 'للشركات',
       companiesSub: 'تجربة مجانية 30 يوماً. ألغِ في أي وقت.',
       foundingBadge: '★ شركاء التأسيس: أول 25 شركة تحصل على خصم 50% لمدة 3 أشهر.',
@@ -385,7 +385,7 @@ const ar: typeof en = {
       t4Price: '$29/شهر',
       t4Body: 'ماسح وظائف + تواصل مُصاغ',
       t5Name: 'Active Concierge',
-      t5Price: '$79/شهر',
+      t5Price: '$89/شهر',
       t5Body: 'إرسال التواصل المعتمد يومياً',
     },
     finalCta: {

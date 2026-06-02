@@ -26,7 +26,7 @@ function products(profile: ProfileWithSubscriptions | null | undefined): Set<str
 
 export function hasOpenRolesBoard(profile: ProfileWithSubscriptions | null | undefined): boolean {
   const p = products(profile)
-  // Tier ladder: Active ($29) and Concierge ($79) both include Roles Board ($19).
+  // Tier ladder: Active ($29) and Concierge ($89) both include Roles Board ($19).
   return p.has('roles_board_monthly') || p.has('roles_board_yearly')
     || p.has('active_monthly') || p.has('active_yearly')
     || p.has('concierge_monthly')
@@ -35,7 +35,7 @@ export function hasOpenRolesBoard(profile: ProfileWithSubscriptions | null | und
 
 export function hasActive(profile: ProfileWithSubscriptions | null | undefined): boolean {
   const p = products(profile)
-  // Tier ladder: Concierge ($79) includes Active ($29).
+  // Tier ladder: Concierge ($89) includes Active ($29).
   return p.has('active_monthly') || p.has('active_yearly')
     || p.has('bundle_monthly') || p.has('bundle_yearly')
     || p.has('concierge_monthly')
@@ -90,7 +90,10 @@ export const PRODUCT_PRICES: Record<SubscriptionProduct, { amount: number; inter
   roles_board_yearly: { amount: 149, interval: 'year' },
   active_monthly: { amount: 29, interval: 'month' },
   active_yearly: { amount: 249, interval: 'year' },
-  concierge_monthly: { amount: 79, interval: 'month' },
+  // Concierge raised from $79 → $89 (2026-06-02 pricing lock). Web-search-
+  // heavy interview prep + daily drafted outreach are the cost drivers;
+  // $10 headroom recovers ~3-5pp margin without losing the segment.
+  concierge_monthly: { amount: 89, interval: 'month' },
   bundle_monthly: { amount: 39, interval: 'month' },
   bundle_yearly: { amount: 349, interval: 'year' },
   // Active Hiring — sits between Starter ($299) and Growth ($799) tiers.

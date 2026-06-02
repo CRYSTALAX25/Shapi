@@ -199,7 +199,7 @@ const fr: typeof en = {
       addon3Name: 'Career Bundle',
       addon3Price: '$39/mo',
       addon4Name: 'Active Concierge',
-      addon4Price: '$79/mo',
+      addon4Price: '$89/mo',
       companiesTitle: 'Pour les entreprises',
       companiesSub: 'Essai gratuit 30 jours. Annulez à tout moment.',
       foundingBadge: '★ Partenaires Fondateurs : les 25 premières entreprises bénéficient de -50 % pendant 3 mois.',
@@ -377,7 +377,7 @@ const fr: typeof en = {
       t4Price: '$29/mo',
       t4Body: 'Scan d’offres + prises de contact',
       t5Name: 'Active Concierge',
-      t5Price: '$79/mo',
+      t5Price: '$89/mo',
       t5Body: 'Envoi auto des prises de contact validées',
     },
     finalCta: {

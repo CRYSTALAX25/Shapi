@@ -203,7 +203,7 @@ const hr: typeof en = {
       addon3Name: 'Career Bundle',
       addon3Price: '$39/mj',
       addon4Name: 'Active Concierge',
-      addon4Price: '$79/mj',
+      addon4Price: '$89/mj',
       companiesTitle: 'Za tvrtke',
       companiesSub: '30 dana besplatno. Otkažite bilo kada.',
       foundingBadge: '★ Founding Partners: prvih 25 tvrtki dobiva 50% popusta 3 mjeseca.',
@@ -381,7 +381,7 @@ const hr: typeof en = {
       t4Price: '$29/mj',
       t4Body: 'Skener poslova + pripremljen outreach',
       t5Name: 'Active Concierge',
-      t5Price: '$79/mj',
+      t5Price: '$89/mj',
       t5Body: 'Automatsko slanje odobrenog outreacha dnevno',
     },
     finalCta: {

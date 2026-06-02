@@ -204,7 +204,7 @@ const hi: typeof en = {
       addon3Name: 'Career Bundle',
       addon3Price: '$39/माह',
       addon4Name: 'Active Concierge',
-      addon4Price: '$79/माह',
+      addon4Price: '$89/माह',
       companiesTitle: 'कंपनियों के लिए',
       companiesSub: '30 दिन फ्री ट्रायल। कभी भी कैंसल करें।',
       foundingBadge: '★ Founding Partners: पहली 25 कंपनियों को 3 महीने 50% छूट।',
@@ -382,7 +382,7 @@ const hi: typeof en = {
       t4Price: '$29/माह',
       t4Body: 'जॉब स्कैनर + ड्राफ्ट आउटरीच',
       t5Name: 'Active Concierge',
-      t5Price: '$79/माह',
+      t5Price: '$89/माह',
       t5Body: 'मंज़ूर आउटरीच रोज़ ऑटो-सेंड',
     },
     finalCta: {

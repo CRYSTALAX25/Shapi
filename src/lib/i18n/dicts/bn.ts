@@ -205,7 +205,7 @@ const bn: typeof en = {
       addon3Name: 'Career Bundle',
       addon3Price: '$39/mo',
       addon4Name: 'Active Concierge',
-      addon4Price: '$79/mo',
+      addon4Price: '$89/mo',
       companiesTitle: 'কোম্পানির জন্য',
       companiesSub: '30-দিন ফ্রি trial। যেকোনো সময় cancel।',
       foundingBadge: '★ Founding Partners: প্রথম 25টি কোম্পানি পায় 3 মাসের 50% off।',
@@ -383,7 +383,7 @@ const bn: typeof en = {
       t4Price: '$29/mo',
       t4Body: 'Job scanner + draft করা outreach',
       t5Name: 'Active Concierge',
-      t5Price: '$79/mo',
+      t5Price: '$89/mo',
       t5Body: 'প্রতিদিন approved outreach auto-send',
     },
     finalCta: {

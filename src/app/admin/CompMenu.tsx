@@ -18,7 +18,7 @@ const ACTION_LABELS: Record<Action, string> = {
   comp_kit: '+ Kit CV',
   uncomp_cv: '− Reset CV tier',
   comp_active: '+ Shapi Active ($29)',
-  comp_concierge: '+ Concierge ($79)',
+  comp_concierge: '+ Concierge ($89)',
   comp_roles_board: '+ Roles Board ($19)',
   uncomp_subscription: '− Clear subs',
   comp_active_hiring: '+ Active Hiring ($499)',

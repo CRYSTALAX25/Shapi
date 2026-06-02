@@ -7,7 +7,7 @@
 //   - 'roles_board_yearly'  → Open Roles Board, $149/year (subscription)
 //   - 'active_monthly'      → Shapi Active, $29/month (subscription)
 //   - 'active_yearly'       → Shapi Active, $249/year (subscription)
-//   - 'concierge_monthly'   → Active Concierge, $79/month (subscription)
+//   - 'concierge_monthly'   → Active Concierge, $89/month (subscription)
 //   - 'bundle_monthly'      → Roles Board + Active bundle, $39/month
 //   - 'bundle_yearly'       → Roles Board + Active bundle, $349/year
 //
