@@ -103,6 +103,32 @@ function WorkforceSnapshotInner() {
   const [err, setErr] = useState('')
   const [report, setReport] = useState<Report | null>(null)
 
+  // Restore a previously-generated report + the inputs that produced it from
+  // localStorage so the user doesn't lose their work after clicking an
+  // upsell CTA + hitting browser back. Cleared on explicit "Run another
+  // snapshot".
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('shapi-snapshot')
+      if (!raw) return
+      const saved = JSON.parse(raw) as {
+        inputs?: { industry?: string; size?: string; country?: string; aiMaturity?: string; opModel?: string; roles?: RoleRow[]; useCases?: string[] }
+        report?: Report
+        savedAt?: string
+      }
+      if (saved.inputs) {
+        if (saved.inputs.industry) setIndustry(saved.inputs.industry)
+        if (saved.inputs.size) setSize(saved.inputs.size)
+        if (saved.inputs.country) setCountry(saved.inputs.country)
+        if (saved.inputs.aiMaturity) setAiMaturity(saved.inputs.aiMaturity)
+        if (saved.inputs.opModel) setOpModel(saved.inputs.opModel)
+        if (Array.isArray(saved.inputs.roles) && saved.inputs.roles.length > 0) setRoles(saved.inputs.roles)
+        if (Array.isArray(saved.inputs.useCases) && saved.inputs.useCases.length > 0) setUseCases(saved.inputs.useCases)
+      }
+      if (saved.report) setReport(saved.report)
+    } catch { /* corrupt localStorage — ignore */ }
+  }, [])
+
   const updateRole = (i: number, key: keyof RoleRow, value: string) => {
     setRoles(prev => prev.map((r, idx) => (idx === i ? { ...r, [key]: value } : r)))
   }
@@ -208,7 +234,19 @@ function WorkforceSnapshotInner() {
         return
       }
       if (d.error) { setErr(d.error); return }
-      if (d.report) setReport(d.report)
+      if (d.report) {
+        setReport(d.report)
+        // Persist the report + the inputs that produced it so a navigation
+        // to /company/pricing (or anywhere) followed by browser-back doesn't
+        // wipe the work.
+        try {
+          localStorage.setItem('shapi-snapshot', JSON.stringify({
+            inputs: { industry, size, country, aiMaturity, opModel, roles, useCases },
+            report: d.report,
+            savedAt: new Date().toISOString(),
+          }))
+        } catch { /* quota or disabled — proceed without persistence */ }
+      }
       else setErr('Could not build the snapshot — try again.')
     } catch (e) {
       console.warn('[workforce-snapshot] client error:', e)
@@ -363,17 +401,13 @@ function WorkforceSnapshotInner() {
               <button onClick={addRole} className="mt-3 text-[#6AA8F5] text-xs font-bold border border-[#6AA8F5]/30 px-3 py-1.5 rounded-full hover:border-[#6AA8F5]/60 transition-colors">+ Add role</button>
             </div>
 
-            <div className="rounded-2xl p-5" style={cardStyle}>
-              <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-3">AI use cases under consideration (up to 3)</p>
-              <p className="text-[#7E7E8E] text-[11px] mb-3">e.g. &quot;automate customer support tier-1&quot;, &quot;AI co-pilot for our analysts&quot;, &quot;internal search across all docs&quot;</p>
-              <div className="space-y-2">
-                {useCases.map((u, i) => (
-                  <input key={i} value={u} onChange={e => setUseCases(prev => prev.map((x, idx) => idx === i ? e.target.value : x))}
-                    placeholder={`Use case ${i + 1} (optional)`}
-                    className={inputCls} style={inputStyle} />
-                ))}
-              </div>
-            </div>
+            {/* CUT 1 from master Section 1: removed the standalone "AI use
+                cases" free-text box. AI-exposure is now derived automatically
+                per role/seat by the engine — a vague manual box added a
+                confusing step + produced vague output. The useCases state
+                stays in code (defaulted to empty) so the API payload contract
+                doesn't change; the engine just sees no use cases and falls
+                back to "common 2-3 for this industry". */}
 
             {err && <p className="text-[#F58E9A] text-sm">{err}</p>}
 
@@ -538,7 +572,10 @@ function WorkforceSnapshotInner() {
                     You&apos;ve seen the gaps. <strong className="text-[#F4F4F7]">Growth ($799/mo)</strong> unlocks the full Hiring Roadmap, AI-shortlisted candidates per role, and salary benchmarks for every at-risk role above.
                   </p>
                   <div className="flex flex-wrap gap-3 items-center">
-                    <Link href="/company/pricing?plan=growth&trial=14" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-black text-white"
+                    {/* target=_blank so the user keeps the Snapshot visible
+                        while exploring pricing — backbutton-wipes-data was a
+                        real complaint in testing. */}
+                    <Link href="/company/pricing?plan=growth&trial=14" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-black text-white"
                       style={{ background: 'linear-gradient(135deg,#6AA8F5,#34D399)' }}>
                       Start free 14-day trial →
                     </Link>
@@ -569,7 +606,13 @@ function WorkforceSnapshotInner() {
                 Take me to my dashboard →
               </button>
             ) : (
-              <button onClick={() => { setReport(null); setErr('') }} className="w-full py-3 rounded-full font-bold text-sm border border-white/[0.12] text-[#C7C7D1] hover:bg-white/[0.04]">
+              <button
+                onClick={() => {
+                  setReport(null)
+                  setErr('')
+                  try { localStorage.removeItem('shapi-snapshot') } catch {}
+                }}
+                className="w-full py-3 rounded-full font-bold text-sm border border-white/[0.12] text-[#C7C7D1] hover:bg-white/[0.04]">
                 Run another snapshot
               </button>
             )}
