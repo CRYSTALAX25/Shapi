@@ -107,10 +107,11 @@ function WorkforceSnapshotInner() {
   // localStorage so the user doesn't lose their work after clicking an
   // upsell CTA + hitting browser back. Cleared on explicit "Run another
   // snapshot".
+  const [restored, setRestored] = useState(false)
   useEffect(() => {
     try {
       const raw = localStorage.getItem('shapi-snapshot')
-      if (!raw) return
+      if (!raw) { setRestored(true); return }
       const saved = JSON.parse(raw) as {
         inputs?: { industry?: string; size?: string; country?: string; aiMaturity?: string; opModel?: string; roles?: RoleRow[]; useCases?: string[] }
         report?: Report
@@ -127,7 +128,23 @@ function WorkforceSnapshotInner() {
       }
       if (saved.report) setReport(saved.report)
     } catch { /* corrupt localStorage — ignore */ }
+    setRestored(true)
   }, [])
+
+  // Continuous auto-save: any change to inputs OR a generated report writes
+  // through to localStorage. Skipped until the restore-from-storage pass has
+  // completed so we don't immediately overwrite saved data with default
+  // empty state on first mount.
+  useEffect(() => {
+    if (!restored) return
+    try {
+      localStorage.setItem('shapi-snapshot', JSON.stringify({
+        inputs: { industry, size, country, aiMaturity, opModel, roles, useCases },
+        report,
+        savedAt: new Date().toISOString(),
+      }))
+    } catch { /* quota exceeded / private mode — proceed without persistence */ }
+  }, [restored, industry, size, country, aiMaturity, opModel, roles, useCases, report])
 
   const updateRole = (i: number, key: keyof RoleRow, value: string) => {
     setRoles(prev => prev.map((r, idx) => (idx === i ? { ...r, [key]: value } : r)))
