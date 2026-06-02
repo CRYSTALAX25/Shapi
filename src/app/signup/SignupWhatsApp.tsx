@@ -15,6 +15,24 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
+// Translate Supabase's raw auth error strings into messages users can act on.
+// The most common gotcha right now is "Unsupported phone provider" which
+// means Phone Auth isn't enabled in the Supabase dashboard at all — the SMS
+// fallback in sendCode() will already have failed by the time we hit this
+// path, so we tell the user exactly what to do next.
+function friendlyOtpError(raw: string): string {
+  if (/provider|channel|whatsapp|messaging service|sms provider/i.test(raw)) {
+    return 'Phone signup isn\'t fully configured yet — try Email above. (Setup: Supabase → Authentication → Providers → Phone → enable Twilio.)'
+  }
+  if (/rate.?limit|too many/i.test(raw)) {
+    return 'A code was just sent to this number — wait ~30 seconds before retrying.'
+  }
+  if (/invalid phone|format/i.test(raw)) {
+    return 'That phone number didn\'t parse — make sure it\'s in international format with the + and country code.'
+  }
+  return raw
+}
+
 type Props = {
   initialType: 'candidate' | 'company' | null
   agreedToTerms: boolean
@@ -40,6 +58,11 @@ export default function SignupWhatsApp({
   const [loading, setLoading] = useState(false)
   // Resend cooldown — Supabase OTPs have rate limits per phone.
   const [resendCooldown, setResendCooldown] = useState(0)
+  // Which channel actually delivered the code. We try WhatsApp first and
+  // transparently fall back to SMS if Supabase reports the provider doesn't
+  // support WA — keeps the user moving instead of dead-ending on a config
+  // issue they can't see or fix.
+  const [deliveredVia, setDeliveredVia] = useState<'whatsapp' | 'sms'>('whatsapp')
 
   useEffect(() => {
     if (resendCooldown <= 0) return
@@ -60,29 +83,48 @@ export default function SignupWhatsApp({
 
     setLoading(true)
     const supabase = createClient()
-    const { error: otpError } = await supabase.auth.signInWithOtp({
+    const userMetadata = {
+      type: initialType,
+      company_invite: companyInvite || undefined,
+      marketing_opt_in: marketingOptIn,
+      referral_source: referralSource || undefined,
+      email_from_invite: inviteEmail || undefined,
+    }
+
+    // First attempt: WhatsApp channel (the ideal MENA UX).
+    const waAttempt = await supabase.auth.signInWithOtp({
       phone: normalisedPhone,
-      options: {
-        // Asks Supabase to route via the WhatsApp channel of the configured
-        // Twilio Messaging Service. Requires Phone Auth + a WA-enabled
-        // Messaging Service SID in Supabase Auth settings. If WA isn't
-        // configured, Supabase falls back to SMS — still bypasses the email
-        // wall, just over a different channel.
-        channel: 'whatsapp',
-        data: {
-          type: initialType,
-          company_invite: companyInvite || undefined,
-          marketing_opt_in: marketingOptIn,
-          referral_source: referralSource || undefined,
-          email_from_invite: inviteEmail || undefined,
-        },
-      },
+      options: { channel: 'whatsapp', data: userMetadata },
     })
-    setLoading(false)
-    if (otpError) {
-      setError(otpError.message)
+
+    // If Supabase returns "Unsupported phone provider" or any WA-channel
+    // configuration error, transparently retry over SMS so the user keeps
+    // moving. This usually means Ana's Twilio Messaging Service isn't
+    // WA-enabled yet (pre-WABA). Phone Auth still works over SMS.
+    const waErr = waAttempt.error
+    const looksLikeChannelConfig = waErr && /provider|channel|whatsapp|messaging service/i.test(waErr.message)
+    if (waErr && looksLikeChannelConfig) {
+      const smsAttempt = await supabase.auth.signInWithOtp({
+        phone: normalisedPhone,
+        options: { channel: 'sms', data: userMetadata },
+      })
+      setLoading(false)
+      if (smsAttempt.error) {
+        setError(friendlyOtpError(smsAttempt.error.message))
+        return
+      }
+      setDeliveredVia('sms')
+      setStage('code')
+      setResendCooldown(30)
       return
     }
+
+    setLoading(false)
+    if (waErr) {
+      setError(friendlyOtpError(waErr.message))
+      return
+    }
+    setDeliveredVia('whatsapp')
     setStage('code')
     setResendCooldown(30)
   }
@@ -141,8 +183,14 @@ export default function SignupWhatsApp({
     return (
       <div className="space-y-3">
         <div className="rounded-2xl p-4" style={{ background: 'rgba(106,168,245,0.10)', border: '1px solid rgba(106,168,245,0.30)' }}>
-          <p className="text-[#6AA8F5] text-xs font-bold mb-1">📱 Code sent to {normalisedPhone}</p>
-          <p className="text-[#A6A6B4] text-xs leading-relaxed">Check WhatsApp (or SMS) — enter the 6-digit code below. Takes a minute to land.</p>
+          <p className="text-[#6AA8F5] text-xs font-bold mb-1">
+            {deliveredVia === 'whatsapp' ? '💬' : '📱'} Code sent to {normalisedPhone}
+          </p>
+          <p className="text-[#A6A6B4] text-xs leading-relaxed">
+            {deliveredVia === 'whatsapp'
+              ? 'Check WhatsApp for the 6-digit code. Takes a minute to land.'
+              : 'WhatsApp delivery isn\'t set up yet, so we sent the code by SMS instead. Check your messages.'}
+          </p>
         </div>
 
         <input
