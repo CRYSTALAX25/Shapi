@@ -25,7 +25,7 @@ Tagline: "Shape what's next." UAE-first launch May 2026.
 - **Frontend:** Next.js 16 (App Router), TypeScript, Tailwind CSS
 - **Auth:** Supabase Auth (@supabase/ssr)
 - **Database:** Supabase (PostgreSQL) — project: juqgwcipbdzoegodiydh.supabase.co
-- **Hosting:** Vercel — Ana Barber's projects (Hobby plan)
+- **Hosting:** Vercel — Ana Barber's projects (**Pro plan** — confirmed 2026-06-03; gives 300s `maxDuration` headroom for Sonnet 4.6 in tier-b + workforce-snapshot)
 - **Email:** Resend — sending domain shapi.io, from: hello@shapi.io
 - **Payments:** Stripe (Ana's existing account: ana.vbarber@gmail.com)
 - **AI conversations:** Claude API (claude-sonnet-4-6)
