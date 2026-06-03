@@ -837,77 +837,234 @@ function Stat({ label, value, highlight = false }: { label: string; value: strin
   )
 }
 
+// Visual execution playbook — was 5 stacked text blocks ('lot of text, looks
+// messy' per Ana 2026-06-03). Redesign: timeline header on top, sectioned
+// cards with icons + collapsible long-form, structured drilldown for each.
+// Still data-compatible with the Claude output shape.
 function PlaybookOutput({ data }: { data: Record<string, unknown> }) {
   const comms = (data.comms_drafts as Record<string, string> | undefined) || {}
   const compliance = Array.isArray(data.compliance_notes) ? (data.compliance_notes as Array<Record<string, string>>) : []
   const outplacement = (data.outplacement_plan as Record<string, unknown> | undefined) || {}
   const hiring = (data.hiring_plan as Record<string, unknown> | undefined) || {}
   const milestones = Array.isArray(data.milestones) ? (data.milestones as Array<Record<string, unknown>>) : []
+
+  // Group milestones by 30/60/90 buckets for the timeline header.
+  type Milestone = { day?: string | number; milestone?: string }
+  const bucketed = { d30: [] as Milestone[], d60: [] as Milestone[], d90: [] as Milestone[] }
+  for (const m of milestones as Milestone[]) {
+    const d = Number(m.day ?? 0)
+    if (d <= 30) bucketed.d30.push(m)
+    else if (d <= 60) bucketed.d60.push(m)
+    else bucketed.d90.push(m)
+  }
+
   return (
     <div className="mt-4 space-y-3">
-      {comms.all_hands_intro && (
-        <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-1">All-hands intro</p>
-          <p className="text-[#C7C7D1] text-xs leading-relaxed whitespace-pre-wrap">{comms.all_hands_intro}</p>
-        </div>
-      )}
-      {comms.manager_brief && (
-        <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-1">Manager brief</p>
-          <p className="text-[#C7C7D1] text-xs leading-relaxed whitespace-pre-wrap">{comms.manager_brief}</p>
-        </div>
-      )}
-      {comms.exiting_staff_template && (
-        <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-1">Exiting-staff template</p>
-          <p className="text-[#C7C7D1] text-xs leading-relaxed whitespace-pre-wrap">{comms.exiting_staff_template}</p>
-        </div>
-      )}
-      {compliance.length > 0 && (
-        <div className="rounded-xl p-3" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)' }}>
-          <p className="text-[#FBBF24] text-[10px] font-bold uppercase tracking-wider mb-2">Compliance</p>
-          {compliance.map((c, i) => (
-            <p key={i} className="text-[#C7C7D1] text-xs leading-relaxed mb-1">
-              <span className="text-[#FBBF24] font-bold">{c.jurisdiction}: </span>{c.requirement} — <span className="text-[#A6A6B4]">{c.action}</span>
-            </p>
-          ))}
-        </div>
-      )}
-      {Object.keys(outplacement).length > 0 && (
-        <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-1">Outplacement</p>
-          {Array.isArray(outplacement.tiered_support) && (outplacement.tiered_support as string[]).map((t, i) => (
-            <p key={i} className="text-[#C7C7D1] text-xs">• {t}</p>
-          ))}
-          {outplacement.estimated_cost_band && (
-            <p className="text-[#34D399] text-xs mt-1 font-bold">Cost band: {String(outplacement.estimated_cost_band)}</p>
-          )}
-        </div>
-      )}
-      {Object.keys(hiring).length > 0 && (
-        <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-1">Hiring plan</p>
-          {Array.isArray(hiring.q1_q2_roles) && (
-            <p className="text-[#C7C7D1] text-xs">Q1-Q2 roles: {(hiring.q1_q2_roles as string[]).join(', ')}</p>
-          )}
-          {Array.isArray(hiring.channels) && (
-            <p className="text-[#A6A6B4] text-xs mt-1">Channels: {(hiring.channels as string[]).join(', ')}</p>
-          )}
-          {hiring.interview_loop && (
-            <p className="text-[#A6A6B4] text-xs mt-1">Loop: {String(hiring.interview_loop)}</p>
-          )}
-        </div>
-      )}
+      {/* ── 30/60/90 timeline header — the at-a-glance roadmap ── */}
       {milestones.length > 0 && (
-        <div className="rounded-xl p-3" style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.2)' }}>
-          <p className="text-[#34D399] text-[10px] font-bold uppercase tracking-wider mb-2">90-day milestones</p>
-          {milestones.map((m, i) => (
-            <p key={i} className="text-[#C7C7D1] text-xs mb-0.5">
-              <span className="text-[#34D399] font-black">Day {String(m.day || '—')}: </span>{String(m.milestone || '')}
-            </p>
-          ))}
+        <div className="rounded-2xl p-4" style={{ background: 'linear-gradient(135deg, rgba(52,211,153,0.10), rgba(106,168,245,0.06))', border: '1px solid rgba(52,211,153,0.30)' }}>
+          <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: '#34D399' }}>✦ 90-day execution timeline</p>
+          <div className="grid grid-cols-3 gap-2">
+            {([
+              { label: 'Day 0–30', items: bucketed.d30, accent: '#34D399' },
+              { label: 'Day 31–60', items: bucketed.d60, accent: '#6AA8F5' },
+              { label: 'Day 61–90', items: bucketed.d90, accent: '#F08CAE' },
+            ]).map(slot => (
+              <div key={slot.label} className="rounded-lg p-2.5" style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${slot.accent}33` }}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: slot.accent }}>{slot.label}</p>
+                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full" style={{ background: `${slot.accent}22`, color: slot.accent }}>{slot.items.length}</span>
+                </div>
+                <ul className="space-y-1">
+                  {slot.items.slice(0, 3).map((m, i) => (
+                    <li key={i} className="text-[#C7C7D1] text-[11px] leading-snug">
+                      <span className="text-[#7E7E8E] font-bold">D{String(m.day)}:</span> {String(m.milestone || '').slice(0, 80)}{(String(m.milestone || '').length > 80) ? '…' : ''}
+                    </li>
+                  ))}
+                  {slot.items.length > 3 && (
+                    <li className="text-[#7E7E8E] text-[10px] italic">+ {slot.items.length - 3} more</li>
+                  )}
+                  {slot.items.length === 0 && (
+                    <li className="text-[#7E7E8E] text-[10px] italic">no milestones in this slot</li>
+                  )}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
       )}
+
+      {/* ── 2-col layout: hiring + compliance + outplacement side-by-side ── */}
+      <div className="grid md:grid-cols-2 gap-3">
+        {/* Hiring plan card */}
+        {Object.keys(hiring).length > 0 && (
+          <div className="rounded-2xl p-4" style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.25)' }}>
+            <div className="flex items-center gap-2 mb-2.5">
+              <span className="text-base">👥</span>
+              <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#6AA8F5' }}>Hiring plan</p>
+            </div>
+            {Array.isArray(hiring.q1_q2_roles) && (hiring.q1_q2_roles as string[]).length > 0 && (
+              <div className="mb-2.5">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1">Q1–Q2 roles</p>
+                <ul className="space-y-0.5">
+                  {(hiring.q1_q2_roles as string[]).map((r, i) => (
+                    <li key={i} className="text-[#C7C7D1] text-xs">· {r}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {Array.isArray(hiring.channels) && (hiring.channels as string[]).length > 0 && (
+              <div className="mb-2">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1">Channels</p>
+                <div className="flex flex-wrap gap-1">
+                  {(hiring.channels as string[]).map((c, i) => (
+                    <span key={i} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.14)', color: '#6AA8F5' }}>{c}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {hiring.interview_loop && (
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-0.5">Interview loop</p>
+                <p className="text-[#A6A6B4] text-[11px] leading-relaxed">{String(hiring.interview_loop)}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Outplacement card */}
+        {Object.keys(outplacement).length > 0 && (
+          <div className="rounded-2xl p-4" style={{ background: 'rgba(240,140,174,0.08)', border: '1px solid rgba(240,140,174,0.25)' }}>
+            <div className="flex items-center gap-2 mb-2.5">
+              <span className="text-base">🛟</span>
+              <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#F08CAE' }}>Outplacement</p>
+            </div>
+            {Array.isArray(outplacement.tiered_support) && (
+              <div className="mb-2.5">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1">Tiered support</p>
+                <ul className="space-y-0.5">
+                  {(outplacement.tiered_support as string[]).map((t, i) => (
+                    <li key={i} className="text-[#C7C7D1] text-xs">· {t}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {Array.isArray(outplacement.vendor_options) && (outplacement.vendor_options as string[]).length > 0 && (
+              <div className="mb-2.5">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1">Vendor options</p>
+                <div className="flex flex-wrap gap-1">
+                  {(outplacement.vendor_options as string[]).map((v, i) => (
+                    <span key={i} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.14)', color: '#F08CAE' }}>{v}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {outplacement.estimated_cost_band && (
+              <div className="mt-2 pt-2 border-t border-white/[0.06]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-0.5">Cost band</p>
+                <p className="text-[#34D399] text-xs font-bold">{String(outplacement.estimated_cost_band)}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── Compliance — full-width, jurisdiction matrix ── */}
+      {compliance.length > 0 && (
+        <div className="rounded-2xl p-4" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-base">⚖️</span>
+            <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#FBBF24' }}>Compliance</p>
+          </div>
+          <div className="space-y-2">
+            {compliance.map((c, i) => (
+              <div key={i} className="grid grid-cols-1 md:grid-cols-[100px_1fr_1fr] gap-2 pb-2 border-b border-white/[0.04] last:border-b-0 last:pb-0">
+                <p className="text-[10px] font-black uppercase tracking-wider" style={{ color: '#FBBF24' }}>{c.jurisdiction}</p>
+                <p className="text-[#C7C7D1] text-xs leading-relaxed">{c.requirement}</p>
+                <p className="text-[#A6A6B4] text-xs leading-relaxed"><span className="text-[#7E7E8E] font-bold">Action: </span>{c.action}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Comms drafts — accordion-collapsed by default so they don't dominate ── */}
+      {(comms.all_hands_intro || comms.manager_brief || comms.exiting_staff_template) && (
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="px-4 py-3 border-b border-white/[0.06]">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A6A6B4]">✉️ Communication drafts</p>
+            <p className="text-[10px] text-[#7E7E8E] mt-0.5">Click any to expand. Edit + copy before sending.</p>
+          </div>
+          <div>
+            {comms.all_hands_intro && <CommsAccordion label="All-hands intro" icon="📣" body={comms.all_hands_intro} />}
+            {comms.manager_brief && <CommsAccordion label="Manager brief" icon="👔" body={comms.manager_brief} />}
+            {comms.exiting_staff_template && <CommsAccordion label="Exiting-staff template" icon="🤝" body={comms.exiting_staff_template} />}
+          </div>
+        </div>
+      )}
+
+      {/* ── HR Portal placeholder — fuller vision per Ana 2026-06-03 ── */}
+      <div className="rounded-2xl p-4" style={{ background: 'linear-gradient(135deg, rgba(167,139,250,0.10), rgba(106,168,245,0.06))', border: '1px dashed rgba(167,139,250,0.40)' }}>
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ background: 'rgba(167,139,250,0.18)' }}>🧭</div>
+          <div className="flex-1">
+            <p className="text-[#A78BFA] font-bold text-sm">Per-employee HR portal — coming next</p>
+            <p className="text-[#A6A6B4] text-xs leading-relaxed mt-1.5">
+              Every employee gets a portal that auto-populates from the Company Brain (WhatsApp + desktop chat + emails + uploads). Tracks the full record:
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5 mt-2">
+              {[
+                { icon: '🛤️', label: 'Lifecycle stage', sub: 'replace · redeploy · reskill · protect' },
+                { icon: '💰', label: 'Compensation', sub: 'bonuses · salary changes · equity' },
+                { icon: '🌴', label: 'Time off', sub: 'sick · annual · parental — running balance' },
+                { icon: '📈', label: 'Performance', sub: 'reviews · 1:1 notes · goals' },
+                { icon: '🎓', label: 'Training', sub: 'courses · certifications · paths' },
+                { icon: '💬', label: 'WhatsApp logging', sub: '"I\'m sick today" → logged + notifies manager' },
+              ].map((b, i) => (
+                <div key={i} className="rounded-lg p-2" style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.18)' }}>
+                  <p className="text-[#F4F4F7] text-[11px] font-bold">{b.icon} {b.label}</p>
+                  <p className="text-[#A6A6B4] text-[10px] mt-0.5 leading-snug">{b.sub}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-[#7E7E8E] text-[10px] mt-3 leading-relaxed italic">
+              Privacy floor (PDPL / GDPR) + manager-visibility-chain designed in from line 1. Builds with the multi-location schema migration (Blueprint Prompt 04).
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
+  )
+}
+
+// Lightweight uncontrolled accordion item. native <details> = zero JS, zero
+// state management, copy button stays interactive inside.
+function CommsAccordion({ label, icon, body }: { label: string; icon: string; body: string }) {
+  return (
+    <details className="group">
+      <summary className="px-4 py-3 cursor-pointer hover:bg-white/[0.03] transition-colors flex items-center gap-2.5 list-none">
+        <span className="text-base leading-none">{icon}</span>
+        <span className="text-[#C7C7D1] text-xs font-bold flex-1">{label}</span>
+        <span className="text-[#7E7E8E] text-[10px] group-open:rotate-90 transition-transform">▶</span>
+      </summary>
+      <div className="px-4 pb-4 pt-1">
+        <p className="text-[#C7C7D1] text-xs leading-relaxed whitespace-pre-wrap">{body}</p>
+        <button
+          type="button"
+          onClick={async (e) => {
+            try {
+              await navigator.clipboard.writeText(body)
+              const btn = e.currentTarget
+              const original = btn.textContent
+              btn.textContent = '✓ Copied'
+              setTimeout(() => { btn.textContent = original }, 1500)
+            } catch { /* clipboard denied */ }
+          }}
+          className="mt-3 text-[10px] font-bold px-2.5 py-1 rounded-full border border-white/[0.10] text-[#A6A6B4] hover:text-[#F4F4F7] hover:border-white/[0.30] transition-colors"
+        >
+          📋 Copy
+        </button>
+      </div>
+    </details>
   )
 }
