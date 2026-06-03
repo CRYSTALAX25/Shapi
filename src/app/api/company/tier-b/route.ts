@@ -173,7 +173,10 @@ Headline: ${profile.headline || 'not provided'}
 Summary: ${(profile.summary as string) || 'not provided'}`
 
   let prompt = ''
-  let maxTokens = 3200
+  // Default headroom. Sonnet 4.6 supports up to 64K output tokens; we
+  // generously over-budget to avoid the truncation class of failures
+  // Ana hit on plan_workforce. Per-step overrides below for big outputs.
+  let maxTokens = 6000
 
   if (action === 'diagnose_operating_model') {
     const orgDescription = String(input.org_description || '').slice(0, 4000) || 'Not provided — infer from industry/stage/headcount.'
@@ -246,8 +249,11 @@ Score 0-10 (integers only). Be honest — score generously only with evidence.`
     const opModel = JSON.stringify(engagement.operating_model_diagnostic || {}).slice(0, 2500)
     const dna = JSON.stringify(engagement.org_dna || {}).slice(0, 1500)
     const snapshot = workforceSnapshot ? JSON.stringify(workforceSnapshot).slice(0, 2000) : 'No Workforce Snapshot on file.'
-    // Y10 adds another horizon to the output JSON — give the model headroom.
-    maxTokens = 4000
+    // Four horizons (Y1/Y3/Y5/Y10) × scenarios × cost trajectories + counts
+    // = the biggest output in the wizard. Generous token budget. Ana hit
+    // mid-string truncation at 4000 — bumping to 10000 eliminates that
+    // class of failure even when Sonnet writes verbose scenarios.
+    maxTokens = 10000
     prompt = `You are a senior workforce strategist building a 1/3/5/10-year workforce + AI plan grounded in the company's operating model diagnostic, org DNA, and any existing Workforce Snapshot.
 
 ${COMPANY_BLOCK}
@@ -264,7 +270,14 @@ ${dna}
 ${snapshot}
 
 ═══ YOUR ANALYSIS ═══
-Produce a Y1 / Y3 / Y5 / Y10 workforce plan. For each horizon, give scenarios (base / aggressive-AI / conservative), a cost trajectory band, and 5-way recommendation counts: Replace, Augment, Reskill, Redeploy, Protect. Y10 is the long-range outlook — sandbag the confidence band wider there and name the structural assumption that would shift the call.
+Produce a Y1 / Y3 / Y5 / Y10 workforce plan. For each horizon, give 2-3 scenarios (base + 1-2 alternatives like aggressive-AI / conservative), a cost trajectory band, and 5-way recommendation counts: Replace, Augment, Reskill, Redeploy, Protect. Y10 is the long-range outlook — sandbag the confidence band wider there and name the structural assumption that would shift the call.
+
+LENGTH DISCIPLINE — KEEP THE JSON COMPACT:
+- Each scenario.headline: ONE sentence, max 20 words.
+- key_moves: 2-3 SHORT phrases each (5-10 words), not full sentences.
+- cost_trajectory: ONE sentence with the band + variance driver. Max 30 words.
+- headline_call: 1 sentence, max 25 words.
+- Be specific and decision-oriented. No padding. The JSON must close cleanly within the response budget.
 
 Return ONLY valid JSON in this exact shape:
 {
@@ -327,8 +340,10 @@ Return ONLY valid JSON in this exact shape:
   "sources_footer": "${SOURCES_FOOTER}"
 }
 
-5-10 role_gaps total. The list must total roughly the headcount counts in the plan (replace + augment + new hires). No hedge-words. Be specific — "Senior Backend Engineer" not "Engineering Hire".`
-    maxTokens = 3000
+5-10 role_gaps total. The list must total roughly the headcount counts in the plan (replace + augment + new hires). No hedge-words. Be specific — "Senior Backend Engineer" not "Engineering Hire".
+
+LENGTH DISCIPLINE: each gap's why = 1 sentence, must_have_skills = 3-5 short phrases (not sentences), time_to_fill_weeks = "6-12 weeks, variance: [one phrase]". Keep the JSON compact so it closes cleanly.`
+    maxTokens = 8000
   }
 
   if (action === 'generate_playbook') {
@@ -377,8 +392,10 @@ Return ONLY valid JSON in this exact shape:
   "sources_footer": "${SOURCES_FOOTER}"
 }
 
-Tight, actionable, no hedge-words. Comms drafts read like a human wrote them.`
-    maxTokens = 4000
+Tight, actionable, no hedge-words. Comms drafts read like a human wrote them.
+
+LENGTH DISCIPLINE: stay inside the word caps named in each field (150-200 for all-hands, 100-150 for manager brief, 80-120 for exiting-staff). Compliance + outplacement + hiring sections should be punchy lists, not essays. Keep the JSON compact so it closes cleanly.`
+    maxTokens = 10000
   }
 
   // Call Claude — SONNET 4.6 PRIMARY for tier-b steps. This is the
@@ -432,8 +449,12 @@ Tight, actionable, no hedge-words. Comms drafts read like a human wrote them.`
     try {
       parsed = JSON.parse(match[0])
     } catch (e) {
-      console.error('[tier-b] JSON parse error for', action, '— last 200 chars:', match[0].slice(-200), e)
-      return NextResponse.json({ error: 'AI response was malformed (likely truncated at the token limit). Try once more — usually clears on retry.' }, { status: 500 })
+      console.error('[tier-b] JSON parse error for', action, '— last 200 chars:', match[0].slice(-200), '| out_tokens:', outTokens, '| max_tokens:', maxTokens, e)
+      // If the response hit max_tokens exactly, it's a definite truncation
+      // and not a transient error — telling the user to retry is wrong.
+      // Log the diagnostic but ALWAYS recommend retry since we just bumped
+      // the per-action budgets to absorb verbose generations.
+      return NextResponse.json({ error: 'The analysis came back too long for one response — try once more, we just tuned the limits.' }, { status: 500 })
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
