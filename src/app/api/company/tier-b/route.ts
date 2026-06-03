@@ -270,13 +270,22 @@ ${dna}
 ${snapshot}
 
 ═══ YOUR ANALYSIS ═══
-Produce a Y1 / Y3 / Y5 / Y10 workforce plan. For each horizon, give 2-3 scenarios (base + 1-2 alternatives like aggressive-AI / conservative), a cost trajectory band, and 5-way recommendation counts: Replace, Augment, Reskill, Redeploy, Protect. Y10 is the long-range outlook — sandbag the confidence band wider there and name the structural assumption that would shift the call.
+Produce a Y1 / Y3 / Y5 / Y10 workforce plan. For each horizon, give 2-3 scenarios (base + 1-2 alternatives), a cost trajectory band, and the 6-way recommendation BUCKETS with both COUNTS and the SPECIFIC ROLE TITLES in each bucket:
+  - replace   — humans swapped for different humans (changing skill mix)
+  - augment   — humans + AI tools (keep the person, give them AI leverage)
+  - reskill   — same person re-trained for a different role
+  - redeploy  — same person moved to a different team where they're more valuable
+  - protect   — high-value people likely to leave during change; retain
+  - automate  — AI takes the role over entirely (no human needed)
+
+Y10 is the long-range outlook — sandbag the confidence band wider there and name the structural assumption that would shift the call.
 
 LENGTH DISCIPLINE — KEEP THE JSON COMPACT:
 - Each scenario.headline: ONE sentence, max 20 words.
 - key_moves: 2-3 SHORT phrases each (5-10 words), not full sentences.
 - cost_trajectory: ONE sentence with the band + variance driver. Max 30 words.
 - headline_call: 1 sentence, max 25 words.
+- Role lists per bucket: 3-8 concrete TITLES each (e.g. "Senior Backend Engineer", "Customer Success Lead"), NOT descriptions.
 - Be specific and decision-oriented. No padding. The JSON must close cleanly within the response budget.
 
 Return ONLY valid JSON in this exact shape:
@@ -286,16 +295,23 @@ Return ONLY valid JSON in this exact shape:
       { "name": "base|aggressive_ai|conservative", "headline": "...", "headcount_delta": "+X to +Y", "key_moves": ["...", "..."] }
     ],
     "cost_trajectory": "70%-confidence band on total comp + AI tooling spend (USD), with the variance driver named",
-    "counts": { "replace": 0, "augment": 0, "reskill": 0, "redeploy": 0, "protect": 0 }
+    "buckets": {
+      "replace":  { "count": 0, "roles": ["concrete title", "concrete title"] },
+      "augment":  { "count": 0, "roles": [] },
+      "reskill":  { "count": 0, "roles": [] },
+      "redeploy": { "count": 0, "roles": [] },
+      "protect":  { "count": 0, "roles": [] },
+      "automate": { "count": 0, "roles": [] }
+    }
   },
-  "y3": { "scenarios": [], "cost_trajectory": "...", "counts": { "replace": 0, "augment": 0, "reskill": 0, "redeploy": 0, "protect": 0 } },
-  "y5": { "scenarios": [], "cost_trajectory": "...", "counts": { "replace": 0, "augment": 0, "reskill": 0, "redeploy": 0, "protect": 0 } },
-  "y10": { "scenarios": [], "cost_trajectory": "...", "counts": { "replace": 0, "augment": 0, "reskill": 0, "redeploy": 0, "protect": 0 } },
+  "y3":  { "scenarios": [], "cost_trajectory": "...", "buckets": { "replace": {"count":0,"roles":[]}, "augment": {"count":0,"roles":[]}, "reskill": {"count":0,"roles":[]}, "redeploy": {"count":0,"roles":[]}, "protect": {"count":0,"roles":[]}, "automate": {"count":0,"roles":[]} } },
+  "y5":  { "scenarios": [], "cost_trajectory": "...", "buckets": { "replace": {"count":0,"roles":[]}, "augment": {"count":0,"roles":[]}, "reskill": {"count":0,"roles":[]}, "redeploy": {"count":0,"roles":[]}, "protect": {"count":0,"roles":[]}, "automate": {"count":0,"roles":[]} } },
+  "y10": { "scenarios": [], "cost_trajectory": "...", "buckets": { "replace": {"count":0,"roles":[]}, "augment": {"count":0,"roles":[]}, "reskill": {"count":0,"roles":[]}, "redeploy": {"count":0,"roles":[]}, "protect": {"count":0,"roles":[]}, "automate": {"count":0,"roles":[]} } },
   "headline_call": "1-2 sentences — the single most important bet this plan makes",
   "sources_footer": "${SOURCES_FOOTER}"
 }
 
-Every cost line names its variance driver. Y10 scenarios should explicitly call out the assumption that would invalidate them (e.g. 'assumes AI cost-to-capability ratio improves 2x/yr; if it stalls, replace shifts to augment'). No hedge-words.`
+Every cost line names its variance driver. Y10 scenarios should explicitly call out the assumption that would invalidate them (e.g. 'assumes AI cost-to-capability ratio improves 2x/yr; if it stalls, automate shifts to augment'). count = roles.length in each bucket. No hedge-words.`
   }
 
   if (action === 'map_people_outlay') {

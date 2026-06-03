@@ -76,6 +76,32 @@ export default function TierBWorkspace() {
   const [cultureDescriptors, setCultureDescriptors] = useState('')
   const [leadershipDescriptors, setLeadershipDescriptors] = useState('')
   const [riskDescriptors, setRiskDescriptors] = useState('')
+  // Input persistence — Ana noticed inputs cleared after the report
+  // generated. Mirrors the Workforce Snapshot pattern: restore on mount
+  // from localStorage, gate writes behind a `restored` flag so the empty
+  // default state doesn't clobber saved data.
+  const [inputsRestored, setInputsRestored] = useState(false)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('shapi-tier-b-inputs')
+      if (raw) {
+        const saved = JSON.parse(raw) as Partial<{ orgDescription: string; cultureDescriptors: string; leadershipDescriptors: string; riskDescriptors: string }>
+        if (saved.orgDescription) setOrgDescription(saved.orgDescription)
+        if (saved.cultureDescriptors) setCultureDescriptors(saved.cultureDescriptors)
+        if (saved.leadershipDescriptors) setLeadershipDescriptors(saved.leadershipDescriptors)
+        if (saved.riskDescriptors) setRiskDescriptors(saved.riskDescriptors)
+      }
+    } catch { /* corrupt — ignore */ }
+    setInputsRestored(true)
+  }, [])
+  useEffect(() => {
+    if (!inputsRestored) return
+    try {
+      localStorage.setItem('shapi-tier-b-inputs', JSON.stringify({
+        orgDescription, cultureDescriptors, leadershipDescriptors, riskDescriptors,
+      }))
+    } catch { /* quota — proceed */ }
+  }, [inputsRestored, orgDescription, cultureDescriptors, leadershipDescriptors, riskDescriptors])
 
   // Defensive parse helper — mirrors the roadmap page pattern.
   const parseRes = async (res: Response) => {
@@ -359,8 +385,8 @@ export default function TierBWorkspace() {
               {/* ── Step 3: Workforce + AI plan ─────────────────────────── */}
               <StepCard
                 step={3}
-                title="5-year workforce + AI plan"
-                subtitle="Y1 / Y3 / Y5 scenarios, cost trajectory, Replace / Augment / Reskill / Redeploy / Protect counts."
+                title="1 / 3 / 5 / 10-year workforce + AI plan"
+                subtitle="Y1 / Y3 / Y5 / Y10 scenarios, cost trajectory, Replace / Augment / Reskill / Redeploy / Protect / Automate roles."
                 status={status3}
                 onSave={isLocked ? undefined : () => runStep('plan_workforce', {}, 3)}
                 saveLabel={engagement.workforce_plan ? 'Re-run plan' : 'Build plan'}
@@ -482,32 +508,116 @@ function DiagnosticOutput({ data }: { data: Record<string, unknown> }) {
   )
 }
 
+// Score → colour band. 7+ = green, 4-6 = amber, <4 = coral. Keeps the
+// chart legible at a glance without needing to read numbers.
+function scoreColour(s: number): string {
+  if (s >= 7) return '#34D399'
+  if (s >= 4) return '#FBBF24'
+  return '#F58E9A'
+}
+
 function DnaOutput({ data }: { data: Record<string, unknown> }) {
   const dims = ['culture', 'leadership_style', 'risk_tolerance', 'innovation_appetite', 'collaboration_maturity'] as const
+  // Pre-compute scores + average for the dashboard.
+  const rows = dims.map(k => {
+    const d = (data[k] as Record<string, unknown> | undefined) || {}
+    return {
+      key: k,
+      label: k.replace(/_/g, ' '),
+      score: Number(d.score ?? 0),
+      summary: String(d.summary || ''),
+      workforce_implication: String(d.workforce_implication || ''),
+    }
+  })
+  const average = rows.length > 0
+    ? Math.round((rows.reduce((s, r) => s + r.score, 0) / rows.length) * 10) / 10
+    : 0
+  const avgColour = scoreColour(average)
+  // SVG circle progress geometry.
+  const ringR = 38
+  const ringC = 2 * Math.PI * ringR
+  const ringOffset = ringC * (1 - average / 10)
+
   return (
-    <div className="mt-4 space-y-2">
-      {data.headline_archetype && (
-        <p className="text-[#F08CAE] text-sm font-bold mb-2">{String(data.headline_archetype)}</p>
-      )}
-      {dims.map(k => {
-        const d = (data[k] as Record<string, unknown> | undefined) || {}
-        const score = Number(d.score ?? 0)
-        return (
-          <div key={k} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-[#F4F4F7] font-bold text-xs uppercase tracking-wider">{k.replace(/_/g, ' ')}</p>
-              <span className="text-[10px] font-black px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}>{score}/10</span>
+    <div className="mt-4 space-y-4">
+      {/* Visual dashboard — average DNA score + horizontal bar chart for
+          the 5 dimensions. Ana asked for 'show a graph and the average
+          scoring in a dashboard' — this is that. SVG-only, no chart lib. */}
+      <div className="rounded-2xl p-5" style={{ background: 'rgba(106,168,245,0.05)', border: '1px solid rgba(106,168,245,0.20)' }}>
+        <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-5 items-center">
+          {/* Average score ring */}
+          <div className="flex flex-col items-center">
+            <div className="relative w-[120px] h-[120px]">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r={ringR} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="7" />
+                <circle cx="50" cy="50" r={ringR} fill="none" stroke={avgColour} strokeWidth="7" strokeLinecap="round" strokeDasharray={ringC} strokeDashoffset={ringOffset} />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-3xl font-black" style={{ color: avgColour }}>{average}</span>
+                <span className="text-[10px] text-[#7E7E8E] uppercase tracking-wider -mt-0.5">/ 10</span>
+              </div>
             </div>
-            <p className="text-[#C7C7D1] text-xs leading-relaxed">{String(d.summary || '')}</p>
-            {Boolean(d.workforce_implication) && (
-              <p className="text-[#A6A6B4] text-xs mt-1"><span className="text-[#7E7E8E] font-bold">For workforce: </span>{String(d.workforce_implication)}</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mt-2">Average DNA</p>
+          </div>
+
+          {/* 5-dimension bar chart */}
+          <div className="space-y-1.5">
+            {rows.map(r => (
+              <div key={r.key}>
+                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-0.5">
+                  <span className="text-[#C7C7D1]">{r.label}</span>
+                  <span style={{ color: scoreColour(r.score) }}>{r.score}/10</span>
+                </div>
+                <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                  <div
+                    className="h-full transition-all duration-500"
+                    style={{ width: `${r.score * 10}%`, background: scoreColour(r.score) }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {data.headline_archetype && (
+          <p className="text-[#F08CAE] text-sm font-bold mt-4 pt-4 border-t border-white/[0.06] text-center md:text-left">
+            {String(data.headline_archetype)}
+          </p>
+        )}
+      </div>
+
+      {/* Per-dimension drill-down — kept underneath so the chart leads but
+          the strategic rationale is one scroll away. Each card now has a
+          colour-coded score chip matching the chart band. */}
+      <div className="space-y-2">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] px-1">Dimension details</p>
+        {rows.map(r => (
+          <div key={r.key} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-[#F4F4F7] font-bold text-xs uppercase tracking-wider">{r.label}</p>
+              <span className="text-[10px] font-black px-2 py-0.5 rounded-full" style={{ background: `${scoreColour(r.score)}22`, color: scoreColour(r.score) }}>{r.score}/10</span>
+            </div>
+            <p className="text-[#C7C7D1] text-xs leading-relaxed">{r.summary}</p>
+            {r.workforce_implication && (
+              <p className="text-[#A6A6B4] text-xs mt-1"><span className="text-[#7E7E8E] font-bold">For workforce: </span>{r.workforce_implication}</p>
             )}
           </div>
-        )
-      })}
+        ))}
+      </div>
     </div>
   )
 }
+
+// 6 buckets, each with its accent colour. Automate is the new one — AI
+// accent (steel blue / purple) signals "machine, not human" without judgement.
+const BUCKETS = [
+  { key: 'replace',  label: 'Replace',  color: '#F58E9A', bg: 'rgba(245,142,154,0.10)', border: 'rgba(245,142,154,0.30)' },
+  { key: 'augment',  label: 'Augment',  color: '#6AA8F5', bg: 'rgba(106,168,245,0.10)', border: 'rgba(106,168,245,0.30)' },
+  { key: 'reskill',  label: 'Reskill',  color: '#FBBF24', bg: 'rgba(251,191,36,0.10)',  border: 'rgba(251,191,36,0.30)' },
+  { key: 'redeploy', label: 'Redeploy', color: '#F08CAE', bg: 'rgba(240,140,174,0.10)', border: 'rgba(240,140,174,0.30)' },
+  { key: 'protect',  label: 'Protect',  color: '#34D399', bg: 'rgba(52,211,153,0.10)',  border: 'rgba(52,211,153,0.30)' },
+  { key: 'automate', label: '✦ Automate', color: '#A78BFA', bg: 'rgba(167,139,250,0.12)', border: 'rgba(167,139,250,0.35)' },
+] as const
 
 function WorkforcePlanOutput({ data }: { data: Record<string, unknown> }) {
   const horizons = ['y1', 'y3', 'y5', 'y10'] as const
@@ -519,25 +629,62 @@ function WorkforcePlanOutput({ data }: { data: Record<string, unknown> }) {
       {horizons.map(h => {
         const block = (data[h] as Record<string, unknown> | undefined) || {}
         const scenarios = Array.isArray(block.scenarios) ? (block.scenarios as Array<Record<string, unknown>>) : []
-        const counts = (block.counts as Record<string, number> | undefined) || {}
+        // NEW shape: buckets = { replace: { count, roles[] }, ... }
+        // OLD shape: counts  = { replace: 0, ... }   — kept for back-compat
+        // with engagements generated before the 2026-06-03 schema change.
+        const buckets = (block.buckets as Record<string, { count?: number; roles?: string[] }> | undefined) || {}
+        const legacyCounts = (block.counts as Record<string, number> | undefined) || {}
         return (
-          <div key={h} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div key={h} className="rounded-xl p-3.5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
             <p className="text-[#F4F4F7] font-bold text-xs uppercase tracking-wider mb-2">Year {h.replace('y', '')}</p>
-            <p className="text-[#A6A6B4] text-xs mb-2"><span className="text-[#7E7E8E] font-bold">Cost: </span>{String(block.cost_trajectory || '—')}</p>
-            <div className="grid grid-cols-5 gap-1 mb-2">
-              {(['replace', 'augment', 'reskill', 'redeploy', 'protect'] as const).map(k => (
-                <div key={k} className="rounded-md p-1.5 text-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                  <p className="text-[#7E7E8E] text-[9px] uppercase">{k}</p>
-                  <p className="text-[#F4F4F7] font-black text-sm">{counts[k] ?? 0}</p>
-                </div>
-              ))}
+            <p className="text-[#A6A6B4] text-xs mb-3"><span className="text-[#7E7E8E] font-bold">Cost: </span>{String(block.cost_trajectory || '—')}</p>
+
+            {/* 6-bucket grid with role lists. Cards stack on mobile, 2 cols
+                tablet, 3 cols desktop. Each bucket shows the count + the
+                actual role titles in that bucket (the bit Ana asked for —
+                'tell me WHICH roles, not just how many'). */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-3">
+              {BUCKETS.map(b => {
+                const bucket = buckets[b.key] || {}
+                const count = bucket.count ?? legacyCounts[b.key] ?? 0
+                const roles = Array.isArray(bucket.roles) ? bucket.roles : []
+                return (
+                  <div key={b.key} className="rounded-lg p-2.5" style={{ background: b.bg, border: `1px solid ${b.border}` }}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <p className="text-[10px] font-black uppercase tracking-wider" style={{ color: b.color }}>{b.label}</p>
+                      <p className="font-black text-base" style={{ color: b.color }}>{count}</p>
+                    </div>
+                    {roles.length > 0 ? (
+                      <ul className="space-y-0.5">
+                        {roles.slice(0, 4).map((r, i) => (
+                          <li key={i} className="text-[#C7C7D1] text-[11px] truncate" title={r}>· {r}</li>
+                        ))}
+                        {roles.length > 4 && (
+                          <li className="text-[#7E7E8E] text-[10px] italic">+ {roles.length - 4} more</li>
+                        )}
+                      </ul>
+                    ) : count === 0 ? (
+                      <p className="text-[#7E7E8E] text-[10px] italic">none in this horizon</p>
+                    ) : (
+                      <p className="text-[#7E7E8E] text-[10px] italic">roles list pending</p>
+                    )}
+                  </div>
+                )
+              })}
             </div>
-            {scenarios.map((s, i) => (
-              <div key={i} className="mt-2 pl-2 border-l-2" style={{ borderColor: '#6AA8F5' }}>
-                <p className="text-[#C7C7D1] text-xs font-bold">{String(s.name || '—')} · {String(s.headline || '')}</p>
-                <p className="text-[#A6A6B4] text-[11px] mt-0.5">Δ headcount: {String(s.headcount_delta || '—')}</p>
+
+            {/* Scenarios kept as before — base / aggressive_ai / conservative */}
+            {scenarios.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-white/[0.05]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-2">Scenarios</p>
+                {scenarios.map((s, i) => (
+                  <div key={i} className="mt-1.5 pl-2 border-l-2" style={{ borderColor: '#6AA8F5' }}>
+                    <p className="text-[#C7C7D1] text-xs font-bold">{String(s.name || '—')} · {String(s.headline || '')}</p>
+                    <p className="text-[#A6A6B4] text-[11px] mt-0.5">Δ headcount: {String(s.headcount_delta || '—')}</p>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
         )
       })}
