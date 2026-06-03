@@ -215,6 +215,25 @@ export default function TierBWorkspace() {
           </div>
         )}
 
+        {/* Prominent error banner near the top so failures aren't buried
+            below the wizard. Ana hit a workforce-plan timeout in testing
+            and missed the small error text at the bottom — this version
+            puts it where the eye lands. */}
+        {!loading && engagement && err && (
+          <div className="rounded-2xl p-4 mb-5 flex items-start gap-3" style={{ background: 'rgba(245,142,154,0.10)', border: '1px solid rgba(245,142,154,0.35)' }}>
+            <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm" style={{ background: 'rgba(245,142,154,0.20)' }}>⚠</div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[#F58E9A] font-bold text-sm">{err}</p>
+              <p className="text-[#A6A6B4] text-[11px] mt-1 leading-relaxed">Re-run the step that failed — most engine-capacity issues clear within 30-60 seconds.</p>
+            </div>
+            <button
+              onClick={() => setErr('')}
+              className="flex-shrink-0 text-[#7E7E8E] hover:text-[#A6A6B4] text-lg leading-none"
+              aria-label="Dismiss error"
+            >×</button>
+          </div>
+        )}
+
         {!loading && engagement && (
           <>
             {/* Founder strategy session — prominent CTA at the top of the
@@ -411,8 +430,6 @@ export default function TierBWorkspace() {
               </button>
             </div>
 
-            {err && <p className="text-[#F58E9A] text-xs mt-4">{err}</p>}
-
             <p className="text-[#7E7E8E] text-[10px] leading-relaxed mt-6">
               Sources: <span className="text-[#A6A6B4]">Mercer compensation benchmarks · Glassdoor public ratings · Anthropic/OpenAI published API pricing · BLS/government labour statistics · Shapi platform data.</span> Figures are 70%-confidence bands; named variance drivers in-text.
             </p>
@@ -493,7 +510,7 @@ function DnaOutput({ data }: { data: Record<string, unknown> }) {
 }
 
 function WorkforcePlanOutput({ data }: { data: Record<string, unknown> }) {
-  const horizons = ['y1', 'y3', 'y5'] as const
+  const horizons = ['y1', 'y3', 'y5', 'y10'] as const
   return (
     <div className="mt-4 space-y-3">
       {data.headline_call && (

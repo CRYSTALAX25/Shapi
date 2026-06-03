@@ -24,7 +24,11 @@ import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { scoreCandidateForRole, type MatchCandidate, type MatchRole } from '@/lib/matching'
 
-export const maxDuration = 60
+// Sonnet 4.6 with 3200-4000 tokens + multi-block context (company +
+// diagnostic + DNA + snapshot + workforce_plan + people_outlay) regularly
+// runs 35-55s. Previous 60s cap tripped on the workforce_plan step (Ana
+// hit this in testing). Vercel auto-clamps to the plan's max.
+export const maxDuration = 300
 
 type Action = 'diagnose_operating_model' | 'map_org_dna' | 'plan_workforce' | 'generate_playbook' | 'map_people_outlay'
 
@@ -242,7 +246,9 @@ Score 0-10 (integers only). Be honest — score generously only with evidence.`
     const opModel = JSON.stringify(engagement.operating_model_diagnostic || {}).slice(0, 2500)
     const dna = JSON.stringify(engagement.org_dna || {}).slice(0, 1500)
     const snapshot = workforceSnapshot ? JSON.stringify(workforceSnapshot).slice(0, 2000) : 'No Workforce Snapshot on file.'
-    prompt = `You are a senior workforce strategist building a 5-year workforce + AI plan grounded in the company's operating model diagnostic, org DNA, and any existing Workforce Snapshot.
+    // Y10 adds another horizon to the output JSON — give the model headroom.
+    maxTokens = 4000
+    prompt = `You are a senior workforce strategist building a 1/3/5/10-year workforce + AI plan grounded in the company's operating model diagnostic, org DNA, and any existing Workforce Snapshot.
 
 ${COMPANY_BLOCK}
 
@@ -258,7 +264,7 @@ ${dna}
 ${snapshot}
 
 ═══ YOUR ANALYSIS ═══
-Produce a Y1 / Y3 / Y5 workforce plan. For each horizon, give scenarios (base / aggressive-AI / conservative), a cost trajectory band, and 5-way recommendation counts: Replace, Augment, Reskill, Redeploy, Protect.
+Produce a Y1 / Y3 / Y5 / Y10 workforce plan. For each horizon, give scenarios (base / aggressive-AI / conservative), a cost trajectory band, and 5-way recommendation counts: Replace, Augment, Reskill, Redeploy, Protect. Y10 is the long-range outlook — sandbag the confidence band wider there and name the structural assumption that would shift the call.
 
 Return ONLY valid JSON in this exact shape:
 {
@@ -271,11 +277,12 @@ Return ONLY valid JSON in this exact shape:
   },
   "y3": { "scenarios": [], "cost_trajectory": "...", "counts": { "replace": 0, "augment": 0, "reskill": 0, "redeploy": 0, "protect": 0 } },
   "y5": { "scenarios": [], "cost_trajectory": "...", "counts": { "replace": 0, "augment": 0, "reskill": 0, "redeploy": 0, "protect": 0 } },
+  "y10": { "scenarios": [], "cost_trajectory": "...", "counts": { "replace": 0, "augment": 0, "reskill": 0, "redeploy": 0, "protect": 0 } },
   "headline_call": "1-2 sentences — the single most important bet this plan makes",
   "sources_footer": "${SOURCES_FOOTER}"
 }
 
-Every cost line names its variance driver. No hedge-words.`
+Every cost line names its variance driver. Y10 scenarios should explicitly call out the assumption that would invalidate them (e.g. 'assumes AI cost-to-capability ratio improves 2x/yr; if it stalls, replace shifts to augment'). No hedge-words.`
   }
 
   if (action === 'map_people_outlay') {
@@ -374,15 +381,34 @@ Tight, actionable, no hedge-words. Comms drafts read like a human wrote them.`
     maxTokens = 4000
   }
 
-  // Call Claude.
+  // Call Claude — Sonnet first for sharper analysis, Haiku 4.5 fallback
+  // when Sonnet is overloaded (HTTP 529). The honest-confidence prompt +
+  // JSON-shape contract work well on Haiku too; a slightly less nuanced
+  // step is far better than failure.
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-  let parsed: Record<string, unknown> = {}
-  try {
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
+
+  async function callClaude(model: string) {
+    return anthropic.messages.create({
+      model,
       max_tokens: maxTokens,
       messages: [{ role: 'user', content: prompt }],
     })
+  }
+  function isOverloaded(err: unknown): boolean {
+    const m = err instanceof Error ? err.message : String(err)
+    return /529|overloaded|overload_error|capacity/i.test(m)
+  }
+
+  let parsed: Record<string, unknown> = {}
+  try {
+    let response: Awaited<ReturnType<typeof callClaude>>
+    try {
+      response = await callClaude('claude-sonnet-4-6')
+    } catch (sonnetErr) {
+      if (!isOverloaded(sonnetErr)) throw sonnetErr
+      console.warn(`[tier-b] Sonnet overloaded for ${action}, falling back to Haiku 4.5`)
+      response = await callClaude('claude-haiku-4-5-20251001')
+    }
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
     const match = text.match(/\{[\s\S]*\}/)
     if (!match) {
@@ -398,7 +424,21 @@ Tight, actionable, no hedge-words. Comms drafts read like a human wrote them.`
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     console.error('[tier-b] anthropic error:', msg)
-    return NextResponse.json({ error: msg }, { status: 500 })
+    // Friendlier copy for the common-and-recoverable error classes so the
+    // raw Anthropic JSON doesn't surface to the user.
+    if (/529|overloaded|overload_error|capacity/i.test(msg)) {
+      return NextResponse.json(
+        { error: 'Our analysis engine is at capacity right now — try again in 30–60 seconds.' },
+        { status: 503 },
+      )
+    }
+    if (/rate.?limit|429/i.test(msg)) {
+      return NextResponse.json(
+        { error: 'Hit a rate limit — wait a minute and try again.' },
+        { status: 429 },
+      )
+    }
+    return NextResponse.json({ error: 'Step engine hit a snag — try again.' }, { status: 500 })
   }
 
   // ── People Outlay augmentation ─────────────────────────────────────────
