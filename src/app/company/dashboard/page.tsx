@@ -66,6 +66,15 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
 
   if (!company || company.type !== 'company') redirect('/dashboard')
 
+  // ── Onboarding guard ──────────────────────────────────────────────────────
+  // Blueprint Audit 2 bug: company users could land on /company/dashboard
+  // without finishing /company/onboarding (admin-created users, type-flipped
+  // accounts, signup bounces all skipped the form). Now enforced: if
+  // onboarding_complete=false, force them through the form first.
+  if (!(company as { onboarding_complete?: boolean | null }).onboarding_complete) {
+    redirect('/company/onboarding')
+  }
+
   const isPaid = company?.paid && company?.subscription_status === 'active'
   const hasAH = hasActiveHiring(company as Parameters<typeof hasActiveHiring>[0])
   // Has the company already paired their WhatsApp with Shapi? If not, surface
@@ -257,7 +266,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                 { href: '/company/org-design', label: 'Org design', icon: '🏛️' },
                 { href: '/company/staffing', label: 'Staffing recs', icon: '🤖' },
                 { href: '/company/cognitive-load', label: 'Cognitive load', icon: '🧠' },
-                { href: '/company/tier-b', label: 'Strategic Workforce Plan', icon: '📋' },
+                { href: '/company/strategic-plan', label: 'Strategic Workforce Plan', icon: '📋' },
                 { href: '/company/os', label: 'Workforce OS', icon: '📡' },
                 { href: '/role/ai-proof', label: 'AI-Proof a role', icon: '🛡️' },
                 { href: '/company/roles', label: 'Roles', icon: '💼' },

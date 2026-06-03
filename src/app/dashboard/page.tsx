@@ -16,7 +16,7 @@ export default async function Dashboard() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased, cv_tier, profile_live, subscription_product, right_to_work, work_style, type, cv_builder_chat, cv_builder_chat_updated_at')
+    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased, cv_tier, profile_live, subscription_product, right_to_work, work_style, type, cv_builder_chat, cv_builder_chat_updated_at, onboarding_complete')
     .eq('id', user.id)
     .single()
 
@@ -29,7 +29,12 @@ export default async function Dashboard() {
   const hasCvDraft = draftTurns >= 2 && !profile?.cv_parsed && (profile?.completion_pct ?? 0) < 80
 
   // Companies belong on the company dashboard, not the candidate one.
-  if (type === 'company' || profile?.type === 'company') redirect('/company/dashboard')
+  // Route them through onboarding first if it isn't complete — same guard
+  // /company/dashboard uses, applied earlier in the chain.
+  if (type === 'company' || profile?.type === 'company') {
+    const onboardingDone = (profile as { onboarding_complete?: boolean | null } | null)?.onboarding_complete
+    redirect(onboardingDone ? '/company/dashboard' : '/company/onboarding')
+  }
 
   // Fetch candidate signals
   let interestedRolesCount = 0
