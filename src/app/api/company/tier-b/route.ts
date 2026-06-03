@@ -381,10 +381,16 @@ Tight, actionable, no hedge-words. Comms drafts read like a human wrote them.`
     maxTokens = 4000
   }
 
-  // Call Claude — Sonnet first for sharper analysis, Haiku 4.5 fallback
-  // when Sonnet is overloaded (HTTP 529). The honest-confidence prompt +
-  // JSON-shape contract work well on Haiku too; a slightly less nuanced
-  // step is far better than failure.
+  // Call Claude — SONNET 4.6 PRIMARY for tier-b steps. This is the
+  // premium-engagement product ($5-10k Strategic Workforce Plan,
+  // $15-40k Full Transformation); buyers expect best-in-class analysis,
+  // not a fallback model. Haiku 4.5 stays as a hot standby only when
+  // Sonnet is at capacity (HTTP 529).
+  //
+  // REQUIRED: Vercel Pro plan ($20/mo) so maxDuration=300 actually takes
+  // effect. On Hobby the 300s is silently clamped to 60s and Sonnet's
+  // 45-65s response time trips the cap → silent reverts. See
+  // project_post_launch_backlog for the upgrade trigger conditions.
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
   async function callClaude(model: string) {
@@ -400,6 +406,8 @@ Tight, actionable, no hedge-words. Comms drafts read like a human wrote them.`
   }
 
   let parsed: Record<string, unknown> = {}
+  let modelUsed = 'claude-sonnet-4-6'
+  const claudeStartMs = Date.now()
   try {
     let response: Awaited<ReturnType<typeof callClaude>>
     try {
@@ -407,19 +415,25 @@ Tight, actionable, no hedge-words. Comms drafts read like a human wrote them.`
     } catch (sonnetErr) {
       if (!isOverloaded(sonnetErr)) throw sonnetErr
       console.warn(`[tier-b] Sonnet overloaded for ${action}, falling back to Haiku 4.5`)
+      modelUsed = 'claude-haiku-4-5-20251001'
       response = await callClaude('claude-haiku-4-5-20251001')
     }
+    const elapsedMs = Date.now() - claudeStartMs
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    const inTokens = response.usage?.input_tokens ?? 'n/a'
+    const outTokens = response.usage?.output_tokens ?? 'n/a'
+    console.log(`[tier-b] ${action} via ${modelUsed} — ${elapsedMs}ms, tokens in=${inTokens} out=${outTokens}, text len=${text.length}`)
+
     const match = text.match(/\{[\s\S]*\}/)
     if (!match) {
-      console.error('[tier-b] no JSON in response for', action)
-      return NextResponse.json({ error: 'Could not parse AI response — try again.' }, { status: 500 })
+      console.error('[tier-b] no JSON in response for', action, '— first 500 chars:', text.slice(0, 500))
+      return NextResponse.json({ error: 'AI response had no JSON — likely truncated. Try once more.' }, { status: 500 })
     }
     try {
       parsed = JSON.parse(match[0])
     } catch (e) {
-      console.error('[tier-b] JSON parse error for', action, e)
-      return NextResponse.json({ error: 'AI response was malformed — try again.' }, { status: 500 })
+      console.error('[tier-b] JSON parse error for', action, '— last 200 chars:', match[0].slice(-200), e)
+      return NextResponse.json({ error: 'AI response was malformed (likely truncated at the token limit). Try once more — usually clears on retry.' }, { status: 500 })
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
