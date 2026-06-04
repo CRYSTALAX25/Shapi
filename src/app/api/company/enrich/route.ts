@@ -12,6 +12,10 @@ import Anthropic from '@anthropic-ai/sdk'
 export const maxDuration = 120
 
 export async function POST(request: Request) {
+  // Wrap the entire body — any unhandled throw became a Vercel 500 which
+  // Chrome rendered as "This page couldn't load". Now every failure mode
+  // returns a JSON body the client can read.
+  try {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -113,18 +117,32 @@ Extract what you can find and return ONLY valid JSON:
     console.error('[enrich] Claude error:', err)
   }
 
-  // Save to profile
-  const admin = createAdminClient()
-  await admin
-    .from('profiles')
-    .update({
-      company_data: companyData,
-      company_name: company_name,
-      company_website: website || null,
-      company_size: (companyData.size as string) || null,
-    })
-    .eq('id', user.id)
+  // Save to profile — wrapped in try so even a Supabase outage doesn't
+  // turn into a 500 response. The client gets the enriched data back
+  // either way and can show it in the form.
+  try {
+    const admin = createAdminClient()
+    await admin
+      .from('profiles')
+      .update({
+        company_data: companyData,
+        company_name: company_name,
+        company_website: website || null,
+        company_size: (companyData.size as string) || null,
+      })
+      .eq('id', user.id)
+  } catch (saveErr) {
+    console.error('[enrich] DB save error (returning enriched data anyway):', saveErr)
+  }
 
   console.log('[enrich] Enrichment complete for:', company_name)
   return NextResponse.json({ company_data: companyData })
+  } catch (err) {
+    console.error('[enrich] Unhandled error:', err)
+    return NextResponse.json({
+      error: 'enrich_failed',
+      message: err instanceof Error ? err.message : String(err),
+      company_data: { last_enriched: new Date().toISOString() },
+    }, { status: 200 })
+  }
 }
