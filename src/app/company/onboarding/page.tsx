@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import ShapiCharacter from '@/components/ShapiCharacter'
 import PhoneInput from '@/components/PhoneInput'
@@ -42,6 +42,11 @@ const STORAGE_KEY = 'shapi.company.onboarding.draft.v1'
 
 export default function CompanyOnboarding() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  // ?edit=true → stay on this page even if onboarding_complete is already
+  // true (so the user can update company info on demand). Without this flag
+  // the page auto-redirects already-onboarded companies to their dashboard.
+  const isEditMode = searchParams.get('edit') === 'true'
   const [stage, setStage] = useState<Stage>('profile')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -63,22 +68,62 @@ export default function CompanyOnboarding() {
   // the webhook can't link it to this account.
   const [whatsapp, setWhatsapp] = useState('')
 
-  // Restore on mount.
+  // Restore on mount. THREE sources, in priority order:
+  //   1. SAVED PROFILE from DB — if the user already completed onboarding,
+  //      pre-fill from their actual saved company data. This is the safety
+  //      net for when a user is routed back here by mistake (the bug that
+  //      Ana hit on 2026-06-04 — saw blank form even though data was in DB).
+  //   2. localStorage draft — in-progress work that hasn't been submitted.
+  //   3. Empty form — first-time user, nothing to restore.
+  //
+  // If profile.onboarding_complete is true AND we're NOT in edit mode, auto-
+  // redirect to the dashboard — no point making the user re-fill a form
+  // they've already completed.
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) {
-        const d = JSON.parse(raw)
-        if (d.companyName) setCompanyName(d.companyName)
-        if (d.website) setWebsite(d.website)
-        if (d.hq) setHq(d.hq)
-        if (d.size) setSize(d.size)
-        if (d.about) setAbout(d.about)
-        if (d.whatsapp) setWhatsapp(d.whatsapp)
-      }
-    } catch { /* corrupt draft — ignore */ }
-    setRestored(true)
-  }, [])
+    let cancelled = false
+    async function init() {
+      try {
+        const res = await fetch('/api/profile/get')
+        if (!cancelled && res.ok) {
+          const d = await res.json()
+          const profile = d?.profile || null
+          if (profile?.type === 'company') {
+            // Pre-fill from saved profile.
+            if (profile.company_name) setCompanyName(profile.company_name)
+            if (profile.company_website) setWebsite(profile.company_website)
+            if (profile.location) setHq(profile.location)
+            if (profile.company_size) setSize(profile.company_size)
+            if (profile.summary) setAbout(profile.summary)
+            if (profile.whatsapp_number) setWhatsapp(profile.whatsapp_number)
+            // Already onboarded + not in edit mode? Bounce to dashboard.
+            if (profile.onboarding_complete && !isEditMode) {
+              router.replace('/company/dashboard')
+              return
+            }
+          }
+        }
+      } catch { /* network blip — fall through to localStorage */ }
+
+      // localStorage draft overrides empty fields only — never clobber
+      // values we just restored from the DB.
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY)
+        if (raw && !cancelled) {
+          const d = JSON.parse(raw)
+          setCompanyName(prev => prev || d.companyName || '')
+          setWebsite(prev => prev || d.website || '')
+          setHq(prev => prev || d.hq || '')
+          setSize(prev => prev || d.size || '')
+          setAbout(prev => prev || d.about || '')
+          setWhatsapp(prev => prev || d.whatsapp || '')
+        }
+      } catch { /* corrupt draft — ignore */ }
+
+      if (!cancelled) setRestored(true)
+    }
+    init()
+    return () => { cancelled = true }
+  }, [isEditMode, router])
 
   // Persist on any field change AFTER the restore has happened (otherwise
   // the first render with empty state would clobber the saved draft).
@@ -179,7 +224,21 @@ export default function CompanyOnboarding() {
         setSaving(false)
         return
       }
+      // Read-back verification: the endpoint returns the persisted row.
+      // Only clear localStorage if the read-back confirms onboarding_complete
+      // is now true AND the saved company_name matches what we sent. Without
+      // this confirmation, RLS or a partial save could silently swallow the
+      // write — and clearing the draft would lose Ana's typed data forever.
+      const data = await res.json().catch(() => ({}))
+      const saved = data?.saved as { onboarding_complete?: boolean; company_name?: string } | null
+      const verified = !!(saved?.onboarding_complete && saved?.company_name === companyName.trim())
+      if (!verified) {
+        console.warn('[onboarding] read-back did not confirm save; keeping localStorage draft as safety')
+      }
       saveOk = true
+      if (verified) {
+        try { localStorage.removeItem(STORAGE_KEY) } catch { /* ignore */ }
+      }
     } catch (err) {
       console.error('[onboarding] save error:', err)
       setError("Network issue saving your details. They're still here — try again.")
@@ -188,9 +247,6 @@ export default function CompanyOnboarding() {
     }
 
     if (!saveOk) return
-
-    // Save succeeded — safe to clear the localStorage draft.
-    try { localStorage.removeItem(STORAGE_KEY) } catch { /* ignore */ }
 
     // Trigger enrichment in background (non-blocking)
     setStage('enriching')

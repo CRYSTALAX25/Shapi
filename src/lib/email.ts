@@ -495,6 +495,42 @@ export async function sendConciergeReadyToBookEmail(opts: {
 
 // ── 7. Candidate: CV links sent to their own email ──────────────────────────
 
+// ── Company Pro welcome ────────────────────────────────────────────────────
+// Triggered by the Stripe webhook on checkout.session.completed for a
+// company subscription. Stripe itself sends the receipt + invoice; this
+// email is the brand welcome ("you're in, here's the loop"). Sender:
+// hello@shapi.io. Subject: "Welcome to Shapi Pro." (no exclamation marks
+// in subject lines — Ana's preference for direct copy.)
+export async function sendCompanyWelcomeEmail(opts: {
+  to: string
+  companyName: string
+  tier?: string
+}) {
+  const { to, companyName, tier = 'pro' } = opts
+  const tierLabel = tier === 'pro' ? 'Pro' : tier.charAt(0).toUpperCase() + tier.slice(1)
+  const html = emailShell(`
+    ${h1(`Welcome to Shapi ${tierLabel}, ${companyName}.`)}
+    ${p(`Your 14-day trial just started. Cancel anytime — no charge until day 15.`)}
+    ${divider()}
+    ${p('<strong>The Shapi loop</strong> — fill your org spine once, every workforce tool reads from it. Three things to do in the first hour:')}
+    <ol style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.7;padding-left:22px;margin:12px 0 18px">
+      <li><strong>Build your org spine</strong> — locations, teams, seats. CSV import or manual.</li>
+      <li><strong>Run a Workforce Snapshot</strong> — 60-second AI readiness score that anchors everything else.</li>
+      <li><strong>Post your first role</strong> — JD generated from a 6-question intake.</li>
+    </ol>
+    ${btn('Build my org spine →', `${SITE}/company/spine`)}
+    ${divider()}
+    ${p(`Receipt + invoice come from Stripe directly. Manage billing or cancel from your <a href="${SITE}/api/stripe/portal" style="color:#6AA8F5">customer portal</a>.`)}
+    ${p('Need help importing data, or a setup call? Reply to this email — we read every one.')}
+  `)
+  await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: `Welcome to Shapi ${tierLabel}`,
+    html,
+  })
+}
+
 export async function sendCVLinksEmail(opts: {
   to: string
   name: string

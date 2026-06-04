@@ -31,8 +31,19 @@ export default async function Dashboard() {
   // Companies belong on the company dashboard, not the candidate one.
   // Route them through onboarding first if it isn't complete — same guard
   // /company/dashboard uses, applied earlier in the chain.
+  //
+  // DEFENSIVE: if metadata says 'company' but profile fetch returned null
+  // (RLS hiccup, transient cookie issue post-Stripe redirect, race), DO NOT
+  // silently drop to /company/onboarding — that's the bug Ana hit
+  // 2026-06-04 where a perfectly-saved profile still got bounced into an
+  // empty form. If profile is null, send to /login?session=lost so the
+  // problem is visible instead of pretending onboarding wasn't done.
   if (type === 'company' || profile?.type === 'company') {
-    const onboardingDone = (profile as { onboarding_complete?: boolean | null } | null)?.onboarding_complete
+    if (!profile) {
+      console.error('[dashboard] company-type user but profile fetch returned null — likely auth/RLS hiccup, sending to login')
+      redirect('/login?session=lost')
+    }
+    const onboardingDone = (profile as { onboarding_complete?: boolean | null })?.onboarding_complete
     redirect(onboardingDone ? '/company/dashboard' : '/company/onboarding')
   }
 

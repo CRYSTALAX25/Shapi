@@ -30,6 +30,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  // Read-back verification — confirm the upsert actually landed before the
+  // client can clear its localStorage draft. Without this confirmation the
+  // client used to assume "no error = saved" which left the draft in limbo
+  // if RLS silently filtered the write. We return the persisted onboarding
+  // state so the client knows it's safe to drop the local copy.
+  const { data: saved } = await supabase
+    .from('profiles')
+    .select('id, type, company_name, company_website, company_size, location, summary, whatsapp_number, onboarding_complete, completion_pct')
+    .eq('id', user.id)
+    .single()
+
   console.log('[profile/update] Saved for user:', user.id, 'fields:', Object.keys(body).join(','))
 
   // Send opening WhatsApp message when a number is saved for the FIRST TIME ever.
@@ -64,5 +75,5 @@ export async function POST(request: Request) {
     }
   }
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ success: true, saved })
 }

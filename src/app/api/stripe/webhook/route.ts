@@ -1,7 +1,7 @@
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
-import { sendCvKitEmail } from '@/lib/email'
+import { sendCvKitEmail, sendCompanyWelcomeEmail } from '@/lib/email'
 import { sendWhatsApp } from '@/lib/whatsapp'
 import { getStripe, getWebhookSecret, stripeMode } from '@/lib/stripe'
 
@@ -122,17 +122,39 @@ export async function POST(request: Request) {
         await addSubscriptionProduct(userId, product!, session.subscription as string)
 
       } else if (tier) {
-        // Company subscription
+        // Company subscription. v4: tier='pro' is the only self-serve value.
+        // 'starter'/'growth' may still appear from pre-v4 sessions still in
+        // flight at deploy time — treat them the same way.
+        // Subscription_status='trialing' if Stripe says so (14-day trial),
+        // 'active' otherwise.
+        const subStatus = (session.metadata?.trial_period_days || tier === 'pro')
+          ? 'trialing'
+          : 'active'
         await supabase
           .from('profiles')
           .update({
             paid: true,
             stripe_customer_id: session.customer as string,
             subscription_tier: tier,
-            subscription_status: 'active',
+            subscription_status: subStatus,
             stripe_subscription_id: session.subscription as string,
           })
           .eq('id', userId)
+
+        // ── Brand welcome email — Stripe sends the receipt + invoice
+        // automatically; this is the "you're in, here's the loop" email
+        // from hello@shapi.io.
+        const customerEmail = session.customer_details?.email || session.customer_email
+        if (customerEmail) {
+          const { data: companyProfile } = await supabase
+            .from('profiles')
+            .select('company_name, full_name')
+            .eq('id', userId)
+            .single()
+          const displayName = companyProfile?.company_name || companyProfile?.full_name || 'there'
+          sendCompanyWelcomeEmail({ to: customerEmail, companyName: displayName, tier })
+            .catch(err => console.error('[stripe/webhook] company welcome email failed:', err))
+        }
 
       } else if (product === 'cv_kit' || product === 'cv_pro') {
         const cvTier = session.metadata?.cv_tier || 'kit'

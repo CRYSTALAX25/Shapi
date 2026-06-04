@@ -19,7 +19,12 @@ function BookCallInner() {
   // Optional ?topic= prefill so different CTAs can pre-set context
   // ("strategic-plan", "snapshot-followup", etc.). The form just surfaces
   // it back as a subject-line hint to Ana.
-  const topic = searchParams.get('topic') || ''
+  //
+  // ?intent=enterprise is the v4 pricing-page Enterprise CTA — alias that
+  // to topic='enterprise-sales' so the existing flow handles it cleanly.
+  const rawTopic = searchParams.get('topic') || ''
+  const intent = searchParams.get('intent') || ''
+  const topic = intent === 'enterprise' ? 'enterprise-sales' : rawTopic
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -86,6 +91,7 @@ function BookCallInner() {
     : topic === 'workforce-os' ? 'Workforce monitoring'
     : topic === 'workforce-intelligence' ? 'Workforce Intelligence'
     : topic === 'founder-session' ? 'Founder strategy session — included'
+    : topic === 'enterprise-sales' ? 'Enterprise plan — sales conversation'
     : 'Strategy call'
 
   // Optional engagement context — when a Strategic Workforce Plan client
@@ -162,6 +168,8 @@ function BookCallInner() {
               <p className="text-[#A6A6B4] text-sm leading-relaxed">
                 {topic === 'founder-session'
                   ? '30 minutes with Ana, included with your engagement. Tell us what you want to pressure-test and we’ll come prepared. We reply with two or three slots — or pick one straight from the calendar after submit.'
+                  : topic === 'enterprise-sales'
+                  ? 'Enterprise is sales-led — $2,500–5,000/mo depending on org size, with optional Bespoke Transformation ($15-25k) for custom severance modelling, taxonomy overrides, and a leadership workshop. Tell us roughly what you need and we’ll come with a scoped proposal.'
                   : '30 minutes with our team. We’ll walk through where you are, what you’re trying to solve, and how Shapi (or honestly, not Shapi) fits.'}
               </p>
             </div>

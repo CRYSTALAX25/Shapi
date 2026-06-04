@@ -2,6 +2,21 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe'
 
+// v4 PRICING LOCKED 2026-06-03. Single self-serve tier: Pro $499/mo with
+// a 14-day card-required trial. Enterprise is sales-led (see
+// /book-call?intent=enterprise). Free tier requires NO checkout — just a
+// signed-in profile. So this endpoint only handles 'pro'.
+
+const PLANS: Record<string, { name: string; description: string; amountCents: number }> = {
+  pro: {
+    name: 'Shapi Pro',
+    description: 'Multi-location org chart · Talent Match Pipeline · Active Hiring (AI shortlists + drafted outreach) · Salary Benchmark · Hiring Roadmap · Strategic Workforce Plan',
+    amountCents: 49900, // $499/mo
+  },
+}
+
+const TRIAL_DAYS = 14
+
 export async function POST(request: Request) {
   const stripe = getStripe()
   const supabase = await createClient()
@@ -12,51 +27,20 @@ export async function POST(request: Request) {
   }
 
   const { tier } = await request.json()
-
-  const plans: Record<string, { name: string; amount: number; description: string }> = {
-    starter: {
-      name: 'Shapi Starter',
-      amount: 29900,
-      description: 'Up to 5 active roles · Unlimited candidate views · Email support',
-    },
-    growth: {
-      name: 'Shapi Growth',
-      amount: 79900,
-      description: 'Unlimited roles · Priority matching · Dedicated account manager',
-    },
-  }
-
-  const plan = plans[tier]
+  const plan = PLANS[tier]
   if (!plan) {
-    return NextResponse.json({ error: 'Invalid plan' }, { status: 400 })
+    return NextResponse.json({ error: `Invalid plan: ${tier}. Only 'pro' is self-serve. Enterprise is sales-led — see /book-call?intent=enterprise.` }, { status: 400 })
   }
 
-  // Founding Partner promo: 50% off for the first 3 months, on top of a 30-day
-  // free trial. Charged on the STANDARD price so it auto-reverts to full price
-  // after 3 months. Idempotent coupon — created once, reused after.
-  let foundingCouponId: string | undefined
-  try {
-    const c = await stripe.coupons.retrieve('founding50_3mo')
-    foundingCouponId = c.id
-  } catch {
-    try {
-      const c = await stripe.coupons.create({
-        id: 'founding50_3mo',
-        percent_off: 50,
-        duration: 'repeating',
-        duration_in_months: 3,
-        name: 'Founding Partner — 50% off (3 mo)',
-      })
-      foundingCouponId = c.id
-    } catch {
-      foundingCouponId = undefined // fall back to standard pricing if coupon fails
-    }
-  }
+  const site = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     mode: 'subscription',
     customer_email: user.email,
+    // CARD REQUIRED on the trial — Ana's explicit decision 2026-06-03.
+    // Industry data: card-required trials convert 30-50%, no-card 5-10%.
+    payment_method_collection: 'always',
     line_items: [
       {
         price_data: {
@@ -65,16 +49,17 @@ export async function POST(request: Request) {
             name: plan.name,
             description: plan.description,
           },
-          unit_amount: plan.amount,
+          unit_amount: plan.amountCents,
           recurring: { interval: 'month' },
         },
         quantity: 1,
       },
     ],
-    subscription_data: { trial_period_days: 30 },
-    ...(foundingCouponId ? { discounts: [{ coupon: foundingCouponId }] } : {}),
-    success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/candidates?subscribed=true`,
-    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/company/pricing`,
+    subscription_data: {
+      trial_period_days: TRIAL_DAYS,
+    },
+    success_url: `${site}/company/welcome?tier=${tier}&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${site}/company/pricing`,
     metadata: {
       user_id: user.id,
       tier,
