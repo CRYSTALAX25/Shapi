@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import SpinePrefillBanner, { useSpinePrefill } from '@/components/SpinePrefillBanner'
 
 type Recommendation = {
   id: string
@@ -44,6 +45,22 @@ export default function AutonomousStaffingPage() {
   const [err, setErr] = useState('')
   const [busyId, setBusyId] = useState<string | null>(null)
   const [teamComposition, setTeamComposition] = useState('')
+
+  // Spine pre-fill — same team-composition summary as the Hiring Roadmap.
+  // Saves the user from re-typing what's already in roles_seats.
+  const { spine, applied: spineApplied, apply: applySpine } = useSpinePrefill()
+  const handleApplySpine = () => {
+    if (!spine || spine.roles.length === 0) { applySpine(); return }
+    const summary = spine.roles
+      .map(r => {
+        const n = Number(r.count)
+        const noun = n === 1 ? r.role : `${r.role}s`
+        return `${r.count} ${noun}${r.dept ? ` · ${r.dept}` : ''}`
+      })
+      .join(', ')
+    setTeamComposition(summary)
+    applySpine()
+  }
 
   const load = async () => {
     setLoading(true)
@@ -171,6 +188,13 @@ export default function AutonomousStaffingPage() {
         <p className="text-[#A6A6B4] text-sm mb-6 max-w-2xl">
           Proactive recommendations from Shapi — what we&apos;d do next if we ran your team.
         </p>
+
+        <SpinePrefillBanner
+          spine={spine}
+          applied={spineApplied}
+          onApply={handleApplySpine}
+          fieldsLabel="A team-composition summary from your seats"
+        />
 
         {/* Generate fresh card — always visible at the top */}
         <div className="rounded-2xl p-6 mb-6" style={cardStyle}>

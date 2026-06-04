@@ -106,12 +106,27 @@ export async function GET() {
 
   const hasSpine = locations.length > 0 || seats.length > 0
 
+  // Per-team seat counts — consumed by /company/cognitive-load to pre-fill
+  // the team rows. Each entry mirrors the row shape the Cognitive Load
+  // form expects so its handleApplySpine() just maps + sets state.
+  const teamsBreakdown = teams.map(t => {
+    const teamSeats = seats.filter(s => s.team_id === t.id)
+    return {
+      name: t.name,
+      function: t.function || null,
+      headcount: teamSeats.filter(s => s.person_id && (s.status === 'active' || s.status === 'separating')).length,
+      total_seats: teamSeats.length,
+      vacant: teamSeats.filter(s => !s.person_id).length,
+    }
+  })
+
   return NextResponse.json({
     hasSpine,
     industry,
     size,
     country,
     roles,
+    teams: teamsBreakdown,
     counts: {
       locations: locations.length,
       teams: teams.length,

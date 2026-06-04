@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import SpinePrefillBanner, { useSpinePrefill } from '@/components/SpinePrefillBanner'
 
 type TeamRow = {
   name: string
@@ -73,6 +74,24 @@ export default function CompanyCognitiveLoad() {
   const [load, setLoad] = useState<Load | null>(null)
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
+
+  // Spine pre-fill — seeds the team rows from the spine's teams + per-team
+  // seat counts. The other fields (manager span / weekly meeting hours /
+  // on-call / AI adoption / scope) stay empty for the user to fill —
+  // those aren't on the spine.
+  const { spine, applied: spineApplied, apply: applySpine } = useSpinePrefill()
+  const handleApplySpine = () => {
+    if (!spine?.teams?.length) { applySpine(); return }
+    const seeded: TeamRow[] = spine.teams
+      .filter(t => t.headcount > 0 || t.total_seats > 0)
+      .map(t => ({
+        ...emptyRow(),
+        name: t.name,
+        headcount: String(t.headcount || t.total_seats),
+      }))
+    if (seeded.length > 0) setRows(seeded)
+    applySpine()
+  }
 
   const update = (i: number, patch: Partial<TeamRow>) => {
     setRows(prev => prev.map((r, idx) => idx === i ? { ...r, ...patch } : r))
@@ -172,6 +191,13 @@ export default function CompanyCognitiveLoad() {
         <p className="text-[#A6A6B4] text-sm mb-6 max-w-2xl">
           Tell us about your teams — we&apos;ll flag who&apos;s overloaded and what to do about it.
         </p>
+
+        <SpinePrefillBanner
+          spine={spine}
+          applied={spineApplied}
+          onApply={handleApplySpine}
+          fieldsLabel="One row per team with seat counts"
+        />
 
         {!load && (
           <div className="space-y-5">

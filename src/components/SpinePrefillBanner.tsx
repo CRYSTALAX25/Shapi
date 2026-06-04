@@ -22,6 +22,14 @@ export type SpinePrefillData = {
   size: string
   country: string
   roles: { role: string; dept: string; count: string }[]
+  /** Per-team rollup — consumed by Cognitive Load to seed team rows. */
+  teams?: {
+    name: string
+    function: string | null
+    headcount: number
+    total_seats: number
+    vacant: number
+  }[]
   counts: {
     locations: number
     teams: number
