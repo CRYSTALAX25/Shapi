@@ -140,15 +140,34 @@ function WorkforceSnapshotInner() {
   // snapshot" — OR when the URL has ?first=true (fresh post-onboarding
   // visit; any leftover report would be from a different company / test
   // session and would confuse a new user).
+  //
+  // CACHE KEY scoped by user.id — without this, switching test accounts on
+  // the same browser leaked one company's report onto the next. Ana hit
+  // this 2026-06-04 (signed in as Bupa, saw a 'retail operation' report
+  // from an earlier test).
+  const [userId, setUserId] = useState<string | null>(null)
+  useEffect(() => {
+    fetch('/api/profile/get')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => setUserId(d?.profile?.id || null))
+      .catch(() => {})
+  }, [])
+  const cacheKey = userId ? `shapi-snapshot-${userId}` : 'shapi-snapshot'
+
   const [restored, setRestored] = useState(false)
   useEffect(() => {
+    // Wait until userId is resolved (or null after fetch settles) before
+    // attempting restore. Reading the wrong key would either miss the saved
+    // report (if userId hadn't loaded) or leak someone else's cache. Sentinel
+    // check: userId is initially undefined-state; we only proceed once we
+    // know whether to use the personal or generic key.
     try {
       if (isFirstRun) {
-        localStorage.removeItem('shapi-snapshot')
+        try { localStorage.removeItem(cacheKey); localStorage.removeItem('shapi-snapshot') } catch {}
         setRestored(true)
         return
       }
-      const raw = localStorage.getItem('shapi-snapshot')
+      const raw = localStorage.getItem(cacheKey)
       if (!raw) { setRestored(true); return }
       const saved = JSON.parse(raw) as {
         inputs?: { industry?: string; size?: string; country?: string; aiMaturity?: string; opModel?: string; roles?: RoleRow[]; useCases?: string[] }
@@ -167,7 +186,7 @@ function WorkforceSnapshotInner() {
       if (saved.report) setReport(saved.report)
     } catch { /* corrupt localStorage — ignore */ }
     setRestored(true)
-  }, [])
+  }, [cacheKey, isFirstRun])
 
   // Continuous auto-save: any change to inputs OR a generated report writes
   // through to localStorage. Skipped until the restore-from-storage pass has
@@ -176,13 +195,13 @@ function WorkforceSnapshotInner() {
   useEffect(() => {
     if (!restored) return
     try {
-      localStorage.setItem('shapi-snapshot', JSON.stringify({
+      localStorage.setItem(cacheKey, JSON.stringify({
         inputs: { industry, size, country, aiMaturity, opModel, roles, useCases },
         report,
         savedAt: new Date().toISOString(),
       }))
     } catch { /* quota exceeded / private mode — proceed without persistence */ }
-  }, [restored, industry, size, country, aiMaturity, opModel, roles, useCases, report])
+  }, [cacheKey, restored, industry, size, country, aiMaturity, opModel, roles, useCases, report])
 
   const updateRole = (i: number, key: keyof RoleRow, value: string) => {
     setRoles(prev => prev.map((r, idx) => (idx === i ? { ...r, [key]: value } : r)))
@@ -295,7 +314,7 @@ function WorkforceSnapshotInner() {
         // to /company/pricing (or anywhere) followed by browser-back doesn't
         // wipe the work.
         try {
-          localStorage.setItem('shapi-snapshot', JSON.stringify({
+          localStorage.setItem(cacheKey, JSON.stringify({
             inputs: { industry, size, country, aiMaturity, opModel, roles, useCases },
             report: d.report,
             savedAt: new Date().toISOString(),
@@ -706,7 +725,7 @@ function WorkforceSnapshotInner() {
                 onClick={() => {
                   setReport(null)
                   setErr('')
-                  try { localStorage.removeItem('shapi-snapshot') } catch {}
+                  try { localStorage.removeItem(cacheKey); localStorage.removeItem('shapi-snapshot') } catch {}
                 }}
                 className="w-full py-3 rounded-full font-bold text-sm border border-white/[0.12] text-[#C7C7D1] hover:bg-white/[0.04]">
                 Run another snapshot

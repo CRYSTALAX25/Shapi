@@ -53,6 +53,22 @@ export default function CompanyPricing() {
     window.location.href = '/book-call?intent=enterprise'
   }
 
+  async function startEnterpriseTrial() {
+    setLoading('enterprise')
+    if (!authed) {
+      window.location.href = '/signup?type=company&plan=enterprise'
+      return
+    }
+    const res = await fetch('/api/company/enterprise-trial', { method: 'POST' })
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      console.error('[pricing] enterprise-trial failed:', data?.error)
+      setLoading(null)
+      return
+    }
+    window.location.href = '/company/welcome?tier=enterprise'
+  }
+
   return (
     <div className="min-h-screen bg-[#0E0E13]">
       <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-6xl mx-auto">
@@ -150,10 +166,10 @@ export default function CompanyPricing() {
           <div className="bg-[#16161F] rounded-2xl p-7" style={{ border: '1px solid rgba(240,140,174,0.30)', boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)' }}>
             <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#F08CAE' }}>Enterprise</p>
             <div className="flex items-end gap-1 mb-1">
-              <span className="text-4xl font-black text-[#F4F4F7]">$2,500+</span>
-              <span className="text-[#7E7E8E] mb-1">/month</span>
+              <span className="text-4xl font-black text-[#F4F4F7]">Custom</span>
+              <span className="text-[#7E7E8E] mb-1">pricing</span>
             </div>
-            <p className="text-xs text-[#7E7E8E] mb-6">$2.5k base · $5k for 500+ orgs · sales-led</p>
+            <p className="text-xs text-[#7E7E8E] mb-6">14-day trial then a call to scope</p>
 
             <div className="space-y-2.5 mb-5">
               {[
@@ -172,23 +188,33 @@ export default function CompanyPricing() {
               ))}
             </div>
 
-            {/* Bespoke Transformation — sits INSIDE the Enterprise card per
-                v4 lock. It's an add-on engagement layered on Enterprise, not
-                a separate plan. Mentioned here so prospects know we do it. */}
+            {/* Bespoke Transformation — mentioned as part of Enterprise but
+                no specific price tag (Ana's call 2026-06-04 — keep buyer
+                expectation flexible, real number happens in the sales conv). */}
             <div className="rounded-xl p-3 mb-5" style={{ background: 'rgba(240,140,174,0.08)', border: '1px dashed rgba(240,140,174,0.30)' }}>
               <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#F08CAE' }}>+ Add: Bespoke Transformation</p>
               <p className="text-xs text-[#A6A6B4] leading-relaxed">
-                $15–25k one-shot. Custom severance multipliers, overhead %, taxonomy overrides + leadership workshop. Subscription continues at Enterprise rate.
+                One-shot engagement: custom severance multipliers, overhead %, taxonomy overrides + leadership workshop. Scoped per-org.
               </p>
             </div>
 
-            <button
-              onClick={talkToSales}
-              className="w-full py-3.5 rounded-full font-bold text-sm transition-all text-white"
-              style={{ background: 'linear-gradient(135deg, #F08CAE, #C8336B)' }}
-            >
-              Talk to sales →
-            </button>
+            <div className="space-y-2">
+              <button
+                onClick={startEnterpriseTrial}
+                disabled={loading === 'enterprise'}
+                className="w-full py-3.5 rounded-full font-black text-sm transition-all disabled:opacity-50 text-white"
+                style={{ background: 'linear-gradient(135deg, #F08CAE, #C8336B)' }}
+              >
+                {loading === 'enterprise' ? 'Starting trial…' : 'Start 14-day trial →'}
+              </button>
+              <button
+                onClick={talkToSales}
+                className="w-full py-2.5 rounded-full font-bold text-xs transition-all"
+                style={{ border: '1px solid rgba(240,140,174,0.40)', color: '#F08CAE', background: 'rgba(240,140,174,0.05)' }}
+              >
+                Talk to sales first
+              </button>
+            </div>
           </div>
 
         </div>

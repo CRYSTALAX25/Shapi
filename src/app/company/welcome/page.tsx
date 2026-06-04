@@ -18,9 +18,10 @@ export const metadata = { title: 'Welcome to Shapi Pro · Shapi' }
 // a blank candidates inventory with no welcome. Ana flagged this as a major
 // UX gap 2026-06-04.
 
-const PLAN_DETAILS: Record<string, { name: string; unlocked: string[]; nextActions: { href: string; label: string; sub: string; emoji: string }[] }> = {
+const PLAN_DETAILS: Record<string, { name: string; subtitle: string; unlocked: string[]; nextActions: { href: string; label: string; sub: string; emoji: string }[] }> = {
   pro: {
     name: 'Shapi Pro',
+    subtitle: 'Your 14-day trial just started. Cancel anytime in your Stripe customer portal — no charge until day 15.',
     unlocked: [
       'Multi-location org chart',
       'Talent Match Pipeline with verified candidates',
@@ -33,6 +34,23 @@ const PLAN_DETAILS: Record<string, { name: string; unlocked: string[]; nextActio
       { href: '/company/spine', label: 'Build your org spine', sub: 'Add teams + seats so every other tool pre-fills.', emoji: '🌳' },
       { href: '/company/workforce-snapshot?first=true', label: 'Run your Workforce Snapshot', sub: 'AI-readiness score in 60 seconds.', emoji: '✦' },
       { href: '/company/roles/new', label: 'Post your first role', sub: 'JD generated from a 6-question intake.', emoji: '💼' },
+    ],
+  },
+  enterprise: {
+    name: 'Shapi Enterprise (trial)',
+    subtitle: 'Your 14-day Enterprise trial just started. We\'ll reach out within 24h to scope your pricing and confirm fit — no charge during the trial.',
+    unlocked: [
+      'Everything in Pro, plus:',
+      'Strategic Workforce Planner with 1/3/5/10y scenarios',
+      'Living HR OS + WhatsApp operations',
+      'Company Brain (Seat Inheritance Playbook)',
+      'Predictive turnover + span-of-control heatmaps',
+      'Bespoke Driver Modifiers (severance, overhead, taxonomy)',
+    ],
+    nextActions: [
+      { href: '/company/spine', label: 'Build your org spine', sub: 'Add teams + seats so every other tool pre-fills.', emoji: '🌳' },
+      { href: '/company/strategic-plan', label: 'Start the Strategic Workforce Plan', sub: 'The Enterprise-only 5-step engagement workspace.', emoji: '📋' },
+      { href: '/book-call?intent=enterprise', label: 'Book your scoping call', sub: 'We need to talk pricing before day 14 to keep your trial active.', emoji: '📞' },
     ],
   },
 }
@@ -79,8 +97,7 @@ export default async function CompanyWelcome({
             You&apos;re in, {companyName}.
           </h1>
           <p className="text-sm text-[#A6A6B4] max-w-xl mx-auto leading-relaxed">
-            Your 14-day trial just started. Cancel anytime in your Stripe customer portal — no charge until day 15.
-            Your receipt is on its way to {user.email}.
+            {plan.subtitle} {tier === 'pro' ? `Your receipt is on its way to ${user.email}.` : ''}
           </p>
         </div>
 

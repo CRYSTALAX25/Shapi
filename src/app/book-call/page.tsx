@@ -37,16 +37,27 @@ function BookCallInner() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [errMsg, setErrMsg] = useState('')
 
-  // If the user is signed in, prefill name/email from their profile so they
-  // don't re-type basics they already gave us.
+  // Track auth state — back link points to /company/dashboard for signed-in
+  // users but to '/' for anonymous prospects (Enterprise leads who haven't
+  // signed up yet). Ana caught the "Dashboard" link showing for anonymous
+  // users that goes nowhere meaningful.
+  const [authed, setAuthed] = useState(false)
+
+  // If the user is signed in, prefill name/email/company/size from their
+  // profile so they don't re-type basics they already gave us.
   useEffect(() => {
     fetch('/api/profile/get')
       .then(r => r.ok ? r.json() : null)
       .then(d => {
         const p = d?.profile
         if (!p) return
+        setAuthed(true)
         if (!name && p.full_name) setName(p.full_name)
-        if (!company && (p.company_name)) setCompany(p.company_name)
+        if (!company && p.company_name) setCompany(p.company_name)
+        // Prefill company_size — Ana flagged this gap 2026-06-04. The
+        // onboarding form saves it onto profiles.company_size in the
+        // exact label-string form the book-call dropdown expects.
+        if (!companySize && p.company_size) setCompanySize(p.company_size)
       })
       .catch(() => {})
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -129,7 +140,11 @@ function BookCallInner() {
 
       <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] max-w-3xl mx-auto flex items-center justify-between">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
-        <Link href="/company/dashboard" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1]">← Dashboard</Link>
+        {authed ? (
+          <Link href="/company/dashboard" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1]">← Dashboard</Link>
+        ) : (
+          <Link href="/" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1]">← Home</Link>
+        )}
       </nav>
 
       <div className="relative z-10 max-w-2xl mx-auto px-6 pt-10 pb-20">

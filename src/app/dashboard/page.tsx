@@ -32,19 +32,20 @@ export default async function Dashboard() {
   // Route them through onboarding first if it isn't complete — same guard
   // /company/dashboard uses, applied earlier in the chain.
   //
-  // DEFENSIVE: if metadata says 'company' but profile fetch returned null
-  // (RLS hiccup, transient cookie issue post-Stripe redirect, race), DO NOT
-  // silently drop to /company/onboarding — that's the bug Ana hit
-  // 2026-06-04 where a perfectly-saved profile still got bounced into an
-  // empty form. If profile is null, send to /login?session=lost so the
-  // problem is visible instead of pretending onboarding wasn't done.
+  // FALL-THROUGH ON NULL PROFILE: an earlier version redirected to
+  // /login?session=lost when profile fetched as null. That created a
+  // redirect loop: login → dashboard → null profile → /login?session=lost
+  // → succeeds → dashboard → null profile → loop. Now we just log the
+  // anomaly and let the candidate dashboard render as a degraded fallback;
+  // the user can manually navigate to /company/dashboard if they're a
+  // company. No loop.
   if (type === 'company' || profile?.type === 'company') {
     if (!profile) {
-      console.error('[dashboard] company-type user but profile fetch returned null — likely auth/RLS hiccup, sending to login')
-      redirect('/login?session=lost')
+      console.error('[dashboard] company-type user but profile fetch returned null — letting candidate dashboard render as fallback to avoid login loop')
+    } else {
+      const onboardingDone = (profile as { onboarding_complete?: boolean | null }).onboarding_complete
+      redirect(onboardingDone ? '/company/dashboard' : '/company/onboarding')
     }
-    const onboardingDone = (profile as { onboarding_complete?: boolean | null })?.onboarding_complete
-    redirect(onboardingDone ? '/company/dashboard' : '/company/onboarding')
   }
 
   // Fetch candidate signals
