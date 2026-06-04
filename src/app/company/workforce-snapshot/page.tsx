@@ -103,6 +103,37 @@ function WorkforceSnapshotInner() {
   const [err, setErr] = useState('')
   const [report, setReport] = useState<Report | null>(null)
 
+  // Spine pre-fill state — fetched once on mount. If the company has built
+  // their org spine, we can populate industry/size/country/roles from there
+  // and the user only has to answer aiMaturity + opModel + useCases. This
+  // is the v4 data-loop value prop in action: "fill the spine once, every
+  // tool reads from it."
+  type SpinePrefill = {
+    hasSpine: boolean
+    industry: string
+    size: string
+    country: string
+    roles: RoleRow[]
+    counts: { locations: number; teams: number; seats: number; activeSeats: number; vacantSeats: number }
+  }
+  const [spine, setSpine] = useState<SpinePrefill | null>(null)
+  const [spineApplied, setSpineApplied] = useState(false)
+  useEffect(() => {
+    fetch('/api/company/spine/snapshot-prefill')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.hasSpine) setSpine(d) })
+      .catch(() => { /* user might not have a spine yet — silent */ })
+  }, [])
+
+  const applySpine = () => {
+    if (!spine) return
+    if (spine.industry) setIndustry(spine.industry)
+    if (spine.size) setSize(spine.size)
+    if (spine.country) setCountry(spine.country)
+    if (spine.roles.length > 0) setRoles(spine.roles)
+    setSpineApplied(true)
+  }
+
   // Restore a previously-generated report + the inputs that produced it from
   // localStorage so the user doesn't lose their work after clicking an
   // upsell CTA + hitting browser back. Cleared on explicit "Run another
@@ -303,6 +334,45 @@ function WorkforceSnapshotInner() {
         {/* ── Intake form ────────────────────────────────────────────── */}
         {!report && (
           <div className="space-y-4">
+
+            {/* Spine pre-fill banner — only when the company has built any
+                part of the org spine. Click to populate industry/size/
+                country/roles from /company/spine. Proves the data-loop value
+                prop: one source of truth, every tool reads from it. */}
+            {spine?.hasSpine && (
+              <div
+                className="rounded-2xl p-4"
+                style={{
+                  background: spineApplied ? 'rgba(52,211,153,0.08)' : 'rgba(106,168,245,0.08)',
+                  border: `1px solid ${spineApplied ? 'rgba(52,211,153,0.30)' : 'rgba(106,168,245,0.30)'}`,
+                }}
+              >
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <div className="min-w-0">
+                    <p className="text-sm font-black mb-0.5" style={{ color: spineApplied ? '#34D399' : '#6AA8F5' }}>
+                      {spineApplied ? '✓ Filled from your org spine' : '✨ Use your org spine data'}
+                    </p>
+                    <p className="text-xs text-[#A6A6B4]">
+                      {spine.counts.locations} location{spine.counts.locations === 1 ? '' : 's'} ·{' '}
+                      {spine.counts.teams} team{spine.counts.teams === 1 ? '' : 's'} ·{' '}
+                      {spine.counts.activeSeats} filled / {spine.counts.vacantSeats} vacant seats.
+                      {spineApplied ? ' You can still edit anything below.' : ' Industry, size, country and roles will pre-fill.'}
+                    </p>
+                  </div>
+                  {!spineApplied && (
+                    <button
+                      type="button"
+                      onClick={applySpine}
+                      className="text-xs font-black px-4 py-2 rounded-full whitespace-nowrap"
+                      style={{ background: '#6AA8F5', color: '#fff' }}
+                    >
+                      Pre-fill now
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="rounded-2xl p-5" style={cardStyle}>
               <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-3">About your company</p>
               <div className="grid sm:grid-cols-2 gap-3">

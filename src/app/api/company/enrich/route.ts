@@ -3,6 +3,14 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 
+// Vercel Pro plan — 300s ceiling. Enrich fetches 4 external URLs + calls
+// Claude; without this it defaults to 60s which Ana hit repeatedly during
+// onboarding (Chrome shows "This page couldn't load" when an API function
+// times out mid-stream). 120s is comfortable headroom: 4×5s fetches in
+// parallel + ~15s Claude call = ~20s typical, 120s catches cold starts +
+// any slow external source.
+export const maxDuration = 120
+
 export async function POST(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -13,12 +21,14 @@ export async function POST(request: Request) {
 
   console.log('[enrich] Starting enrichment for:', company_name)
 
-  // Fetch public pages in parallel
+  // Fetch public pages in parallel. 5s per-URL cap — a source that's too
+  // slow simply contributes nothing to the prompt. This keeps the total
+  // function time predictable instead of waiting for the slowest source.
   const fetchSafe = async (url: string) => {
     try {
       const res = await fetch(url, {
         headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Shapi/1.0)' },
-        signal: AbortSignal.timeout(8000),
+        signal: AbortSignal.timeout(5000),
       })
       return res.ok ? await res.text() : ''
     } catch { return '' }

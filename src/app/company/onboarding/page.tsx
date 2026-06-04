@@ -97,13 +97,19 @@ export default function CompanyOnboarding() {
     const nameForPull = companyName.trim() || nameFromWebsite(website.trim())
     if (!nameForPull) { setError('Could not derive a name from that URL. Add the company name.'); return }
     setPulling(true)
+    // 90s client-side abort — the server has 120s headroom, the client kills
+    // it at 90s if something hangs and shows a friendly retry. Prevents the
+    // "page couldn't load" Chrome-level error Ana hit on cold starts.
+    const controller = new AbortController()
+    const watchdog = setTimeout(() => controller.abort(), 90000)
     try {
       const res = await fetch('/api/company/enrich', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ company_name: nameForPull, website: website.trim() }),
+        signal: controller.signal,
       })
-      if (!res.ok) { setError('Pull failed. Add details manually.'); return }
+      if (!res.ok) { setError(`Pull failed (${res.status}). Add details manually or try again.`); return }
       const data = await res.json()
       const cd = (data?.company_data || {}) as { headquarters?: string; size?: string; description?: string; industry?: string; founded?: string }
       // Prefill empties only — don't clobber user typing.
@@ -120,9 +126,15 @@ export default function CompanyOnboarding() {
         ? `Pulled from public sources. ${filled.join(' · ')}. Review + edit before saving.`
         : 'Pulled — limited data found. Add details manually.')
     } catch (err) {
-      console.error('[onboarding] pull error:', err)
-      setError('Pull failed. Add details manually.')
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('[onboarding] pull error:', msg)
+      if (controller.signal.aborted) {
+        setError('Pull is taking longer than expected — try again or add details manually.')
+      } else {
+        setError('Pull failed. Add details manually.')
+      }
     } finally {
+      clearTimeout(watchdog)
       setPulling(false)
     }
   }
@@ -178,15 +190,23 @@ export default function CompanyOnboarding() {
     setStage('enriching')
     setSaving(false)
 
+    // Background enrichment — best-effort, capped at 90s. The user is
+    // already on the 'enriching' spinner; if it hangs, the Done stage still
+    // fires and the workforce-snapshot redirect proceeds.
     try {
-      await fetch('/api/company/enrich', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          company_name: companyName.trim(),
-          website: website.trim() || null,
-        }),
-      })
+      const controller = new AbortController()
+      const watchdog = setTimeout(() => controller.abort(), 90000)
+      try {
+        await fetch('/api/company/enrich', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            company_name: companyName.trim(),
+            website: website.trim() || null,
+          }),
+          signal: controller.signal,
+        })
+      } finally { clearTimeout(watchdog) }
     } catch { /* enrichment is best-effort */ }
 
     setStage('done')
@@ -369,13 +389,16 @@ export default function CompanyOnboarding() {
           </div>
         </div>
 
-        {/* Public signals layered onto the company profile alongside what
-            Ana writes. Read-only chips — these are the moat: candidates know
-            we're not just repeating company self-marketing. */}
+        {/* Public signals on the company profile. Always visible to
+            candidates — companies cannot hide or override them. This is the
+            verification floor; transparency is the moat. The only editable
+            content is what the company writes themselves (description,
+            "what makes us great"). Public-source signals stay. */}
         <div className="gradient-border-card rounded-2xl p-5 mb-6">
-          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-1">Public signals on your profile</p>
+          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-1">Always shown to candidates</p>
           <p className="text-[#5C5C6A] text-xs mb-3">
-            Surfaced from independent sources. Candidates see these next to what you write.
+            These signals come from independent sources — Glassdoor, Reddit, news. They&apos;re visible
+            alongside your own description and are not editable. That&apos;s the trust floor.
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
@@ -390,9 +413,6 @@ export default function CompanyOnboarding() {
               </div>
             ))}
           </div>
-          <p className="text-[#5C5C6A] text-xs mt-3">
-            You can hide or override any signal from your company profile after setup.
-          </p>
         </div>
 
         <button
