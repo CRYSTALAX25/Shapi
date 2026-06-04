@@ -137,10 +137,17 @@ function WorkforceSnapshotInner() {
   // Restore a previously-generated report + the inputs that produced it from
   // localStorage so the user doesn't lose their work after clicking an
   // upsell CTA + hitting browser back. Cleared on explicit "Run another
-  // snapshot".
+  // snapshot" — OR when the URL has ?first=true (fresh post-onboarding
+  // visit; any leftover report would be from a different company / test
+  // session and would confuse a new user).
   const [restored, setRestored] = useState(false)
   useEffect(() => {
     try {
+      if (isFirstRun) {
+        localStorage.removeItem('shapi-snapshot')
+        setRestored(true)
+        return
+      }
       const raw = localStorage.getItem('shapi-snapshot')
       if (!raw) { setRestored(true); return }
       const saved = JSON.parse(raw) as {

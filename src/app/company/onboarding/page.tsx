@@ -91,18 +91,21 @@ export default function CompanyOnboarding() {
     } catch { /* quota / privacy mode — fail silent */ }
   }, [restored, companyName, website, hq, size, about, whatsapp])
 
-  // Auto-redirect to the Workforce Snapshot 2s after the Done celebration.
-  // The Snapshot is the §16 Tier A acquisition wedge and the first real
-  // experience. MUST live up here above the conditional early returns —
-  // a previous version declared this AFTER `if (stage === 'enriching') return`
-  // which violated React's Rules of Hooks (hook count changed between
-  // renders), causing the page to crash with "Rendered fewer hooks than
-  // during the previous render" the moment stage transitioned. That was
-  // the actual root cause of the "page couldn't load" Ana hit repeatedly
-  // — Vercel timeouts were a separate, parallel issue.
+  // Auto-redirect to /company/spine 2s after the Done celebration.
+  // The spine is THE single source of truth in v4. After onboarding we drop
+  // the user there so HQ is materialised + they can add teams/seats. The
+  // Workforce Snapshot follows AFTER the spine — when it then runs, the
+  // spine pre-fills industry/size/country/roles automatically (the data
+  // loop in action). Previous version went straight to Snapshot and bypassed
+  // the spine entirely, which made the Snapshot ask for inputs we already
+  // have / are about to have.
+  //
+  // MUST live up here above the conditional early returns — a previous
+  // version declared this AFTER `if (stage === 'enriching') return` which
+  // violated React's Rules of Hooks and crashed the page.
   useEffect(() => {
     if (stage !== 'done') return
-    const t = setTimeout(() => router.push('/company/workforce-snapshot?first=true'), 2000)
+    const t = setTimeout(() => router.push('/company/spine?welcome=true'), 2000)
     return () => clearTimeout(t)
   }, [stage, router])
 
@@ -247,22 +250,24 @@ export default function CompanyOnboarding() {
           {companyName} is set up.
         </h2>
         <p className="text-[#A6A6B4] text-sm text-center leading-relaxed mb-6 max-w-xs">
-          Taking you to your free 30-second Workforce Snapshot — the move that anchors everything else.
+          Taking you to your org spine — the single source of truth that powers every other tool in Shapi.
         </p>
         <div className="flex items-center gap-2 mb-8" style={{ color: '#F08CAE' }}>
           <div className="w-4 h-4 rounded-full border-2 border-[#F08CAE]/30 border-t-[#F08CAE] animate-spin" />
-          <span className="text-xs font-bold">Loading your Snapshot…</span>
+          <span className="text-xs font-bold">Opening your spine…</span>
         </div>
         <div className="w-full max-w-sm space-y-3">
-          {/* Workforce Snapshot is the wedge (STRATEGY §16 Tier A). It's the
-              first thing new companies should run — frames everything else
-              (roadmap, org design, AI exposure). Posting a role first means
-              hiring blind. */}
           <button
-            onClick={() => router.push('/company/workforce-snapshot?first=true')}
+            onClick={() => router.push('/company/spine?welcome=true')}
             className="w-full py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity"
             style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
-            ✦ Run your Snapshot now →
+            🌳 Build your org spine →
+          </button>
+          <button
+            onClick={() => router.push('/company/workforce-snapshot?first=true')}
+            className="w-full py-2.5 rounded-full text-xs font-bold text-[#A6A6B4] hover:text-[#F4F4F7] transition-colors"
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            Skip to Workforce Snapshot
           </button>
           <button
             onClick={() => router.push('/company/dashboard')}

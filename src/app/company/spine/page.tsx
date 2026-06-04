@@ -6,7 +6,13 @@ import { parseHQ } from '@/lib/parseHQ'
 
 export const metadata = { title: 'Org Spine · Shapi' }
 
-export default async function SpinePage() {
+export default async function SpinePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ welcome?: string }>
+}) {
+  const params = await searchParams
+  const isWelcome = params.welcome === 'true'
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -94,6 +100,35 @@ export default async function SpinePage() {
             HR portal — reads from here.
           </p>
         </header>
+
+        {isWelcome && (
+          <div
+            className="mb-6 p-5 rounded-2xl"
+            style={{
+              background: 'linear-gradient(135deg, rgba(106,168,245,0.10), rgba(240,140,174,0.10))',
+              border: `1px solid ${ACCENT}55`,
+            }}
+          >
+            <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: ACCENT }}>
+              Welcome to your org spine
+            </p>
+            <h2 className="text-xl font-black mb-2" style={HEADING_STYLE}>
+              {profile.company_name || 'Your HQ'} is in. Now build out the rest.
+            </h2>
+            <p className="text-sm leading-relaxed mb-4" style={BODY_STYLE}>
+              Add a couple of teams and seats. Once that&apos;s done, every other tool in Shapi —
+              Workforce Snapshot, Salary Benchmark, Hiring Roadmap, Strategic Plan — pre-fills from
+              here instead of asking you to retype the same data.
+            </p>
+            <Link
+              href="/company/workforce-snapshot?first=true"
+              className="inline-block text-xs font-bold underline"
+              style={{ color: ACCENT }}
+            >
+              Skip — run Workforce Snapshot manually →
+            </Link>
+          </div>
+        )}
 
         {planTier === 'free' && (
           <div
