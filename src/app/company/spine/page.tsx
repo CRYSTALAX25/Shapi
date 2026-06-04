@@ -12,7 +12,7 @@ export default async function SpinePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('type, company_name, plan_tier, onboarding_complete')
+    .select('type, company_name, company_website, plan_tier, onboarding_complete')
     .eq('id', user.id)
     .single()
 
@@ -70,7 +70,7 @@ export default async function SpinePage() {
         )}
 
         <div className="space-y-5">
-          <LocationsSection locations={locations} />
+          <LocationsSection locations={locations} companyWebsite={(profile as { company_website?: string | null }).company_website || null} />
           <TeamsSection teams={teams} locations={locations} />
           <PersonsSection persons={persons} />
           <SeatsSection seats={seats} teams={teams} persons={persons} />

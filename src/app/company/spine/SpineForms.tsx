@@ -77,12 +77,42 @@ function ErrorBanner({ msg, onClear }: { msg: string | null; onClear: () => void
 /* ──────────────────────────────────────────────────────────────────────── */
 /* LOCATIONS                                                               */
 /* ──────────────────────────────────────────────────────────────────────── */
-export function LocationsSection({ locations }: { locations: Location[] }) {
+export function LocationsSection({ locations, companyWebsite }: { locations: Location[]; companyWebsite: string | null }) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [autofilling, setAutofilling] = useState(false)
   const [err, setErr] = useState<string | null>(null)
-  const [form, setForm] = useState({ name: '', country: '', city: '', timezone: '', is_primary: false })
+  const [autofillNote, setAutofillNote] = useState<string | null>(null)
+  const [form, setForm] = useState({ name: '', country: '', city: '', timezone: '', is_primary: true })
+
+  async function autofill() {
+    setAutofilling(true); setErr(null); setAutofillNote(null)
+    try {
+      const res = await fetch('/api/company/spine/autofill-location', { method: 'POST' })
+      if (!res.ok) {
+        setErr('Auto-fill failed. Add the location manually.')
+        return
+      }
+      const data = await res.json()
+      setForm(prev => ({
+        ...prev,
+        name: data.name || prev.name,
+        city: data.city || prev.city,
+        country: data.country || prev.country,
+        timezone: data.timezone || prev.timezone,
+        is_primary: locations.length === 0,
+      }))
+      setOpen(true)
+      if (data.headquarters_raw) {
+        setAutofillNote(`Pulled from ${companyWebsite || 'public sources'}: ${data.headquarters_raw}. Review + edit before saving.`)
+      } else if (!data.city && !data.country) {
+        setAutofillNote('Could not extract HQ from public sources. Add manually.')
+      }
+    } finally {
+      setAutofilling(false)
+    }
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -104,6 +134,7 @@ export function LocationsSection({ locations }: { locations: Location[] }) {
     }
     setForm({ name: '', country: '', city: '', timezone: '', is_primary: false })
     setOpen(false)
+    setAutofillNote(null)
     router.refresh()
   }
 
@@ -115,18 +146,39 @@ export function LocationsSection({ locations }: { locations: Location[] }) {
 
   return (
     <div className={`${CARD} p-5`} style={CARD_STYLE}>
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
         <h2 className={HEADING} style={HEADING_STYLE}>Locations</h2>
-        <button
-          onClick={() => setOpen(v => !v)}
-          className="text-xs font-black px-3 py-1.5 rounded-full"
-          style={CTA_STYLE}
-        >
-          {open ? 'Cancel' : '+ Add location'}
-        </button>
+        <div className="flex items-center gap-2">
+          {locations.length === 0 && companyWebsite && (
+            <button
+              onClick={autofill}
+              disabled={autofilling}
+              className="text-xs font-black px-3 py-1.5 rounded-full disabled:opacity-50"
+              style={{ background: `${ACCENT}22`, color: ACCENT, border: `1px solid ${ACCENT}55` }}
+            >
+              {autofilling ? 'Pulling...' : '✨ Auto-fill from website'}
+            </button>
+          )}
+          <button
+            onClick={() => setOpen(v => !v)}
+            className="text-xs font-black px-3 py-1.5 rounded-full"
+            style={CTA_STYLE}
+          >
+            {open ? 'Cancel' : '+ Add location'}
+          </button>
+        </div>
       </div>
 
       <ErrorBanner msg={err} onClear={() => setErr(null)} />
+
+      {autofillNote && (
+        <div
+          className="mb-3 p-3 rounded-lg text-xs"
+          style={{ background: `${ACCENT}14`, border: `1px solid ${ACCENT}40`, color: ACCENT }}
+        >
+          {autofillNote}
+        </div>
+      )}
 
       {open && (
         <form onSubmit={submit} className="mb-4 p-4 rounded-xl" style={{ background: '#0c0e11', border: `1px dashed ${ACCENT}40` }}>
