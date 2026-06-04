@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import ShapiCharacter from '@/components/ShapiCharacter'
@@ -40,7 +40,18 @@ function normalizeSize(raw: string | null | undefined): string {
 // 5 minutes of typing" failure mode that's stung Ana repeatedly.
 const STORAGE_KEY = 'shapi.company.onboarding.draft.v1'
 
+// useSearchParams() requires a Suspense boundary at the page level for
+// Next.js prerendering (same pattern as /company/workforce-snapshot).
+// Default export wraps the inner component.
 export default function CompanyOnboarding() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0E0E13]" />}>
+      <CompanyOnboardingInner />
+    </Suspense>
+  )
+}
+
+function CompanyOnboardingInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   // ?edit=true → stay on this page even if onboarding_complete is already
