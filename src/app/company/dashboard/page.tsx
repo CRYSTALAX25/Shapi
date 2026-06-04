@@ -259,6 +259,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
             <nav className="flex flex-row overflow-x-auto lg:flex-col gap-1.5 pb-1 lg:pb-0 -mx-1 px-1 lg:mx-0 lg:px-0">
               {[
                 { href: '#', label: 'Overview', icon: '🏠', active: true },
+                { href: '/company/spine', label: 'Org Spine', icon: '🌳' },
                 { href: '/company/workforce-snapshot', label: 'Workforce Snapshot', icon: '✦' },
                 { href: '/company/salary-benchmark', label: 'Salary benchmark', icon: '💸' },
                 { href: '/company/roadmap', label: 'Hiring Roadmap', icon: '🗺️' },
