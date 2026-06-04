@@ -9,11 +9,40 @@ type Stage = 'profile' | 'enriching' | 'done'
 
 const SIZES = ['1–10', '11–50', '51–200', '201–500', '500–2000', '2000+']
 
+// Derive a sensible company name from a URL when the user hasn't typed one
+// yet. bupa.com → "Bupa". Useful when the only thing they've entered is the
+// website and they want to hit "Pull from website" without filling the name.
+function nameFromWebsite(url: string): string {
+  try {
+    const u = new URL(url.startsWith('http') ? url : `https://${url}`)
+    const host = u.hostname.replace(/^www\./, '')
+    const root = host.split('.')[0] || ''
+    return root ? root.charAt(0).toUpperCase() + root.slice(1) : ''
+  } catch { return '' }
+}
+
+const SIZE_MATCH: Record<string, string> = {
+  '1-10': '1–10', '1-50': '11–50', '11-50': '11–50',
+  '51-200': '51–200', '201-500': '201–500', '500-1000': '500–2000',
+  '500-2000': '500–2000', '1000-5000': '500–2000', '2000+': '2000+',
+  '5000+': '2000+', '10000+': '2000+',
+}
+
+function normalizeSize(raw: string | null | undefined): string {
+  if (!raw) return ''
+  const s = String(raw).toLowerCase().replace(/[\s,]/g, '').replace(/–/g, '-')
+  return SIZE_MATCH[s] || ''
+}
+
 export default function CompanyOnboarding() {
   const router = useRouter()
   const [stage, setStage] = useState<Stage>('profile')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  // Auto-fill state — fires the enrichment endpoint pre-submit so users see
+  // the magic before they commit. ~15s spinner.
+  const [pulling, setPulling] = useState(false)
+  const [pullNote, setPullNote] = useState<string | null>(null)
 
   const [companyName, setCompanyName] = useState('')
   const [website, setWebsite] = useState('')
@@ -26,6 +55,42 @@ export default function CompanyOnboarding() {
   // "tap to open WhatsApp" link sends a message from an unknown phone and
   // the webhook can't link it to this account.
   const [whatsapp, setWhatsapp] = useState('+971 ')
+
+  const handlePull = async () => {
+    setError(''); setPullNote(null)
+    if (!website.trim()) { setError('Add a website first'); return }
+    const nameForPull = companyName.trim() || nameFromWebsite(website.trim())
+    if (!nameForPull) { setError('Could not derive a name from that URL. Add the company name.'); return }
+    setPulling(true)
+    try {
+      const res = await fetch('/api/company/enrich', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ company_name: nameForPull, website: website.trim() }),
+      })
+      if (!res.ok) { setError('Pull failed. Add details manually.'); return }
+      const data = await res.json()
+      const cd = (data?.company_data || {}) as { headquarters?: string; size?: string; description?: string; industry?: string; founded?: string }
+      // Prefill empties only — don't clobber user typing.
+      if (!companyName.trim() && nameForPull) setCompanyName(nameForPull)
+      if (!hq.trim() && cd.headquarters) setHq(cd.headquarters)
+      const normSize = normalizeSize(cd.size)
+      if (!size && normSize) setSize(normSize)
+      if (!about.trim() && cd.description) setAbout(cd.description)
+      const filled: string[] = []
+      if (cd.headquarters) filled.push(`HQ: ${cd.headquarters}`)
+      if (cd.size) filled.push(`Size: ${cd.size}`)
+      if (cd.industry) filled.push(`Industry: ${cd.industry}`)
+      setPullNote(filled.length
+        ? `Pulled from public sources. ${filled.join(' · ')}. Review + edit before saving.`
+        : 'Pulled — limited data found. Add details manually.')
+    } catch (err) {
+      console.error('[onboarding] pull error:', err)
+      setError('Pull failed. Add details manually.')
+    } finally {
+      setPulling(false)
+    }
+  }
 
   const submit = async () => {
     setError('')
@@ -183,6 +248,35 @@ export default function CompanyOnboarding() {
               <input className="field" value={hq} onChange={e => setHq(e.target.value)}
                 placeholder="Dubai, UAE" />
             </div>
+          </div>
+
+          {/* ── Pull-from-website button ─────────────────────────────────────
+              Fires /api/company/enrich now (not after submit) so the user
+              sees HQ + size + description appear in the form. Closes the
+              "the page promises auto-fill but nothing happens" gap. */}
+          <div className="rounded-xl p-4" style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.25)' }}>
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="min-w-0">
+                <p className="text-sm font-black text-[#F4F4F7] mb-0.5">✨ Auto-fill from your website</p>
+                <p className="text-xs text-[#A6A6B4]">
+                  We&apos;ll scan Glassdoor, LinkedIn, Reddit + news. ~15 seconds. Review + edit before saving.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handlePull}
+                disabled={pulling || !website.trim()}
+                className="text-xs font-black px-4 py-2 rounded-full whitespace-nowrap disabled:opacity-40"
+                style={{ background: '#6AA8F5', color: '#fff' }}
+              >
+                {pulling ? 'Pulling…' : 'Pull now'}
+              </button>
+            </div>
+            {pullNote && (
+              <p className="text-xs mt-3 leading-relaxed" style={{ color: '#34D399' }}>
+                {pullNote}
+              </p>
+            )}
           </div>
 
           <div>
