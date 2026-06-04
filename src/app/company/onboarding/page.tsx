@@ -91,23 +91,11 @@ export default function CompanyOnboarding() {
     } catch { /* quota / privacy mode — fail silent */ }
   }, [restored, companyName, website, hq, size, about, whatsapp])
 
-  // Auto-redirect to /company/spine 2s after the Done celebration.
-  // The spine is THE single source of truth in v4. After onboarding we drop
-  // the user there so HQ is materialised + they can add teams/seats. The
-  // Workforce Snapshot follows AFTER the spine — when it then runs, the
-  // spine pre-fills industry/size/country/roles automatically (the data
-  // loop in action). Previous version went straight to Snapshot and bypassed
-  // the spine entirely, which made the Snapshot ask for inputs we already
-  // have / are about to have.
-  //
-  // MUST live up here above the conditional early returns — a previous
-  // version declared this AFTER `if (stage === 'enriching') return` which
-  // violated React's Rules of Hooks and crashed the page.
-  useEffect(() => {
-    if (stage !== 'done') return
-    const t = setTimeout(() => router.push('/company/spine?welcome=true'), 2000)
-    return () => clearTimeout(t)
-  }, [stage, router])
+  // The Done celebration screen has 3 CTAs (spine / Snapshot / dashboard)
+  // and the user picks. Earlier versions auto-redirected after 2s which Ana
+  // reported was too fast to read the options. Now the screen waits — user
+  // clicks whichever button they want, no time pressure. The "router" import
+  // stays in case we add it back as a longer countdown later.
 
   const handlePull = async () => {
     setError(''); setPullNote(null)
@@ -250,12 +238,8 @@ export default function CompanyOnboarding() {
           {companyName} is set up.
         </h2>
         <p className="text-[#A6A6B4] text-sm text-center leading-relaxed mb-6 max-w-xs">
-          Taking you to your org spine — the single source of truth that powers every other tool in Shapi.
+          Where do you want to go first? The org spine is the single source of truth that powers every other tool in Shapi — but you can jump anywhere.
         </p>
-        <div className="flex items-center gap-2 mb-8" style={{ color: '#F08CAE' }}>
-          <div className="w-4 h-4 rounded-full border-2 border-[#F08CAE]/30 border-t-[#F08CAE] animate-spin" />
-          <span className="text-xs font-bold">Opening your spine…</span>
-        </div>
         <div className="w-full max-w-sm space-y-3">
           <button
             onClick={() => router.push('/company/spine?welcome=true')}
