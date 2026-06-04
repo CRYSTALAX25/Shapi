@@ -91,6 +91,21 @@ export default function CompanyOnboarding() {
     } catch { /* quota / privacy mode — fail silent */ }
   }, [restored, companyName, website, hq, size, about, whatsapp])
 
+  // Auto-redirect to the Workforce Snapshot 2s after the Done celebration.
+  // The Snapshot is the §16 Tier A acquisition wedge and the first real
+  // experience. MUST live up here above the conditional early returns —
+  // a previous version declared this AFTER `if (stage === 'enriching') return`
+  // which violated React's Rules of Hooks (hook count changed between
+  // renders), causing the page to crash with "Rendered fewer hooks than
+  // during the previous render" the moment stage transitioned. That was
+  // the actual root cause of the "page couldn't load" Ana hit repeatedly
+  // — Vercel timeouts were a separate, parallel issue.
+  useEffect(() => {
+    if (stage !== 'done') return
+    const t = setTimeout(() => router.push('/company/workforce-snapshot?first=true'), 2000)
+    return () => clearTimeout(t)
+  }, [stage, router])
+
   const handlePull = async () => {
     setError(''); setPullNote(null)
     if (!website.trim()) { setError('Add a website first'); return }
@@ -223,16 +238,6 @@ export default function CompanyOnboarding() {
       </Screen>
     )
   }
-
-  // Auto-redirect to the Workforce Snapshot 2s after the Done celebration —
-  // the Snapshot is the §16 Tier A acquisition wedge and MUST be the first
-  // real experience, not a buried dashboard card. The "Skip — dashboard"
-  // button gives an escape hatch for testers / returning users.
-  useEffect(() => {
-    if (stage !== 'done') return
-    const t = setTimeout(() => router.push('/company/workforce-snapshot?first=true'), 2000)
-    return () => clearTimeout(t)
-  }, [stage, router])
 
   if (stage === 'done') {
     return (
