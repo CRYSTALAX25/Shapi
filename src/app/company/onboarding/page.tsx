@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ShapiCharacter from '@/components/ShapiCharacter'
+import PhoneInput from '@/components/PhoneInput'
 
 type Stage = 'profile' | 'enriching' | 'done'
 
@@ -54,7 +55,7 @@ export default function CompanyOnboarding() {
   // has the user paired by the time they land. Otherwise the dashboard's
   // "tap to open WhatsApp" link sends a message from an unknown phone and
   // the webhook can't link it to this account.
-  const [whatsapp, setWhatsapp] = useState('+971 ')
+  const [whatsapp, setWhatsapp] = useState('')
 
   const handlePull = async () => {
     setError(''); setPullNote(null)
@@ -304,9 +305,8 @@ export default function CompanyOnboarding() {
 
           <div>
             <label>WhatsApp number <span className="text-[#5C5C6A] normal-case font-normal">(strongly recommended — most of Shapi runs through WhatsApp)</span></label>
-            <input className="field" type="tel" value={whatsapp} onChange={e => setWhatsapp(e.target.value)}
-              placeholder="+971 50 123 4567" />
-            <p className="text-[10px] text-[#7E7E8E] mt-1.5">Shortlists, role drafts, voice org-design, candidate research — all via WhatsApp. UAE +971 · KSA +966 · UK +44.</p>
+            <PhoneInput value={whatsapp} onChange={setWhatsapp} placeholder="50 123 4567" />
+            <p className="text-[10px] text-[#7E7E8E] mt-1.5">Shortlists, role drafts, voice org-design, candidate research — all via WhatsApp.</p>
           </div>
         </div>
 
