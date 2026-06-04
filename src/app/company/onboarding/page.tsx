@@ -78,6 +78,14 @@ function CompanyOnboardingInner() {
   // "tap to open WhatsApp" link sends a message from an unknown phone and
   // the webhook can't link it to this account.
   const [whatsapp, setWhatsapp] = useState('')
+  // Set true the moment we decide to redirect (profile already onboarded).
+  // Prevents the form from rendering during the brief window between
+  // 'profile says onboarded' and 'router navigation actually lands'.
+  // Without this gate the user can click the form's submit button before
+  // the redirect completes, which trapped Ana into seeing the form, clicking
+  // 'Set up company', and then suddenly landing on the dashboard with no
+  // celebration — confusing and possibly losing the click.
+  const [redirecting, setRedirecting] = useState(false)
 
   // Restore on mount. THREE sources, in priority order:
   //   1. SAVED PROFILE from DB — if the user already completed onboarding,
@@ -107,7 +115,11 @@ function CompanyOnboardingInner() {
             if (profile.summary) setAbout(profile.summary)
             if (profile.whatsapp_number) setWhatsapp(profile.whatsapp_number)
             // Already onboarded + not in edit mode? Bounce to dashboard.
+            // Setting `redirecting` before the navigation hides the form
+            // immediately so the user can't click submit during the
+            // brief moment the route change is in-flight.
             if (profile.onboarding_complete && !isEditMode) {
+              setRedirecting(true)
               router.replace('/company/dashboard')
               return
             }
@@ -283,6 +295,39 @@ function CompanyOnboardingInner() {
     } catch { /* enrichment is best-effort */ }
 
     setStage('done')
+  }
+
+  // Redirecting to the dashboard because the profile already says
+  // onboarding_complete=true. Show a clear handoff message instead of
+  // letting the form render briefly behind the in-flight navigation.
+  if (redirecting) {
+    return (
+      <Screen>
+        <ShapiCharacter mood="happy" size={80} className="mb-6" />
+        <h2 className="text-xl font-black text-[#F4F4F7] mb-2 text-center">You&apos;re already set up.</h2>
+        <p className="text-[#A6A6B4] text-sm text-center leading-relaxed max-w-xs mb-6">
+          Opening your dashboard. Need to update company info? Use{' '}
+          <Link href="/company/onboarding?edit=true" className="underline text-[#6AA8F5]">edit mode</Link>.
+        </p>
+        <div className="flex items-center gap-2" style={{ color: '#F08CAE' }}>
+          <div className="w-4 h-4 rounded-full border-2 border-[#F08CAE]/30 border-t-[#F08CAE] animate-spin" />
+          <span className="text-xs font-bold">Loading dashboard…</span>
+        </div>
+      </Screen>
+    )
+  }
+
+  // Initial mount before /api/profile/get returns. Show a loading shell so
+  // the form doesn't render with empty fields and then suddenly populate /
+  // redirect. Once `restored` is true the page either renders the form or
+  // has already redirected (covered above).
+  if (!restored) {
+    return (
+      <Screen>
+        <ShapiCharacter mood="idle" size={80} className="mb-6" />
+        <p className="text-[#A6A6B4] text-sm">Loading your company…</p>
+      </Screen>
+    )
   }
 
   if (stage === 'enriching') {
