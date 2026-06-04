@@ -124,12 +124,18 @@ export async function POST(request: Request) {
       } else if (tier) {
         // Company subscription. v4: tier='pro' is the only self-serve value.
         // 'starter'/'growth' may still appear from pre-v4 sessions still in
-        // flight at deploy time — treat them the same way.
+        // flight at deploy time — map both to 'pro' plan_tier so the v4
+        // FeatureGate + free-tier DB trigger let them through.
         // Subscription_status='trialing' if Stripe says so (14-day trial),
         // 'active' otherwise.
         const subStatus = (session.metadata?.trial_period_days || tier === 'pro')
           ? 'trialing'
           : 'active'
+        // Map the legacy/current tier names to the v4 plan_tier enum used
+        // by FeatureGate + free-tier triggers. ANY paying company sub gets
+        // plan_tier='pro' at minimum — Enterprise uses the separate
+        // /api/company/enterprise-trial endpoint.
+        const planTier = tier === 'enterprise' ? 'enterprise' : 'pro'
         await supabase
           .from('profiles')
           .update({
@@ -138,6 +144,7 @@ export async function POST(request: Request) {
             subscription_tier: tier,
             subscription_status: subStatus,
             stripe_subscription_id: session.subscription as string,
+            plan_tier: planTier,
           })
           .eq('id', userId)
 
