@@ -237,6 +237,34 @@ Living document. Updated whenever a phase ships. Status legend:
 
 ---
 
+## HRBP LAYER — Enterprise champion (added 2026-06-04)
+
+HRBPs (HR Business Partners) are the named buyer for Enterprise tier. They sit between C-suite and BU heads, currently jumping between ChartHop + Lattice/15Five + Culture Amp + Workday + Greenhouse + Excel. Shapi collapses 5 of those 6 tools and lets HRBPs do the strategic work they were hired for. **They do NOT become obsolete — they become our champion.** Without an HRBP advocate, Enterprise deals stall at procurement.
+
+### Three priority features
+
+| Feature | Status | What it does |
+|---|---|---|
+| **Skill Density / Capability Matrix (KEYSTONE)** | 🔒 Blocked on schema | Internal redeployment engine. *"Don't hire 3 external data analysts — Riyadh Ops has 2 verified candidates doing admin."* Reads `brain_entries.ai_detected_skills_gained` + `workload_delegations` + `roles_seats`. Comparative search bar matches internal density against unfulfilled vacancies. **This feature alone justifies $2.5k/mo Enterprise in a sales conversation.** Build first when schema lands. Task #101. |
+| **Strategic Calibration Lens** | 🔒 Blocked on schema + org chart | Toggle-able heatmap overlay on org chart canvas. Glow-gold = top performer + overloaded (retention risk). Muted slate = optimized. Crimson border = high AI-exposure missing timelines. MVP ships with OKR completion + capacity index only — flight-risk metric deferred to Year 2 ML (needs sentiment + WhatsApp telemetry + comp lag). Task #102. |
+| **PIP / Separation Playbooks** | 🔒 Blocked on schema | Workflow + audit trail for Performance Improvement Plans + exits. 30/60/90 milestones, encrypted notes excluded from global RAG queries, RBAC scoped to assigned HRBP + reporting manager. **Do NOT auto-draft PIP legal wording** — route to vetted country templates (UAE / KSA / India differ). Writes to `hr_lifecycle_programs` + `organizational_decisions` immutable audit. Task #103. |
+
+### HRBP positioning (not blocked on schema — can ship now)
+
+| Task | Status | What it does |
+|---|---|---|
+| `/for-hrbps` marketing page | ⏳ Not done | Fourth marketing surface alongside `/for-candidates` and `/for-companies`. Hero positions HRBP as named buyer. Different demo flow per persona. Task #104. |
+| Enterprise pricing card copy refresh | ⏳ Not done | On v4 pricing rebuild (#78), Enterprise card reads "Built for HRBPs and Chief People Officers" instead of generic "for large teams." Copy change, not a feature. Ships with Phase D. |
+| Compliance-safe RBAC pattern | ⏳ Not done | Horizontal capability used by encrypted PIP notes + medical_consent leave logs + comp data. One pattern, many features. Builds on the WhatsApp Intent Data Isolation principle already in memory. |
+
+### Why this matters strategically
+
+- **Sales clincher**: Skill Density "redeploy not rehire" is the kind of $150k-saved-per-quarter story a CHRO repeats to the board. Closes the loop between Talent Match (Pro) and HR OS (Enterprise).
+- **Legal moat in MENA**: UAE wrongful-termination disputes cost 12-24 months severance. Audit trail = deal clincher.
+- **Persona dependency**: Without HRBP positioning, Enterprise demos pitch to the wrong buyer (CEO signs but HRBP champions). Re-framing Enterprise as the HRBP product is a copy change with revenue leverage.
+
+---
+
 ## BLUEPRINT v4 — NEW BUILD WORK
 
 The big architectural shift. Everything below depends on the schema migration landing first.
