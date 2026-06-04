@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { LocationsSection, TeamsSection, PersonsSection, SeatsSection } from './SpineForms'
+import { parseHQ } from '@/lib/parseHQ'
 
 export const metadata = { title: 'Org Spine · Shapi' }
 
@@ -12,19 +13,55 @@ export default async function SpinePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('type, company_name, company_website, plan_tier, onboarding_complete')
+    .select('type, company_name, company_website, location, plan_tier, onboarding_complete')
     .eq('id', user.id)
     .single()
 
   if (!profile || profile.type !== 'company') redirect('/dashboard')
   if (!profile.onboarding_complete) redirect('/company/onboarding')
 
-  const [locResult, teamsResult, personsResult, seatsResult] = await Promise.all([
+  let [locResult, teamsResult, personsResult, seatsResult] = await Promise.all([
     supabase.from('locations').select('*').eq('company_id', user.id).order('is_primary', { ascending: false }).order('name'),
     supabase.from('teams').select('*').eq('company_id', user.id).order('name'),
     supabase.from('persons').select('*').eq('company_id', user.id).order('full_name'),
     supabase.from('roles_seats').select('*').eq('company_id', user.id).order('title'),
   ])
+
+  // HQ AUTO-PROMOTION — first visit to the spine after onboarding. If the
+  // company has no locations yet AND profile.location (= HQ from onboarding)
+  // is set, materialize it as the primary location. Idempotent: subsequent
+  // visits skip because locations.length > 0. The DB free-tier trigger
+  // permits this insert (it's the first location).
+  const profileHQ = (profile as { location?: string | null }).location || null
+  if ((locResult.data || []).length === 0 && profileHQ) {
+    const parsed = parseHQ(profileHQ)
+    // Need *some* country to insert (NOT NULL constraint). Fall back to first
+    // 2 characters of country part or 'XX' so the row exists; user edits it
+    // on the page.
+    const fallbackCountry = parsed.country || 'XX'
+    const fallbackCity = parsed.city || profileHQ.split(',')[0]?.trim() || null
+    const seedName = `${profile.company_name || 'HQ'}${fallbackCity ? ` · ${fallbackCity}` : ''}`
+    const { error: seedErr } = await supabase
+      .from('locations')
+      .insert({
+        company_id: user.id,
+        name: seedName,
+        country: fallbackCountry,
+        city: fallbackCity,
+        timezone: parsed.timezone || null,
+        is_primary: true,
+      })
+    if (!seedErr) {
+      locResult = await supabase
+        .from('locations')
+        .select('*')
+        .eq('company_id', user.id)
+        .order('is_primary', { ascending: false })
+        .order('name')
+    } else {
+      console.error('[spine] HQ auto-promote failed:', seedErr.message)
+    }
+  }
 
   const locations = locResult.data || []
   const teams = teamsResult.data || []

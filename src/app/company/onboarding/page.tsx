@@ -35,6 +35,11 @@ function normalizeSize(raw: string | null | undefined): string {
   return SIZE_MATCH[s] || ''
 }
 
+// localStorage key for the onboarding form. Restored on mount, cleared on
+// confirmed-success submit. Survives the "page reloaded itself and I lost
+// 5 minutes of typing" failure mode that's stung Ana repeatedly.
+const STORAGE_KEY = 'shapi.company.onboarding.draft.v1'
+
 export default function CompanyOnboarding() {
   const router = useRouter()
   const [stage, setStage] = useState<Stage>('profile')
@@ -44,6 +49,7 @@ export default function CompanyOnboarding() {
   // the magic before they commit. ~15s spinner.
   const [pulling, setPulling] = useState(false)
   const [pullNote, setPullNote] = useState<string | null>(null)
+  const [restored, setRestored] = useState(false)
 
   const [companyName, setCompanyName] = useState('')
   const [website, setWebsite] = useState('')
@@ -56,6 +62,34 @@ export default function CompanyOnboarding() {
   // "tap to open WhatsApp" link sends a message from an unknown phone and
   // the webhook can't link it to this account.
   const [whatsapp, setWhatsapp] = useState('')
+
+  // Restore on mount.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (raw) {
+        const d = JSON.parse(raw)
+        if (d.companyName) setCompanyName(d.companyName)
+        if (d.website) setWebsite(d.website)
+        if (d.hq) setHq(d.hq)
+        if (d.size) setSize(d.size)
+        if (d.about) setAbout(d.about)
+        if (d.whatsapp) setWhatsapp(d.whatsapp)
+      }
+    } catch { /* corrupt draft — ignore */ }
+    setRestored(true)
+  }, [])
+
+  // Persist on any field change AFTER the restore has happened (otherwise
+  // the first render with empty state would clobber the saved draft).
+  useEffect(() => {
+    if (!restored) return
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        companyName, website, hq, size, about, whatsapp,
+      }))
+    } catch { /* quota / privacy mode — fail silent */ }
+  }, [restored, companyName, website, hq, size, about, whatsapp])
 
   const handlePull = async () => {
     setError(''); setPullNote(null)
@@ -99,22 +133,46 @@ export default function CompanyOnboarding() {
 
     setSaving(true)
 
-    // Save company profile
-    await fetch('/api/profile/update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        company_name: companyName.trim(),
-        company_website: website.trim() || null,
-        company_size: size || null,
-        location: hq.trim() || null,
-        summary: about.trim() || null,
-        // Only persist whatsapp_number if it's more than the +country-code stub.
-        whatsapp_number: whatsapp.trim().length > 5 ? whatsapp.trim() : null,
-        onboarding_complete: true,
-        completion_pct: 100,
-      }),
-    })
+    // Save company profile — and ACTUALLY check the response. Previous version
+    // ignored errors silently which meant a failed save still advanced to the
+    // 'enriching' spinner and ultimately redirected the user to a page they
+    // had no permission to see, bouncing them back to onboarding with empty
+    // form state. Now we surface errors and keep the form populated.
+    let saveOk = false
+    try {
+      const res = await fetch('/api/profile/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          company_name: companyName.trim(),
+          company_website: website.trim() || null,
+          company_size: size || null,
+          location: hq.trim() || null,
+          summary: about.trim() || null,
+          // Only persist whatsapp_number if it's more than the +country-code stub.
+          whatsapp_number: whatsapp.trim().length > 5 ? whatsapp.trim() : null,
+          onboarding_complete: true,
+          completion_pct: 100,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setError(data.error || `Couldn't save (${res.status}). Your details are still here — try again.`)
+        setSaving(false)
+        return
+      }
+      saveOk = true
+    } catch (err) {
+      console.error('[onboarding] save error:', err)
+      setError("Network issue saving your details. They're still here — try again.")
+      setSaving(false)
+      return
+    }
+
+    if (!saveOk) return
+
+    // Save succeeded — safe to clear the localStorage draft.
+    try { localStorage.removeItem(STORAGE_KEY) } catch { /* ignore */ }
 
     // Trigger enrichment in background (non-blocking)
     setStage('enriching')
@@ -221,7 +279,8 @@ export default function CompanyOnboarding() {
         <div className="mb-8">
           <h1 className="text-3xl font-black text-[#F4F4F7] mb-2">Set up your company.</h1>
           <p className="text-[#A6A6B4] text-sm leading-relaxed">
-            Takes 2 minutes. We pull your company data from public sources automatically — Glassdoor, LinkedIn, Reddit, news.
+            Two minutes. Public signal from Glassdoor, LinkedIn, Reddit and recent news is surfaced
+            alongside what you write — so candidates see real evidence, not just self-marketing.
           </p>
         </div>
 
@@ -310,15 +369,20 @@ export default function CompanyOnboarding() {
           </div>
         </div>
 
-        {/* What Shapi will pull automatically */}
+        {/* Public signals layered onto the company profile alongside what
+            Ana writes. Read-only chips — these are the moat: candidates know
+            we're not just repeating company self-marketing. */}
         <div className="gradient-border-card rounded-2xl p-5 mb-6">
-          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-3">We&apos;ll pull automatically</p>
+          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-1">Public signals on your profile</p>
+          <p className="text-[#5C5C6A] text-xs mb-3">
+            Surfaced from independent sources. Candidates see these next to what you write.
+          </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { icon: '⭐', label: 'Glassdoor rating' },
               { icon: '💬', label: 'Reddit sentiment' },
               { icon: '📰', label: 'Recent news' },
-              { icon: '🏢', label: 'Company size & industry' },
+              { icon: '🏢', label: 'Headcount & industry' },
             ].map((item, i) => (
               <div key={i} className="bg-[rgba(255,255,255,0.05)] rounded-xl p-3 text-center">
                 <div className="text-lg mb-1">{item.icon}</div>
@@ -327,7 +391,7 @@ export default function CompanyOnboarding() {
             ))}
           </div>
           <p className="text-[#5C5C6A] text-xs mt-3">
-            Sourced from public data. Candidates see this alongside your job postings. You can edit anything.
+            You can hide or override any signal from your company profile after setup.
           </p>
         </div>
 

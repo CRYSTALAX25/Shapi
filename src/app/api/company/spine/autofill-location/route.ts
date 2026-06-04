@@ -1,44 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
-
-const COUNTRY_TO_ISO: Record<string, string> = {
-  'saudi arabia': 'SA', 'ksa': 'SA', 'kingdom of saudi arabia': 'SA',
-  'united arab emirates': 'AE', 'uae': 'AE', 'emirates': 'AE',
-  'qatar': 'QA', 'kuwait': 'KW', 'bahrain': 'BH', 'oman': 'OM',
-  'india': 'IN', 'pakistan': 'PK', 'bangladesh': 'BD',
-  'philippines': 'PH', 'egypt': 'EG', 'jordan': 'JO', 'lebanon': 'LB',
-  'turkey': 'TR', 'germany': 'DE', 'france': 'FR', 'spain': 'ES',
-  'united kingdom': 'GB', 'uk': 'GB', 'england': 'GB',
-  'united states': 'US', 'usa': 'US', 'us': 'US',
-  'canada': 'CA', 'singapore': 'SG',
-}
-
-const CITY_TO_TZ: Record<string, string> = {
-  'riyadh': 'Asia/Riyadh', 'jeddah': 'Asia/Riyadh', 'dammam': 'Asia/Riyadh',
-  'dubai': 'Asia/Dubai', 'abu dhabi': 'Asia/Dubai', 'sharjah': 'Asia/Dubai',
-  'doha': 'Asia/Qatar', 'kuwait city': 'Asia/Kuwait', 'manama': 'Asia/Bahrain',
-  'muscat': 'Asia/Muscat', 'cairo': 'Africa/Cairo', 'amman': 'Asia/Amman',
-  'beirut': 'Asia/Beirut', 'istanbul': 'Europe/Istanbul',
-  'mumbai': 'Asia/Kolkata', 'bangalore': 'Asia/Kolkata', 'delhi': 'Asia/Kolkata',
-  'karachi': 'Asia/Karachi', 'dhaka': 'Asia/Dhaka', 'manila': 'Asia/Manila',
-  'london': 'Europe/London', 'paris': 'Europe/Paris', 'berlin': 'Europe/Berlin',
-  'madrid': 'Europe/Madrid', 'new york': 'America/New_York',
-  'san francisco': 'America/Los_Angeles', 'toronto': 'America/Toronto',
-  'singapore': 'Asia/Singapore',
-}
-
-function parseHQ(hq: string | null | undefined): { city: string; country: string; timezone: string } {
-  if (!hq) return { city: '', country: '', timezone: '' }
-  const parts = hq.split(',').map(s => s.trim())
-  const cityRaw = parts[0] || ''
-  const countryRaw = parts[parts.length - 1] || ''
-  const cityLower = cityRaw.toLowerCase()
-  const countryLower = countryRaw.toLowerCase()
-  const country = COUNTRY_TO_ISO[countryLower] || (countryRaw.length === 2 ? countryRaw.toUpperCase() : '')
-  const timezone = CITY_TO_TZ[cityLower] || ''
-  return { city: cityRaw, country, timezone }
-}
+import { parseHQ } from '@/lib/parseHQ'
 
 export async function POST() {
   const supabase = await createClient()
