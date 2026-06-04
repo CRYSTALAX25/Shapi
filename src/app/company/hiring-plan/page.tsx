@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import SpinePrefillBanner, { useSpinePrefill } from '@/components/SpinePrefillBanner'
 
 type Stage = 'pre-seed' | 'seed' | 'series-a' | 'growth' | 'enterprise'
 
@@ -49,6 +50,18 @@ export default function HiringPlanPage() {
   const [plan, setPlan] = useState<Plan | null>(null)
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
+
+  // Spine pre-fill — same pattern as Workforce Snapshot. industry/country/
+  // headcount derive cleanly from the spine. Burn + stage stay manual
+  // (we don't track those yet).
+  const { spine, applied: spineApplied, apply: applySpine } = useSpinePrefill()
+  const handleApplySpine = () => {
+    if (!spine) return
+    if (spine.industry) setIndustry(spine.industry)
+    if (spine.country) setCountry(spine.country)
+    if (spine.counts.activeSeats > 0) setHeadcount(String(spine.counts.activeSeats))
+    applySpine()
+  }
 
   const submit = async () => {
     if (!industry.trim() || !country.trim()) {
@@ -156,6 +169,13 @@ export default function HiringPlanPage() {
         <p className="text-[#A6A6B4] text-sm mb-6">
           Tell us your industry, country, stage and budget — we&apos;ll return a perm/temp/fractional split, the next 3 hires, and a 70%-confidence monthly comp band.
         </p>
+
+        <SpinePrefillBanner
+          spine={spine}
+          applied={spineApplied}
+          onApply={handleApplySpine}
+          fieldsLabel="Industry, country, and current headcount"
+        />
 
         {/* Inputs */}
         <div className="rounded-2xl p-5 mb-6" style={cardStyle}>

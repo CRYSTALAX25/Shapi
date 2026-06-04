@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import JdActions from './JdActions'
+import SpinePrefillBanner, { useSpinePrefill } from '@/components/SpinePrefillBanner'
 
 type StarterJD = {
   headline?: string
@@ -47,6 +48,22 @@ export default function CompanyRoadmap() {
   // Free-text team composition so the AI doesn't double-recommend roles you
   // already have. Optional — defaults are fine for an industry+size read.
   const [teamComposition, setTeamComposition] = useState('')
+
+  // Spine pre-fill — derive team_composition from roles_seats. e.g.
+  // "5 Senior Backend Engineers · Engineering, 2 Customer Success Managers · CS"
+  const { spine, applied: spineApplied, apply: applySpine } = useSpinePrefill()
+  const handleApplySpine = () => {
+    if (!spine || spine.roles.length === 0) { applySpine(); return }
+    const summary = spine.roles
+      .map(r => {
+        const n = Number(r.count)
+        const noun = n === 1 ? r.role : `${r.role}s`
+        return `${r.count} ${noun}${r.dept ? ` · ${r.dept}` : ''}`
+      })
+      .join(', ')
+    setTeamComposition(summary)
+    applySpine()
+  }
 
   const generate = async () => {
     setLoading(true)
@@ -120,6 +137,13 @@ export default function CompanyRoadmap() {
         </p>
 
         {!roadmap && (
+          <>
+          <SpinePrefillBanner
+            spine={spine}
+            applied={spineApplied}
+            onApply={handleApplySpine}
+            fieldsLabel="A team-composition summary from your seats"
+          />
           <div className="rounded-2xl p-6 mb-6" style={cardStyle}>
             <p className="text-[#C7C7D1] text-sm mb-4 leading-relaxed">
               Tell us roughly who you already employ — that way we won&apos;t recommend roles you&apos;ve already filled. Or skip this and we&apos;ll work from industry + open roles + Shapi&apos;s platform data.
@@ -144,6 +168,7 @@ export default function CompanyRoadmap() {
             </button>
             {err && <p className="text-[#F58E9A] text-xs mt-3">{err}</p>}
           </div>
+          </>
         )}
 
         {roadmap && (

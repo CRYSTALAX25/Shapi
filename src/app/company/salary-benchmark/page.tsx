@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import SpinePrefillBanner, { useSpinePrefill } from '@/components/SpinePrefillBanner'
 
 type Benchmark = {
   currency?: string
@@ -17,6 +18,18 @@ type Benchmark = {
 const LEVELS = ['Junior', 'Mid', 'Senior', 'Lead'] as const
 type Level = (typeof LEVELS)[number]
 
+// Map common seniority values from roles_seats → the LEVELS the benchmark
+// accepts. Anything outside this set leaves level empty (the form treats
+// level as optional).
+const SENIORITY_TO_LEVEL: Record<string, Level> = {
+  junior: 'Junior',
+  mid: 'Mid',
+  senior: 'Senior',
+  lead: 'Lead',
+  manager: 'Lead',
+  director: 'Lead',
+}
+
 export default function SalaryBenchmark() {
   const [role, setRole] = useState('')
   const [country, setCountry] = useState('')
@@ -25,6 +38,29 @@ export default function SalaryBenchmark() {
   const [bm, setBm] = useState<Benchmark | null>(null)
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
+
+  // Spine pre-fill — country comes straight from the primary location.
+  // Roles is a list of seats; user picks one from a dropdown rather than
+  // typing. Level derives from the picked seat's seniority.
+  const { spine, applied: spineApplied, apply: applySpine } = useSpinePrefill()
+  const handleApplySpine = () => {
+    if (!spine) return
+    if (spine.country) setCountry(spine.country)
+    // Pick the highest-count role as a sensible default. User can change it
+    // via the seat picker below or by typing.
+    if (spine.roles.length > 0) setRole(spine.roles[0].role)
+    applySpine()
+  }
+  const pickSeatRole = (titleAndDept: string) => {
+    // value is "title::dept" → split, set role, attempt to infer level from
+    // the title (which can contain seniority words like "Senior" etc.)
+    const [title] = titleAndDept.split('::')
+    setRole(title)
+    const lower = title.toLowerCase()
+    for (const [key, lvl] of Object.entries(SENIORITY_TO_LEVEL)) {
+      if (lower.includes(key)) { setLevel(lvl); break }
+    }
+  }
 
   const fmt = (n?: number) =>
     typeof n === 'number'
@@ -72,8 +108,36 @@ export default function SalaryBenchmark() {
         <h1 className="text-3xl md:text-4xl font-black tracking-tighter mb-2" style={{ color: '#FB7185' }}>Salary benchmark</h1>
         <p className="text-[#A6A6B4] text-sm mb-6">What&apos;s a competitive annual offer for this role in this country? Type the role, the country and (optionally) a level — we&apos;ll return a 70%-confidence band in local currency, the global median, and the regional-vs-global gap.</p>
 
+        <SpinePrefillBanner
+          spine={spine}
+          applied={spineApplied}
+          onApply={handleApplySpine}
+          fieldsLabel="Country and a default role from your seats"
+        />
+
         {/* Inputs */}
         <div className="rounded-2xl p-5 mb-6" style={cardStyle}>
+          {/* Spine seat-picker dropdown — only shown when a spine exists.
+              Lets the user pick any role from the roles_seats table instead
+              of typing. */}
+          {spine?.hasSpine && spine.roles.length > 0 && (
+            <div className="mb-4">
+              <label className={labelCls}>Pick a role from your spine</label>
+              <select
+                value=""
+                onChange={e => { if (e.target.value) pickSeatRole(e.target.value) }}
+                className={inputCls}
+                style={inputStyle}
+              >
+                <option value="">— pick to fill the role field —</option>
+                {spine.roles.map((r, i) => (
+                  <option key={i} value={`${r.role}::${r.dept}`}>
+                    {r.role}{r.dept ? ` · ${r.dept}` : ''}{Number(r.count) > 1 ? ` (×${r.count})` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="grid sm:grid-cols-2 gap-3">
             <div>
               <label className={labelCls}>Role</label>
