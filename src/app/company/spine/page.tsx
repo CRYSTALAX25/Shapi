@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { LocationsSection, TeamsSection, PersonsSection, SeatsSection } from './SpineForms'
+import CsvImportSection from './CsvImportSection'
 import { parseHQ } from '@/lib/parseHQ'
 
 export const metadata = { title: 'Org Spine · Shapi' }
@@ -142,6 +143,12 @@ export default async function SpinePage({
         )}
 
         <div className="space-y-5">
+          {/* CSV import lives at the TOP — it's the primary way to populate
+              the spine for real companies. Manual CRUD below is for tweaks
+              and corrections. Visual canvas + drag-drop tree lands in
+              Phase B (next commit). */}
+          <CsvImportSection planTier={planTier} />
+
           <LocationsSection locations={locations} companyWebsite={(profile as { company_website?: string | null }).company_website || null} />
           <TeamsSection teams={teams} locations={locations} />
           <PersonsSection persons={persons} />
@@ -149,10 +156,10 @@ export default async function SpinePage({
         </div>
 
         <div className="mt-8 p-4 rounded-xl" style={{ background: '#13161b', border: `1px dashed ${ACCENT}40` }}>
-          <p className="text-xs font-bold mb-1" style={HEADING_STYLE}>Coming next</p>
+          <p className="text-xs font-bold mb-1" style={HEADING_STYLE}>Coming next (Phase B+)</p>
           <p className="text-xs" style={BODY_STYLE}>
-            Visual drag-and-drop tree, CSV upload-and-map, AI-assisted org design — all built on top
-            of this spine.
+            Per-location upload buttons · visual drag-and-drop SVG tree · template lenses
+            (functional / divisional / matrix / flat) · HRBP Calibration overlay.
           </p>
         </div>
       </div>
