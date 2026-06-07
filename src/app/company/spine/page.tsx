@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { LocationsSection, TeamsSection, PersonsSection, SeatsSection } from './SpineForms'
 import CsvImportSection from './CsvImportSection'
+import OrgCanvas from './OrgCanvas'
 import { parseHQ } from '@/lib/parseHQ'
 
 export const metadata = { title: 'Org Spine · Shapi' }
@@ -143,10 +144,12 @@ export default async function SpinePage({
         )}
 
         <div className="space-y-5">
-          {/* CSV import lives at the TOP — it's the primary way to populate
-              the spine for real companies. Manual CRUD below is for tweaks
-              and corrections. Visual canvas + drag-drop tree lands in
-              Phase B (next commit). */}
+          {/* Visual canvas FIRST — it's the spine's primary surface.
+              Four lens toggles + Current/Target state + drag-drop. */}
+          <OrgCanvas locations={locations} teams={teams} persons={persons} seats={seats} />
+
+          {/* CSV upload — primary intake for new companies. Manual CRUD
+              below is for tweaks and corrections. */}
           <CsvImportSection planTier={planTier} />
 
           <LocationsSection locations={locations} companyWebsite={(profile as { company_website?: string | null }).company_website || null} />
@@ -156,10 +159,11 @@ export default async function SpinePage({
         </div>
 
         <div className="mt-8 p-4 rounded-xl" style={{ background: '#13161b', border: `1px dashed ${ACCENT}40` }}>
-          <p className="text-xs font-bold mb-1" style={HEADING_STYLE}>Coming next (Phase B+)</p>
+          <p className="text-xs font-bold mb-1" style={HEADING_STYLE}>Coming next</p>
           <p className="text-xs" style={BODY_STYLE}>
-            Per-location upload buttons · visual drag-and-drop SVG tree · template lenses
-            (functional / divisional / matrix / flat) · HRBP Calibration overlay.
+            HRBP Calibration overlay (gold/slate/crimson by OKR + capacity + flight-risk) ·
+            per-location upload buttons inside the locations section · justification modal on
+            drag-drop · time-slider with real future dates instead of a Current/Target toggle.
           </p>
         </div>
       </div>
