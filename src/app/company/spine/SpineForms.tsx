@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import CsvImportSection from './CsvImportSection'
 
 type Location = {
   id: string
@@ -77,7 +78,15 @@ function ErrorBanner({ msg, onClear }: { msg: string | null; onClear: () => void
 /* ──────────────────────────────────────────────────────────────────────── */
 /* LOCATIONS                                                               */
 /* ──────────────────────────────────────────────────────────────────────── */
-export function LocationsSection({ locations, companyWebsite }: { locations: Location[]; companyWebsite: string | null }) {
+export function LocationsSection({
+  locations,
+  companyWebsite,
+  planTier = 'free',
+}: {
+  locations: Location[]
+  companyWebsite: string | null
+  planTier?: string
+}) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -85,6 +94,8 @@ export function LocationsSection({ locations, companyWebsite }: { locations: Loc
   const [err, setErr] = useState<string | null>(null)
   const [autofillNote, setAutofillNote] = useState<string | null>(null)
   const [form, setForm] = useState({ name: '', country: '', city: '', timezone: '', is_primary: true })
+  // Which location's per-location CSV uploader is currently expanded (id), or null.
+  const [uploadFor, setUploadFor] = useState<string | null>(null)
 
   async function autofill() {
     setAutofilling(true); setErr(null); setAutofillNote(null)
@@ -215,17 +226,41 @@ export function LocationsSection({ locations, companyWebsite }: { locations: Loc
       ) : (
         <ul className="space-y-2">
           {locations.map(loc => (
-            <li key={loc.id} className="flex items-center justify-between p-3 rounded-lg" style={{ background: '#0c0e11' }}>
-              <div>
-                <div className="text-sm font-bold" style={HEADING_STYLE}>
-                  {loc.name}
-                  {loc.is_primary && <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full" style={{ background: `${ACCENT}22`, color: ACCENT }}>primary</span>}
+            <li key={loc.id} className="p-3 rounded-lg" style={{ background: '#0c0e11' }}>
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div>
+                  <div className="text-sm font-bold" style={HEADING_STYLE}>
+                    {loc.name}
+                    {loc.is_primary && <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full" style={{ background: `${ACCENT}22`, color: ACCENT }}>primary</span>}
+                  </div>
+                  <div className="text-xs" style={BODY_STYLE}>
+                    {[loc.city, loc.country].filter(Boolean).join(' · ')}{loc.timezone && ` · ${loc.timezone}`}
+                  </div>
                 </div>
-                <div className="text-xs" style={BODY_STYLE}>
-                  {[loc.city, loc.country].filter(Boolean).join(' · ')}{loc.timezone && ` · ${loc.timezone}`}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setUploadFor(prev => (prev === loc.id ? null : loc.id))}
+                    className="text-xs font-bold px-3 py-1.5 rounded-full"
+                    style={{ background: `${ACCENT}14`, color: ACCENT, border: `1px solid ${ACCENT}40` }}
+                  >
+                    {uploadFor === loc.id ? 'Close upload' : '↥ Upload roster'}
+                  </button>
+                  <button onClick={() => remove(loc.id)} className="text-xs font-bold" style={{ color: '#FB7185' }}>Delete</button>
                 </div>
               </div>
-              <button onClick={() => remove(loc.id)} className="text-xs font-bold" style={{ color: '#FB7185' }}>Delete</button>
+
+              {/* Per-location CSV uploader — reuses the shared importer but
+                  pre-tags every row with this location's name on commit. */}
+              {uploadFor === loc.id && (
+                <div className="mt-3">
+                  <CsvImportSection
+                    planTier={planTier}
+                    compact
+                    lockedLocationName={loc.name}
+                    onCommitted={() => setUploadFor(null)}
+                  />
+                </div>
+              )}
             </li>
           ))}
         </ul>

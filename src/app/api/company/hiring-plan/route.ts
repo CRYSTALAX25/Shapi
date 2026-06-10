@@ -24,6 +24,10 @@ export async function POST(request: Request) {
   const stage = (STAGES as string[]).includes(stageRaw) ? (stageRaw as Stage) : ''
   const monthly_burn_budget = typeof body.monthly_burn_budget === 'number' && body.monthly_burn_budget > 0 ? body.monthly_burn_budget : null
   const headcount_today = typeof body.headcount_today === 'number' && body.headcount_today >= 0 ? body.headcount_today : null
+  // Planned/vacant seats from the org spine — the company's own hiring list.
+  // When present, the plan should treat these as already-decided and prioritise
+  // / sequence them, not invent unrelated roles.
+  const planned_hires = typeof body.planned_hires === 'string' ? body.planned_hires.trim().slice(0, 600) : ''
 
   if (!industry) return NextResponse.json({ error: 'Tell us your industry.' }, { status: 400 })
   if (!country) return NextResponse.json({ error: 'Add your country for accurate guidance.' }, { status: 400 })
@@ -37,6 +41,9 @@ export async function POST(request: Request) {
   const headcountLine = headcount_today != null
     ? `Current headcount: ${headcount_today}.`
     : 'Current headcount: not provided — anchor to a typical team for this stage.'
+  const plannedLine = planned_hires
+    ? `Roles already on their hiring roadmap (planned/vacant seats from their org chart): ${planned_hires}. Prioritise and sequence THESE — they've already decided to hire them — rather than inventing unrelated roles. Only add a role outside this list if there's a clear gap it leaves.`
+    : 'They have not shared a specific hiring list — recommend the most impactful next roles for this industry + stage.'
 
   const prompt = `You are Shapi, a blunt, practical hiring advisor for founders and ops leads. A company in the "${industry}" industry based in ${country} at the "${stage}" stage is planning their next wave of hiring.
 
@@ -46,6 +53,7 @@ CONTEXT:
 - Stage: ${stage}
 - ${budgetLine}
 - ${headcountLine}
+- ${plannedLine}
 
 VOICE — STRICT: Speak with sourced confidence. NEVER use the words "indicative", "approximate" (as a hedge), or "rough". Frame comp ranges as a 70%-confidence band synthesised from Mercer / PayScale / Numbeo cost-of-living / Glassdoor / government labour statistics. Name the variance driver in one phrase ("varies with seniority", "scales with equity weighting"). Numeric prefixes like "~$15" are fine; the words are not.
 

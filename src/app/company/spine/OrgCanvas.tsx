@@ -12,10 +12,12 @@
 //   • Current — seats with status in {active, separating}
 //   • Target  — seats with status in {active, planned}
 //
-// Drag-drop: pick up any seat card, drop on a team header → PATCH seat's
-// team_id + auto-log to organizational_decisions with a default "Drag-drop
-// reassignment from <Team A> to <Team B>" justification (40+ chars to clear
-// the schema floor). A richer justification modal will land in a follow-up.
+// Drag-drop: pick up any seat card, drop on a team header → opens a
+// justification modal (ReassignModal). The user must type a real reason
+// (min 20 chars) before the move commits. On confirm we PATCH the seat's
+// team_id AND POST the typed justification to organizational_decisions.
+// Cancel/Escape aborts with no DB write. We refresh from the server after a
+// successful commit rather than mutating local state optimistically.
 //
 // All seat cards click through to the existing manual edit affordances
 // below (the CRUD sections) — the canvas is for visual restructuring and
@@ -23,6 +25,7 @@
 
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import ReassignModal, { type ReassignContext } from './ReassignModal'
 
 type Location = { id: string; name: string; country: string }
 type Team = { id: string; name: string; location_id: string; function: string | null; parent_team_id: string | null }
@@ -34,6 +37,13 @@ type Seat = {
   seniority: string | null
   person_id: string | null
   status: string
+  // HRBP Calibration Lens inputs (roles_seats). All nullable — overlay degrades
+  // to neutral when absent. flight_risk_score is a Year-2 ML signal; the MVP
+  // lens does NOT depend on it.
+  okr_completion_pct?: number | null
+  absorbed_capacity_pct?: number | null
+  ai_exposure_score?: number | null
+  flight_risk_score?: number | null
 }
 
 type Props = {
@@ -81,6 +91,71 @@ const STATE_FILTER: Record<State, Set<string>> = {
   target: new Set(['active', 'planned']),
 }
 
+// ── CALIBRATION LENS ──────────────────────────────────────────────────
+// Brand palette per the HRBP "Strategic Calibration Lens" spec:
+//   • glow-gold (amber)  — top performer AND overloaded → retention risk
+//   • muted-slate        — optimized / healthy (good OKR, capacity in band)
+//   • crimson (coral)    — high AI-exposure AND missing timelines (no/low OKR
+//                          or seat not yet operating)
+//   • neutral            — insufficient data (overlay does nothing)
+type CalBucket = 'gold' | 'slate' | 'crimson' | 'neutral'
+
+const CAL_COLORS = {
+  gold: '#FBBF24',     // amber — retention risk
+  slate: '#64748B',    // muted slate — healthy
+  crimson: '#FB7185',  // coral — AI-exposed, no timeline
+} as const
+
+// Thresholds (client-side, computed from already-loaded seat data).
+const OKR_HIGH = 70           // "top performer" / has a real timeline
+const CAPACITY_OVERLOAD = 100 // absorbed_capacity_pct > 100 = overloaded
+const AI_EXPOSURE_HIGH = 70   // high automation exposure
+
+// Statuses that mean the seat is NOT operating against live OKRs yet.
+const NO_TIMELINE_STATUS = new Set(['planned', 'vacant', 'frozen'])
+
+// Pure, deterministic classifier. flight_risk_score is intentionally ignored
+// (nullable Year-2 signal). Returns 'neutral' whenever the inputs it needs are
+// missing, so the overlay never invents a colour from null data.
+function calibrationBucket(seat: Seat): CalBucket {
+  const okr = seat.okr_completion_pct
+  const cap = seat.absorbed_capacity_pct
+  const ai = seat.ai_exposure_score
+
+  // CRIMSON: high AI-exposure with no/low delivery timeline. Needs ai present.
+  if (typeof ai === 'number' && ai >= AI_EXPOSURE_HIGH) {
+    const lowOkr = typeof okr === 'number' ? okr < OKR_HIGH : true
+    const noTimeline = NO_TIMELINE_STATUS.has(seat.status)
+    if (lowOkr || noTimeline) return 'crimson'
+  }
+
+  // GOLD: top performer AND overloaded. Needs both okr and capacity present.
+  if (typeof okr === 'number' && typeof cap === 'number') {
+    if (okr >= OKR_HIGH && cap > CAPACITY_OVERLOAD) return 'gold'
+    // SLATE: healthy — good OKR, capacity within band.
+    if (okr >= OKR_HIGH && cap <= CAPACITY_OVERLOAD) return 'slate'
+  }
+
+  // Not enough signal to colour confidently.
+  return 'neutral'
+}
+
+const CAL_LEGEND: { bucket: Exclude<CalBucket, 'neutral'>; label: string }[] = [
+  { bucket: 'gold', label: 'Top performer + overloaded — retention risk' },
+  { bucket: 'slate', label: 'Optimized / healthy' },
+  { bucket: 'crimson', label: 'High AI-exposure, no timeline' },
+]
+
+// ── SUGGESTION BAR ────────────────────────────────────────────────────
+// Advisory layout proposals. CRITICAL: these NEVER mutate the layout. Acting
+// on one only PREVIEWS (highlights the affected teams) — any real change still
+// goes through drag-drop + the justification modal.
+type Suggestion = {
+  id: string
+  text: string
+  teamIds: string[] // teams to highlight when this suggestion is previewed
+}
+
 export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
   const router = useRouter()
   const [lens, setLens] = useState<Lens>('functional')
@@ -88,6 +163,14 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
   const [draggingSeatId, setDraggingSeatId] = useState<string | null>(null)
   const [dropTargetTeamId, setDropTargetTeamId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  // Pending reassignment awaiting justification. Drop sets this → modal opens.
+  const [pendingMove, setPendingMove] = useState<ReassignContext | null>(null)
+  // Calibration Lens overlay toggle (composes with all 4 lenses + state).
+  const [calibration, setCalibration] = useState(false)
+  // Suggestion bar: dismissed ids + the currently-previewed suggestion id.
+  // Previewing only HIGHLIGHTS the affected teams — it never moves anything.
+  const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<string>>(new Set())
+  const [previewSuggestionId, setPreviewSuggestionId] = useState<string | null>(null)
 
   const personById = useMemo(() => Object.fromEntries(persons.map(p => [p.id, p])), [persons])
   const teamById = useMemo(() => Object.fromEntries(teams.map(t => [t.id, t])), [teams])
@@ -98,6 +181,76 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
     () => seats.filter(s => STATE_FILTER[state].has(s.status)),
     [seats, state]
   )
+
+  // ── Suggestions (advisory only) ──────────────────────────────────────
+  // Computed client-side from the loaded spine. Each is a heuristic the HRBP
+  // *might* want to act on — but we NEVER apply it. Previewing highlights the
+  // teams; the user still has to drag a seat (→ justification modal) to act.
+  const suggestions = useMemo<Suggestion[]>(() => {
+    const out: Suggestion[] = []
+    const SPAN_THRESHOLD = 8 // reports under one team before we flag span-of-control
+
+    // 1. Over-wide teams — too many seats reporting into one team.
+    for (const t of teams) {
+      const count = seats.filter(s => s.team_id === t.id).length
+      if (count > SPAN_THRESHOLD) {
+        out.push({
+          id: `span:${t.id}`,
+          text: `${t.name} has ${count} reports under one manager — consider splitting into a sub-team.`,
+          teamIds: [t.id],
+        })
+      }
+    }
+
+    // 2. Vacancy clusters within the same function — candidates to merge/backfill.
+    const vacantByFunction = new Map<string, { teamIds: Set<string>; count: number }>()
+    for (const s of seats) {
+      if (s.status !== 'vacant' && s.status !== 'planned') continue
+      const t = teamById[s.team_id]
+      if (!t) continue
+      const fn = t.function || 'other'
+      const entry = vacantByFunction.get(fn) || { teamIds: new Set<string>(), count: 0 }
+      entry.teamIds.add(t.id)
+      entry.count += 1
+      vacantByFunction.set(fn, entry)
+    }
+    for (const [fn, entry] of vacantByFunction) {
+      if (entry.count >= 3) {
+        out.push({
+          id: `vacancies:${fn}`,
+          text: `${entry.count} vacant/planned seats across ${FUNCTION_LABEL[fn] || fn} — consider merging or a single backfill plan.`,
+          teamIds: [...entry.teamIds],
+        })
+      }
+    }
+
+    // 3. Retention-risk cluster (from calibration) — gold seats in a team.
+    const goldByTeam = new Map<string, number>()
+    for (const s of seats) {
+      if (calibrationBucket(s) === 'gold') {
+        goldByTeam.set(s.team_id, (goldByTeam.get(s.team_id) || 0) + 1)
+      }
+    }
+    for (const [teamId, n] of goldByTeam) {
+      if (n >= 2) {
+        const t = teamById[teamId]
+        out.push({
+          id: `retention:${teamId}`,
+          text: `${t?.name || 'A team'} has ${n} overloaded top performers — redistribute load before they churn.`,
+          teamIds: [teamId],
+        })
+      }
+    }
+
+    return out.filter(s => !dismissedSuggestions.has(s.id))
+  }, [teams, seats, teamById, dismissedSuggestions])
+
+  // Teams to visually highlight from the active preview (advisory only).
+  const highlightedTeamIds = useMemo<Set<string>>(() => {
+    if (!previewSuggestionId) return new Set()
+    const s = suggestions.find(x => x.id === previewSuggestionId)
+    return new Set(s?.teamIds || [])
+  }, [previewSuggestionId, suggestions])
 
   // Empty state.
   if (locations.length === 0 && teams.length === 0 && seats.length === 0) {
@@ -116,7 +269,9 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
     )
   }
 
-  async function handleDrop(targetTeamId: string) {
+  // Drop only stages the move — it opens the justification modal. The seat
+  // stays put (no optimistic mutation) until the user confirms with a reason.
+  function handleDrop(targetTeamId: string) {
     setDropTargetTeamId(null)
     const seatId = draggingSeatId
     setDraggingSeatId(null)
@@ -128,39 +283,66 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
     const toTeam = teamById[targetTeamId]
     if (!fromTeam || !toTeam) return
 
+    setPendingMove({
+      seatId: seat.id,
+      seatTitle: seat.title,
+      personId: seat.person_id,
+      fromTeamId: fromTeam.id,
+      fromTeamName: fromTeam.name,
+      toTeamId: toTeam.id,
+      toTeamName: toTeam.name,
+    })
+  }
+
+  // Called by ReassignModal on Confirm. Commits the move with the user-typed
+  // justification: PATCH the seat, then POST the decision. Throws on failure so
+  // the modal keeps itself open and preserves the typed text.
+  async function commitMove(
+    ctx: ReassignContext,
+    { decisionType, justification }: { decisionType: string; justification: string }
+  ) {
     setBusy(true)
     try {
       const moveRes = await fetch('/api/company/spine/seat', {
         method: 'PATCH',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ id: seat.id, team_id: targetTeamId }),
+        body: JSON.stringify({ id: ctx.seatId, team_id: ctx.toTeamId }),
       })
       if (!moveRes.ok) {
         const d = await moveRes.json().catch(() => ({}))
-        alert(d.error || 'Move failed')
-        return
+        throw new Error(d.error || d.message || 'Move failed. The seat was not reassigned.')
       }
-      // Best-effort audit log. Schema requires 20+ chars on justification;
-      // the default below is 60+ to clear the floor cleanly.
-      await fetch('/api/company/spine/decision', {
+      // Audit log with the real justification. Schema enforces 20+ chars; the
+      // modal already guarantees that, but the API re-validates server-side.
+      const decRes = await fetch('/api/company/spine/decision', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          decision_type: 'restructure',
-          justification: `Drag-drop reassignment: moved "${seat.title}" from ${fromTeam.name} to ${toTeam.name} on the visual canvas.`,
-          impacted_seat_id: seat.id,
-          impacted_person_id: seat.person_id,
-          impacted_team_id: targetTeamId,
+          decision_type: decisionType,
+          justification,
+          impacted_seat_id: ctx.seatId,
+          impacted_person_id: ctx.personId,
+          impacted_team_id: ctx.toTeamId,
           state_snapshot: {
-            seat_title: seat.title,
-            from_team_id: fromTeam.id,
-            from_team_name: fromTeam.name,
-            to_team_id: targetTeamId,
-            to_team_name: toTeam.name,
-            person_id: seat.person_id,
+            seat_title: ctx.seatTitle,
+            from_team_id: ctx.fromTeamId,
+            from_team_name: ctx.fromTeamName,
+            to_team_id: ctx.toTeamId,
+            to_team_name: ctx.toTeamName,
+            person_id: ctx.personId,
           },
         }),
-      }).catch(() => { /* audit best-effort */ })
+      })
+      if (!decRes.ok) {
+        const d = await decRes.json().catch(() => ({}))
+        // The seat moved but the audit row failed. Surface it loudly — the
+        // user keeps the modal open and can retry the decision write.
+        throw new Error(
+          (d.message || d.error || 'Decision log failed') +
+            ' — the seat was moved, but the justification was not recorded. Please retry.'
+        )
+      }
+      setPendingMove(null)
       router.refresh()
     } finally {
       setBusy(false)
@@ -173,6 +355,22 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
     const personName = person ? (person.preferred_name || person.full_name) : null
     const team = teamById[seat.team_id]
     const isDragging = draggingSeatId === seat.id
+
+    // Calibration overlay — purely visual, composes on top of drag state.
+    const bucket = calibration ? calibrationBucket(seat) : 'neutral'
+    const calColor = bucket === 'neutral' ? null : CAL_COLORS[bucket]
+
+    // Resolve border + glow. Drag state wins on border colour; the calibration
+    // colour shows as a glow ring so both signals can be read at once.
+    const borderColor = isDragging
+      ? ACCENT
+      : calColor || 'rgba(255,255,255,0.06)'
+    const boxShadow = calColor && !isDragging ? `0 0 0 1px ${calColor}, 0 0 10px -2px ${calColor}aa` : undefined
+
+    const calTitle = calColor
+      ? `\nCalibration: ${bucket === 'gold' ? 'top performer + overloaded (retention risk)' : bucket === 'slate' ? 'optimized / healthy' : 'high AI-exposure, no timeline'}`
+      : ''
+
     return (
       <div
         draggable
@@ -181,10 +379,11 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
         className="rounded-lg p-2.5 cursor-grab active:cursor-grabbing transition-opacity"
         style={{
           background: isDragging ? 'rgba(124,147,245,0.18)' : '#0c0e11',
-          border: `1px solid ${isDragging ? ACCENT : 'rgba(255,255,255,0.06)'}`,
+          border: `1px solid ${borderColor}`,
+          boxShadow,
           opacity: isDragging ? 0.6 : 1,
         }}
-        title={`${seat.title} · ${team?.name || ''}\nDrag to reassign team`}
+        title={`${seat.title} · ${team?.name || ''}\nDrag to reassign team${calTitle}`}
       >
         <p className="text-xs font-bold leading-tight" style={HEADING_STYLE}>{seat.title}</p>
         <div className="flex items-center gap-1.5 mt-1">
@@ -203,6 +402,9 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
   function TeamHeader({ team, count }: { team: Team; count: number }) {
     const loc = locById[team.location_id]
     const isHovered = dropTargetTeamId === team.id
+    // Advisory highlight from a previewed suggestion. Purely visual — does NOT
+    // move or restructure anything.
+    const isHighlighted = highlightedTeamIds.has(team.id)
     return (
       <div
         onDragOver={e => { e.preventDefault(); setDropTargetTeamId(team.id) }}
@@ -210,8 +412,9 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
         onDrop={() => handleDrop(team.id)}
         className="px-3 py-2 mb-2 rounded-lg transition-colors"
         style={{
-          background: isHovered ? 'rgba(124,147,245,0.18)' : 'rgba(255,255,255,0.04)',
-          border: `1px dashed ${isHovered ? ACCENT : 'rgba(255,255,255,0.08)'}`,
+          background: isHovered ? 'rgba(124,147,245,0.18)' : isHighlighted ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.04)',
+          border: `1px dashed ${isHovered ? ACCENT : isHighlighted ? '#FBBF24' : 'rgba(255,255,255,0.08)'}`,
+          boxShadow: isHighlighted && !isHovered ? '0 0 12px -3px #FBBF24aa' : undefined,
         }}
       >
         <p className="text-xs font-black" style={HEADING_STYLE}>{team.name}</p>
@@ -369,8 +572,9 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
               onDrop={() => handleDrop(t.id)}
               className="rounded-lg p-3 transition-colors"
               style={{
-                background: dropTargetTeamId === t.id ? 'rgba(124,147,245,0.18)' : '#0c0e11',
-                border: `1px solid ${dropTargetTeamId === t.id ? ACCENT : 'rgba(255,255,255,0.06)'}`,
+                background: dropTargetTeamId === t.id ? 'rgba(124,147,245,0.18)' : highlightedTeamIds.has(t.id) ? 'rgba(251,191,36,0.10)' : '#0c0e11',
+                border: `1px solid ${dropTargetTeamId === t.id ? ACCENT : highlightedTeamIds.has(t.id) ? '#FBBF24' : 'rgba(255,255,255,0.06)'}`,
+                boxShadow: highlightedTeamIds.has(t.id) && dropTargetTeamId !== t.id ? '0 0 12px -3px #FBBF24aa' : undefined,
               }}
             >
               <div className="flex items-center justify-between flex-wrap gap-2">
@@ -422,7 +626,7 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
           ))}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <p className="text-[10px] font-bold uppercase tracking-wider mr-1" style={BODY_STYLE}>State</p>
           {(['current', 'target'] as State[]).map(s => (
             <button
@@ -436,21 +640,140 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
               {s === 'current' ? '● Current' : '○ Target'}
             </button>
           ))}
+
+          {/* Calibration Lens — overlays a heatmap on seat cards. Composes with
+              all 4 lenses + the Current/Target state. */}
+          <span className="mx-1 h-4 w-px" style={{ background: 'rgba(255,255,255,0.1)' }} />
+          <button
+            onClick={() => setCalibration(v => !v)}
+            className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
+            style={calibration
+              ? { background: 'rgba(251,191,36,0.18)', color: '#FBBF24', border: '1px solid #FBBF24' }
+              : { background: '#0c0e11', color: BODY_STYLE.color as string, border: '1px solid rgba(255,255,255,0.08)' }}
+            title="Overlay OKR + capacity + AI-exposure heatmap on seat cards"
+          >
+            {calibration ? '◉ Calibration' : '○ Calibration'}
+          </button>
         </div>
       </div>
+
+      {/* Calibration legend — only while the overlay is on. */}
+      {calibration && (
+        <div
+          className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mb-4 p-3 rounded-xl"
+          style={{ background: '#0c0e11', border: '1px solid rgba(251,191,36,0.25)' }}
+        >
+          <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#FBBF24' }}>
+            Calibration Lens
+          </span>
+          {CAL_LEGEND.map(item => (
+            <span key={item.bucket} className="flex items-center gap-1.5">
+              <span
+                className="w-3 h-3 rounded-sm flex-shrink-0"
+                style={{ background: CAL_COLORS[item.bucket], boxShadow: `0 0 6px -1px ${CAL_COLORS[item.bucket]}` }}
+              />
+              <span className="text-[10px]" style={BODY_STYLE}>{item.label}</span>
+            </span>
+          ))}
+          <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            Uncoloured = insufficient data (flight-risk is a Year-2 signal, not used).
+          </span>
+        </div>
+      )}
+
+      {/* Suggestion bar — advisory only. Previewing highlights teams; it never
+          auto-snaps the layout. Acting still goes through drag-drop + the
+          justification modal. */}
+      {suggestions.length > 0 && (
+        <div
+          className="mb-4 rounded-xl p-3"
+          style={{ background: 'rgba(124,147,245,0.06)', border: `1px solid ${ACCENT}40` }}
+        >
+          <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+            <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: ACCENT }}>
+              💡 Suggestions · advisory only — nothing changes until you act
+            </span>
+            <button
+              onClick={() => {
+                setDismissedSuggestions(prev => {
+                  const next = new Set(prev)
+                  suggestions.forEach(s => next.add(s.id))
+                  return next
+                })
+                setPreviewSuggestionId(null)
+              }}
+              className="text-[10px] font-bold"
+              style={{ color: 'rgba(255,255,255,0.4)' }}
+            >
+              Dismiss all
+            </button>
+          </div>
+          <ul className="space-y-1.5">
+            {suggestions.map(s => {
+              const isPreviewing = previewSuggestionId === s.id
+              return (
+                <li
+                  key={s.id}
+                  className="flex items-start justify-between gap-3 rounded-lg px-3 py-2"
+                  style={{
+                    background: isPreviewing ? 'rgba(251,191,36,0.10)' : '#0c0e11',
+                    border: `1px solid ${isPreviewing ? '#FBBF24' : 'rgba(255,255,255,0.06)'}`,
+                  }}
+                >
+                  <p className="text-xs leading-snug" style={{ color: 'rgba(255,255,255,0.8)' }}>{s.text}</p>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => setPreviewSuggestionId(prev => (prev === s.id ? null : s.id))}
+                      className="text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap"
+                      style={isPreviewing
+                        ? { background: 'rgba(251,191,36,0.18)', color: '#FBBF24', border: '1px solid #FBBF24' }
+                        : { background: 'rgba(124,147,245,0.12)', color: ACCENT, border: `1px solid ${ACCENT}55` }}
+                    >
+                      {isPreviewing ? 'Hide preview' : 'Preview'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setDismissedSuggestions(prev => new Set(prev).add(s.id))
+                        setPreviewSuggestionId(prev => (prev === s.id ? null : prev))
+                      }}
+                      className="text-[10px] font-bold"
+                      style={{ color: 'rgba(255,255,255,0.35)' }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+          {previewSuggestionId && (
+            <p className="text-[10px] mt-2" style={{ color: '#FBBF24' }}>
+              Previewing only highlights the affected teams. To act, drag a seat — you&rsquo;ll still be asked to justify the move.
+            </p>
+          )}
+        </div>
+      )}
 
       {busy && (
         <p className="text-xs mb-3" style={{ color: ACCENT }}>Saving move…</p>
       )}
 
       <div className="text-[11px] mb-4" style={BODY_STYLE}>
-        Drag any seat card onto a team header to reassign. Each move is logged in your decisions audit trail.
+        Drag any seat card onto a team header to reassign. You&rsquo;ll be asked to justify the move before it commits — every reassignment is logged immutably in your decisions audit trail.
       </div>
 
       {lens === 'functional' && <FunctionalView />}
       {lens === 'divisional' && <DivisionalView />}
       {lens === 'matrix' && <MatrixView />}
       {lens === 'flat' && <FlatView />}
+
+      {pendingMove && (
+        <ReassignModal
+          ctx={pendingMove}
+          onCancel={() => { if (!busy) setPendingMove(null) }}
+          onConfirm={args => commitMove(pendingMove, args)}
+        />
+      )}
     </div>
   )
 }

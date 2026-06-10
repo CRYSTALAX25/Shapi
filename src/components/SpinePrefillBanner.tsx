@@ -22,6 +22,17 @@ export type SpinePrefillData = {
   size: string
   country: string
   roles: { role: string; dept: string; count: string }[]
+  /**
+   * Open seats = the hiring list (roles_seats WHERE status IN ('planned',
+   * 'vacant')). Consumed by Hiring Roadmap / Hiring Plan — this set IS the
+   * roadmap, so the user doesn't retype roles already laid out on the spine.
+   */
+  openSeats?: {
+    title: string
+    dept: string
+    seniority: string
+    status: 'planned' | 'vacant'
+  }[]
   /** Per-team rollup — consumed by Cognitive Load to seed team rows. */
   teams?: {
     name: string

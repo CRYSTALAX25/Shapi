@@ -18,7 +18,25 @@ import {
   fieldForStep as orgDesignFieldForStep,
   type OrgDesignVoiceState,
 } from '@/lib/org-design-voice'
+import {
+  parseLeaveIntent,
+  parseBonusApprovalIntent,
+  parseYes,
+  parseNo,
+  resolvePersonsByPhone,
+  findPersonByName,
+  checkBonusAuthority,
+  applyLeaveLog,
+  createPendingBonus,
+  confirmPendingBonus,
+  hasLivePendingBonus,
+  leaveLabel,
+  fmtAmount,
+  normalizePhone,
+  type ResolvedPerson,
+} from '@/lib/whatsapp-hr'
 import { randomBytes } from 'crypto'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
@@ -472,6 +490,25 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
     }
   } else {
     console.log('[webhook] Candidate interview active/pending for', phone, '— skipping non-test reference routing (conversation_active:', profile?.whatsapp_conversation_active, ')')
+  }
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // ═══ PRIORITY 0.4: HR OS intents — leave logging + bonus approval ════════
+  // These run BEFORE the !profile nudge AND before the candidate/company flows
+  // because the sender is resolved via persons.whatsapp_number (the spine), NOT
+  // their profiles row — an employee logging sick leave may have no Shapi login
+  // at all. A manager approving a bonus usually DOES have a company profile, but
+  // we still resolve their authority through persons + HR-profile anchors.
+  //
+  // handleHrIntent returns a NextResponse when it consumed the message, or null
+  // to fall through to the existing handlers (so non-HR messages from a company
+  // owner still reach the JD-intake / shortlist commands below).
+  {
+    const hrText = (body || '').trim()
+    if (hrText) {
+      const hrResponse = await handleHrIntent(admin, phone, hrText)
+      if (hrResponse) return hrResponse
+    }
   }
   // ═══════════════════════════════════════════════════════════════════════
 
@@ -1665,6 +1702,225 @@ Return ONLY valid JSON:
 
   console.log('[webhook] Replied to:', phone, '| exchange:', userTurns + 1, '| industry:', industry, '| done:', isDone)
   return new NextResponse('', { status: 200 })
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HR OS WhatsApp intents — leave logging + manager bonus approval
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// Resolves the sender to a person record (persons.whatsapp_number) and routes:
+//
+//   LEAVE (employee logs their OWN leave):
+//     "sick today" / "off sick" / "annual leave 12-15 June" /
+//     "parental leave from 1 July" / "on leave tomorrow" / "annual leave 3 days"
+//   → INSERT employee_attendance_ledger (logged_via='whatsapp'), decrement the
+//     matching balance bucket, reply with confirmation + remaining balance.
+//     Sick leave stamps medical_consent_logged=true (PDPL gate — HRBP/owner-only).
+//
+//   BONUS (manager approves, 2-step):
+//     1. "approve bonus for [name] [amount]" → resolve target + check authority
+//        (company owner, or assigned HRBP / reporting manager on the target's
+//        HR profile) → reply with a confirmation card, stash pending row.
+//     2. "YES" → apply to employee_hr_profiles.accrued_performance_bonus_sar.
+//
+// Returns a NextResponse when it handled the message, or null to fall through
+// to the existing candidate/company handlers (so a company owner's non-HR
+// messages still reach JD-intake / shortlist commands).
+async function handleHrIntent(
+  admin: SupabaseClient,
+  phone: string,
+  text: string,
+): Promise<NextResponse | null> {
+  const lower = text.toLowerCase().trim()
+
+  // Resolve the sender to person record(s). A phone could be on >1 tenant's
+  // spine; we keep all matches and pick per-intent.
+  let senderPersons: ResolvedPerson[] = []
+  try {
+    senderPersons = await resolvePersonsByPhone(admin, phone)
+  } catch (e) {
+    console.warn('[webhook/hr] person resolve failed:', e)
+  }
+
+  // ── (A) Bonus confirmation: a bare YES/NO when a live pending bonus exists ──
+  // Check this FIRST so a manager's "yes" lands on the pending bonus rather than
+  // being mistaken for anything else. Keyed purely by approver phone.
+  if (parseYes(text) || parseNo(text)) {
+    let live = false
+    try { live = await hasLivePendingBonus(admin, phone) } catch { /* table may be unmigrated */ }
+    if (live) {
+      if (parseNo(text)) {
+        // Cancel the pending bonus by consuming it without applying.
+        try { await confirmAndDiscard(admin, phone) } catch { /* best effort */ }
+        await sendWhatsApp(phone, `Cancelled — no bonus was applied. Text *approve bonus for [name] [amount]* to start again.`)
+        return new NextResponse('', { status: 200 })
+      }
+      try {
+        const res = await confirmPendingBonus(admin, phone)
+        if (res.none) {
+          await sendWhatsApp(phone, `I don't have a bonus waiting for your confirmation. Text *approve bonus for [name] [amount]* to start one.`)
+        } else if (res.expired) {
+          await sendWhatsApp(phone, `That bonus approval expired (confirmations time out after 10 minutes). Text *approve bonus for ${res.person_name} ${res.amount}* again to redo it.`)
+        } else if (!res.ok) {
+          console.error('[webhook/hr] bonus apply failed:', res.error)
+          await sendWhatsApp(phone, `Hit a snag applying that bonus. Try again in a minute, or do it in the dashboard.`)
+        } else {
+          const accrued = res.new_accrued != null ? `\n\nAccrued performance bonus for ${res.person_name} is now *${fmtAmount(res.new_accrued, res.currency || 'SAR')}*.` : ''
+          await sendWhatsApp(phone, `✅ Approved — *${fmtAmount(res.amount || 0, res.currency || 'SAR')}* bonus logged for *${res.person_name}*.${accrued}`)
+        }
+      } catch (e) {
+        console.error('[webhook/hr] bonus confirm error:', e)
+        await sendWhatsApp(phone, `Couldn't confirm that bonus just now — try again in a minute.`)
+      }
+      return new NextResponse('', { status: 200 })
+    }
+    // No live pending bonus — let a bare "yes" fall through to other handlers.
+  }
+
+  // ── (B) Bonus approval request (manager-driven, step 1) ──────────────────
+  const bonus = parseBonusApprovalIntent(text)
+  if (bonus) {
+    // The approver must belong to a company. They may be the company owner
+    // (resolved by profile whatsapp) OR a person on the spine. We need a
+    // company_id to scope the target lookup — gather candidate companies from
+    // the approver's person rows AND any company profile on this phone.
+    const companyIds = new Set<string>(senderPersons.map(p => p.company_id))
+    try {
+      const { data: ownerProfiles } = await admin
+        .from('profiles')
+        .select('id, type, whatsapp_number')
+        .eq('whatsapp_number', phone)
+        .eq('type', 'company')
+      for (const op of ownerProfiles || []) companyIds.add(op.id as string)
+    } catch { /* ignore */ }
+
+    if (companyIds.size === 0) {
+      await sendWhatsApp(phone, `I can't tie this number to a company, so I can't approve bonuses. Make sure your WhatsApp number is on your Shapi company profile.`)
+      return new NextResponse('', { status: 200 })
+    }
+
+    // Find the target person across the approver's company/companies.
+    let target: ResolvedPerson | null = null
+    let targetCompanyId: string | null = null
+    let ambiguousNames: string[] = []
+    for (const cid of companyIds) {
+      const r = await findPersonByName(admin, cid, bonus.person_query)
+      if (r.person) { target = r.person; targetCompanyId = cid; break }
+      if (r.ambiguous && r.ambiguous.length) ambiguousNames = r.ambiguous.map(p => p.full_name)
+    }
+
+    if (!target || !targetCompanyId) {
+      if (ambiguousNames.length) {
+        await sendWhatsApp(phone, `More than one person matches "${bonus.person_query}": ${ambiguousNames.slice(0, 5).join(', ')}. Reply with their full name + amount, e.g. *approve bonus for ${ambiguousNames[0]} ${bonus.amount}*.`)
+      } else {
+        await sendWhatsApp(phone, `I couldn't find "${bonus.person_query}" in your team. Check the spelling, or add them to your org first.`)
+      }
+      return new NextResponse('', { status: 200 })
+    }
+
+    // Authority check — only the company owner or the target's HRBP / reporting
+    // manager can approve a bonus.
+    const auth = await checkBonusAuthority(admin, {
+      companyId: targetCompanyId,
+      approverPhone: phone,
+      approverPersons: senderPersons,
+      targetPersonId: target.id,
+    })
+    if (!auth.authorized) {
+      await sendWhatsApp(phone, `You're not set up as ${target.full_name}'s manager or HRBP, so I can't action a bonus for them. Ask the company owner or their assigned HRBP to approve it.`)
+      return new NextResponse('', { status: 200 })
+    }
+
+    // Stash the pending bonus + send the 2-step confirmation card.
+    const created = await createPendingBonus(admin, {
+      approverPhone: phone,
+      approverUserId: auth.approverUserId,
+      companyId: targetCompanyId,
+      person: target,
+      amount: bonus.amount,
+      currency: bonus.currency,
+    })
+    if (!created.ok) {
+      console.error('[webhook/hr] createPendingBonus failed:', created.error)
+      await sendWhatsApp(phone, `Couldn't stage that bonus — run *supabase/whatsapp_hr_pending.sql* if you haven't, then try again.`)
+      return new NextResponse('', { status: 200 })
+    }
+    await sendWhatsApp(phone, `🧾 *Confirm bonus*\n\n${fmtAmount(bonus.amount, bonus.currency)} performance bonus for *${target.full_name}*.\n\nReply *YES* to confirm or *NO* to cancel. (Expires in 10 min.)`)
+    return new NextResponse('', { status: 200 })
+  }
+
+  // ── (C) Leave logging (employee logs their OWN leave) ────────────────────
+  const leave = parseLeaveIntent(text)
+  if (leave) {
+    // The sender must be a person on some company's spine to log leave.
+    if (senderPersons.length === 0) {
+      // Not on any spine — this might be a candidate/company saying "holiday"
+      // colloquially. Fall through so we don't hijack their conversation.
+      // Only intercept if the message is unambiguously a leave log.
+      if (/\b(sick|annual leave|parental|paternity|maternity)\b/.test(lower)) {
+        await sendWhatsApp(phone, `I can log leave for employees on a company's Shapi org, but this number isn't linked to an employee record yet. Ask your HR team to add your WhatsApp number to your profile.`)
+        return new NextResponse('', { status: 200 })
+      }
+      return null
+    }
+
+    // Use the first matching person (most senders are on exactly one tenant).
+    const person = senderPersons[0]
+
+    // Annual leave with no parseable date → ask for one rather than guessing.
+    if (leave.entry_type === 'annual_leave' && (!leave.start_date || leave.days === 0)) {
+      await sendWhatsApp(phone, `Got it — annual leave. Which dates? e.g. *annual leave 12-15 June* or *annual leave 3 days from 1 July*.`)
+      return new NextResponse('', { status: 200 })
+    }
+
+    try {
+      const res = await applyLeaveLog(admin, { person, leave })
+      if (!res.ok) {
+        console.error('[webhook/hr] applyLeaveLog failed:', res.error)
+        await sendWhatsApp(phone, `Couldn't log that leave — if your HR org isn't fully set up yet, ask your HR team. (${res.error?.slice(0, 80) || 'error'})`)
+        return new NextResponse('', { status: 200 })
+      }
+
+      const label = leaveLabel(res.entry_type)
+      const dateLine = res.start_date === res.end_date
+        ? res.start_date
+        : `${res.start_date} → ${res.end_date}`
+      const dayWord = res.days === 1 ? 'day' : 'days'
+
+      let balanceLine = ''
+      if (res.entry_type === 'annual_leave') {
+        balanceLine = res.remaining_annual != null
+          ? `\n\nRemaining annual leave: *${res.remaining_annual} ${res.remaining_annual === 1 ? 'day' : 'days'}*.`
+          : `\n\n_(Annual balance not set on your HR profile yet — logged anyway.)_`
+      } else if (res.entry_type === 'sick_leave') {
+        balanceLine = res.sick_ytd != null
+          ? `\n\nSick days taken this year: *${res.sick_ytd}*. 🔒 Logged privately (HR-only).`
+          : `\n\n🔒 Logged privately (HR-only).`
+      } else if (res.entry_type === 'parental_leave') {
+        balanceLine = res.remaining_parental != null
+          ? `\n\nRemaining parental leave: *${res.remaining_parental} ${res.remaining_parental === 1 ? 'day' : 'days'}*.`
+          : `\n\n_(Parental balance not set on your HR profile yet — logged anyway.)_`
+      }
+
+      await sendWhatsApp(phone, `✅ Logged *${label}* — ${dateLine} (${res.days} ${dayWord}).${balanceLine}`)
+    } catch (e) {
+      console.error('[webhook/hr] leave log error:', e)
+      await sendWhatsApp(phone, `Couldn't log that just now — try again in a minute, or ask your HR team.`)
+    }
+    return new NextResponse('', { status: 200 })
+  }
+
+  // Not an HR intent — fall through to the existing handlers.
+  return null
+}
+
+// Consume a live pending bonus WITHOUT applying it (the "NO" path).
+async function confirmAndDiscard(admin: SupabaseClient, phone: string): Promise<void> {
+  await admin
+    .from('whatsapp_hr_pending')
+    .update({ consumed_at: new Date().toISOString() })
+    .eq('approver_phone', normalizePhone(phone))
+    .is('consumed_at', null)
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

@@ -1,48 +1,46 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+// Conversational company onboarding — mirrors the candidate /cv-builder chat.
+// Claude (via /api/company/onboarding-chat) runs a short interview collecting
+// company name, size, industry, HQ location, what they do, website + WhatsApp,
+// then emits [COMPANY_READY] + structured fields. We persist the SAME profile
+// fields the old static form wrote (company_name, company_website, company_size,
+// location, summary, whatsapp_number, onboarding_complete, completion_pct) via
+// /api/profile/update, then route to the spine/dashboard.
+//
+// A visible "Prefer a form?" toggle reveals the original static form (preserved
+// verbatim in ManualForm.tsx) so nothing is lost. Route guard: the page is
+// auth-protected via src/proxy.ts (/company/*); non-company profiles are
+// bounced to /dashboard on mount.
+
+import { useState, useRef, useEffect, Suspense } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import ShapiCharacter from '@/components/ShapiCharacter'
-import PhoneInput from '@/components/PhoneInput'
+import ManualForm from './ManualForm'
 
-type Stage = 'profile' | 'enriching' | 'done'
-
-const SIZES = ['1–10', '11–50', '51–200', '201–500', '500–2000', '2000+']
-
-// Derive a sensible company name from a URL when the user hasn't typed one
-// yet. bupa.com → "Bupa". Useful when the only thing they've entered is the
-// website and they want to hit "Pull from website" without filling the name.
-function nameFromWebsite(url: string): string {
-  try {
-    const u = new URL(url.startsWith('http') ? url : `https://${url}`)
-    const host = u.hostname.replace(/^www\./, '')
-    const root = host.split('.')[0] || ''
-    return root ? root.charAt(0).toUpperCase() + root.slice(1) : ''
-  } catch { return '' }
+type Message = {
+  role: 'user' | 'assistant'
+  content: string
 }
 
-const SIZE_MATCH: Record<string, string> = {
-  '1-10': '1–10', '1-50': '11–50', '11-50': '11–50',
-  '51-200': '51–200', '201-500': '201–500', '500-1000': '500–2000',
-  '500-2000': '500–2000', '1000-5000': '500–2000', '2000+': '2000+',
-  '5000+': '2000+', '10000+': '2000+',
+type Extracted = {
+  company_name?: string | null
+  company_website?: string | null
+  industry?: string | null
+  location?: string | null
+  company_size?: string | null
+  summary?: string | null
+  whatsapp_number?: string | null
 }
 
-function normalizeSize(raw: string | null | undefined): string {
-  if (!raw) return ''
-  const s = String(raw).toLowerCase().replace(/[\s,]/g, '').replace(/–/g, '-')
-  return SIZE_MATCH[s] || ''
-}
+const OPENING = `Welcome to Shapi. Let's set up your company profile — just a quick chat, no long form.
 
-// localStorage key for the onboarding form. Restored on mount, cleared on
-// confirmed-success submit. Survives the "page reloaded itself and I lost
-// 5 minutes of typing" failure mode that's stung Ana repeatedly.
-const STORAGE_KEY = 'shapi.company.onboarding.draft.v1'
+Candidates on Shapi see independent signals (Glassdoor, Reddit, news) right next to what you tell them, so this is your chance to tell your story.
 
-// useSearchParams() requires a Suspense boundary at the page level for
-// Next.js prerendering (same pattern as /company/workforce-snapshot).
-// Default export wraps the inner component.
+**First up: what's the name of your company?**`
+
+const APPROX_TURNS = 7
+
 export default function CompanyOnboarding() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-[#0E0E13]" />}>
@@ -53,493 +51,293 @@ export default function CompanyOnboarding() {
 
 function CompanyOnboardingInner() {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  // ?edit=true → stay on this page even if onboarding_complete is already
-  // true (so the user can update company info on demand). Without this flag
-  // the page auto-redirects already-onboarded companies to their dashboard.
-  const isEditMode = searchParams.get('edit') === 'true'
-  const [stage, setStage] = useState<Stage>('profile')
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
-  // Auto-fill state — fires the enrichment endpoint pre-submit so users see
-  // the magic before they commit. ~15s spinner.
-  const [pulling, setPulling] = useState(false)
-  const [pullNote, setPullNote] = useState<string | null>(null)
-  const [restored, setRestored] = useState(false)
-
-  const [companyName, setCompanyName] = useState('')
-  const [website, setWebsite] = useState('')
-  const [hq, setHq] = useState('')
-  const [size, setSize] = useState('')
-  const [about, setAbout] = useState('')
-  // WhatsApp number is the primary engagement channel — collect it during
-  // onboarding so the Connect-WhatsApp card on /company/dashboard already
-  // has the user paired by the time they land. Otherwise the dashboard's
-  // "tap to open WhatsApp" link sends a message from an unknown phone and
-  // the webhook can't link it to this account.
-  const [whatsapp, setWhatsapp] = useState('')
-  // Set true the moment we decide to redirect (profile already onboarded).
-  // Prevents the form from rendering during the brief window between
-  // 'profile says onboarded' and 'router navigation actually lands'.
-  // Without this gate the user can click the form's submit button before
-  // the redirect completes, which trapped Ana into seeing the form, clicking
-  // 'Set up company', and then suddenly landing on the dashboard with no
-  // celebration — confusing and possibly losing the click.
+  // Toggle: chat (default) vs the preserved manual form.
+  const [mode, setMode] = useState<'chat' | 'form'>('chat')
+  const [guardChecked, setGuardChecked] = useState(false)
   const [redirecting, setRedirecting] = useState(false)
 
-  // Restore on mount. THREE sources, in priority order:
-  //   1. SAVED PROFILE from DB — if the user already completed onboarding,
-  //      pre-fill from their actual saved company data. This is the safety
-  //      net for when a user is routed back here by mistake (the bug that
-  //      Ana hit on 2026-06-04 — saw blank form even though data was in DB).
-  //   2. localStorage draft — in-progress work that hasn't been submitted.
-  //   3. Empty form — first-time user, nothing to restore.
-  //
-  // If profile.onboarding_complete is true AND we're NOT in edit mode, auto-
-  // redirect to the dashboard — no point making the user re-fill a form
-  // they've already completed.
+  const [messages, setMessages] = useState<Message[]>([
+    { role: 'assistant', content: OPENING },
+  ])
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const bottomRef = useRef<HTMLDivElement>(null)
+
+  // Route guard + already-onboarded redirect. The proxy already blocks
+  // unauthenticated users; here we additionally bounce non-company profiles
+  // to /dashboard, and already-onboarded companies straight to their
+  // dashboard (matching the old form's behaviour). ?edit=true keeps them here.
   useEffect(() => {
     let cancelled = false
-    async function init() {
+    const isEditMode = typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).get('edit') === 'true'
+    async function guard() {
       try {
         const res = await fetch('/api/profile/get')
         if (!cancelled && res.ok) {
           const d = await res.json()
           const profile = d?.profile || null
-          if (profile?.type === 'company') {
-            // Pre-fill from saved profile.
-            if (profile.company_name) setCompanyName(profile.company_name)
-            if (profile.company_website) setWebsite(profile.company_website)
-            if (profile.location) setHq(profile.location)
-            if (profile.company_size) setSize(profile.company_size)
-            if (profile.summary) setAbout(profile.summary)
-            if (profile.whatsapp_number) setWhatsapp(profile.whatsapp_number)
-            // Already onboarded + not in edit mode? Bounce to dashboard.
-            // Setting `redirecting` before the navigation hides the form
-            // immediately so the user can't click submit during the
-            // brief moment the route change is in-flight.
-            if (profile.onboarding_complete && !isEditMode) {
-              setRedirecting(true)
-              router.replace('/company/dashboard')
-              return
-            }
+          if (profile && profile.type !== 'company') {
+            setRedirecting(true)
+            router.replace('/dashboard')
+            return
+          }
+          if (profile?.onboarding_complete && !isEditMode) {
+            setRedirecting(true)
+            router.replace('/company/dashboard')
+            return
           }
         }
-      } catch { /* network blip — fall through to localStorage */ }
-
-      // localStorage draft overrides empty fields only — never clobber
-      // values we just restored from the DB.
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY)
-        if (raw && !cancelled) {
-          const d = JSON.parse(raw)
-          setCompanyName(prev => prev || d.companyName || '')
-          setWebsite(prev => prev || d.website || '')
-          setHq(prev => prev || d.hq || '')
-          setSize(prev => prev || d.size || '')
-          setAbout(prev => prev || d.about || '')
-          setWhatsapp(prev => prev || d.whatsapp || '')
-        }
-      } catch { /* corrupt draft — ignore */ }
-
-      if (!cancelled) setRestored(true)
+      } catch { /* network blip — let them proceed */ }
+      if (!cancelled) setGuardChecked(true)
     }
-    init()
+    guard()
     return () => { cancelled = true }
-  }, [isEditMode, router])
+  }, [router])
 
-  // Persist on any field change AFTER the restore has happened (otherwise
-  // the first render with empty state would clobber the saved draft).
+  const userTurns = messages.filter(m => m.role === 'user').length
+  const turnPct = saving ? 100 : Math.min(95, Math.round((userTurns / APPROX_TURNS) * 100))
+
   useEffect(() => {
-    if (!restored) return
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        companyName, website, hq, size, about, whatsapp,
-      }))
-    } catch { /* quota / privacy mode — fail silent */ }
-  }, [restored, companyName, website, hq, size, about, whatsapp])
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
-  // The Done celebration screen has 3 CTAs (spine / Snapshot / dashboard)
-  // and the user picks. Earlier versions auto-redirected after 2s which Ana
-  // reported was too fast to read the options. Now the screen waits — user
-  // clicks whichever button they want, no time pressure. The "router" import
-  // stays in case we add it back as a longer countdown later.
-
-  const handlePull = async () => {
-    setError(''); setPullNote(null)
-    if (!website.trim()) { setError('Add a website first'); return }
-    const nameForPull = companyName.trim() || nameFromWebsite(website.trim())
-    if (!nameForPull) { setError('Could not derive a name from that URL. Add the company name.'); return }
-    setPulling(true)
-    // 90s client-side abort — the server has 120s headroom, the client kills
-    // it at 90s if something hangs and shows a friendly retry. Prevents the
-    // "page couldn't load" Chrome-level error Ana hit on cold starts.
-    const controller = new AbortController()
-    const watchdog = setTimeout(() => controller.abort(), 90000)
-    try {
-      const res = await fetch('/api/company/enrich', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company_name: nameForPull, website: website.trim() }),
-        signal: controller.signal,
-      })
-      if (!res.ok) { setError(`Pull failed (${res.status}). Add details manually or try again.`); return }
-      const data = await res.json()
-      const cd = (data?.company_data || {}) as { headquarters?: string; size?: string; description?: string; industry?: string; founded?: string }
-      // Prefill empties only — don't clobber user typing.
-      if (!companyName.trim() && nameForPull) setCompanyName(nameForPull)
-      if (!hq.trim() && cd.headquarters) setHq(cd.headquarters)
-      const normSize = normalizeSize(cd.size)
-      if (!size && normSize) setSize(normSize)
-      if (!about.trim() && cd.description) setAbout(cd.description)
-      const filled: string[] = []
-      if (cd.headquarters) filled.push(`HQ: ${cd.headquarters}`)
-      if (cd.size) filled.push(`Size: ${cd.size}`)
-      if (cd.industry) filled.push(`Industry: ${cd.industry}`)
-      setPullNote(filled.length
-        ? `Pulled from public sources. ${filled.join(' · ')}. Review + edit before saving.`
-        : 'Pulled — limited data found. Add details manually.')
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      console.error('[onboarding] pull error:', msg)
-      if (controller.signal.aborted) {
-        setError('Pull is taking longer than expected — try again or add details manually.')
-      } else {
-        setError('Pull failed. Add details manually.')
-      }
-    } finally {
-      clearTimeout(watchdog)
-      setPulling(false)
-    }
-  }
-
-  const submit = async () => {
-    setError('')
-    if (!companyName.trim()) { setError('Company name is required'); return }
-
+  // Persist the collected fields (same set the manual form writes) and route on.
+  const finish = async (extracted: Extracted | null) => {
     setSaving(true)
-
-    // Save company profile — and ACTUALLY check the response. Previous version
-    // ignored errors silently which meant a failed save still advanced to the
-    // 'enriching' spinner and ultimately redirected the user to a page they
-    // had no permission to see, bouncing them back to onboarding with empty
-    // form state. Now we surface errors and keep the form populated.
-    let saveOk = false
+    setError('')
+    const wa = extracted?.whatsapp_number?.trim()
     try {
       const res = await fetch('/api/profile/update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          company_name: companyName.trim(),
-          company_website: website.trim() || null,
-          company_size: size || null,
-          location: hq.trim() || null,
-          summary: about.trim() || null,
-          // Only persist whatsapp_number if it's more than the +country-code stub.
-          whatsapp_number: whatsapp.trim().length > 5 ? whatsapp.trim() : null,
+          company_name: extracted?.company_name?.trim() || null,
+          company_website: extracted?.company_website?.trim() || null,
+          company_size: extracted?.company_size || null,
+          location: extracted?.location?.trim() || null,
+          summary: extracted?.summary?.trim() || null,
+          industry: extracted?.industry?.trim() || null,
+          whatsapp_number: wa && wa.length > 5 ? wa : null,
           onboarding_complete: true,
           completion_pct: 100,
         }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
-        setError(data.error || `Couldn't save (${res.status}). Your details are still here — try again.`)
+        setError(data.error || `Couldn't save (${res.status}). Try again, or use the manual form below.`)
         setSaving(false)
         return
       }
-      // Read-back verification: the endpoint returns the persisted row.
-      // Only clear localStorage if the read-back confirms onboarding_complete
-      // is now true AND the saved company_name matches what we sent. Without
-      // this confirmation, RLS or a partial save could silently swallow the
-      // write — and clearing the draft would lose Ana's typed data forever.
-      const data = await res.json().catch(() => ({}))
-      const saved = data?.saved as { onboarding_complete?: boolean; company_name?: string } | null
-      const verified = !!(saved?.onboarding_complete && saved?.company_name === companyName.trim())
-      if (!verified) {
-        console.warn('[onboarding] read-back did not confirm save; keeping localStorage draft as safety')
-      }
-      saveOk = true
-      if (verified) {
-        try { localStorage.removeItem(STORAGE_KEY) } catch { /* ignore */ }
-      }
-    } catch (err) {
-      console.error('[onboarding] save error:', err)
-      setError("Network issue saving your details. They're still here — try again.")
-      setSaving(false)
-      return
-    }
-
-    if (!saveOk) return
-
-    // Trigger enrichment in background (non-blocking)
-    setStage('enriching')
-    setSaving(false)
-
-    // Background enrichment — best-effort, capped at 90s. The user is
-    // already on the 'enriching' spinner; if it hangs, the Done stage still
-    // fires and the workforce-snapshot redirect proceeds.
-    try {
-      const controller = new AbortController()
-      const watchdog = setTimeout(() => controller.abort(), 90000)
-      try {
-        await fetch('/api/company/enrich', {
+      // Fire enrichment in the background (best-effort) — same as the form did.
+      const companyName = extracted?.company_name?.trim()
+      if (companyName) {
+        fetch('/api/company/enrich', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            company_name: companyName.trim(),
-            website: website.trim() || null,
+            company_name: companyName,
+            website: extracted?.company_website?.trim() || null,
           }),
-          signal: controller.signal,
-        })
-      } finally { clearTimeout(watchdog) }
-    } catch { /* enrichment is best-effort */ }
-
-    setStage('done')
+        }).catch(() => {})
+      }
+      router.push('/company/spine?welcome=true')
+    } catch {
+      setError('Network issue saving your details. Try again, or use the manual form below.')
+      setSaving(false)
+    }
   }
 
-  // Redirecting to the dashboard because the profile already says
-  // onboarding_complete=true. Show a clear handoff message instead of
-  // letting the form render briefly behind the in-flight navigation.
+  const send = async () => {
+    if (!input.trim() || loading || saving) return
+
+    const userMessage: Message = { role: 'user', content: input.trim() }
+    const newMessages = [...messages, userMessage]
+    setMessages(newMessages)
+    setInput('')
+    setLoading(true)
+    setError('')
+
+    try {
+      const res = await fetch('/api/company/onboarding-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newMessages }),
+      })
+      if (!res.ok) {
+        setError(`Something went wrong (${res.status}). Try again, or switch to the manual form.`)
+        setLoading(false)
+        return
+      }
+      const { reply, ready, extracted } = await res.json() as {
+        reply: string; ready: boolean; extracted: Extracted | null
+      }
+      if (reply) {
+        setMessages(prev => [...prev, { role: 'assistant', content: reply }])
+      }
+      setLoading(false)
+      if (ready) {
+        await finish(extracted)
+      }
+    } catch {
+      setError('Network issue. Try again, or switch to the manual form.')
+      setLoading(false)
+    }
+  }
+
+  const handleKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      send()
+    }
+  }
+
+  // Already-onboarded / wrong-type redirect handoff.
   if (redirecting) {
     return (
-      <Screen>
-        <ShapiCharacter mood="happy" size={80} className="mb-6" />
-        <h2 className="text-xl font-black text-[#F4F4F7] mb-2 text-center">You&apos;re already set up.</h2>
-        <p className="text-[#A6A6B4] text-sm text-center leading-relaxed max-w-xs mb-6">
-          Opening your dashboard. Need to update company info? Use{' '}
-          <Link href="/company/onboarding?edit=true" className="underline text-[#6AA8F5]">edit mode</Link>.
-        </p>
+      <div className="min-h-screen bg-[#0E0E13] flex flex-col items-center justify-center px-6">
         <div className="flex items-center gap-2" style={{ color: '#F08CAE' }}>
           <div className="w-4 h-4 rounded-full border-2 border-[#F08CAE]/30 border-t-[#F08CAE] animate-spin" />
-          <span className="text-xs font-bold">Loading dashboard…</span>
+          <span className="text-xs font-bold">Loading…</span>
         </div>
-      </Screen>
+      </div>
     )
   }
 
-  // Initial mount before /api/profile/get returns. Show a loading shell so
-  // the form doesn't render with empty fields and then suddenly populate /
-  // redirect. Once `restored` is true the page either renders the form or
-  // has already redirected (covered above).
-  if (!restored) {
+  // Manual-form fallback — the preserved original static form.
+  if (mode === 'form') {
+    return <ManualForm onSwitchToChat={() => setMode('chat')} />
+  }
+
+  // Brief loading shell while the guard checks the profile, so we don't flash
+  // the chat and then redirect.
+  if (!guardChecked) {
     return (
-      <Screen>
-        <ShapiCharacter mood="idle" size={80} className="mb-6" />
+      <div className="min-h-screen bg-[#0E0E13] flex flex-col items-center justify-center px-6">
         <p className="text-[#A6A6B4] text-sm">Loading your company…</p>
-      </Screen>
-    )
-  }
-
-  if (stage === 'enriching') {
-    return (
-      <Screen>
-        <ShapiCharacter mood="thinking" size={90} className="mb-6" />
-        <h2 className="text-2xl font-black text-[#F4F4F7] mb-3 text-center">Setting up your company profile...</h2>
-        <p className="text-[#A6A6B4] text-sm text-center leading-relaxed max-w-xs">
-          Pulling public data — Glassdoor rating, Reddit sentiment, recent news. About 15 seconds.
-        </p>
-      </Screen>
-    )
-  }
-
-  if (stage === 'done') {
-    return (
-      <Screen>
-        <ShapiCharacter mood="happy" size={90} className="mb-6" />
-        <h2 className="text-2xl font-black text-[#F4F4F7] mb-3 text-center">
-          {companyName} is set up.
-        </h2>
-        <p className="text-[#A6A6B4] text-sm text-center leading-relaxed mb-6 max-w-xs">
-          Where do you want to go first? The org spine is the single source of truth that powers every other tool in Shapi — but you can jump anywhere.
-        </p>
-        <div className="w-full max-w-sm space-y-3">
-          <button
-            onClick={() => router.push('/company/spine?welcome=true')}
-            className="w-full py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity"
-            style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
-            🌳 Build your org spine →
-          </button>
-          <button
-            onClick={() => router.push('/company/workforce-snapshot?first=true')}
-            className="w-full py-2.5 rounded-full text-xs font-bold text-[#A6A6B4] hover:text-[#F4F4F7] transition-colors"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            Skip to Workforce Snapshot
-          </button>
-          <button
-            onClick={() => router.push('/company/dashboard')}
-            className="w-full py-2 text-xs text-[#7E7E8E] hover:text-[#C7C7D1] transition-colors">
-            Skip — go to dashboard
-          </button>
-        </div>
-      </Screen>
+      </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0E0E13]">
-      <style>{`
-        .gradient-border-card {
-          background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.15), rgba(79,143,232,0.15)) border-box;
-          border: 1px solid transparent;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
-        }
-        .field { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #F4F4F7; outline: none; transition: border-color 0.2s; }
-        .field::placeholder { color: rgba(126,126,142,1); }
-        .field:focus { border-color: rgba(106,168,245,0.5); }
-        label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #A6A6B4; margin-bottom: 8px; }
-      `}</style>
-
-      <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
-        backgroundSize: '44px 44px',
-      }} />
-
-      <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-6xl mx-auto">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
-        <Link href="/company/dashboard" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1] transition-colors">← Dashboard</Link>
+    <div className="min-h-screen bg-[#0E0E13] flex flex-col">
+      {/* Nav */}
+      <nav className="px-6 py-4 flex items-center justify-between border-b border-[rgba(255,255,255,0.08)] bg-[#0E0E13]/80 backdrop-blur sticky top-0 z-10">
+        <Link href="/" className="font-bold text-xl tracking-tight" style={{
+          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+        }}>shapi</Link>
+        <div className="flex items-center gap-4">
+          <span className="text-xs text-[#5C5C6A] hidden sm:inline">Company setup</span>
+          <button
+            onClick={() => setMode('form')}
+            className="text-xs text-[#6AA8F5] font-medium hover:underline"
+            title="Switch to the classic form — fill the fields yourself"
+          >
+            Prefer a form? Skip to manual entry →
+          </button>
+        </div>
       </nav>
 
-      <div className="relative z-10 max-w-2xl mx-auto px-6 pt-10 pb-24">
-
-        <div className="mb-8">
-          <h1 className="text-3xl font-black text-[#F4F4F7] mb-2">Set up your company.</h1>
-          <p className="text-[#A6A6B4] text-sm leading-relaxed">
-            Two minutes. Public signal from Glassdoor, LinkedIn, Reddit and recent news is surfaced
-            alongside what you write — so candidates see real evidence, not just self-marketing.
-          </p>
+      {/* Progress hint */}
+      <div className="px-6 pt-3 pb-1 max-w-2xl mx-auto w-full">
+        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1.5">
+          <span>{saving ? 'Setting up your company ✓' : `Question ${Math.max(1, userTurns + 1)} · about ${Math.max(0, APPROX_TURNS - userTurns)} to go`}</span>
+          <span className="text-[#5C5C6A]">~2 min · just a chat</span>
         </div>
+        <div className="h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          <div
+            className="h-full transition-all duration-500"
+            style={{
+              width: `${turnPct}%`,
+              background: saving
+                ? '#34D399'
+                : 'linear-gradient(90deg,#6AA8F5,#F08CAE,#F58E9A)',
+            }}
+          />
+        </div>
+      </div>
 
-        {error && (
-          <div className="bg-[#F58E9A]/10 border border-[#F58E9A]/20 rounded-xl px-4 py-3 mb-6 text-sm text-[#F58E9A]">{error}</div>
+      {/* Chat */}
+      <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 space-y-4 overflow-y-auto">
+        {messages.map((m, i) => (
+          <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div
+              className={`max-w-[85%] rounded-2xl px-5 py-4 text-sm leading-relaxed ${
+                m.role === 'user'
+                  ? 'text-white rounded-br-sm'
+                  : 'bg-[#16161F] text-[#C7C7D1] border border-[rgba(255,255,255,0.08)] shadow-sm rounded-bl-sm'
+              }`}
+              style={m.role === 'user' ? { background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' } : undefined}
+            >
+              {m.content.split('\n').map((line, j) => {
+                const parts = line.split(/\*\*(.*?)\*\*/g)
+                return (
+                  <p key={j} className={j > 0 ? 'mt-2' : ''}>
+                    {parts.map((part, k) =>
+                      k % 2 === 1 ? <strong key={k}>{part}</strong> : part
+                    )}
+                  </p>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+
+        {(loading || saving) && (
+          <div className="flex justify-start">
+            <div className="bg-[#16161F] border border-[rgba(255,255,255,0.08)] shadow-sm rounded-2xl rounded-bl-sm px-5 py-4">
+              <div className="flex gap-1">
+                <div className="w-2 h-2 bg-[#6AA8F5]/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 bg-[#6AA8F5]/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 bg-[#6AA8F5]/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+            </div>
+          </div>
         )}
 
-        <div className="gradient-border-card rounded-2xl p-6 mb-5 space-y-4">
-          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">Company details</p>
-
-          <div>
-            <label>Company name *</label>
-            <input className="field" value={companyName} onChange={e => setCompanyName(e.target.value)}
-              placeholder="Acme Corp" autoFocus />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label>Website</label>
-              <input className="field" type="url" value={website} onChange={e => setWebsite(e.target.value)}
-                placeholder="https://yourcompany.com" />
-            </div>
-            <div>
-              <label>Headquarters</label>
-              <input className="field" value={hq} onChange={e => setHq(e.target.value)}
-                placeholder="Dubai, UAE" />
+        {error && (
+          <div className="flex justify-start">
+            <div className="max-w-[85%] rounded-2xl px-4 py-3 text-xs text-[#F58E9A]" style={{ background: 'rgba(245,142,154,0.10)', border: '1px solid rgba(245,142,154,0.25)' }}>
+              {error}
             </div>
           </div>
+        )}
 
-          {/* ── Pull-from-website button ─────────────────────────────────────
-              Fires /api/company/enrich now (not after submit) so the user
-              sees HQ + size + description appear in the form. Closes the
-              "the page promises auto-fill but nothing happens" gap. */}
-          <div className="rounded-xl p-4" style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.25)' }}>
-            <div className="flex items-center justify-between gap-3 flex-wrap">
-              <div className="min-w-0">
-                <p className="text-sm font-black text-[#F4F4F7] mb-0.5">✨ Auto-fill from your website</p>
-                <p className="text-xs text-[#A6A6B4]">
-                  We&apos;ll scan Glassdoor, LinkedIn, Reddit + news. ~15 seconds. Review + edit before saving.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={handlePull}
-                disabled={pulling || !website.trim()}
-                className="text-xs font-black px-4 py-2 rounded-full whitespace-nowrap disabled:opacity-40"
-                style={{ background: '#6AA8F5', color: '#fff' }}
-              >
-                {pulling ? 'Pulling…' : 'Pull now'}
-              </button>
-            </div>
-            {pullNote && (
-              <p className="text-xs mt-3 leading-relaxed" style={{ color: '#34D399' }}>
-                {pullNote}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label>Company size</label>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-              {SIZES.map(s => (
-                <button key={s} type="button" onClick={() => setSize(s)}
-                  className={`py-2 rounded-xl text-xs font-bold transition-colors ${
-                    size === s
-                      ? 'bg-[#6AA8F5] text-[#fff]'
-                      : 'bg-[rgba(255,255,255,0.05)] text-[#A6A6B4] hover:bg-[rgba(255,255,255,0.07)]'
-                  }`}>
-                  {s}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label>What makes your company a great place to work? <span className="text-[#5C5C6A] normal-case font-normal">(optional)</span></label>
-            <textarea className="field" rows={3} value={about} onChange={e => setAbout(e.target.value)}
-              placeholder="Culture, mission, what kind of people thrive here..."
-              style={{ resize: 'vertical' }} />
-          </div>
-
-          <div>
-            <label>WhatsApp number <span className="text-[#5C5C6A] normal-case font-normal">(strongly recommended — most of Shapi runs through WhatsApp)</span></label>
-            <PhoneInput value={whatsapp} onChange={setWhatsapp} placeholder="50 123 4567" />
-            <p className="text-[10px] text-[#7E7E8E] mt-1.5">Shortlists, role drafts, voice org-design, candidate research — all via WhatsApp.</p>
-          </div>
-        </div>
-
-        {/* Public signals on the company profile. Always visible to
-            candidates — companies cannot hide or override them. This is the
-            verification floor; transparency is the moat. The only editable
-            content is what the company writes themselves (description,
-            "what makes us great"). Public-source signals stay. */}
-        <div className="gradient-border-card rounded-2xl p-5 mb-6">
-          <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider mb-1">Always shown to candidates</p>
-          <p className="text-[#5C5C6A] text-xs mb-3">
-            These signals come from independent sources — Glassdoor, Reddit, news. They&apos;re visible
-            alongside your own description and are not editable. That&apos;s the trust floor.
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { icon: '⭐', label: 'Glassdoor rating' },
-              { icon: '💬', label: 'Reddit sentiment' },
-              { icon: '📰', label: 'Recent news' },
-              { icon: '🏢', label: 'Headcount & industry' },
-            ].map((item, i) => (
-              <div key={i} className="bg-[rgba(255,255,255,0.05)] rounded-xl p-3 text-center">
-                <div className="text-lg mb-1">{item.icon}</div>
-                <p className="text-[#A6A6B4] text-xs">{item.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <button
-          onClick={submit}
-          disabled={saving}
-          className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity disabled:opacity-50">
-          {saving ? 'Setting up...' : 'Set up company — takes 15 seconds →'}
-        </button>
+        <div ref={bottomRef} />
       </div>
-    </div>
-  )
-}
 
-function Screen({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-screen bg-[#0E0E13] flex flex-col items-center justify-center px-6">
-      <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
-        backgroundSize: '44px 44px',
-      }} />
-      <div className="relative z-10 flex flex-col items-center max-w-sm w-full">{children}</div>
+      {/* Input */}
+      <div className="sticky bottom-0 bg-[#0E0E13]/80 backdrop-blur border-t border-[rgba(255,255,255,0.08)] px-4 py-4">
+        <div className="max-w-2xl mx-auto flex gap-3">
+          <textarea
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKey}
+            placeholder="Type your answer... (Enter to send)"
+            rows={1}
+            disabled={saving}
+            className="flex-1 bg-[#16161F] border border-[rgba(255,255,255,0.08)] rounded-2xl px-5 py-3.5 text-sm text-[#F4F4F7] placeholder-[#5C5C6A] focus:outline-none focus:border-[#6AA8F5] transition-colors resize-none disabled:opacity-50"
+            style={{ minHeight: '52px', maxHeight: '120px' }}
+          />
+          <button
+            onClick={send}
+            disabled={!input.trim() || loading || saving}
+            className="text-white px-5 py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+            style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}
+          >
+            Send
+          </button>
+        </div>
+        <p className="text-center text-xs text-[#5C5C6A] mt-2">
+          Prefer to fill it in yourself?{' '}
+          <button onClick={() => setMode('form')} className="text-[#6AA8F5] hover:underline font-medium">
+            Skip to manual entry
+          </button>
+        </p>
+      </div>
     </div>
   )
 }

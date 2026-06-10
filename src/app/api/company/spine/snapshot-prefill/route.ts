@@ -104,6 +104,23 @@ export async function GET() {
     .map(g => ({ role: g.role, dept: g.dept, count: String(g.count) }))
     .sort((a, b) => Number(b.count) - Number(a.count))
 
+  // Open seats = the hiring list. roles_seats WHERE status IN ('planned','vacant')
+  // IS the roadmap — these are seats the company has already decided to fill but
+  // hasn't yet. The Hiring Roadmap / Hiring Plan read this directly instead of
+  // asking the user to retype roles they've already laid out on the spine.
+  const openSeats = seats
+    .filter(s => s.status === 'planned' || s.status === 'vacant')
+    .map(s => {
+      const t = teamById[s.team_id]
+      const dept = t?.function || t?.name || ''
+      return {
+        title: s.title,
+        dept,
+        seniority: s.seniority || '',
+        status: s.status as 'planned' | 'vacant',
+      }
+    })
+
   const hasSpine = locations.length > 0 || seats.length > 0
 
   // Per-team seat counts — consumed by /company/cognitive-load to pre-fill
@@ -126,6 +143,7 @@ export async function GET() {
     size,
     country,
     roles,
+    openSeats,
     teams: teamsBreakdown,
     counts: {
       locations: locations.length,

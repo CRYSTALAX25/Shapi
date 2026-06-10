@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import ShapiCharacter from '@/components/ShapiCharacter'
 import LocalePicker from '@/components/LocalePicker'
+import WowHero from '@/components/WowHero'
 import { LocaleProvider, useTranslation } from '@/lib/i18n/LocaleContext'
 
 export default function Home() {
@@ -93,112 +94,10 @@ function HomeInner() {
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-12">
-        <div className="orb-a absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(106,168,245,0.18) 0%, transparent 70%)' }} />
-        <div className="orb-b absolute top-10 right-1/4 w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(240,140,174,0.16) 0%, transparent 70%)' }} />
-        <div className="orb-c absolute -bottom-20 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245,142,154,0.14) 0%, transparent 70%)' }} />
-
-        <div className="text-center max-w-5xl mx-auto">
-          <div className="flex justify-center mb-5"><ShapiCharacter size={76} mood="happy" /></div>
-          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full mb-4" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#6AA8F5] animate-pulse" />
-            <span className="text-[#A6A6B4] text-xs font-medium">{t('home.hero.badgeDate')}</span>
-            <span className="text-white/15">·</span>
-            <span className="text-xs font-bold" style={{ color: '#F08CAE' }}>{t('home.hero.badgeAccess')}</span>
-          </div>
-
-          {/* Audience chooser — like Stripe/Zapier's gateway. Candidates land
-              on this homepage by default; companies tap through to the dedicated
-              workforce-intelligence page. */}
-          <div className="flex flex-wrap justify-center gap-2 mb-8 text-xs font-bold">
-            <span className="px-3 py-1.5 rounded-full" style={{ background: 'rgba(240,140,174,0.15)', color: '#F08CAE', border: '1px solid rgba(240,140,174,0.30)' }}>
-              {t('home.chooser.candidate')}
-            </span>
-            <Link href="/for-companies" className="px-3 py-1.5 rounded-full hover:bg-white/[0.06] transition-colors" style={{ color: '#A6A6B4', border: '1px solid rgba(255,255,255,0.10)' }}>
-              {t('home.chooser.company')}
-            </Link>
-          </div>
-
-          <h1 className="text-6xl md:text-[88px] font-black leading-[0.92] tracking-tighter mb-7">
-            <span className="block">{t('home.hero.headlineLine1')}</span>
-            <span className="block grad-text">{t('home.hero.headlineLine2')}</span>
-          </h1>
-
-          <p className="text-lg md:text-xl text-[#A6A6B4] max-w-2xl mx-auto leading-relaxed mb-10">
-            {t('home.hero.subhead')}
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-3 justify-center mb-16">
-            {/* Pre-select role in signup via ?type=. Without this, both hero
-                CTAs landed on the toggle page with nothing selected, forcing
-                the user to pick AGAIN after they'd already declared their
-                intent on the homepage. */}
-            <Link href="/signup?type=candidate" className="btn-dark-hover px-8 py-4 rounded-full text-sm font-black">
-              {t('home.hero.ctaBuild')}
-            </Link>
-            <Link href="/signup?type=company" className="btn-dark-hover px-8 py-4 rounded-full text-sm font-bold">
-              {t('home.hero.ctaHire')}
-            </Link>
-          </div>
-
-          {/* Floating verified-profile card — the real product, 2 clean chips up top */}
-          <div className="relative max-w-md mx-auto">
-            <div className="hidden lg:block">
-              <FloatChip text={t('home.hero.chipRefs')} color="#6AA8F5" pos="-left-28 top-2" />
-              <FloatChip text={t('home.hero.chipCrossCheck')} color="#F08CAE" pos="-right-28 top-8" />
-            </div>
-            <div className="float-card">
-            <div className="card rounded-2xl p-6 text-start">
-              {/* identity */}
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-black text-white flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>A</div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-base font-black text-[#F4F4F7]">{t('home.hero.cardName')}</div>
-                  <div className="text-xs text-[#7E7E8E]">{t('home.hero.cardRole')}</div>
-                </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#6AA8F5]/15 text-[#6AA8F5] flex-shrink-0">{t('home.hero.cardVerifiedBadge')}</span>
-              </div>
-              {/* profile strength — the one vibrant pop */}
-              <div className="flex items-center gap-3 mb-4">
-                <div className="text-2xl font-black" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>94%</div>
-                <div className="flex-1">
-                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                    <div className="h-full rounded-full" style={{ width: '94%', background: 'linear-gradient(90deg,#6AA8F5,#F08CAE,#F58E9A)' }} />
-                  </div>
-                  <p className="text-[#7E7E8E] text-[10px] mt-1">{t('home.hero.cardScoreLabel')}</p>
-                </div>
-              </div>
-              {/* the USPs — what Shapi verifies that no one else does */}
-              <div className="space-y-2.5">
-                {[
-                  [t('home.hero.cardItem1Label'), t('home.hero.cardItem1Sub')],
-                  [t('home.hero.cardItem2Label'), t('home.hero.cardItem2Sub')],
-                  [t('home.hero.cardItem3Label'), t('home.hero.cardItem3Sub')],
-                  [t('home.hero.cardItem4Label'), t('home.hero.cardItem4Sub')],
-                  [t('home.hero.cardItem5Label'), t('home.hero.cardItem5Sub')],
-                ].map(([label, sub], i) => (
-                  <div key={i} className="flex items-center gap-2.5">
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(106,168,245,0.14)' }}>
-                      <svg className="w-3 h-3 text-[#6AA8F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                    </span>
-                    <div className="min-w-0 text-xs">
-                      <span className="font-bold text-[#F4F4F7]">{label}</span>
-                      <span className="text-[#7E7E8E]"> — {sub}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {/* footer — two-sided trust */}
-              <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/[0.08]">
-                <span className="text-xs text-[#7E7E8E]">{t('home.hero.cardFooterText')}</span>
-                <span className="text-xs font-black" style={{ color: '#6AA8F5' }}>{t('home.hero.cardFooterTrust')}</span>
-              </div>
-            </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero — WOW treatment (Framer Motion). Self-contained component;
+          preserves the dual-audience chooser + both ?type= signup CTAs and
+          drives all copy from the same i18n t() keys. */}
+      <WowHero />
 
       {/* Stats */}
       <section className="relative z-10 py-12 my-4" style={{ background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
@@ -583,16 +482,6 @@ function HomeInner() {
           <p className="text-[#5C5C6A] text-sm">{t('common.footer.tagline')}</p>
         </div>
       </footer>
-    </div>
-  )
-}
-
-function FloatChip({ text, color, pos }: { text: string; color: string; pos: string }) {
-  return (
-    <div className={`float-card absolute z-20 ${pos} rounded-full pl-2 pr-3 py-1.5 flex items-center gap-2 whitespace-nowrap`}
-      style={{ background: '#16161F', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}>
-      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: color }} />
-      <span className="text-xs font-bold text-[#C7C7D1]">{text}</span>
     </div>
   )
 }

@@ -1008,7 +1008,12 @@ function PlaybookOutput({ data }: { data: Record<string, unknown> }) {
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ background: 'rgba(167,139,250,0.18)' }}>🧭</div>
           <div className="flex-1">
-            <p className="text-[#A78BFA] font-bold text-sm">Per-employee HR portal — coming next</p>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <p className="text-[#A78BFA] font-bold text-sm">Per-employee HR portal — now live</p>
+              <Link href="/company/people" className="text-[11px] font-black px-3 py-1.5 rounded-full text-white" style={{ background: 'linear-gradient(135deg,#7c93f5,#A78BFA)' }}>
+                Open People →
+              </Link>
+            </div>
             <p className="text-[#A6A6B4] text-xs leading-relaxed mt-1.5">
               Every employee gets a portal that auto-populates from the Company Brain (WhatsApp + desktop chat + emails + uploads). Tracks the full record:
             </p>

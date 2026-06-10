@@ -43,7 +43,23 @@ const INPUT_STYLE: React.CSSProperties = {
   color: '#f4f6f9',
 }
 
-export default function CsvImportSection({ planTier }: { planTier: string }) {
+export default function CsvImportSection({
+  planTier,
+  // When set, this importer is scoped to a single location. Every parsed row is
+  // pre-tagged with this location name before commit, so a multi-site company
+  // can upload (e.g.) Riyadh's roster directly onto the Riyadh location without
+  // the CSV needing a Location column. The commit API matches/creates by name.
+  lockedLocationName = null,
+  // Compact variant for embedding inside the Locations section (no big hero).
+  compact = false,
+  // Optional callback after a successful commit (e.g. to collapse the panel).
+  onCommitted,
+}: {
+  planTier: string
+  lockedLocationName?: string | null
+  compact?: boolean
+  onCommitted?: () => void
+}) {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -108,10 +124,16 @@ export default function CsvImportSection({ planTier }: { planTier: string }) {
     if (!parsed) return
     setBusy(true); setErr(null)
     try {
+      // Per-location mode: force every row onto this location, overriding any
+      // Location column the CSV may carry. The commit API keys locations by
+      // name (create-if-missing), so pre-tagging routes the whole roster here.
+      const rowsToCommit = lockedLocationName
+        ? parsed.rows.map(r => ({ ...r, location_name: lockedLocationName }))
+        : parsed.rows
       const res = await fetch('/api/company/spine/import-commit', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ rows: parsed.rows }),
+        body: JSON.stringify({ rows: rowsToCommit }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -130,6 +152,7 @@ export default function CsvImportSection({ planTier }: { planTier: string }) {
         rows_processed: data.rows_processed || 0,
       })
       setStage('committed')
+      onCommitted?.()
       // Refresh the page after a moment so the manual CRUD sections show
       // the newly-created data.
       setTimeout(() => router.refresh(), 1500)
@@ -214,6 +237,11 @@ export default function CsvImportSection({ planTier }: { planTier: string }) {
               Detected columns: <span className="font-mono">{parsed.detected_columns.join(', ') || '—'}</span>
             </p>
             {parsed.notes && <p className="text-xs mt-1" style={BODY_STYLE}>📝 {parsed.notes}</p>}
+            {lockedLocationName && (
+              <p className="text-xs mt-1" style={{ color: ACCENT }}>
+                📍 All rows will be assigned to <strong>{lockedLocationName}</strong> (Location column ignored).
+              </p>
+            )}
           </div>
           <div className="flex gap-2">
             <button onClick={reset} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: '#0c0e11', color: BODY_STYLE.color, border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -267,16 +295,35 @@ export default function CsvImportSection({ planTier }: { planTier: string }) {
 
   /* ── INTAKE SCREEN ────────────────────────────────────────────────── */
   return (
-    <div className="rounded-2xl p-5" style={{ background: '#13161b', border: `1px solid ${ACCENT}55` }}>
+    <div
+      className={compact ? 'rounded-xl p-4' : 'rounded-2xl p-5'}
+      style={compact
+        ? { background: '#0c0e11', border: `1px dashed ${ACCENT}40` }
+        : { background: '#13161b', border: `1px solid ${ACCENT}55` }}
+    >
       <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: ACCENT }}>
-            ✨ Upload-and-map · the fast way
-          </p>
-          <h2 className="text-lg font-black" style={HEADING_STYLE}>Upload your org chart CSV</h2>
-          <p className="text-xs mt-0.5" style={BODY_STYLE}>
-            Drop a CSV with names, roles, teams, locations. AI maps the columns. Preview, confirm, done.
-          </p>
+          {lockedLocationName ? (
+            <>
+              <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: ACCENT }}>
+                ✨ Upload roster · {lockedLocationName}
+              </p>
+              <p className="text-xs mt-0.5" style={BODY_STYLE}>
+                Names, roles and teams only — every row lands in <span style={{ color: ACCENT }}>{lockedLocationName}</span>.
+                No Location column needed. AI maps the rest.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: ACCENT }}>
+                ✨ Upload-and-map · the fast way
+              </p>
+              <h2 className="text-lg font-black" style={HEADING_STYLE}>Upload your org chart CSV</h2>
+              <p className="text-xs mt-0.5" style={BODY_STYLE}>
+                Drop a CSV with names, roles, teams, locations. AI maps the columns. Preview, confirm, done.
+              </p>
+            </>
+          )}
         </div>
         <button onClick={downloadTemplate} className="text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap" style={{ background: 'rgba(124,147,245,0.10)', color: ACCENT, border: `1px solid ${ACCENT}40` }}>
           ↓ Template

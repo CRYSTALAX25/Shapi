@@ -12,6 +12,24 @@ export async function POST(request: Request) {
 
   const body = await request.json()
 
+  // SECURITY: strip billing / entitlement / system columns from the client
+  // body. RLS scopes the row to auth.uid()=id, so without this allow-strip a
+  // candidate could POST { paid:true, plan_tier:'enterprise', ... } and grant
+  // themselves entitlements, bypassing Stripe. These fields are only ever set
+  // server-side (Stripe webhook, reference cascade, admin). Deny-list, not
+  // allow-list, so legitimate profile fields across candidate+company flows
+  // keep working.
+  const PROTECTED_FIELDS = [
+    'id', 'created_at', 'paid', 'plan_tier', 'subscription_status',
+    'subscription_product', 'trial_ends_at', 'grace_expired',
+    'stripe_customer_id', 'stripe_subscription_id', 'cv_kit_purchased',
+    'cv_pro_purchased', 'profile_boost_purchased', 'verification_tier',
+    'bespoke_config', 'upload_and_map_count', 'is_admin',
+  ] as const
+  for (const f of PROTECTED_FIELDS) {
+    if (f in body) delete body[f]
+  }
+
   // Normalise WhatsApp number — strip spaces so +966 50 250 6355 → +966502506355
   if (body.whatsapp_number) {
     body.whatsapp_number = (body.whatsapp_number as string).replace(/\s+/g, '').trim()

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import SpinePrefillBanner, { useSpinePrefill } from '@/components/SpinePrefillBanner'
 
@@ -50,16 +50,28 @@ export default function HiringPlanPage() {
   const [plan, setPlan] = useState<Plan | null>(null)
   const [loading, setLoading] = useState(false)
   const [err, setErr] = useState('')
+  // Planned/vacant seats from the spine — the company's own hiring list. Sent
+  // to the API so the plan sequences THESE rather than inventing roles.
+  const [plannedHires, setPlannedHires] = useState('')
 
   // Spine pre-fill — same pattern as Workforce Snapshot. industry/country/
   // headcount derive cleanly from the spine. Burn + stage stay manual
-  // (we don't track those yet).
+  // (we don't track those yet). Planned/vacant seats feed the hiring list so
+  // we sequence roles the company already decided to fill (the spine IS the
+  // roadmap) instead of asking them to retype roles.
   const { spine, applied: spineApplied, apply: applySpine } = useSpinePrefill()
   const handleApplySpine = () => {
     if (!spine) return
     if (spine.industry) setIndustry(spine.industry)
     if (spine.country) setCountry(spine.country)
     if (spine.counts.activeSeats > 0) setHeadcount(String(spine.counts.activeSeats))
+    if (spine.openSeats && spine.openSeats.length > 0) {
+      setPlannedHires(
+        spine.openSeats
+          .map(s => `${s.seniority ? `${s.seniority} ` : ''}${s.title}${s.dept ? ` · ${s.dept}` : ''} [${s.status}]`)
+          .join(', ')
+      )
+    }
     applySpine()
   }
 
@@ -79,6 +91,7 @@ export default function HiringPlanPage() {
       if (!isNaN(burnN) && burnN > 0) payload.monthly_burn_budget = burnN
       const hcN = parseInt(headcount, 10)
       if (!isNaN(hcN) && hcN >= 0) payload.headcount_today = hcN
+      if (plannedHires.trim()) payload.planned_hires = plannedHires.trim()
 
       const res = await fetch('/api/company/hiring-plan', {
         method: 'POST',
@@ -257,6 +270,27 @@ export default function HiringPlanPage() {
               />
             </div>
           </div>
+
+          {/* Planned hires from the spine — shown only once the user pulls in
+              their org spine and it has open (planned/vacant) seats. Editable
+              so they can trim or add before generating. This list IS their
+              hiring roadmap; the plan sequences it instead of inventing roles. */}
+          {spineApplied && plannedHires && (
+            <div className="mt-4">
+              <label className={labelCls}>
+                On your hiring roadmap{' '}
+                <span className="text-[#34D399] normal-case font-bold">· from your org spine</span>
+              </label>
+              <textarea
+                value={plannedHires}
+                onChange={e => setPlannedHires(e.target.value)}
+                rows={2}
+                className={inputCls}
+                style={inputStyle}
+              />
+              <p className="text-[#7E7E8E] text-[11px] mt-1">Planned / vacant seats from your spine. We&apos;ll sequence these — edit to trim or add.</p>
+            </div>
+          )}
 
           <button
             onClick={submit}

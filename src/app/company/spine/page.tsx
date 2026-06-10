@@ -152,7 +152,7 @@ export default async function SpinePage({
               below is for tweaks and corrections. */}
           <CsvImportSection planTier={planTier} />
 
-          <LocationsSection locations={locations} companyWebsite={(profile as { company_website?: string | null }).company_website || null} />
+          <LocationsSection locations={locations} companyWebsite={(profile as { company_website?: string | null }).company_website || null} planTier={planTier} />
           <TeamsSection teams={teams} locations={locations} />
           <PersonsSection persons={persons} />
           <SeatsSection seats={seats} teams={teams} persons={persons} />
@@ -161,9 +161,10 @@ export default async function SpinePage({
         <div className="mt-8 p-4 rounded-xl" style={{ background: '#13161b', border: `1px dashed ${ACCENT}40` }}>
           <p className="text-xs font-bold mb-1" style={HEADING_STYLE}>Coming next</p>
           <p className="text-xs" style={BODY_STYLE}>
-            HRBP Calibration overlay (gold/slate/crimson by OKR + capacity + flight-risk) ·
-            per-location upload buttons inside the locations section · justification modal on
-            drag-drop · time-slider with real future dates instead of a Current/Target toggle.
+            Calibration drilldown (per-seat OKR + capacity detail on click) · flight-risk signal
+            (Year-2 ML) feeding the gold bucket · time-slider with real future dates instead of a
+            Current/Target toggle · acting on a suggestion directly from the bar (still gated by the
+            justification modal).
           </p>
         </div>
       </div>

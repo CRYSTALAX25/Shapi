@@ -49,19 +49,33 @@ export default function CompanyRoadmap() {
   // already have. Optional — defaults are fine for an industry+size read.
   const [teamComposition, setTeamComposition] = useState('')
 
-  // Spine pre-fill — derive team_composition from roles_seats. e.g.
-  // "5 Senior Backend Engineers · Engineering, 2 Customer Success Managers · CS"
+  // Spine pre-fill — derive team_composition from roles_seats. Filled seats
+  // become the "team you already have" summary; planned/vacant seats become
+  // the "already on your hiring roadmap" list (roles_seats WHERE status IN
+  // ('planned','vacant') IS the roadmap), so the AI won't re-recommend roles
+  // the company has already laid out, and the user never retypes them.
+  // e.g. "5 Senior Backend Engineers · Engineering, 2 Customer Success Managers · CS"
   const { spine, applied: spineApplied, apply: applySpine } = useSpinePrefill()
   const handleApplySpine = () => {
-    if (!spine || spine.roles.length === 0) { applySpine(); return }
-    const summary = spine.roles
-      .map(r => {
-        const n = Number(r.count)
-        const noun = n === 1 ? r.role : `${r.role}s`
-        return `${r.count} ${noun}${r.dept ? ` · ${r.dept}` : ''}`
-      })
-      .join(', ')
-    setTeamComposition(summary)
+    if (!spine) { applySpine(); return }
+    const lines: string[] = []
+    if (spine.roles.length > 0) {
+      const summary = spine.roles
+        .map(r => {
+          const n = Number(r.count)
+          const noun = n === 1 ? r.role : `${r.role}s`
+          return `${r.count} ${noun}${r.dept ? ` · ${r.dept}` : ''}`
+        })
+        .join(', ')
+      lines.push(`Current team (filled + open seats): ${summary}`)
+    }
+    if (spine.openSeats && spine.openSeats.length > 0) {
+      const planned = spine.openSeats
+        .map(s => `${s.seniority ? `${s.seniority} ` : ''}${s.title}${s.dept ? ` · ${s.dept}` : ''} [${s.status}]`)
+        .join(', ')
+      lines.push(`Already on our hiring roadmap (do not re-recommend, treat as in-flight): ${planned}`)
+    }
+    if (lines.length > 0) setTeamComposition(lines.join('\n'))
     applySpine()
   }
 
