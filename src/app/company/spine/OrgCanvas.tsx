@@ -663,19 +663,35 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
       const nx = g.origX + dx / view.scale
       const ny = g.origY + dy / view.scale
       setDragPos({ nodeId: g.nodeId, x: nx, y: ny })
-      // Live drop candidate: nearest node of a DIFFERENT team within reach —
-      // re-routes the reporting line as you drag (mockup behaviour).
+      // Live drop candidate: the team whose NEAREST node is closest to the
+      // dragged card — re-routes the reporting line as you drag (mockup
+      // behaviour). We track the closest node PER team (not just the single
+      // globally-nearest node) so dropping anywhere over a team's cluster
+      // registers, and accept a generous catch radius so a deliberate drag
+      // "across" the chart lands instead of snapping back.
       const cx = nx + node.w / 2
       const cy = ny + node.h / 2
-      let best: GNode | null = null
-      let bestD = Infinity
+      const homeTeam = effTeamId(node.seat)
+      const nearestPerTeam = new Map<string, { node: GNode; d: number }>()
+      let homeD = Infinity
       for (const cand of graph.nodes) {
         if (!cand.teamId || cand.id === g.nodeId) continue
-        if (cand.teamId === effTeamId(node.seat)) continue
         const d = Math.hypot(cx - (cand.x + cand.w / 2), cy - (cand.y + cand.h / 2))
-        if (d < bestD) { bestD = d; best = cand }
+        if (cand.teamId === homeTeam) { if (d < homeD) homeD = d; continue }
+        const cur = nearestPerTeam.get(cand.teamId)
+        if (!cur || d < cur.d) nearestPerTeam.set(cand.teamId, { node: cand, d })
       }
-      const next = best && bestD < 240 ? { nodeId: best.id, teamId: best.teamId as string } : null
+      let best: GNode | null = null
+      let bestD = Infinity
+      for (const { node: n, d } of nearestPerTeam.values()) {
+        if (d < bestD) { bestD = d; best = n }
+      }
+      // Accept the drop target if it's within a generous radius, OR if the card
+      // has clearly been pulled closer to another team than to its own home
+      // (threshold-free fallback so long drags always land somewhere sensible).
+      const next = best && (bestD < 440 || bestD < homeD)
+        ? { nodeId: best.id, teamId: best.teamId as string }
+        : null
       setDropCandidate(next)
       dropCandidateRef.current = next
     }
@@ -742,13 +758,24 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
             ' — the seat was moved, but the justification was not recorded. Please retry.'
         )
       }
+      // Close the modal and pull fresh server data. Keep `staged` set so the
+      // optimistic override (effTeamId) holds the card in its NEW team until
+      // the refreshed `seats` prop reflects the move — a reconciliation effect
+      // clears `staged` once the real data catches up (no flash-back).
       setPendingMove(null)
-      setStaged(null)
       router.refresh()
     } finally {
       setBusy(false)
     }
   }
+
+  // Reconcile the optimistic staged move with incoming server data: once the
+  // refreshed `seats` prop shows the seat in its committed team, drop `staged`.
+  useEffect(() => {
+    if (!staged || busy) return
+    const real = seats.find(s => s.id === staged.seat.id)
+    if (real && real.team_id === staged.toTeam.id) setStaged(null)
+  }, [seats, staged, busy])
 
   /* ── verify panel actions ─────────────────────────────────────────────── */
   const loadVerifyDetail = useCallback(async () => {
