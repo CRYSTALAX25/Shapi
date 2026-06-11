@@ -33,7 +33,12 @@ export async function proxy(request: NextRequest) {
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone()
+    // Preserve the intended destination so /login can send the user back
+    // after they authenticate (login validates it starts with '/').
+    const next = request.nextUrl.pathname + request.nextUrl.search
     url.pathname = '/login'
+    url.search = ''
+    url.searchParams.set('next', next)
     return NextResponse.redirect(url)
   }
 

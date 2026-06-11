@@ -257,7 +257,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
               "you are here" pill + coral text. Hover on others = coral. */}
           <aside className="lg:sticky lg:top-6 self-start">
             <nav className="flex flex-row overflow-x-auto lg:flex-col gap-1.5 pb-1 lg:pb-0 -mx-1 px-1 lg:mx-0 lg:px-0">
-              {[
+              {([
                 { href: '#', label: 'Overview', icon: '🏠', active: true },
                 { href: '/company/spine', label: 'Org Spine', icon: '🌳' },
                 { href: '/company/workforce-snapshot', label: 'Workforce Snapshot', icon: '✦' },
@@ -269,12 +269,16 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                 { href: '/company/cognitive-load', label: 'Cognitive load', icon: '🧠' },
                 { href: '/company/strategic-plan', label: 'Strategic Workforce Plan', icon: '📋' },
                 { href: '/company/os', label: 'Workforce OS', icon: '📡' },
+                { href: '/company/people', label: 'People (HR Portal)', icon: '🗂️', enterprise: true },
+                { href: '/company/brain', label: 'Company Brain', icon: '🧬', enterprise: true },
+                { href: '/company/delegation', label: 'Workload Delegation', icon: '⚖️', enterprise: true },
+                { href: '/company/skill-density', label: 'Skill Density', icon: '🔬', enterprise: true },
                 { href: '/role/ai-proof', label: 'AI-Proof a role', icon: '🛡️' },
                 { href: '/company/roles', label: 'Roles', icon: '💼' },
                 { href: '/company/pipeline', label: 'Pipeline', icon: '📋' },
                 { href: '/candidates', label: 'Candidates', icon: '👥' },
                 { href: '/company/profile', label: 'Company profile', icon: '👤' },
-              ].map(item => (
+              ] as Array<{ href: string; label: string; icon: string; active?: boolean; enterprise?: boolean }>).map(item => (
                 <Link
                   key={item.label}
                   href={item.href}
@@ -287,6 +291,11 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                 >
                   <span className="text-base leading-none">{item.icon}</span>
                   <span>{item.label}</span>
+                  {item.enterprise && (
+                    <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.14)', color: '#FBBF24' }}>
+                      Enterprise
+                    </span>
+                  )}
                 </Link>
               ))}
             </nav>

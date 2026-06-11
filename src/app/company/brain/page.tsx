@@ -102,8 +102,9 @@ export default async function BrainPage() {
             style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)', color: '#FBBF24' }}
           >
             <strong>Company Brain is an Enterprise feature.</strong> You can explore the console
-            below, but ingestion and retrieval unlock on the Enterprise plan ($2,500–5,000/mo).{' '}
-            <Link href="/company/pricing" className="font-black underline">See plans</Link>
+            below, but ingestion and retrieval unlock on the Enterprise plan.{' '}
+            <Link href="/book-call?intent=enterprise" className="font-black underline">Talk to us</Link>{' '}
+            · <Link href="/company/pricing" className="font-black underline">See plans</Link>
           </div>
         )}
 

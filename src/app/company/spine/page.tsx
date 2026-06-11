@@ -158,15 +158,6 @@ export default async function SpinePage({
           <SeatsSection seats={seats} teams={teams} persons={persons} />
         </div>
 
-        <div className="mt-8 p-4 rounded-xl" style={{ background: '#13161b', border: `1px dashed ${ACCENT}40` }}>
-          <p className="text-xs font-bold mb-1" style={HEADING_STYLE}>Coming next</p>
-          <p className="text-xs" style={BODY_STYLE}>
-            Calibration drilldown (per-seat OKR + capacity detail on click) · flight-risk signal
-            (Year-2 ML) feeding the gold bucket · time-slider with real future dates instead of a
-            Current/Target toggle · acting on a suggestion directly from the bar (still gated by the
-            justification modal).
-          </p>
-        </div>
       </div>
     </main>
   )

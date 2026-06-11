@@ -99,6 +99,17 @@ function HomeInner() {
           drives all copy from the same i18n t() keys. */}
       <WowHero />
 
+      {/* Free hook — the blurred-profile preview at /preview. Secondary CTA
+          right under the hero so anonymous visitors can try before signup. */}
+      <div className="relative z-10 text-center px-6 pb-10">
+        <Link
+          href="/preview"
+          className="grad-border-cta inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold"
+        >
+          ✨ Try it free — see your polished profile in 60 seconds →
+        </Link>
+      </div>
+
       {/* Stats */}
       <section className="relative z-10 py-12 my-4" style={{ background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="max-w-4xl mx-auto px-6 grid grid-cols-3 gap-8 text-center">
@@ -408,7 +419,7 @@ function HomeInner() {
                   <li key={j} className="flex gap-2.5"><Check c={tier.color} />{f}</li>
                 ))}
               </ul>
-              <Link href="/signup" className={`rounded-full py-3 text-center text-sm font-black ${tier.popular ? 'btn-primary text-white' : 'text-[#F4F4F7]'}`} style={tier.popular ? undefined : { border: '1px solid rgba(255,255,255,0.12)' }}>
+              <Link href="/signup?type=company" className={`rounded-full py-3 text-center text-sm font-black ${tier.popular ? 'btn-primary text-white' : 'text-[#F4F4F7]'}`} style={tier.popular ? undefined : { border: '1px solid rgba(255,255,255,0.12)' }}>
                 {tier.custom ? t('home.pricing.ctaTalk') : t('home.pricing.ctaTrial')}
               </Link>
             </div>
@@ -459,7 +470,7 @@ function HomeInner() {
               <Link href="/signup" className="btn-dark-hover px-8 py-4 rounded-full font-black text-sm">
                 {t('home.finalCta.ctaBuild')}
               </Link>
-              <Link href="/signup" className="btn-dark-hover px-8 py-4 rounded-full font-bold text-sm">
+              <Link href="/signup?type=company" className="btn-dark-hover px-8 py-4 rounded-full font-bold text-sm">
                 {t('home.finalCta.ctaHire')}
               </Link>
             </div>

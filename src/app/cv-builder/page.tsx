@@ -23,6 +23,7 @@ export default function CVBuilder() {
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [ready, setReady] = useState(false)
   const [restored, setRestored] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -53,7 +54,7 @@ export default function CVBuilder() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  }, [messages, error])
 
   const send = async () => {
     if (!input.trim() || loading) return
@@ -63,17 +64,34 @@ export default function CVBuilder() {
     setMessages(newMessages)
     setInput('')
     setLoading(true)
+    setError('')
 
-    const res = await fetch('/api/cv-builder', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: newMessages }),
-    })
-
-    const { reply, ready: profileReady } = await res.json()
-    setMessages(prev => [...prev, { role: 'assistant', content: reply }])
-    if (profileReady) setReady(true)
-    setLoading(false)
+    // On any failure: roll the optimistic message back, put the typed answer
+    // back in the box, and show an inline error bubble so the candidate can
+    // just hit Send again — same pattern as /company/onboarding.
+    try {
+      const res = await fetch('/api/cv-builder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newMessages }),
+      })
+      if (!res.ok) {
+        setError(`Something went wrong (${res.status}). Your answer is back in the box — try sending again.`)
+        setMessages(messages)
+        setInput(userMessage.content)
+        setLoading(false)
+        return
+      }
+      const { reply, ready: profileReady } = await res.json()
+      setMessages(prev => [...prev, { role: 'assistant', content: reply }])
+      if (profileReady) setReady(true)
+      setLoading(false)
+    } catch {
+      setError('Network issue — your answer is back in the box. Check your connection and try again.')
+      setMessages(messages)
+      setInput(userMessage.content)
+      setLoading(false)
+    }
   }
 
   const handleKey = (e: React.KeyboardEvent) => {
@@ -171,6 +189,14 @@ export default function CVBuilder() {
                 <div className="w-2 h-2 bg-[#6AA8F5]/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                 <div className="w-2 h-2 bg-[#6AA8F5]/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="flex justify-start">
+            <div className="max-w-[85%] rounded-2xl px-4 py-3 text-xs text-[#F58E9A]" style={{ background: 'rgba(245,142,154,0.10)', border: '1px solid rgba(245,142,154,0.25)' }}>
+              {error}
             </div>
           </div>
         )}

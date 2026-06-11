@@ -122,20 +122,25 @@ export async function POST(request: Request) {
         await addSubscriptionProduct(userId, product!, session.subscription as string)
 
       } else if (tier) {
-        // Company subscription. v4: tier='pro' is the only self-serve value.
-        // 'starter'/'growth' may still appear from pre-v4 sessions still in
-        // flight at deploy time — map both to 'pro' plan_tier so the v4
-        // FeatureGate + free-tier DB trigger let them through.
-        // Subscription_status='trialing' if Stripe says so (14-day trial),
-        // 'active' otherwise.
-        const subStatus = (session.metadata?.trial_period_days || tier === 'pro')
-          ? 'trialing'
-          : 'active'
-        // Map the legacy/current tier names to the v4 plan_tier enum used
-        // by FeatureGate + free-tier triggers. ANY paying company sub gets
-        // plan_tier='pro' at minimum — Enterprise uses the separate
-        // /api/company/enterprise-trial endpoint.
-        const planTier = tier === 'enterprise' ? 'enterprise' : 'pro'
+        // Company subscription. v5 self-serve tiers: 'pro' ($499) + 'growth'
+        // ($1,500). Enterprise is sales-led (/api/company/enterprise-trial).
+        //
+        // Subscription_status: new sessions carry metadata.trial_applied
+        // ('true'/'false') from company-checkout. Legacy in-flight sessions
+        // (pre-deploy) always included a 14-day trial, so default pro/growth
+        // to 'trialing' when the breadcrumb is absent.
+        const trialApplied = session.metadata?.trial_applied
+          ? session.metadata.trial_applied === 'true'
+          : (tier === 'pro' || tier === 'growth' || !!session.metadata?.trial_period_days)
+        const subStatus = trialApplied ? 'trialing' : 'active'
+        // Map the public tier names to the plan_tier value FeatureGate /
+        // currentTier() reads. v5: growth MUST map to 'growth' — entitlements
+        // resolve it to the active_hiring rung (full diagnostic suite +
+        // candidate pool). Mapping it to 'pro' would give every $1,500/mo
+        // Growth subscriber $499 Pro entitlements. Legacy 'starter' → 'pro'.
+        const planTier = tier === 'enterprise' ? 'enterprise'
+          : tier === 'growth' ? 'growth'
+          : 'pro'
         const companyUpdates: Record<string, unknown> = {
           paid: true,
           stripe_customer_id: session.customer as string,
@@ -144,23 +149,24 @@ export async function POST(request: Request) {
           stripe_subscription_id: session.subscription as string,
           plan_tier: planTier,
         }
-        // Founding Partner (STRATEGY §2 LOCKED v5): stamp the flag so the
-        // company is grandfathered AND counts toward the real cohort cap of 15
-        // enforced in /api/stripe/company-checkout. Degrades quietly if the
-        // founding_partner column hasn't been migrated yet.
-        if (session.metadata?.founding === 'true') {
-          companyUpdates.founding_partner = true
+        // Stamp trial_ends_at so company-checkout can reliably tell "has this
+        // profile ever trialed?" (one trial per company — no trial cycling).
+        // 14 days matches TRIAL_DAYS in company-checkout.
+        if (trialApplied) {
+          companyUpdates.trial_ends_at = new Date(Date.now() + 14 * 24 * 3600 * 1000).toISOString()
         }
+        // NOTE: founding_partner is NO LONGER stamped here. checkout.session.
+        // completed fires at TRIAL START ($0 collected) — stamping here let 15
+        // trial-and-cancels exhaust the founding cohort with zero revenue. The
+        // stamp now happens in the invoice.payment_succeeded handler below,
+        // on the first invoice with amount_paid > 0, via the founding='true'
+        // breadcrumb company-checkout puts on subscription_data.metadata.
         const { error: companyUpdateErr } = await supabase
           .from('profiles')
           .update(companyUpdates)
           .eq('id', userId)
-        if (companyUpdateErr && session.metadata?.founding === 'true') {
-          // Retry without the founding flag if that column is missing, so the
-          // core subscription state still lands.
-          console.warn('[stripe/webhook] founding stamp failed, retrying without it:', companyUpdateErr.message)
-          delete companyUpdates.founding_partner
-          await supabase.from('profiles').update(companyUpdates).eq('id', userId)
+        if (companyUpdateErr) {
+          console.error('[stripe/webhook] company subscription update failed:', companyUpdateErr.message)
         }
 
         // ── Brand welcome email — Stripe sends the receipt + invoice
@@ -295,6 +301,49 @@ export async function POST(request: Request) {
   // Payment recovered — clear the dunning state so the cron stops nudging.
   if (event.type === 'invoice.payment_succeeded') {
     const invoice = event.data.object as Stripe.Invoice
+
+    // ── Founding Partner stamp (STRATEGY §2 LOCKED v5) ────────────────────
+    // Stamped HERE — on the first invoice with REAL money (amount_paid > 0) —
+    // not at checkout completion, which fires at trial start with $0
+    // collected. Flow: company-checkout puts founding='true' + user_id on
+    // subscription_data.metadata → Stripe snapshots that metadata onto each
+    // invoice (invoice.parent.subscription_details.metadata) → when the first
+    // paid invoice lands we flip profiles.founding_partner=true. That flag is
+    // what foundingRedeemedCount() counts against the cap of 15, so trial-
+    // and-cancels never consume a founding slot. Re-stamping on later paid
+    // invoices is idempotent (true → true). Degrades quietly if the
+    // founding_partner column hasn't been migrated yet.
+    if (invoice.amount_paid > 0) {
+      try {
+        const subDetails = invoice.parent?.subscription_details
+        let subMeta: Record<string, string> | null | undefined = subDetails?.metadata
+        if (!subMeta) {
+          // Metadata snapshot missing (rare) — fall back to retrieving the
+          // subscription directly.
+          const subId = typeof subDetails?.subscription === 'string'
+            ? subDetails.subscription
+            : subDetails?.subscription?.id
+          if (subId) {
+            const sub = await stripe.subscriptions.retrieve(subId)
+            subMeta = sub.metadata
+          }
+        }
+        if (subMeta?.founding === 'true' && subMeta.user_id) {
+          const { error: foundingErr } = await supabase
+            .from('profiles')
+            .update({ founding_partner: true })
+            .eq('id', subMeta.user_id)
+          if (foundingErr) {
+            console.warn('[stripe/webhook] founding stamp failed (column missing?):', foundingErr.message)
+          } else {
+            console.log('[stripe/webhook] founding_partner stamped on first PAID invoice for user', subMeta.user_id)
+          }
+        }
+      } catch (e) {
+        console.error('[stripe/webhook] founding stamp handler error:', e)
+      }
+    }
+
     const customerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id
     if (customerId) {
       try {

@@ -11,15 +11,18 @@ import Stripe from 'stripe'
 // /book-call?intent=enterprise from the pricing page, never here.
 // Free tier requires NO checkout — just a signed-in profile.
 
+// NOTE: these descriptions land on Stripe receipts + invoices. Keep them
+// accurate to what the tier actually includes — the Strategic Workforce Plan
+// is a separate $15-25k engagement (Product 2) and must NOT appear here.
 const PLANS: Record<string, { name: string; description: string; amountCents: number }> = {
   pro: {
     name: 'Shapi Pro',
-    description: 'Multi-location org chart · Talent Match Pipeline · Active Hiring (AI shortlists + drafted outreach) · Salary Benchmark · Hiring Roadmap · Strategic Workforce Plan',
+    description: 'Multi-location org chart · Talent Match Pipeline · Active Hiring (AI shortlists + drafted outreach) · Salary Benchmark · Hiring Roadmap',
     amountCents: 49900, // $499/mo
   },
   growth: {
     name: 'Shapi Growth',
-    description: 'Everything in Pro · Full diagnostic suite · Verified candidate-pool access · Strategic workforce planning · Priority support',
+    description: 'Everything in Pro · Full diagnostic suite · Every verified candidate in your market · Dual budget bands · Priority support',
     amountCents: 150000, // $1,500/mo
   },
 }
@@ -103,6 +106,35 @@ export async function POST(request: Request) {
 
   const site = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
+  // ── Existing-state guards (no trial cycling, no duplicate subscriptions) ──
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('stripe_customer_id, subscription_status, subscription_tier, trial_ends_at')
+    .eq('id', user.id)
+    .single()
+
+  // (b) Already trialing/active on a company tier → block a second checkout.
+  // Plan changes go through the Stripe Customer Portal, not a fresh session.
+  const status = (profile?.subscription_status || '').toLowerCase()
+  const existingTier = (profile?.subscription_tier || '').toLowerCase()
+  const COMPANY_TIERS = ['pro', 'growth', 'starter', 'enterprise']
+  if ((status === 'trialing' || status === 'active') && COMPANY_TIERS.includes(existingTier)) {
+    return NextResponse.json(
+      { error: 'You already have an active subscription — manage it from the dashboard.' },
+      { status: 409 }
+    )
+  }
+
+  // (c) One free trial per company. The webhook stamps trial_ends_at the
+  // moment a trialing checkout completes (and /api/company/enterprise-trial
+  // stamps it too), so a non-null trial_ends_at reliably means "has trialed
+  // before". A non-null/non-'inactive' subscription_status (cancelled,
+  // past_due, grace_expired, …) also implies a prior subscription — and every
+  // prior self-serve company subscription started with a trial. Either signal
+  // → no second trial; they go straight to a paying subscription.
+  const hasTrialedBefore = !!profile?.trial_ends_at || (!!status && status !== 'inactive')
+  const trialApplied = !hasTrialedBefore
+
   // ── Decide whether this checkout qualifies for the Founding Partner offer ──
   // Only the first 15 redemptions get it. We re-check the live count on every
   // checkout so the window closes the moment the 15th company converts.
@@ -120,7 +152,11 @@ export async function POST(request: Request) {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     mode: 'subscription',
-    customer_email: user.email,
+    // (a) Reuse the existing Stripe customer when we have one — prevents a
+    // new customer record (and a fresh trial identity) per checkout attempt.
+    ...(profile?.stripe_customer_id
+      ? { customer: profile.stripe_customer_id }
+      : { customer_email: user.email }),
     // CARD REQUIRED on the trial — Ana's explicit decision 2026-06-03.
     // Industry data: card-required trials convert 30-50%, no-card 5-10%.
     payment_method_collection: 'always',
@@ -139,7 +175,18 @@ export async function POST(request: Request) {
       },
     ],
     subscription_data: {
-      trial_period_days: TRIAL_DAYS,
+      // (c) Trial only for first-timers — see hasTrialedBefore above.
+      ...(trialApplied ? { trial_period_days: TRIAL_DAYS } : {}),
+      // Breadcrumb for the webhook's invoice.payment_succeeded handler:
+      // Stripe snapshots subscription metadata onto every invoice, so the
+      // webhook can stamp profiles.founding_partner=true on the FIRST PAID
+      // invoice (amount_paid > 0) — not at trial start, where $0 has been
+      // collected and a trial-and-cancel would burn a founding slot.
+      metadata: {
+        user_id: user.id,
+        tier,
+        founding: foundingApplied ? 'true' : 'false',
+      },
     },
     // Founding coupon (if still within the cohort cap). Stripe applies it to the
     // first charge after the trial and auto-reverts after 6 months.
@@ -149,9 +196,12 @@ export async function POST(request: Request) {
     metadata: {
       user_id: user.id,
       tier,
-      // The webhook reads this to stamp profiles.founding_partner=true, which
-      // both grandfathers the company and increments the cohort count toward 15.
+      // Kept for observability; the authoritative founding stamp now happens
+      // on the first paid invoice via subscription_data.metadata above.
       founding: foundingApplied ? 'true' : 'false',
+      // The webhook reads this to set subscription_status ('trialing' vs
+      // 'active') and to stamp trial_ends_at on the profile.
+      trial_applied: trialApplied ? 'true' : 'false',
     },
   })
 

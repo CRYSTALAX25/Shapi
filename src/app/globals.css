@@ -1,26 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Shapi dark baseline — matches the bg-[#0E0E13] used across pages so the
+     first paint is dark (no white flash before page-level backgrounds load). */
+  --background: #0E0E13;
+  --foreground: #F4F4F7;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-jakarta);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--background);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Plus Jakarta Sans is loaded via next/font in src/app/layout.tsx and
+     exposed as --font-jakarta on <html>. */
+  font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Global keyboard-focus ring. Supersedes scattered focus:outline-none
+   utilities (those only suppress :focus, not :focus-visible). */
+:focus-visible {
+  outline: 2px solid #6AA8F5;
+  outline-offset: 2px;
+}
+
+/* Respect users who prefer reduced motion — neutralise all animations and
+   transitions globally. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

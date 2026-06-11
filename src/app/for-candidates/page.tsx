@@ -163,6 +163,13 @@ function ForCandidatesInner() {
               {t('forCandidates.hero.ctaAiProof')}
             </Link>
           </div>
+
+          {/* Free hook — blurred-profile preview, no signup required */}
+          <p className="mt-5">
+            <Link href="/preview" className="text-sm font-bold hover:underline" style={{ color: '#6AA8F5' }}>
+              ✨ Try it free — see your polished profile in 60 seconds →
+            </Link>
+          </p>
         </div>
       </section>
 

@@ -82,7 +82,7 @@ function ForCompaniesInner() {
             </Link>
             <LocalePicker />
             <Link
-              href="/signup"
+              href="/signup?type=company"
               className="btn-outline rounded-full px-4 py-2 text-xs font-black"
             >
               {t('forCompanies.nav.getStarted')}
@@ -116,7 +116,7 @@ function ForCompaniesInner() {
 
           <div className="flex flex-col sm:flex-row gap-3 mb-12">
             <Link
-              href="/company/workforce-snapshot"
+              href="/signup?type=company"
               className="btn-primary rounded-full px-7 py-4 text-sm font-black text-center"
             >
               {t('forCompanies.hero.ctaSnapshot')}
@@ -404,7 +404,7 @@ function ForCompaniesInner() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-5">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
           {[
             {
               name: t('forCompanies.pricing.t1Name'),
@@ -412,7 +412,7 @@ function ForCompaniesInner() {
               color: '#6AA8F5',
               desc: t('forCompanies.pricing.t1Desc'),
               cta: t('forCompanies.pricing.t1Cta'),
-              href: '/company/workforce-snapshot',
+              href: '/signup?type=company',
               priceSuffix: '',
               highlight: false,
             },
@@ -423,7 +423,7 @@ function ForCompaniesInner() {
               color: '#F08CAE',
               desc: t('forCompanies.pricing.t2Desc'),
               cta: t('forCompanies.pricing.t2Cta'),
-              href: '/book-call?topic=strategic-plan',
+              href: '/signup?type=company',
               highlight: true,
             },
             {
@@ -433,7 +433,17 @@ function ForCompaniesInner() {
               color: '#F58E9A',
               desc: t('forCompanies.pricing.t3Desc'),
               cta: t('forCompanies.pricing.t3Cta'),
-              href: '/book-call?topic=workforce-os',
+              href: '/signup?type=company',
+              highlight: false,
+            },
+            {
+              name: t('forCompanies.pricing.t4Name'),
+              price: t('forCompanies.pricing.t4Price'),
+              priceSuffix: t('forCompanies.pricing.t4Suffix'),
+              color: '#FBBF24',
+              desc: t('forCompanies.pricing.t4Desc'),
+              cta: t('forCompanies.pricing.t4Cta'),
+              href: '/book-call?intent=enterprise',
               highlight: false,
             },
           ].map((tier) => (
@@ -503,7 +513,7 @@ function ForCompaniesInner() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
-                href="/company/workforce-snapshot"
+                href="/signup?type=company"
                 className="btn-primary rounded-full px-8 py-4 font-black text-sm"
               >
                 {t('forCompanies.finalCta.ctaSnapshot')}

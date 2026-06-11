@@ -21,6 +21,7 @@ import Link from 'next/link'
 
 export default function CompanyPricing() {
   const [loading, setLoading] = useState<string | null>(null)
+  const [checkoutError, setCheckoutError] = useState('')
   const [authed, setAuthed] = useState<boolean | null>(null)
 
   // We need to know whether the user is signed in to send the Free-tier CTA
@@ -35,18 +36,32 @@ export default function CompanyPricing() {
   // Shared self-serve trial start for Pro + Growth.
   async function startTier(tier: 'pro' | 'growth') {
     setLoading(tier)
+    setCheckoutError('')
     if (!authed) {
       window.location.href = `/signup?type=company&plan=${tier}`
       return
     }
-    const res = await fetch('/api/stripe/company-checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tier }),
-    })
-    const { url, error } = await res.json()
-    if (error) { console.error('[pricing] checkout error', error); setLoading(null); return }
-    if (url) window.location.href = url
+    try {
+      const res = await fetch('/api/stripe/company-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier }),
+      })
+      const { url, error } = await res.json()
+      if (error) {
+        // e.g. 409 "You already have an active subscription — manage it from
+        // the dashboard." Show it instead of failing silently into console.
+        console.error('[pricing] checkout error', error)
+        setCheckoutError(error)
+        setLoading(null)
+        return
+      }
+      if (url) window.location.href = url
+      else setLoading(null)
+    } catch {
+      setCheckoutError('Network issue — please try again.')
+      setLoading(null)
+    }
   }
 
   function startFree() {
@@ -83,6 +98,12 @@ export default function CompanyPricing() {
             ★ Founding Partners — the first 15 companies get 50% off their first paid tier for 6 months, then it reverts. Grandfathered for life.
           </p>
         </div>
+
+        {checkoutError && (
+          <div className="max-w-3xl mx-auto mb-6 rounded-xl px-5 py-3 text-center text-sm text-[#F58E9A]" style={{ background: 'rgba(245,142,154,0.10)', border: '1px solid rgba(245,142,154,0.25)' }}>
+            {checkoutError}
+          </div>
+        )}
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
 
@@ -167,13 +188,18 @@ export default function CompanyPricing() {
             </div>
             <p className="text-xs text-[#7E7E8E] mb-6">14-day free trial · card required · cancel anytime</p>
 
+            {/* Growth bullets MUST stay aligned with the active_hiring rung in
+                src/lib/entitlements.ts — span/turnover views are Enterprise
+                (Product 3) and strategic workforce planning is the $15-25k
+                Product 2 engagement. Advertising those here means paying
+                Growth customers hit lock screens the day gates flip ON. */}
             <div className="space-y-2.5 mb-7 flex-1">
               {[
                 'Everything in Pro, plus:',
+                'Every verified candidate in your market',
                 'Full diagnostic suite',
-                'Verified candidate-pool access',
-                'Strategic workforce planning',
-                'Span + turnover risk views',
+                'Unlimited AI-Proof + salary benchmarks',
+                'Dual budget bands on every role',
                 'Priority support',
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-2.5">

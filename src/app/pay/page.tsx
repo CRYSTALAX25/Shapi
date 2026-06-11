@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 type Preview = {
@@ -13,8 +13,60 @@ type Preview = {
   industry?: string
 }
 
+// The two one-time CV products. MUST mirror /api/stripe/cv-checkout PRODUCTS
+// (kit $25 / pro $59) — that route is the source of truth for what's charged;
+// this object only controls what's displayed.
+const TIERS = {
+  kit: {
+    title: 'CV Kit — one-time',
+    subtitle: 'Download instantly · yours to keep',
+    price: '$25',
+    cta: 'Unlock my enhanced CV — $25 →',
+    features: [
+      { icon: '✨', label: 'Enhanced CV — every version', sub: 'Your WhatsApp answers woven into every bullet point' },
+      { icon: '🎯', label: 'Generate for any industry', sub: 'Tech, media, finance, hospitality — one click, re-framed' },
+      { icon: '🌐', label: 'Native language version', sub: 'Croatian, Arabic, Tagalog — whatever you chose' },
+      { icon: '📤', label: 'Send to your WhatsApp & email', sub: 'Open on any device, print to PDF instantly' },
+      { icon: '✓', label: 'Verified profile badge', sub: 'Shapi-verified on your public profile' },
+    ],
+  },
+  pro: {
+    title: 'CV Pro — one-time',
+    subtitle: 'Everything in the Kit + the deep-dive · yours to keep',
+    price: '$59',
+    cta: 'Unlock CV Pro — $59 →',
+    features: [
+      { icon: '✨', label: 'Everything in the CV Kit', sub: 'Enhanced CV, every industry + language version, WhatsApp & email delivery' },
+      { icon: '💬', label: 'WhatsApp deep-dive interviews', sub: 'Targeted follow-ups that surface achievements you forgot to mention' },
+      { icon: '🔗', label: 'Verification chain', sub: 'Every claim classified: Verified / Shapi-assessed / Self-reported' },
+      { icon: '🧠', label: 'AI cross-check', sub: 'Claims sanity-checked against your real conversation' },
+      { icon: '🗺️', label: 'Career Roadmap', sub: 'Where your profile is strong, what to fix next, and how' },
+    ],
+  },
+} as const
+
+type TierKey = keyof typeof TIERS
+
+// useSearchParams() must live under a <Suspense> boundary in Next 16 —
+// otherwise the whole page bails out of static prerendering and the build
+// errors. The shell renders the page background as the fallback.
 export default function Pay() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0E0E13]" />}>
+      <PayInner />
+    </Suspense>
+  )
+}
+
+function PayInner() {
+  const searchParams = useSearchParams()
+  // Tier comes from the CV-builder gate: /pay?tier=kit | /pay?tier=pro.
+  // Anything else (or nothing) falls back to the $25 Kit.
+  const tier: TierKey = searchParams.get('tier') === 'pro' ? 'pro' : 'kit'
+  const t = TIERS[tier]
+
   const [loading, setLoading] = useState(false)
+  const [payError, setPayError] = useState('')
   const [preview, setPreview] = useState<Preview | null>(null)
   const [firstName, setFirstName] = useState('')
   const [loadingPreview, setLoadingPreview] = useState(true)
@@ -37,15 +89,29 @@ export default function Pay() {
 
   const handlePay = async () => {
     setLoading(true)
+    setPayError('')
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.push('/login'); return }
-    const res = await fetch('/api/stripe/cv-checkout', {
-      method: 'POST',
-    })
-    const { url } = await res.json()
-    if (url) window.location.href = url
-    setLoading(false)
+    try {
+      // Pass the chosen tier through so cv-checkout charges the right
+      // product ($25 kit vs $59 pro) — it reads body.tier.
+      const res = await fetch('/api/stripe/cv-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.url) {
+        setPayError(data.error || `Couldn't start checkout (${res.status}). Please try again.`)
+        setLoading(false)
+        return
+      }
+      window.location.href = data.url
+    } catch {
+      setPayError('Network issue — check your connection and try again.')
+      setLoading(false)
+    }
   }
 
   return (
@@ -159,27 +225,28 @@ export default function Pay() {
           )}
         </div>
 
-        {/* What you get */}
+        {/* What you get — driven by ?tier= so the price shown is the price charged */}
         <div className="gradient-border-card rounded-2xl p-6 mb-6">
           <div className="flex items-start justify-between mb-5">
             <div>
-              <p className="text-[#F4F4F7] font-black text-lg">CV Kit — one-time</p>
-              <p className="text-[#7E7E8E] text-sm mt-1">Download instantly · yours to keep</p>
+              <p className="text-[#F4F4F7] font-black text-lg">
+                {t.title}
+                {tier === 'pro' && (
+                  <span className="ml-2 align-middle text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ color: '#F08CAE', background: 'rgba(240,140,174,0.12)', border: '1px solid rgba(240,140,174,0.35)' }}>
+                    Most picked
+                  </span>
+                )}
+              </p>
+              <p className="text-[#7E7E8E] text-sm mt-1">{t.subtitle}</p>
             </div>
             <div className="text-right">
-              <p className="text-3xl font-black text-[#F4F4F7]">$25</p>
+              <p className="text-3xl font-black text-[#F4F4F7]">{t.price}</p>
               <p className="text-[#7E7E8E] text-xs">one-time · no subscription</p>
             </div>
           </div>
 
           <div className="space-y-3 mb-6">
-            {[
-              { icon: '✨', label: 'Enhanced CV — every version', sub: 'Your WhatsApp answers woven into every bullet point' },
-              { icon: '🎯', label: 'Generate for any industry', sub: 'Tech, media, finance, hospitality — one click, re-framed' },
-              { icon: '🌐', label: 'Native language version', sub: 'Croatian, Arabic, Tagalog — whatever you chose' },
-              { icon: '📤', label: 'Send to your WhatsApp & email', sub: 'Open on any device, print to PDF instantly' },
-              { icon: '✓', label: 'Verified profile badge', sub: 'Shapi-verified on your public profile' },
-            ].map((item, i) => (
+            {t.features.map((item, i) => (
               <div key={i} className="flex items-start gap-3">
                 <span className="text-base flex-shrink-0 w-6 text-center">{item.icon}</span>
                 <div>
@@ -190,14 +257,31 @@ export default function Pay() {
             ))}
           </div>
 
+          {payError && (
+            <div className="mb-4 rounded-xl px-4 py-3 text-xs text-[#F58E9A]" style={{ background: 'rgba(245,142,154,0.10)', border: '1px solid rgba(245,142,154,0.25)' }}>
+              {payError}
+            </div>
+          )}
+
           <button
             onClick={handlePay}
             disabled={loading}
             className="w-full py-4 rounded-full font-black text-sm transition-opacity disabled:opacity-40"
             style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)', color: '#fff' }}
           >
-            {loading ? 'Redirecting to payment…' : 'Unlock my enhanced CV — $25 →'}
+            {loading ? 'Redirecting to payment…' : t.cta}
           </button>
+
+          {/* Tier switch — keep both prices one tap away */}
+          <p className="text-center text-xs text-[#7E7E8E] mt-3">
+            {tier === 'kit' ? (
+              <>Want the deep-dive + verification chain?{' '}
+                <Link href="/pay?tier=pro" className="text-[#F08CAE] font-bold hover:underline">CV Pro — $59 →</Link></>
+            ) : (
+              <>Just the enhanced CV?{' '}
+                <Link href="/pay?tier=kit" className="text-[#6AA8F5] font-bold hover:underline">CV Kit — $25 →</Link></>
+            )}
+          </p>
 
           <p className="text-center text-xs text-[#5C5C6A] mt-4">
             Secure payment via Stripe · 30-day money-back guarantee
