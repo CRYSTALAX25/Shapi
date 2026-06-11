@@ -10,7 +10,8 @@ import { useTranslation } from '@/lib/i18n/LocaleContext'
 // It does NOT change any copy (all text still comes from the same t() keys, so
 // all 9 locales + RTL keep working) and it preserves both signup CTAs and the
 // candidate/company chooser. The motion is brand-driven: an aurora gradient
-// mesh in cyan→purple→coral, a "constellation" of North-Star nodes connecting
+// mesh in violet→emerald→coral (Violet Mint palette — violet leads, emerald is
+// the proof-glow, coral the rare punch), a "constellation" of North-Star nodes connecting
 // (Shapi's matching cue), staggered fade-up of the headline, and a magnetic /
 // springy hover on the two CTAs.
 //
@@ -76,7 +77,7 @@ export default function WowHero() {
           style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
           variants={item}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#22D3EE] animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#34D399] animate-pulse" />
           <span className="text-[#A6A6B4] text-xs font-medium">{t('home.hero.badgeDate')}</span>
           <span className="text-white/15">·</span>
           <span className="text-xs font-bold" style={{ color: '#FB7185' }}>{t('home.hero.badgeAccess')}</span>
@@ -85,7 +86,7 @@ export default function WowHero() {
         {/* Audience chooser — preserved. Candidates land here by default;
             companies tap through to the dedicated workforce-intelligence page. */}
         <motion.div className="flex flex-wrap justify-center gap-2 mb-8 text-xs font-bold" variants={item}>
-          <span className="px-3 py-1.5 rounded-full" style={{ background: 'rgba(251,113,133,0.15)', color: '#FB7185', border: '1px solid rgba(251,113,133,0.30)' }}>
+          <span className="px-3 py-1.5 rounded-full" style={{ background: 'rgba(157,140,255,0.15)', color: 'var(--accent)', border: '1px solid rgba(157,140,255,0.30)' }}>
             {t('home.chooser.candidate')}
           </span>
           <Link href="/for-companies" className="px-3 py-1.5 rounded-full hover:bg-white/[0.06] transition-colors" style={{ color: '#A6A6B4', border: '1px solid rgba(255,255,255,0.10)' }}>
@@ -99,7 +100,7 @@ export default function WowHero() {
           <span
             className="block"
             style={{
-              background: 'linear-gradient(135deg, #22D3EE, #A78BFA, #FB7185, #22D3EE)',
+              background: 'linear-gradient(135deg, #9D8CFF, #34D399, #FB7185, #9D8CFF)',
               backgroundSize: '300% 300%',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -128,35 +129,35 @@ export default function WowHero() {
         {/* Floating verified-profile card — the real product */}
         <motion.div className="relative max-w-md mx-auto" variants={item}>
           <div className="hidden lg:block">
-            <FloatChip text={t('home.hero.chipRefs')} color="#22D3EE" pos="-left-28 top-2" reduce={!!reduce} delay={0} />
-            <FloatChip text={t('home.hero.chipCrossCheck')} color="#FB7185" pos="-right-28 top-8" reduce={!!reduce} delay={1.2} />
+            <FloatChip text={t('home.hero.chipRefs')} color="#9D8CFF" pos="-left-28 top-2" reduce={!!reduce} delay={0} />
+            <FloatChip text={t('home.hero.chipCrossCheck')} color="#34D399" pos="-right-28 top-8" reduce={!!reduce} delay={1.2} />
           </div>
           <motion.div
             animate={reduce ? undefined : { y: [0, -10, 0] }}
             transition={reduce ? undefined : { duration: 6, repeat: Infinity, ease: 'easeInOut' }}
           >
             <div className="rounded-2xl p-6 text-start" style={{
-              background: '#0d0d14',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'var(--surface)',
+              border: '1px solid var(--line)',
               boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)',
             }}>
               {/* identity */}
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-black text-white flex-shrink-0" style={{ background: 'linear-gradient(135deg,#22D3EE,#A78BFA)' }}>A</div>
+                <div className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-black text-white flex-shrink-0" style={{ background: 'var(--grad)' }}>A</div>
                 <div className="min-w-0 flex-1">
                   <div className="text-base font-black text-[#F4F4F7]">{t('home.hero.cardName')}</div>
                   <div className="text-xs text-[#7E7E8E]">{t('home.hero.cardRole')}</div>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#22D3EE]/15 text-[#22D3EE] flex-shrink-0">{t('home.hero.cardVerifiedBadge')}</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#34D399]/15 text-[#34D399] flex-shrink-0">{t('home.hero.cardVerifiedBadge')}</span>
               </div>
               {/* profile strength */}
               <div className="flex items-center gap-3 mb-4">
-                <div className="text-2xl font-black" style={{ background: 'linear-gradient(135deg,#22D3EE,#A78BFA,#FB7185)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>94%</div>
+                <div className="text-2xl font-black" style={{ color: 'var(--verified)' }}>94%</div>
                 <div className="flex-1">
                   <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
                     <motion.div
                       className="h-full rounded-full"
-                      style={{ background: 'linear-gradient(90deg,#22D3EE,#A78BFA,#FB7185)' }}
+                      style={{ background: 'var(--verified)' }}
                       initial={reduce ? { width: '94%' } : { width: '0%' }}
                       animate={{ width: '94%' }}
                       transition={reduce ? undefined : { duration: 1.1, ease: 'easeOut', delay: 0.5 }}
@@ -175,8 +176,8 @@ export default function WowHero() {
                   [t('home.hero.cardItem5Label'), t('home.hero.cardItem5Sub')],
                 ].map(([label, sub], i) => (
                   <div key={i} className="flex items-center gap-2.5">
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(34,211,238,0.14)' }}>
-                      <svg className="w-3 h-3 text-[#22D3EE]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                    <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(52,211,153,0.14)' }}>
+                      <svg className="w-3 h-3 text-[#34D399]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                     </span>
                     <div className="min-w-0 text-xs">
                       <span className="font-bold text-[#F4F4F7]">{label}</span>
@@ -188,7 +189,7 @@ export default function WowHero() {
               {/* footer */}
               <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/[0.08]">
                 <span className="text-xs text-[#7E7E8E]">{t('home.hero.cardFooterText')}</span>
-                <span className="text-xs font-black" style={{ color: '#22D3EE' }}>{t('home.hero.cardFooterTrust')}</span>
+                <span className="text-xs font-black" style={{ color: 'var(--verified)' }}>{t('home.hero.cardFooterTrust')}</span>
               </div>
             </div>
           </motion.div>
@@ -208,9 +209,9 @@ export default function WowHero() {
 function AuroraMesh({ reduce }: { reduce: boolean }) {
   // Three brand-coloured radial blobs, GPU-friendly (transform/opacity only).
   const blobs = [
-    { c: 'rgba(34,211,238,0.20)', cls: 'top-[-6rem] left-1/4 w-[600px] h-[600px]', dur: 11 },
-    { c: 'rgba(167,139,250,0.18)', cls: 'top-10 right-1/4 w-[520px] h-[520px]', dur: 13 },
-    { c: 'rgba(251,113,133,0.14)', cls: '-bottom-24 left-1/2 -translate-x-1/2 w-[440px] h-[440px]', dur: 15 },
+    { c: 'rgba(157,140,255,0.20)', cls: 'top-[-6rem] left-1/4 w-[600px] h-[600px]', dur: 11 },
+    { c: 'rgba(52,211,153,0.14)', cls: 'top-10 right-1/4 w-[520px] h-[520px]', dur: 13 },
+    { c: 'rgba(251,113,133,0.10)', cls: '-bottom-24 left-1/2 -translate-x-1/2 w-[440px] h-[440px]', dur: 15 },
   ]
   return (
     <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
@@ -242,7 +243,8 @@ function Constellation({ reduce }: { reduce: boolean }) {
   const edges: [number, number][] = [
     [0, 2], [2, 6], [6, 3], [3, 1], [4, 6], [4, 5], [4, 7],
   ]
-  const colors = ['#22D3EE', '#A78BFA', '#FB7185']
+  // Violet leads; emerald is the proof-glow accent (every third node).
+  const colors = ['#9D8CFF', '#9D8CFF', '#34D399']
 
   return (
     <svg
@@ -279,8 +281,8 @@ function Constellation({ reduce }: { reduce: boolean }) {
       ))}
       <defs>
         <linearGradient id="wowEdge" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#22D3EE" />
-          <stop offset="100%" stopColor="#A78BFA" />
+          <stop offset="0%" stopColor="#9D8CFF" />
+          <stop offset="100%" stopColor="#34D399" />
         </linearGradient>
       </defs>
     </svg>
@@ -311,10 +313,10 @@ function MagneticCTA({
         className={`block px-8 py-4 rounded-full text-sm transition-colors ${className}`}
         style={{ background: '#0B0B0F', color: '#F4F4F7', border: '1px solid rgba(255,255,255,0.12)' }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'linear-gradient(135deg,#22D3EE,#A78BFA,#FB7185)'
+          e.currentTarget.style.background = 'linear-gradient(135deg,#9D8CFF,#34D399)'
           e.currentTarget.style.borderColor = 'transparent'
           e.currentTarget.style.color = '#fff'
-          e.currentTarget.style.boxShadow = '0 12px 32px rgba(167,139,250,0.34)'
+          e.currentTarget.style.boxShadow = '0 12px 32px rgba(157,140,255,0.34)'
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.background = '#0B0B0F'
@@ -346,7 +348,7 @@ function FloatChip({
   return (
     <motion.div
       className={`absolute z-20 ${pos} rounded-full pl-2 pr-3 py-1.5 flex items-center gap-2 whitespace-nowrap`}
-      style={{ background: '#0d0d14', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}
+      style={{ background: 'var(--surface)', border: '1px solid var(--line)', boxShadow: '0 8px 24px rgba(0,0,0,0.4)' }}
       animate={reduce ? undefined : { y: [0, -10, 0] }}
       transition={reduce ? undefined : { duration: 6, repeat: Infinity, ease: 'easeInOut', delay }}
     >

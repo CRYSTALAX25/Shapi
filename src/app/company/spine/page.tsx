@@ -83,12 +83,12 @@ export default async function SpinePage({
 
   const planTier = (profile as { plan_tier?: string | null }).plan_tier || 'free'
 
-  const ACCENT = '#7c93f5'
-  const HEADING_STYLE: React.CSSProperties = { color: '#f4f6f9' }
-  const BODY_STYLE: React.CSSProperties = { color: '#9ca3af' }
+  const ACCENT = '#9D8CFF'
+  const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
+  const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
 
   return (
-    <main className="min-h-screen px-4 py-10 sm:py-14" style={{ background: '#0c0e11' }}>
+    <main className="min-h-screen px-4 py-10 sm:py-14" style={{ background: '#060609' }}>
       {/* Wider shell than the rest of the company surface — the org map needs
           horizontal room. The CSV + CRUD sections below stay at reading width. */}
       <div className="max-w-6xl mx-auto">
@@ -115,7 +115,7 @@ export default async function SpinePage({
           <div
             className="mb-6 p-5 rounded-2xl"
             style={{
-              background: 'linear-gradient(135deg, rgba(106,168,245,0.10), rgba(240,140,174,0.10))',
+              background: 'linear-gradient(135deg, rgba(157,140,255,0.10), rgba(52,211,153,0.08))',
               border: `1px solid ${ACCENT}55`,
             }}
           >

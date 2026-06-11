@@ -1,31 +1,35 @@
 # Shapi Brand Kit
 
-Single source of truth for brand colours, type, gradients, and components. This is what's actually in the live product (not the older warm-teal kit some legacy docs reference).
+**Palette: VIOLET MINT — locked 2026-06-11 (supersedes the cyan/purple kit).**
 
-The aesthetic is **deep-space + neon gradient**: near-black backgrounds, cyan→purple gradient accents, coral for emphasis. Modern, technical, premium. Inspired by what serious AI products look like in 2026 — confident, dark, with restrained colour as signal.
+Single source of truth for brand colours, type, gradients, and components. This is what's actually in the live product (not the older warm-teal kit or the cyan/purple kit some legacy docs reference).
+
+The aesthetic is **deep-space + violet intelligence**: near-black backgrounds, violet→emerald gradient accents, coral for punch. Violet owns "intelligence + premium" in a market drowning in HR-tool blue; the brand gradient ends in verified-green so the logo itself says what Shapi is — intelligence that resolves into verified truth.
+
+**THE DISCIPLINE RULE: green is never decorative.** Every green pixel means verified / positive / "do this". Violet is the workhorse accent for everything else.
 
 ---
 
 ## Colours
 
+All tokens are defined once as CSS custom properties on `:root` in `src/app/globals.css` (`--bg`, `--surface`, `--accent`, `--accent2`, `--grad`, `--verified`, `--warn`, `--punch`, `--text-hi/mid/low/hint`, `--line`, `--dot`). Prefer `var()` references in code.
+
 ### Backgrounds
 | Name | Hex | Where |
 |------|-----|-------|
 | Deep space | `#060609` | Page background — almost-black with a hint of blue |
-| Card surface | `#0d0d14` | Slightly lifted from bg — cards, modals, side panels |
-| Card surface hover | `#11111a` | Lift on hover |
-| Border subtle | `rgba(255,255,255,0.06)` | Default card / divider stroke |
-| Border highlight | `rgba(34,211,238,0.25)` | Active / hovered card stroke |
+| Card surface | `#0D0C14` | Violet-tinted, slightly lifted from bg — cards, modals, side panels |
+| Card surface hover | `#11101A` | Lift on hover |
+| Hairline / border | `rgba(255,255,255,0.07)` | Default card / divider stroke (`--line`) |
+| Border highlight | `rgba(157,140,255,0.25)` | Active / hovered card stroke |
 
 ### Brand accents
 | Name | Hex | Use |
 |------|-----|-----|
-| Cyan | `#22D3EE` | **Primary accent** — headlines, links, key stats, active states |
-| Purple | `#A78BFA` | **Secondary accent** — gradient pair with cyan, badges |
-| Coral | `#FB7185` | **Punch** — the stat that stops a scroll, urgent CTAs, "wow" numbers |
-| Emerald | `#34D399` | **Positive signal** — verified, done, "do this", success states |
-| Amber | `#FBBF24` | **Warning / premium** — "don't do this", Premium Verified tier, attention chips |
-| Pink (alt) | `#FB7185` | Same as coral — Heart axis on Skill Quadrant |
+| Violet | `#9D8CFF` | **Primary accent (workhorse)** — headlines, links, key stats, active states, eyebrows |
+| Emerald | `#34D399` | **Secondary accent / verified / positive** — verified badges, checks, success, "do this". Never decorative |
+| Coral | `#FB7185` | **Punch / urgent** — the stat that stops a scroll, urgent CTAs, scarcity, "wow" numbers only |
+| Amber | `#FBBF24` | **Warning / premium** — "don't do this", Premium tiers, Concierge, attention chips only |
 
 ### Text on dark
 | Use | Value |
@@ -51,21 +55,22 @@ The aesthetic is **deep-space + neon gradient**: near-black backgrounds, cyan→
 ## Signature gradients
 
 ```
-/* Primary brand gradient — used on logo, CTAs, hero text */
-linear-gradient(135deg, #22D3EE, #A78BFA)
-linear-gradient(135deg, #22D3EE 0%, #8B5CF6 100%)   /* tighter purple variant */
+/* Primary brand gradient — logo, CTAs, hero text. Violet → emerald:
+   intelligence resolving into verified truth. */
+linear-gradient(135deg, #9D8CFF, #34D399)
 
-/* Hot-take / shimmer gradient — slide 1 hook accents, big moments */
-linear-gradient(135deg, #22D3EE, #A78BFA, #FB7185, #22D3EE)
+/* Hot-take / shimmer gradient — hero headline, big moments.
+   Coral is the rare third — ONE accent moment per page max. */
+linear-gradient(135deg, #9D8CFF, #34D399, #FB7185, #9D8CFF)
 
 /* Card border gradient (with padding-box trick) */
 background:
-  linear-gradient(#0d0d14, #0d0d14) padding-box,
-  linear-gradient(135deg, rgba(34,211,238,0.15), rgba(167,139,250,0.15)) border-box;
+  linear-gradient(#0D0C14, #0D0C14) padding-box,
+  linear-gradient(135deg, rgba(157,140,255,0.15), rgba(52,211,153,0.15)) border-box;
 border: 1px solid transparent;
 
 /* Top strip on CV PDFs */
-linear-gradient(90deg, #22D3EE, #A78BFA)
+linear-gradient(90deg, #9D8CFF, #34D399)
 ```
 
 ---
@@ -110,11 +115,11 @@ Fallback stack:
 ## Component patterns
 
 ### "Gradient border" card (the workhorse)
-The signature card style across the product. Subtle cyan→purple stroke on dark card.
+The signature card style across the product. Subtle violet→emerald stroke on dark card.
 
 ```jsx
 <div style={{
-  background: 'linear-gradient(#0d0d14,#0d0d14) padding-box, linear-gradient(135deg, rgba(34,211,238,0.15), rgba(167,139,250,0.15)) border-box',
+  background: 'linear-gradient(#0D0C14,#0D0C14) padding-box, linear-gradient(135deg, rgba(157,140,255,0.15), rgba(52,211,153,0.15)) border-box',
   border: '1px solid transparent',
   borderRadius: '1rem',
 }} />
@@ -123,29 +128,29 @@ The signature card style across the product. Subtle cyan→purple stroke on dark
 ### Tier badges
 | Tier | Bg | Text | Border |
 |------|----|------|--------|
-| Basic Verified | `rgba(34,211,238,0.12)` | `#22D3EE` | `#22D3EE40` |
+| Basic Verified | `rgba(157,140,255,0.12)` | `#9D8CFF` | `#9D8CFF40` |
 | Strongly Verified | `rgba(52,211,153,0.13)` | `#34D399` | `#34D39940` |
 | Premium Verified | `rgba(251,191,36,0.15)` | `#FBBF24` | `#FBBF2440` |
-| Shapi Verified (fallback) | `rgba(167,139,250,0.13)` | `#A78BFA` | `#A78BFA40` |
+| Shapi Verified (fallback) | `rgba(157,140,255,0.13)` | `#9D8CFF` | `#9D8CFF40` |
 | Active Concierge | `rgba(251,191,36,0.18)` | `#FBBF24` | — |
 | Shapi Active | `rgba(251,113,133,0.15)` | `#FB7185` | — |
-| Open Roles Board | `rgba(34,211,238,0.12)` | `#22D3EE` | — |
-| CV Kit | `rgba(167,139,250,0.12)` | `#A78BFA` | — |
+| Open Roles Board | `rgba(157,140,255,0.12)` | `#9D8CFF` | — |
+| CV Kit | `rgba(157,140,255,0.12)` | `#9D8CFF` | — |
 | Free | `rgba(255,255,255,0.06)` | `rgba(255,255,255,0.3)` | — |
 
 ### Skill Quadrant axis colours
 | Axis | Hex |
 |------|-----|
 | Hands | `#34D399` emerald |
-| Heart | `#FB7185` pink/coral |
-| Head | `#22D3EE` cyan |
-| Spark | `#A78BFA` purple |
+| Heart | `#FB7185` coral |
+| Head | `#9D8CFF` violet |
+| Spark | `#FBBF24` amber |
 
 ### Dot grid background overlay
-Subtle radial dot pattern used across most pages:
+Subtle radial dot pattern used across most pages (`--dot`):
 
 ```css
-background-image: radial-gradient(circle, rgba(34,211,238,0.06) 1px, transparent 1px);
+background-image: radial-gradient(circle, rgba(157,140,255,0.07) 1px, transparent 1px);
 background-size: 44px 44px;
 ```
 
@@ -153,11 +158,11 @@ background-size: 44px 44px;
 
 ## Logo wordmark
 
-The literal text **"shapi"** rendered in the primary brand gradient. No icon. Always lowercase.
+The literal text **"shapi"** rendered in the primary brand gradient. No icon. Always lowercase. Every wordmark (nav, footer, hero, marketing) uses the same violet→emerald gradient.
 
 ```jsx
 <span style={{
-  background: 'linear-gradient(135deg, #A78BFA, #22D3EE)',
+  background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
   WebkitBackgroundClip: 'text',
   WebkitTextFillColor: 'transparent',
   backgroundClip: 'text',
@@ -185,9 +190,12 @@ Sizes: `text-xl` (nav), `text-3xl` (footer, marketing), `text-6xl`+ (hero).
 
 ## What NOT to use
 
+- ❌ Cyan `#22D3EE` as primary (and its purple pair `#A78BFA`) — superseded by Violet Mint on 2026-06-11
+- ❌ Blue/pink `#6AA8F5` / `#F08CAE` (and `#F58E9A`) — the old homepage palette, retired
+- ❌ Green as decoration — emerald `#34D399` ONLY ever means verified / positive / "do this"
 - ❌ Pure black `#000000` — use deep space `#060609` instead
 - ❌ Pure white text on dark — use `rgba(255,255,255,0.9)` for ease on eyes
-- ❌ Warm tones (teal `#0B5563`, cream `#F8F4EE`) — those are stale from an earlier brand direction
+- ❌ Warm tones (teal `#0B5563`, cream `#F8F4EE`) — stale from an earlier brand direction
 - ❌ Mixing more than 2 gradient colours per surface — the 4-stop shimmer gradient is for ONE accent moment per page max
 - ❌ Drop shadows on text — we use gradients + glows instead (the `btn-glow` class uses `bg-gradient-to-r` with `blur-sm` for the soft halo)
 
@@ -197,13 +205,15 @@ Sizes: `text-xl` (nav), `text-3xl` (footer, marketing), `text-6xl`+ (hero).
 
 ```
 BACKGROUND  #060609
-SURFACE     #0d0d14
-CYAN        #22D3EE   primary
-PURPLE      #A78BFA   secondary
-CORAL       #FB7185   punch
-EMERALD     #34D399   positive
-AMBER       #FBBF24   premium/warning
+SURFACE     #0D0C14   violet-tinted
+VIOLET      #9D8CFF   primary (workhorse)
+EMERALD     #34D399   secondary · verified · positive (never decorative)
+CORAL       #FB7185   punch · urgent
+AMBER       #FBBF24   premium · warning
 
-GRADIENT    linear-gradient(135deg, #22D3EE, #A78BFA)
+GRADIENT    linear-gradient(135deg, #9D8CFF, #34D399)
+DOT GRID    rgba(157,140,255,0.07)
+HAIRLINE    rgba(255,255,255,0.07)
+TEXT TIERS  rgba(255,255,255, .9 / .6 / .4 / .25)
 FONT        Plus Jakarta Sans
 ```

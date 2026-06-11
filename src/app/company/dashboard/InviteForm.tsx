@@ -55,13 +55,13 @@ export default function InviteForm() {
           value={email}
           onChange={e => { setEmail(e.target.value); if (status === 'error') setStatus('idle') }}
           disabled={status === 'sending'}
-          className="flex-1 bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/90 placeholder-white/25 outline-none focus:border-[#22D3EE]/40 disabled:opacity-50"
+          className="flex-1 bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/90 placeholder-white/25 outline-none focus:border-[#9D8CFF]/40 disabled:opacity-50"
         />
         <button
           type="submit"
           disabled={status === 'sending' || !email.trim()}
           className="flex-shrink-0 text-white text-xs font-black px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
-          style={{ background: 'linear-gradient(135deg, #22D3EE, #A78BFA)' }}
+          style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
         >
           {status === 'sending' ? 'Inviting…' : 'Invite'}
         </button>

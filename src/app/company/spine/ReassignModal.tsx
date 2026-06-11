@@ -8,12 +8,12 @@
 // move commits. Confirm = PATCH seat.team_id + POST the decision with the typed
 // reason. Cancel / Escape = abort, no DB write.
 //
-// Native to the dark canvas: card surface #13161b, accent #7c93f5, Plus Jakarta
+// Native to the dark canvas: card surface #0D0C14, accent #9D8CFF, Plus Jakarta
 // Sans inherited from the app shell.
 
 import { useEffect, useRef, useState } from 'react'
 
-const ACCENT = '#7c93f5'
+const ACCENT = '#9D8CFF'
 const MIN_CHARS = 20
 
 // Mirrors the decision_type CHECK constraint in blueprint_v4_06_decisions.sql,
@@ -112,7 +112,7 @@ export default function ReassignModal({ ctx, onCancel, onConfirm, defaultDecisio
       <div
         className="w-full max-w-md rounded-2xl p-5"
         style={{
-          background: '#13161b',
+          background: '#0D0C14',
           border: `1px solid ${ACCENT}55`,
           boxShadow: '0 24px 60px -12px rgba(0,0,0,0.7)',
         }}
@@ -128,14 +128,14 @@ export default function ReassignModal({ ctx, onCancel, onConfirm, defaultDecisio
         <h2
           id="reassign-modal-title"
           className="text-sm font-black leading-snug mb-1"
-          style={{ color: '#f4f6f9' }}
+          style={{ color: 'rgba(255,255,255,0.9)' }}
         >
           Move &ldquo;{ctx.seatTitle}&rdquo;
         </h2>
         <p className="text-xs mb-4" style={{ color: 'rgba(255,255,255,0.6)' }}>
-          <span style={{ color: '#9ca3af' }}>{ctx.fromTeamName}</span>
+          <span style={{ color: 'rgba(255,255,255,0.5)' }}>{ctx.fromTeamName}</span>
           <span style={{ color: ACCENT }}> &rarr; </span>
-          <span style={{ color: '#f4f6f9', fontWeight: 700 }}>{ctx.toTeamName}</span>
+          <span style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 700 }}>{ctx.toTeamName}</span>
         </p>
 
         {/* Decision type */}
@@ -153,13 +153,13 @@ export default function ReassignModal({ ctx, onCancel, onConfirm, defaultDecisio
           disabled={submitting}
           className="w-full rounded-lg px-3 py-2 text-xs mb-4 outline-none"
           style={{
-            background: '#0c0e11',
+            background: '#060609',
             border: '1px solid rgba(255,255,255,0.1)',
             color: 'rgba(255,255,255,0.9)',
           }}
         >
           {DECISION_TYPES.map(d => (
-            <option key={d.value} value={d.value} style={{ background: '#0c0e11' }}>
+            <option key={d.value} value={d.value} style={{ background: '#060609' }}>
               {d.label}
             </option>
           ))}
@@ -191,7 +191,7 @@ export default function ReassignModal({ ctx, onCancel, onConfirm, defaultDecisio
           placeholder="Give the real reason — this is logged immutably in your decisions audit trail."
           className="w-full rounded-lg px-3 py-2 text-xs outline-none resize-none"
           style={{
-            background: '#0c0e11',
+            background: '#060609',
             border: `1px solid ${valid ? 'rgba(52,211,153,0.4)' : 'rgba(255,255,255,0.1)'}`,
             color: 'rgba(255,255,255,0.9)',
           }}
@@ -221,7 +221,7 @@ export default function ReassignModal({ ctx, onCancel, onConfirm, defaultDecisio
             disabled={submitting}
             className="text-xs font-bold px-4 py-2 rounded-full transition-colors"
             style={{
-              background: '#0c0e11',
+              background: '#060609',
               color: 'rgba(255,255,255,0.6)',
               border: '1px solid rgba(255,255,255,0.1)',
               opacity: submitting ? 0.5 : 1,
@@ -235,8 +235,8 @@ export default function ReassignModal({ ctx, onCancel, onConfirm, defaultDecisio
             disabled={!valid || submitting}
             className="text-xs font-bold px-4 py-2 rounded-full transition-colors"
             style={{
-              background: !valid || submitting ? 'rgba(124,147,245,0.2)' : ACCENT,
-              color: !valid || submitting ? 'rgba(255,255,255,0.4)' : '#0b0d12',
+              background: !valid || submitting ? 'rgba(157,140,255,0.2)' : ACCENT,
+              color: !valid || submitting ? 'rgba(255,255,255,0.4)' : '#060609',
               border: `1px solid ${!valid || submitting ? `${ACCENT}55` : ACCENT}`,
               cursor: !valid || submitting ? 'not-allowed' : 'pointer',
             }}

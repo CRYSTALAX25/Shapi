@@ -10,10 +10,11 @@ import WhatsAppConnectCard from '@/components/WhatsAppConnectCard'
 import { hasActiveHiring } from '@/lib/subscriptions'
 
 // ── Company dashboard — redesigned 2026-06 ──────────────────────────────────
-// Founder feedback: the old page was messy — mixed palettes (#0E0E13 /
-// #16161F / #6AA8F5), nav pills overlapping the completion ring at mid widths,
-// and big upsell banners cluttering the main flow. Now:
-//   · BRAND.md kit enforced throughout (bg #060609, cards #0d0d14, cyan→purple)
+// Founder feedback: the old page was messy — mixed legacy palettes, nav pills
+// overlapping the completion ring at mid widths, and big upsell banners
+// cluttering the main flow. Now:
+//   · LOCKED Violet Mint kit enforced throughout (bg #060609, cards #0D0C14,
+//     violet #9D8CFF workhorse, emerald #34D399 only for verified/positive)
 //   · Real two-column shell — sidebar owns its column (see DashboardNav.tsx)
 //   · Main column hierarchy: greeting + live KPI chips → "What needs you
 //     today" hero → status card grid → team access
@@ -222,31 +223,31 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   return (
     <div className="min-h-screen" style={{ background: '#060609' }}>
       <style>{`
-        /* BRAND.md gradient-border card — hero surfaces only */
+        /* Violet Mint gradient-border card — hero surfaces only */
         .gradient-border-card {
-          background: linear-gradient(#0d0d14, #0d0d14) padding-box,
-                      linear-gradient(135deg, rgba(34,211,238,0.15), rgba(167,139,250,0.15)) border-box;
+          background: linear-gradient(#0D0C14, #0D0C14) padding-box,
+                      linear-gradient(135deg, rgba(157,140,255,0.15), rgba(52,211,153,0.15)) border-box;
           border: 1px solid transparent;
           border-radius: 1rem;
         }
         /* Plain card — everything else */
         .plain-card {
-          background: #0d0d14;
+          background: #0D0C14;
           border: 1px solid rgba(255,255,255,0.06);
           border-radius: 1rem;
         }
         .card-hover { transition: background 0.15s, border-color 0.15s; }
         .card-hover:hover {
-          background: #11111a;
-          border-color: rgba(34,211,238,0.25);
+          background: #131220;
+          border-color: rgba(157,140,255,0.25);
         }
         .shapi-noscroll { scrollbar-width: none; }
         .shapi-noscroll::-webkit-scrollbar { display: none; }
       `}</style>
 
-      {/* Dot-grid overlay — BRAND.md spec (cyan-tinted) */}
+      {/* Dot-grid overlay — Violet Mint spec (violet-tinted) */}
       <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(34,211,238,0.06) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(157,140,255,0.07) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
       }} />
 
@@ -257,7 +258,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
           <Link
             href="/"
             className="font-black text-xl"
-            style={{ background: 'linear-gradient(135deg, #A78BFA, #22D3EE)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '-0.02em' }}
+            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '-0.02em' }}
           >
             shapi
           </Link>
@@ -286,22 +287,22 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                 <Link
                   href="/company/roles/new"
                   className="flex-shrink-0 px-5 py-2.5 rounded-full font-black text-xs text-white hover:opacity-90 transition-opacity"
-                  style={{ background: 'linear-gradient(135deg, #22D3EE, #A78BFA)' }}
+                  style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
                 >
                   + Post a role
                 </Link>
               </div>
               <div className="flex flex-wrap gap-2 mt-4">
-                <KpiChip value={`${companyCompletion}%`} label="org verified" color={companyCompletion >= 100 ? '#34D399' : '#22D3EE'} />
-                <KpiChip value={`${activeRoles.length}`} label={activeRoles.length === 1 ? 'active role' : 'active roles'} color="#A78BFA" />
-                <KpiChip value={`${count}`} label="candidates in pool" color="#22D3EE" />
+                <KpiChip value={`${companyCompletion}%`} label="org verified" color={companyCompletion >= 100 ? '#34D399' : '#9D8CFF'} />
+                <KpiChip value={`${activeRoles.length}`} label={activeRoles.length === 1 ? 'active role' : 'active roles'} color="#9D8CFF" />
+                <KpiChip value={`${count}`} label="candidates in pool" color="#9D8CFF" />
               </div>
             </header>
 
             {/* Snapshot-just-completed celebration + Growth trial CTA — peak-intent
                 contextual moment (lands here from /company/workforce-snapshot?first=true). */}
             {justRanSnapshot && (
-              <div className="rounded-2xl p-6 mb-6" style={{ background: 'linear-gradient(135deg, rgba(52,211,153,0.12), rgba(34,211,238,0.06))', border: '1px solid rgba(52,211,153,0.35)' }}>
+              <div className="rounded-2xl p-6 mb-6" style={{ background: 'linear-gradient(135deg, rgba(52,211,153,0.12), rgba(157,140,255,0.06))', border: '1px solid rgba(52,211,153,0.35)' }}>
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: '#34D399' }}>✓</div>
                   <div className="flex-1 min-w-0">
@@ -396,8 +397,8 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                     <circle cx="40" cy="40" r="34" fill="none" stroke={companyCompletion >= 100 ? '#34D399' : 'url(#coGrad)'} strokeWidth="7" strokeLinecap="round" strokeDasharray={compCircumference} strokeDashoffset={compDashOffset} />
                     <defs>
                       <linearGradient id="coGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#22D3EE" />
-                        <stop offset="100%" stopColor="#A78BFA" />
+                        <stop offset="0%" stopColor="#9D8CFF" />
+                        <stop offset="100%" stopColor="#34D399" />
                       </linearGradient>
                     </defs>
                   </svg>
@@ -407,7 +408,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                 </div>
                 <div className="min-w-0">
                   <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/40 mb-1">Profile completion</p>
-                  <h2 className="text-base font-black" style={companyCompletion >= 100 ? { color: '#34D399' } : { background: 'linear-gradient(135deg, #22D3EE, #A78BFA)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                  <h2 className="text-base font-black" style={companyCompletion >= 100 ? { color: '#34D399' } : { background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                     {companyCompletion >= 100 ? 'Verified employer ✓' : `${companyCompletion}% complete`}
                   </h2>
                   <p className="text-white/40 text-[11px] mt-1">Higher = stronger trust score</p>
@@ -420,7 +421,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                 <p className="text-2xl font-black text-white/90 mb-1">{count}</p>
                 <p className="text-white/60 text-xs">ready to view — pre-referenced + AI-scored</p>
                 {isPaid ? (
-                  <p className="text-[#22D3EE] text-xs font-bold mt-4">Browse pool →</p>
+                  <p className="text-[#9D8CFF] text-xs font-bold mt-4">Browse pool →</p>
                 ) : (
                   <p className="text-[#FB7185] text-xs font-bold mt-4">Preview pool — subscribe to unlock full profiles →</p>
                 )}
@@ -431,19 +432,19 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/40 mb-1.5">Your roles</p>
                 <p className="text-2xl font-black text-white/90 mb-1">{activeRoles.length}</p>
                 <p className="text-white/60 text-xs">{activeRoles.length === 0 ? 'post one to see candidates matched to it' : 'open · click a role for its matches'}</p>
-                <p className="text-[#22D3EE] text-xs font-bold mt-4">{activeRoles.length === 0 ? 'Post a role →' : 'See matches per role →'}</p>
+                <p className="text-[#9D8CFF] text-xs font-bold mt-4">{activeRoles.length === 0 ? 'Post a role →' : 'See matches per role →'}</p>
               </Link>
 
               {/* Workforce Snapshot nudge — first-touch acquisition wedge,
                   shown only until they've run one. STRATEGY §16 Tier A. */}
               {!hasRunSnapshot && (
                 <Link href="/company/workforce-snapshot" className="plain-card card-hover p-6 block">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] mb-1.5" style={{ color: '#34D399' }}>✦ Start here — free</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] mb-1.5" style={{ color: '#9D8CFF' }}>✦ Start here — free</p>
                   <p className="text-white/90 text-base font-black mb-1">Run your Workforce Snapshot</p>
                   <p className="text-white/60 text-xs leading-relaxed">
                     Five inputs, zero confidential data, one honest report — your <strong className="text-white/90">Future Readiness Score</strong>, AI risk heatmap, top at-risk roles, and what AI integration will actually cost. ~30 seconds.
                   </p>
-                  <p className="text-[#34D399] text-xs font-bold mt-4">Run it →</p>
+                  <p className="text-[#9D8CFF] text-xs font-bold mt-4">Run it →</p>
                 </Link>
               )}
 
@@ -451,12 +452,12 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                   gated (daily AI-shortlist per role). STRATEGY §14/§16. */}
               {!hasAH && (
                 <SubscribeButton product="active_hiring_monthly" className="plain-card card-hover p-6 text-left block w-full">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A78BFA] mb-1.5">Active Hiring · $499/mo</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#9D8CFF] mb-1.5">Active Hiring · $499/mo</p>
                   <p className="text-white/90 text-base font-black mb-1">Daily AI-shortlist per open role</p>
                   <p className="text-white/60 text-xs leading-relaxed">
                     We scan the verified pool every day, score the top matches for each open role, and draft personalised intro emails awaiting your one-tap approval. Annual $4,990 (save ~17%).
                   </p>
-                  <p className="text-[#A78BFA] text-xs font-bold mt-4">Subscribe →</p>
+                  <p className="text-[#9D8CFF] text-xs font-bold mt-4">Subscribe →</p>
                 </SubscribeButton>
               )}
 

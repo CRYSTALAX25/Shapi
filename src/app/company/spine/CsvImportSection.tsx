@@ -31,16 +31,16 @@ type ParseResult = {
   notes?: string
 }
 
-const ACCENT = '#7c93f5'
+const ACCENT = '#9D8CFF'
 const SUCCESS = '#34D399'
 const DANGER = '#FB7185'
-const HEADING_STYLE: React.CSSProperties = { color: '#f4f6f9' }
-const BODY_STYLE: React.CSSProperties = { color: '#9ca3af' }
-const CTA_STYLE: React.CSSProperties = { background: '#eef1f6', color: '#0c0e11' }
+const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
+const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
+const CTA_STYLE: React.CSSProperties = { background: '#eef1f6', color: '#060609' }
 const INPUT_STYLE: React.CSSProperties = {
-  background: '#0c0e11',
-  border: '1px solid rgba(124,147,245,0.20)',
-  color: '#f4f6f9',
+  background: '#060609',
+  border: '1px solid rgba(157,140,255,0.20)',
+  color: 'rgba(255,255,255,0.9)',
 }
 
 export default function CsvImportSection({
@@ -195,7 +195,7 @@ export default function CsvImportSection({
   /* ── COMMITTED SCREEN ─────────────────────────────────────────────── */
   if (stage === 'committed' && committed) {
     return (
-      <div className="rounded-2xl p-5" style={{ background: '#13161b', border: `1px solid ${SUCCESS}55` }}>
+      <div className="rounded-2xl p-5" style={{ background: '#0D0C14', border: `1px solid ${SUCCESS}55` }}>
         <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: SUCCESS }}>
           ✓ Imported
         </p>
@@ -209,7 +209,7 @@ export default function CsvImportSection({
             { label: 'New people', value: committed.persons_new },
             { label: 'New seats', value: committed.seats_new },
           ].map(s => (
-            <div key={s.label} className="rounded-lg p-3 text-center" style={{ background: '#0c0e11' }}>
+            <div key={s.label} className="rounded-lg p-3 text-center" style={{ background: '#060609' }}>
               <p className="text-2xl font-black" style={{ color: SUCCESS }}>{s.value}</p>
               <p className="text-[10px] uppercase tracking-wider" style={BODY_STYLE}>{s.label}</p>
             </div>
@@ -229,7 +229,7 @@ export default function CsvImportSection({
   /* ── PREVIEW SCREEN ───────────────────────────────────────────────── */
   if (stage === 'preview' && parsed) {
     return (
-      <div className="rounded-2xl p-5" style={{ background: '#13161b', border: `1px solid ${ACCENT}55` }}>
+      <div className="rounded-2xl p-5" style={{ background: '#0D0C14', border: `1px solid ${ACCENT}55` }}>
         <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
           <div>
             <p className="text-xs font-bold uppercase tracking-wider" style={{ color: ACCENT }}>Preview · {parsed.row_count} rows</p>
@@ -244,7 +244,7 @@ export default function CsvImportSection({
             )}
           </div>
           <div className="flex gap-2">
-            <button onClick={reset} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: '#0c0e11', color: BODY_STYLE.color, border: '1px solid rgba(255,255,255,0.08)' }}>
+            <button onClick={reset} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: '#060609', color: BODY_STYLE.color, border: '1px solid rgba(255,255,255,0.08)' }}>
               Start over
             </button>
             <button onClick={commit} disabled={busy || parsed.rows.length === 0} className="text-xs font-black px-4 py-2 rounded-full disabled:opacity-40" style={CTA_STYLE}>
@@ -259,10 +259,10 @@ export default function CsvImportSection({
           </div>
         )}
 
-        <div className="overflow-x-auto rounded-lg" style={{ background: '#0c0e11' }}>
+        <div className="overflow-x-auto rounded-lg" style={{ background: '#060609' }}>
           <table className="w-full text-xs">
             <thead>
-              <tr style={{ background: 'rgba(124,147,245,0.08)' }}>
+              <tr style={{ background: 'rgba(157,140,255,0.08)' }}>
                 <th className="text-left px-3 py-2" style={BODY_STYLE}>Name</th>
                 <th className="text-left px-3 py-2" style={BODY_STYLE}>Role</th>
                 <th className="text-left px-3 py-2" style={BODY_STYLE}>Team</th>
@@ -298,8 +298,8 @@ export default function CsvImportSection({
     <div
       className={compact ? 'rounded-xl p-4' : 'rounded-2xl p-5'}
       style={compact
-        ? { background: '#0c0e11', border: `1px dashed ${ACCENT}40` }
-        : { background: '#13161b', border: `1px solid ${ACCENT}55` }}
+        ? { background: '#060609', border: `1px dashed ${ACCENT}40` }
+        : { background: '#0D0C14', border: `1px solid ${ACCENT}55` }}
     >
       <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
         <div>
@@ -325,7 +325,7 @@ export default function CsvImportSection({
             </>
           )}
         </div>
-        <button onClick={downloadTemplate} className="text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap" style={{ background: 'rgba(124,147,245,0.10)', color: ACCENT, border: `1px solid ${ACCENT}40` }}>
+        <button onClick={downloadTemplate} className="text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap" style={{ background: 'rgba(157,140,255,0.10)', color: ACCENT, border: `1px solid ${ACCENT}40` }}>
           ↓ Template
         </button>
       </div>
@@ -349,7 +349,7 @@ export default function CsvImportSection({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className="text-xs font-bold px-4 py-2 rounded-full"
-            style={{ background: 'rgba(124,147,245,0.14)', color: ACCENT, border: `1px solid ${ACCENT}55` }}
+            style={{ background: 'rgba(157,140,255,0.14)', color: ACCENT, border: `1px solid ${ACCENT}55` }}
           >
             📄 Pick CSV file
           </button>

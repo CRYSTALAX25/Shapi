@@ -54,16 +54,19 @@ import ReassignModal, { type ReassignContext } from './ReassignModal'
    palette-independent black (depth, not hue).
    ════════════════════════════════════════════════════════════════════════ */
 const PALETTE = {
-  '--bg': '#0c0e11',                          // canvas background
-  '--surface': '#13161b',                     // card / panel surface
-  '--accent': '#7c93f5',                      // primary accent (periwinkle)
-  '--accent2': '#A78BFA',                     // secondary accent (purple)
+  // VIOLET MINT — the locked palette (Ana, 2026-06-11). Violet = intelligence,
+  // emerald = proof. Green is never decorative: every green pixel means
+  // verified/positive.
+  '--bg': '#060609',                          // canvas background (deep space)
+  '--surface': '#0D0C14',                     // card / panel surface (violet-tinted)
+  '--accent': '#9D8CFF',                      // primary accent (violet)
+  '--accent2': '#34D399',                     // secondary accent (emerald — gradient pair)
   '--verified': '#34D399',                    // emerald — employee-verified
   '--warn': '#FBBF24',                        // amber — assessed / caution
   '--punch': '#FB7185',                       // coral — destructive / risk
-  '--text': '#f4f6f9',                        // headings / primary text
-  '--text-muted': '#9ca3af',                  // body / secondary text
-  '--edge': 'rgba(124,147,245,0.35)',         // reporting lines
+  '--text': 'rgba(255,255,255,0.9)',          // headings / primary text
+  '--text-muted': 'rgba(255,255,255,0.5)',    // body / secondary text
+  '--edge': 'rgba(157,140,255,0.35)',         // reporting lines (violet)
 } as React.CSSProperties
 
 /* ── Types (mirror the spine tables loaded by page.tsx via select('*')) ── */

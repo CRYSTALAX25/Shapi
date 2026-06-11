@@ -45,22 +45,22 @@ type Seat = {
 
 const CARD = 'rounded-2xl border'
 const CARD_STYLE: React.CSSProperties = {
-  background: '#13161b',
-  borderColor: 'rgba(124,147,245,0.18)',
+  background: '#0D0C14',
+  borderColor: 'rgba(157,140,255,0.18)',
 }
 const HEADING = 'text-lg font-black tracking-tight'
-const HEADING_STYLE: React.CSSProperties = { color: '#f4f6f9' }
-const BODY_STYLE: React.CSSProperties = { color: '#9ca3af' }
-const ACCENT = '#7c93f5'
-const CTA_STYLE: React.CSSProperties = { background: '#eef1f6', color: '#0c0e11' }
+const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
+const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
+const ACCENT = '#9D8CFF'
+const CTA_STYLE: React.CSSProperties = { background: '#eef1f6', color: '#060609' }
 const INPUT = 'w-full px-3 py-2 rounded-lg text-sm'
 const INPUT_STYLE: React.CSSProperties = {
-  background: '#0c0e11',
-  border: '1px solid rgba(124,147,245,0.20)',
-  color: '#f4f6f9',
+  background: '#060609',
+  border: '1px solid rgba(157,140,255,0.20)',
+  color: 'rgba(255,255,255,0.9)',
 }
 const LABEL = 'block text-[10px] font-bold uppercase tracking-wider mb-1'
-const LABEL_STYLE: React.CSSProperties = { color: '#9ca3af' }
+const LABEL_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
 
 function ErrorBanner({ msg, onClear }: { msg: string | null; onClear: () => void }) {
   if (!msg) return null
@@ -192,7 +192,7 @@ export function LocationsSection({
       )}
 
       {open && (
-        <form onSubmit={submit} className="mb-4 p-4 rounded-xl" style={{ background: '#0c0e11', border: `1px dashed ${ACCENT}40` }}>
+        <form onSubmit={submit} className="mb-4 p-4 rounded-xl" style={{ background: '#060609', border: `1px dashed ${ACCENT}40` }}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className={LABEL} style={LABEL_STYLE}>Name</label>
@@ -226,7 +226,7 @@ export function LocationsSection({
       ) : (
         <ul className="space-y-2">
           {locations.map(loc => (
-            <li key={loc.id} className="p-3 rounded-lg" style={{ background: '#0c0e11' }}>
+            <li key={loc.id} className="p-3 rounded-lg" style={{ background: '#060609' }}>
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <div>
                   <div className="text-sm font-bold" style={HEADING_STYLE}>
@@ -327,7 +327,7 @@ export function TeamsSection({ teams, locations }: { teams: Team[]; locations: L
       <ErrorBanner msg={err} onClear={() => setErr(null)} />
 
       {open && (
-        <form onSubmit={submit} className="mb-4 p-4 rounded-xl" style={{ background: '#0c0e11', border: `1px dashed ${ACCENT}40` }}>
+        <form onSubmit={submit} className="mb-4 p-4 rounded-xl" style={{ background: '#060609', border: `1px dashed ${ACCENT}40` }}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className={LABEL} style={LABEL_STYLE}>Name</label>
@@ -379,7 +379,7 @@ export function TeamsSection({ teams, locations }: { teams: Team[]; locations: L
             const parent = t.parent_team_id ? teams.find(x => x.id === t.parent_team_id) : null
             const loc = locById[t.location_id]
             return (
-              <li key={t.id} className="flex items-center justify-between p-3 rounded-lg" style={{ background: '#0c0e11' }}>
+              <li key={t.id} className="flex items-center justify-between p-3 rounded-lg" style={{ background: '#060609' }}>
                 <div>
                   <div className="text-sm font-bold" style={HEADING_STYLE}>
                     {parent ? `${parent.name} › ` : ''}{t.name}
@@ -449,7 +449,7 @@ export function PersonsSection({ persons }: { persons: Person[] }) {
       <ErrorBanner msg={err} onClear={() => setErr(null)} />
 
       {open && (
-        <form onSubmit={submit} className="mb-4 p-4 rounded-xl" style={{ background: '#0c0e11', border: `1px dashed ${ACCENT}40` }}>
+        <form onSubmit={submit} className="mb-4 p-4 rounded-xl" style={{ background: '#060609', border: `1px dashed ${ACCENT}40` }}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className={LABEL} style={LABEL_STYLE}>Full name</label>
@@ -479,7 +479,7 @@ export function PersonsSection({ persons }: { persons: Person[] }) {
       ) : (
         <ul className="space-y-2">
           {persons.map(p => (
-            <li key={p.id} className="flex items-center justify-between p-3 rounded-lg" style={{ background: '#0c0e11' }}>
+            <li key={p.id} className="flex items-center justify-between p-3 rounded-lg" style={{ background: '#060609' }}>
               <div>
                 <div className="text-sm font-bold" style={HEADING_STYLE}>
                   {p.preferred_name || p.full_name}
@@ -577,7 +577,7 @@ export function SeatsSection({ seats, teams, persons }: { seats: Seat[]; teams: 
       <ErrorBanner msg={err} onClear={() => setErr(null)} />
 
       {open && (
-        <form onSubmit={submit} className="mb-4 p-4 rounded-xl" style={{ background: '#0c0e11', border: `1px dashed ${ACCENT}40` }}>
+        <form onSubmit={submit} className="mb-4 p-4 rounded-xl" style={{ background: '#060609', border: `1px dashed ${ACCENT}40` }}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className={LABEL} style={LABEL_STYLE}>Title</label>
@@ -650,13 +650,13 @@ export function SeatsSection({ seats, teams, persons }: { seats: Seat[]; teams: 
             const t = teamById[s.team_id]
             const p = s.person_id ? personById[s.person_id] : null
             return (
-              <li key={s.id} className="p-3 rounded-lg" style={{ background: '#0c0e11' }}>
+              <li key={s.id} className="p-3 rounded-lg" style={{ background: '#060609' }}>
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <div className="min-w-0">
                     <div className="text-sm font-bold flex items-center gap-2 flex-wrap" style={HEADING_STYLE}>
                       {s.title}
                       <span className="text-[10px] px-2 py-0.5 rounded-full capitalize" style={{ background: `${ACCENT}22`, color: ACCENT }}>{s.status}</span>
-                      {s.seniority && <span className="text-[10px] px-2 py-0.5 rounded-full capitalize" style={{ background: 'rgba(255,255,255,0.06)', color: '#9ca3af' }}>{s.seniority}</span>}
+                      {s.seniority && <span className="text-[10px] px-2 py-0.5 rounded-full capitalize" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' }}>{s.seniority}</span>}
                     </div>
                     <div className="text-xs mt-0.5" style={BODY_STYLE}>
                       {t?.name || '—'}{p ? ` · 👤 ${p.preferred_name || p.full_name}` : ' · vacant'}
