@@ -1,14 +1,25 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import ShapiCharacter from '@/components/ShapiCharacter'
 import { createAdminClient } from '@/lib/supabase/admin'
-import ShortlistButton from './ShortlistButton'
 import InviteForm from './InviteForm'
-import { scoreCandidateForRole, matchLabel } from '@/lib/matching'
+import DashboardNav from './DashboardNav'
+import { scoreCandidateForRole, type MatchCandidate } from '@/lib/matching'
 import SubscribeButton from '@/components/SubscribeButton'
 import WhatsAppConnectCard from '@/components/WhatsAppConnectCard'
 import { hasActiveHiring } from '@/lib/subscriptions'
+
+// ── Company dashboard — redesigned 2026-06 ──────────────────────────────────
+// Founder feedback: the old page was messy — mixed palettes (#0E0E13 /
+// #16161F / #6AA8F5), nav pills overlapping the completion ring at mid widths,
+// and big upsell banners cluttering the main flow. Now:
+//   · BRAND.md kit enforced throughout (bg #060609, cards #0d0d14, cyan→purple)
+//   · Real two-column shell — sidebar owns its column (see DashboardNav.tsx)
+//   · Main column hierarchy: greeting + live KPI chips → "What needs you
+//     today" hero → status card grid → team access
+//   · Upsell moved OUT of the flow: "Plan & billing" at the nav bottom; only
+//     contextual nudges remain where a feature is actually gated.
+// Every data load and feature from the old page is preserved.
 
 type Candidate = {
   id: string
@@ -22,82 +33,11 @@ type Candidate = {
   whatsapp_chat: unknown[]
   industry: string | null
   verification_tier: string | null
-  salary_expectations: unknown
+  salary_expectations: MatchCandidate['salary_expectations']
   open_to_engagement: string[] | null
   target_roles: string[] | null
   match_score?: number
   match_reasons?: string[]
-}
-
-// ── Sidebar nav (grouped) ────────────────────────────────────────────────
-// Fable product review 2026-06: the old flat 20-pill list buried the demo
-// path. Now grouped — Your org → Hire → Intelligence (Enterprise) — with the
-// long tail collapsed under "More tools". Pill visuals unchanged.
-type NavItem = { href: string; label: string; icon: string; active?: boolean; enterprise?: boolean }
-
-const NAV_GROUPS: Array<{ label: string; badge?: string; items: NavItem[] }> = [
-  {
-    label: 'Your org',
-    items: [
-      { href: '/company/spine', label: 'Org Spine', icon: '🌳' },
-      { href: '/company/people', label: 'People (HR Portal)', icon: '🗂️', enterprise: true },
-      { href: '/company/workforce-snapshot', label: 'Workforce Snapshot', icon: '✦' },
-    ],
-  },
-  {
-    label: 'Hire',
-    items: [
-      { href: '/company/roles', label: 'Roles', icon: '💼' },
-      { href: '/company/pipeline', label: 'Pipeline', icon: '📋' },
-      { href: '/candidates', label: 'Candidates', icon: '👥' },
-      { href: '/company/roles/new', label: 'Post a role', icon: '➕' },
-    ],
-  },
-  {
-    label: 'Intelligence',
-    badge: 'Enterprise',
-    items: [
-      { href: '/company/skill-density', label: 'Skill Density', icon: '🔬' },
-      { href: '/company/brain', label: 'Company Brain', icon: '🧬' },
-      { href: '/company/delegation', label: 'Workload Delegation', icon: '⚖️' },
-      { href: '/company/os', label: 'Workforce OS', icon: '📡' },
-    ],
-  },
-]
-
-// Collapsed by default — every route stays reachable, just out of the way.
-const MORE_TOOLS: NavItem[] = [
-  { href: '/company/salary-benchmark', label: 'Salary benchmark', icon: '💸' },
-  { href: '/company/roadmap', label: 'Hiring Roadmap', icon: '🗺️' },
-  { href: '/company/hiring-plan', label: 'Hiring Plan', icon: '🚀' },
-  { href: '/company/org-design', label: 'Org design', icon: '🏛️' },
-  { href: '/company/staffing', label: 'Staffing recs', icon: '🤖' },
-  { href: '/company/cognitive-load', label: 'Cognitive load', icon: '🧠' },
-  { href: '/company/strategic-plan', label: 'Strategic Workforce Plan', icon: '📋' },
-  { href: '/role/ai-proof', label: 'AI-Proof a role', icon: '🛡️' },
-  { href: '/company/profile', label: 'Company profile', icon: '👤' },
-]
-
-function NavPill({ item }: { item: NavItem }) {
-  return (
-    <Link
-      href={item.href}
-      className={`flex items-center gap-2.5 flex-shrink-0 rounded-xl px-3 py-2 text-sm font-bold transition-colors whitespace-nowrap ${
-        item.active ? 'text-[#FB7185]' : 'text-[#C7C7D1] hover:text-[#FB7185]'
-      }`}
-      style={item.active
-        ? { background: 'rgba(106,168,245,0.12)', border: '1px solid rgba(106,168,245,0.28)' }
-        : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
-    >
-      <span className="text-base leading-none">{item.icon}</span>
-      <span>{item.label}</span>
-      {item.enterprise && (
-        <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.14)', color: '#FBBF24' }}>
-          Enterprise
-        </span>
-      )}
-    </Link>
-  )
 }
 
 type Role = {
@@ -115,6 +55,19 @@ type Role = {
   created_at: string
 }
 
+// Live KPI chip — header strip. One accent colour each, BRAND palette only.
+function KpiChip({ value, label, color }: { value: string; label: string; color: string }) {
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold"
+      style={{ background: `${color}1A`, border: `1px solid ${color}40`, color }}
+    >
+      <span className="font-black">{value}</span>
+      <span className="opacity-80 font-semibold">{label}</span>
+    </span>
+  )
+}
+
 export default async function CompanyDashboard({ searchParams }: { searchParams: Promise<{ role?: string; snapshot?: string }> }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -123,7 +76,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   const [companyResult, membersResult] = await Promise.all([
     supabase
       .from('profiles')
-      .select('full_name, type, paid, subscription_status, company_name, company_data, company_size, location, summary, company_website, onboarding_complete, subscription_product, whatsapp_number')
+      .select('full_name, type, paid, subscription_status, company_name, company_data, company_size, location, summary, company_website, onboarding_complete, subscription_product, whatsapp_number, plan_tier')
       .eq('id', user.id)
       .single(),
     supabase
@@ -153,6 +106,16 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   const hasWhatsApp = !!(company as { whatsapp_number?: string | null })?.whatsapp_number
   const companyName = company.company_name || company.full_name || 'Your company'
   const companyData = company.company_data as Record<string, unknown> | null
+
+  // Plan tier for the "Plan & billing" nav item (upsell's new compact home).
+  const planTier = ((company as { plan_tier?: string | null }).plan_tier || '').toLowerCase()
+  const planLabel =
+    planTier === 'enterprise' ? 'Enterprise'
+    : planTier === 'pro' || planTier === 'growth' ? 'Pro'
+    : hasAH ? 'Active Hiring'
+    : isPaid ? 'Pro'
+    : 'Free'
+  const showUpgrade = planTier !== 'enterprise'
 
   // Fetch all active roles for this company
   const { data: roles } = await supabase
@@ -190,6 +153,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
     .eq('company_id', user.id)
     .eq('role_id', selectedRoleId || '')
   const shortlistedIds = new Set((shortlistData || []).map(s => s.candidate_id))
+  void shortlistedIds // candidate browsing lives on /candidates; load kept for parity
 
   // ── Today / profile-completion data for the action card + ring ──
   const nowIsoCo = new Date().toISOString()
@@ -209,7 +173,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   const coFbKeys = new Set(((coFbRes.data ?? []) as Array<{ role_id: string; candidate_id: string }>).map(f => `${f.role_id}|${f.candidate_id}`))
   const needCompanyFeedbackCount = completedIvs.filter(i => !coFbKeys.has(`${i.role_id}|${i.candidate_id}`)).length
 
-  // Has this company ever run a Workforce Snapshot? Used to show a prominent
+  // Has this company ever run a Workforce Snapshot? Used to show a
   // "Run your free analysis" nudge on the dashboard for fresh accounts.
   const { count: snapshotCount } = await admin
     .from('company_workforce_audits')
@@ -240,7 +204,8 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
   const compCircumference = 2 * Math.PI * 34
   const compDashOffset = compCircumference * (1 - companyCompletion / 100)
 
-  // Score and sort candidates if a role is selected
+  // Score and sort candidates if a role is selected (kept for pool count +
+  // parity with /candidates; the browsing UI lives there).
   const candidates: Candidate[] = selectedRole
     ? allCandidates
         .map(c => {
@@ -252,340 +217,286 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
 
   const count = candidates.length
 
-  const aiTierColour: Record<string, string> = {
-    user: 'bg-[#6AA8F5]/10 text-[#6AA8F5]',
-    integrator: 'bg-[#6AA8F5]/10 text-[#6AA8F5]',
-    builder: 'bg-[#4F8FE8]/10 text-[#4F8FE8]',
-  }
+  const todayCount = newInterestsCount + upcomingIvsCount + needCompanyFeedbackCount + (companyCompletion < 100 ? 1 : 0)
 
   return (
-    <div className="min-h-screen" style={{ background: '#0E0E13' }}>
+    <div className="min-h-screen" style={{ background: '#060609' }}>
       <style>{`
-        @keyframes gradientShift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
+        /* BRAND.md gradient-border card — hero surfaces only */
         .gradient-border-card {
-          background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.12), rgba(79,143,232,0.12)) border-box;
+          background: linear-gradient(#0d0d14, #0d0d14) padding-box,
+                      linear-gradient(135deg, rgba(34,211,238,0.15), rgba(167,139,250,0.15)) border-box;
           border: 1px solid transparent;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
+          border-radius: 1rem;
         }
+        /* Plain card — everything else */
+        .plain-card {
+          background: #0d0d14;
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 1rem;
+        }
+        .card-hover { transition: background 0.15s, border-color 0.15s; }
         .card-hover:hover {
-          background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.25), rgba(79,143,232,0.25)) border-box;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
+          background: #11111a;
+          border-color: rgba(34,211,238,0.25);
         }
-        .role-tab {
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 12px;
-          padding: 8px 14px;
-          font-size: 13px;
-          font-weight: 600;
-          color: #A6A6B4;
-          transition: all 0.15s;
-          white-space: nowrap;
-        }
-        .role-tab:hover { color: #C7C7D1; border-color: rgba(255,255,255,0.18); }
-        .role-tab.active {
-          background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, #6AA8F5, #4F8FE8) border-box;
-          border: 1px solid transparent;
-          color: #F4F4F7;
-        }
+        .shapi-noscroll { scrollbar-width: none; }
+        .shapi-noscroll::-webkit-scrollbar { display: none; }
       `}</style>
 
+      {/* Dot-grid overlay — BRAND.md spec (cyan-tinted) */}
       <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(34,211,238,0.06) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
       }} />
 
-      {/* Minimal nav — matches candidate-side dashboard convention. The old blue
-          gradient bar is gone (too loud); shapi wordmark + Sign out is enough. */}
-      <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08]">
+      {/* Minimal top bar — wordmark + sign out. The Upgrade link moved to the
+          "Plan & billing" item at the bottom of the sidebar. */}
+      <nav className="relative z-10 px-6 py-4 border-b border-white/[0.06]">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
-          <div className="flex items-center gap-5">
-            {!isPaid && (
-              <Link href="/company/pricing" className="text-[#F08CAE] text-xs font-black border border-[#F08CAE]/30 hover:border-[#F08CAE]/60 px-3 py-1.5 rounded-full transition-colors">
-                Upgrade
-              </Link>
-            )}
-            <form action="/api/auth/signout" method="post">
-              <button className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1] transition-colors">Sign out</button>
-            </form>
-          </div>
+          <Link
+            href="/"
+            className="font-black text-xl"
+            style={{ background: 'linear-gradient(135deg, #A78BFA, #22D3EE)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '-0.02em' }}
+          >
+            shapi
+          </Link>
+          <form action="/api/auth/signout" method="post">
+            <button className="text-white/40 text-sm hover:text-white/70 transition-colors">Sign out</button>
+          </form>
         </div>
       </nav>
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 pt-8 pb-20">
+        <div className="lg:grid lg:grid-cols-[230px_minmax(0,1fr)] lg:gap-10">
 
-        <div className="grid lg:grid-cols-[220px_1fr] gap-6">
-
-          {/* ── Sidebar nav (grouped) — demo path leads: Your org → Hire →
-              Intelligence (Enterprise). Long tail collapsed under "More tools".
-              Vertical on lg; groups stack + pills wrap on mobile. Active item =
-              blue "you are here" pill + coral text. Hover on others = coral. */}
-          <aside className="lg:sticky lg:top-6 self-start">
-            <nav className="flex flex-col gap-4">
-              <NavPill item={{ href: '#', label: 'Overview', icon: '🏠', active: true }} />
-
-              {NAV_GROUPS.map(group => (
-                <div key={group.label}>
-                  <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1.5 px-1">
-                    <span>{group.label}</span>
-                    {group.badge && (
-                      <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.14)', color: '#FBBF24' }}>
-                        {group.badge}
-                      </span>
-                    )}
-                  </p>
-                  <div className="flex flex-row flex-wrap lg:flex-col gap-1.5">
-                    {group.items.map(item => <NavPill key={item.label} item={item} />)}
-                  </div>
-                </div>
-              ))}
-
-              {/* Long tail — collapsed by default (mobile + desktop) */}
-              <details>
-                <summary className="cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] hover:text-[#C7C7D1] transition-colors px-1">
-                  <span>More tools</span>
-                  <span aria-hidden="true">▾</span>
-                </summary>
-                <div className="flex flex-row flex-wrap lg:flex-col gap-1.5 mt-1.5">
-                  {MORE_TOOLS.map(item => <NavPill key={item.label} item={item} />)}
-                </div>
-              </details>
-            </nav>
-          </aside>
+          {/* Sidebar (lg) / horizontal scroll strip (<lg) + Plan & billing */}
+          <DashboardNav planLabel={planLabel} showUpgrade={showUpgrade} />
 
           {/* ── Main column ── */}
           <main className="min-w-0">
 
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-3xl font-black text-[#F4F4F7] mb-1">{companyName}</h1>
-            <p className="text-[#A6A6B4] text-sm">
-              {isPaid ? 'Full access · View profiles, contact directly' : 'Subscribe to unlock full profiles'}
-            </p>
-          </div>
-          <Link href="/company/roles/new"
-            className="flex-shrink-0 bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] px-5 py-2.5 rounded-full font-black text-xs text-[#fff] hover:opacity-90 transition-opacity">
-            + Post a role
-          </Link>
-        </div>
-
-        {/* Compact hero — profile completion ring + Today action card side-by-side */}
-        <div className="grid lg:grid-cols-[260px_1fr] gap-4 mb-5 items-stretch">
-          {/* Profile completion ring — green at 100, brand gradient otherwise */}
-          <div className="gradient-border-card rounded-2xl p-5 flex items-center gap-4">
-            <div className="relative flex-shrink-0 w-20 h-20">
-              <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
-                <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.10)" strokeWidth="7" />
-                <circle cx="40" cy="40" r="34" fill="none" stroke={companyCompletion >= 100 ? '#34D399' : 'url(#coGrad)'} strokeWidth="7" strokeLinecap="round" strokeDasharray={compCircumference} strokeDashoffset={compDashOffset} />
-                <defs>
-                  <linearGradient id="coGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#6AA8F5" />
-                    <stop offset="50%" stopColor="#F08CAE" />
-                    <stop offset="100%" stopColor="#F58E9A" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-sm font-black" style={{ color: companyCompletion >= 100 ? '#34D399' : '#F4F4F7' }}>{companyCompletion}%</span>
+            {/* (a) Greeting header + live KPI chips */}
+            <header className="mb-8">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/40 mb-1.5">Company dashboard</p>
+                  <h1 className="text-3xl font-black text-white truncate" style={{ letterSpacing: '-0.02em' }}>{companyName}</h1>
+                </div>
+                <Link
+                  href="/company/roles/new"
+                  className="flex-shrink-0 px-5 py-2.5 rounded-full font-black text-xs text-white hover:opacity-90 transition-opacity"
+                  style={{ background: 'linear-gradient(135deg, #22D3EE, #A78BFA)' }}
+                >
+                  + Post a role
+                </Link>
               </div>
-            </div>
-            <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-0.5">Profile completion</p>
-              <h2 className="text-base font-black" style={companyCompletion >= 100 ? { color: '#34D399' } : { background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{companyCompletion >= 100 ? 'Verified employer ✓' : `${companyCompletion}% complete`}</h2>
-              <p className="text-[#7E7E8E] text-[11px] mt-0.5">Higher = stronger trust score</p>
-            </div>
-          </div>
+              <div className="flex flex-wrap gap-2 mt-4">
+                <KpiChip value={`${companyCompletion}%`} label="org verified" color={companyCompletion >= 100 ? '#34D399' : '#22D3EE'} />
+                <KpiChip value={`${activeRoles.length}`} label={activeRoles.length === 1 ? 'active role' : 'active roles'} color="#A78BFA" />
+                <KpiChip value={`${count}`} label="candidates in pool" color="#22D3EE" />
+              </div>
+            </header>
 
-          {/* Today action card — only shows items that need action; hides when empty */}
-          {(newInterestsCount + upcomingIvsCount + needCompanyFeedbackCount + (companyCompletion < 100 ? 1 : 0)) > 0 && (
-            <div className="gradient-border-card rounded-2xl p-5">
-              <p className="text-[#F08CAE] text-[10px] font-bold uppercase tracking-wider mb-3">✦ What needs you today</p>
-              <ul className="space-y-1.5">
-                {newInterestsCount > 0 && (
-                  <li>
-                    <Link href="/company/pipeline" className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-white/[0.04] transition-colors">
-                      <span className="flex items-center gap-2 text-[#F4F4F7] text-sm">
-                        <span className="text-base leading-none">👋</span>
-                        <span>{newInterestsCount} new candidate{newInterestsCount === 1 ? '' : 's'} interested in your roles this week</span>
-                      </span>
-                      <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">→</span>
-                    </Link>
-                  </li>
-                )}
-                {upcomingIvsCount > 0 && (
-                  <li>
-                    <Link href="/company/pipeline" className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-white/[0.04] transition-colors">
-                      <span className="flex items-center gap-2 text-[#F4F4F7] text-sm">
-                        <span className="text-base leading-none">📅</span>
-                        <span>{upcomingIvsCount} interview{upcomingIvsCount === 1 ? '' : 's'} scheduled this week</span>
-                      </span>
-                      <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">→</span>
-                    </Link>
-                  </li>
-                )}
-                {needCompanyFeedbackCount > 0 && (
-                  <li>
-                    <Link href="/company/pipeline" className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-white/[0.04] transition-colors">
-                      <span className="flex items-center gap-2 text-[#F4F4F7] text-sm">
-                        <span className="text-base leading-none">📝</span>
-                        <span>{needCompanyFeedbackCount} interview{needCompanyFeedbackCount === 1 ? '' : 's'} need your feedback</span>
-                      </span>
-                      <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">→</span>
-                    </Link>
-                  </li>
-                )}
-                {companyCompletion < 100 && (
-                  <li>
-                    <Link href="/company/onboarding" className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-white/[0.04] transition-colors">
-                      <span className="flex items-center gap-2 text-[#F4F4F7] text-sm">
-                        <span className="text-base leading-none">✦</span>
-                        <span>Finish your profile — you&apos;re at {companyCompletion}%</span>
-                      </span>
-                      <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">→</span>
-                    </Link>
-                  </li>
-                )}
-              </ul>
-            </div>
-          )}
-        </div>
-
-        {/* Company intelligence card moved to /company/profile (its proper home).
-            Dashboard is now action-oriented only. */}
-
-        {/* Snapshot-just-completed celebration + Growth $1,500 trial CTA.
-            Surfaced when the user lands here from the first-run Snapshot
-            flow (/company/workforce-snapshot?first=true → ?snapshot=done).
-            Strike at the peak-intent moment — they just saw their AI-risk
-            heatmap. */}
-        {justRanSnapshot && (
-          <div className="mb-6 rounded-2xl p-5" style={{ background: 'linear-gradient(135deg, rgba(52,211,153,0.14), rgba(106,168,245,0.10))', border: '1px solid rgba(52,211,153,0.40)' }}>
-            <div className="flex items-start gap-3.5">
-              <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: '#34D399' }}>✓</div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[#F4F4F7] font-black text-base mb-1">Snapshot complete — your wedge into Shapi.</p>
-                <p className="text-[#A6A6B4] text-xs mb-3 leading-relaxed">
-                  Turn the diagnosis into action: <strong className="text-[#F4F4F7]">Growth ($1,500/mo)</strong> unlocks the full diagnostic suite, the Hiring Roadmap, AI-shortlisted candidates per role, and salary benchmarks per role flagged at risk. <strong className="text-[#F4F4F7]">14-day free trial</strong> — card on file via Stripe, no charge for 14 days, cancel anytime.
-                </p>
-                <div className="flex flex-wrap gap-3 items-center">
-                  <Link href="/company/pricing?plan=growth&trial=14" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-black text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#34D399)' }}>
-                    Start free trial →
-                  </Link>
-                  <Link href="/company/workforce-snapshot" className="text-[#34D399] text-xs font-bold hover:underline">
-                    View Snapshot again →
-                  </Link>
+            {/* Snapshot-just-completed celebration + Growth trial CTA — peak-intent
+                contextual moment (lands here from /company/workforce-snapshot?first=true). */}
+            {justRanSnapshot && (
+              <div className="rounded-2xl p-6 mb-6" style={{ background: 'linear-gradient(135deg, rgba(52,211,153,0.12), rgba(34,211,238,0.06))', border: '1px solid rgba(52,211,153,0.35)' }}>
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: '#34D399' }}>✓</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white/90 font-black text-base mb-1">Snapshot complete — your wedge into Shapi.</p>
+                    <p className="text-white/60 text-xs mb-3.5 leading-relaxed">
+                      Turn the diagnosis into action: <strong className="text-white/90">Growth ($1,500/mo)</strong> unlocks the full diagnostic suite, the Hiring Roadmap, AI-shortlisted candidates per role, and salary benchmarks per role flagged at risk. <strong className="text-white/90">14-day free trial</strong> — card on file via Stripe, no charge for 14 days, cancel anytime.
+                    </p>
+                    <div className="flex flex-wrap gap-3 items-center">
+                      <Link href="/company/pricing?plan=growth&trial=14" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-black text-[#060609]" style={{ background: '#34D399' }}>
+                        Start free trial →
+                      </Link>
+                      <Link href="/company/workforce-snapshot" className="text-[#34D399] text-xs font-bold hover:underline">
+                        View Snapshot again →
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
+            )}
 
-        {/* Connect Shapi WhatsApp — first-encounter entry point. Shown until
-            the company has paired their number. needsNumber={true} renders the
-            amber "add your number first" variant because if we sent them to
-            WhatsApp now, the webhook would see an unknown phone and bounce. */}
-        {!hasWhatsApp && (
-          <div className="mb-6">
-            <WhatsAppConnectCard role="company" needsNumber />
-          </div>
-        )}
-
-        {/* Workforce Snapshot nudge — first-touch acquisition wedge.
-            Shown only to companies that haven't yet run one. Free analysis
-            → Tier B upsell. STRATEGY §16 Tier A. */}
-        {!hasRunSnapshot && (
-          <Link href="/company/workforce-snapshot" className="block mb-6 rounded-2xl p-5 hover:opacity-95 transition-opacity" style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.14), rgba(240,140,174,0.14))', border: '1px solid rgba(240,140,174,0.30)' }}>
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#F08CAE' }}>✦ Start here — free</p>
-                <p className="text-[#F4F4F7] text-base font-black mb-1">Run your Workforce Snapshot</p>
-                <p className="text-[#A6A6B4] text-xs leading-relaxed max-w-2xl">
-                  Five inputs, zero confidential data, one honest report — your <strong className="text-[#F4F4F7]">Future Readiness Score</strong>, AI risk heatmap, top at-risk roles, and what AI integration will actually cost. ~30 seconds.
-                </p>
-              </div>
-              <span className="text-[#F08CAE] text-xs font-black flex-shrink-0">Run it →</span>
-            </div>
-          </Link>
-        )}
-
-        {/* Active Hiring upsell — only when not subscribed. The product:
-            daily AI-shortlist + drafted outreach per open role. STRATEGY §14/§16. */}
-        {!hasAH && (
-          <SubscribeButton product="active_hiring_monthly" className="w-full mb-6 rounded-2xl p-5 text-left hover:bg-white/[0.04] transition-colors gradient-border-card flex items-center justify-between gap-4">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#F08CAE] mb-1">✦ Upgrade to Active Hiring</p>
-              <p className="text-[#F4F4F7] text-base font-black mb-1">$499/mo · daily AI-shortlist per open role + drafted outreach</p>
-              <p className="text-[#A6A6B4] text-xs">We scan the verified candidate pool every day, score the top matches for each open role, and draft personalised intro emails awaiting your one-tap approval. Annual $4,990 (save ~17%).</p>
-            </div>
-            <span className="text-[#F08CAE] text-xs font-black flex-shrink-0">Subscribe →</span>
-          </SubscribeButton>
-        )}
-
-        {/* Hiring at a glance — compact overview. Full browsing lives in the
-            sidebar: /candidates (pool) + /company/roles (per-role matches). */}
-        <div className="grid sm:grid-cols-2 gap-4 mb-6">
-          <Link href="/candidates" className="gradient-border-card rounded-2xl p-5 hover:bg-white/[0.04] transition-colors block">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1">Verified candidates</p>
-            <p className="text-2xl font-black text-[#F4F4F7] mb-1">{count}</p>
-            <p className="text-[#A6A6B4] text-xs">ready to view — pre-referenced + AI-scored</p>
-            <p className="text-[#F08CAE] text-xs font-bold mt-3">Browse pool →</p>
-          </Link>
-          <Link href="/company/roles" className="gradient-border-card rounded-2xl p-5 hover:bg-white/[0.04] transition-colors block">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1">Your roles</p>
-            <p className="text-2xl font-black text-[#F4F4F7] mb-1">{activeRoles.length}</p>
-            <p className="text-[#A6A6B4] text-xs">{activeRoles.length === 0 ? 'post one to see candidates matched to it' : 'open · click a role for its matches'}</p>
-            <p className="text-[#F08CAE] text-xs font-bold mt-3">{activeRoles.length === 0 ? 'Post a role →' : 'See matches per role →'}</p>
-          </Link>
-        </div>
-
-        {!isPaid && count > 0 && (
-          <div className="rounded-2xl p-5 mb-6 flex items-center justify-between gap-4" style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.10), rgba(240,140,174,0.10))', border: '1px solid rgba(240,140,174,0.25)' }}>
-            <div>
-              <p className="text-[#F4F4F7] font-black text-base mb-0.5">{count} verified profile{count !== 1 ? 's' : ''} ready to view</p>
-              <p className="text-[#A6A6B4] text-xs">Subscribe to unlock names, full profiles, WhatsApp histories, direct contact.</p>
-            </div>
-            <Link href="/company/pricing" className="flex-shrink-0 px-5 py-2.5 rounded-full font-black text-xs text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
-              Unlock →
-            </Link>
-          </div>
-        )}
-
-        {/* Team members / invite */}
-        <div className="gradient-border-card rounded-2xl p-5 mt-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-[#F4F4F7] font-bold text-sm">Team access</p>
-              <p className="text-[#7E7E8E] text-xs mt-0.5">Invite colleagues to view candidates and manage roles</p>
-            </div>
-          </div>
-
-          {teamMembers.length > 0 && (
-            <div className="space-y-2 mb-4">
-              {teamMembers.map(m => (
-                <div key={m.id} className="flex items-center justify-between px-3 py-2 bg-[rgba(255,255,255,0.05)] rounded-xl">
-                  <span className="text-[#C7C7D1] text-sm">{m.email}</span>
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                    m.accepted_at
-                      ? 'bg-emerald-500/15 text-emerald-400'
-                      : 'bg-[rgba(255,255,255,0.05)] text-[#7E7E8E]'
-                  }`}>
-                    {m.accepted_at ? 'Active' : 'Invited'}
-                  </span>
+            {/* (b) THE hero — "What needs you today". Gradient-border card,
+                always present: action list when there's work, calm all-clear
+                state otherwise. */}
+            <section className="gradient-border-card p-6 mb-6">
+              <p className="text-[#FB7185] text-[10px] font-bold uppercase tracking-[0.18em] mb-4">✦ What needs you today</p>
+              {todayCount > 0 ? (
+                <ul className="space-y-1">
+                  {newInterestsCount > 0 && (
+                    <li>
+                      <Link href="/company/pipeline" className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 hover:bg-white/[0.04] transition-colors">
+                        <span className="flex items-center gap-3 text-white/90 text-sm font-medium">
+                          <span className="text-base leading-none">👋</span>
+                          <span>{newInterestsCount} new candidate{newInterestsCount === 1 ? '' : 's'} interested in your roles this week</span>
+                        </span>
+                        <span className="text-[#FB7185] text-xs font-bold flex-shrink-0">→</span>
+                      </Link>
+                    </li>
+                  )}
+                  {upcomingIvsCount > 0 && (
+                    <li>
+                      <Link href="/company/pipeline" className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 hover:bg-white/[0.04] transition-colors">
+                        <span className="flex items-center gap-3 text-white/90 text-sm font-medium">
+                          <span className="text-base leading-none">📅</span>
+                          <span>{upcomingIvsCount} interview{upcomingIvsCount === 1 ? '' : 's'} scheduled this week</span>
+                        </span>
+                        <span className="text-[#FB7185] text-xs font-bold flex-shrink-0">→</span>
+                      </Link>
+                    </li>
+                  )}
+                  {needCompanyFeedbackCount > 0 && (
+                    <li>
+                      <Link href="/company/pipeline" className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 hover:bg-white/[0.04] transition-colors">
+                        <span className="flex items-center gap-3 text-white/90 text-sm font-medium">
+                          <span className="text-base leading-none">📝</span>
+                          <span>{needCompanyFeedbackCount} interview{needCompanyFeedbackCount === 1 ? '' : 's'} need your feedback</span>
+                        </span>
+                        <span className="text-[#FB7185] text-xs font-bold flex-shrink-0">→</span>
+                      </Link>
+                    </li>
+                  )}
+                  {companyCompletion < 100 && (
+                    <li>
+                      <Link href="/company/onboarding" className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 hover:bg-white/[0.04] transition-colors">
+                        <span className="flex items-center gap-3 text-white/90 text-sm font-medium">
+                          <span className="text-base leading-none">✦</span>
+                          <span>Finish your profile — you&apos;re at {companyCompletion}%</span>
+                        </span>
+                        <span className="text-[#FB7185] text-xs font-bold flex-shrink-0">→</span>
+                      </Link>
+                    </li>
+                  )}
+                </ul>
+              ) : (
+                <div className="flex items-center gap-3 px-3 py-1">
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: '#34D399' }} />
+                  <p className="text-white/60 text-sm">
+                    All clear — nothing needs your attention right now.{' '}
+                    <Link href="/candidates" className="text-white/90 font-bold hover:underline">Browse the candidate pool →</Link>
+                  </p>
                 </div>
-              ))}
-            </div>
-          )}
+              )}
+            </section>
 
-          <InviteForm />
-        </div>
+            {/* (c) Status card grid — plain cards, max 2 accents each, never overlapping */}
+            <section className="grid sm:grid-cols-2 gap-4">
+
+              {/* Profile completion ring */}
+              <div className="plain-card p-6 flex items-center gap-5">
+                <div className="relative flex-shrink-0 w-20 h-20">
+                  <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+                    <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="7" />
+                    <circle cx="40" cy="40" r="34" fill="none" stroke={companyCompletion >= 100 ? '#34D399' : 'url(#coGrad)'} strokeWidth="7" strokeLinecap="round" strokeDasharray={compCircumference} strokeDashoffset={compDashOffset} />
+                    <defs>
+                      <linearGradient id="coGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#22D3EE" />
+                        <stop offset="100%" stopColor="#A78BFA" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-sm font-black" style={{ color: companyCompletion >= 100 ? '#34D399' : 'rgba(255,255,255,0.9)' }}>{companyCompletion}%</span>
+                  </div>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/40 mb-1">Profile completion</p>
+                  <h2 className="text-base font-black" style={companyCompletion >= 100 ? { color: '#34D399' } : { background: 'linear-gradient(135deg, #22D3EE, #A78BFA)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                    {companyCompletion >= 100 ? 'Verified employer ✓' : `${companyCompletion}% complete`}
+                  </h2>
+                  <p className="text-white/40 text-[11px] mt-1">Higher = stronger trust score</p>
+                </div>
+              </div>
+
+              {/* Verified candidates — contextual gate nudge when unsubscribed */}
+              <Link href="/candidates" className="plain-card card-hover p-6 block">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/40 mb-1.5">Verified candidates</p>
+                <p className="text-2xl font-black text-white/90 mb-1">{count}</p>
+                <p className="text-white/60 text-xs">ready to view — pre-referenced + AI-scored</p>
+                {isPaid ? (
+                  <p className="text-[#22D3EE] text-xs font-bold mt-4">Browse pool →</p>
+                ) : (
+                  <p className="text-[#FB7185] text-xs font-bold mt-4">Preview pool — subscribe to unlock full profiles →</p>
+                )}
+              </Link>
+
+              {/* Your roles */}
+              <Link href="/company/roles" className="plain-card card-hover p-6 block">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/40 mb-1.5">Your roles</p>
+                <p className="text-2xl font-black text-white/90 mb-1">{activeRoles.length}</p>
+                <p className="text-white/60 text-xs">{activeRoles.length === 0 ? 'post one to see candidates matched to it' : 'open · click a role for its matches'}</p>
+                <p className="text-[#22D3EE] text-xs font-bold mt-4">{activeRoles.length === 0 ? 'Post a role →' : 'See matches per role →'}</p>
+              </Link>
+
+              {/* Workforce Snapshot nudge — first-touch acquisition wedge,
+                  shown only until they've run one. STRATEGY §16 Tier A. */}
+              {!hasRunSnapshot && (
+                <Link href="/company/workforce-snapshot" className="plain-card card-hover p-6 block">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] mb-1.5" style={{ color: '#34D399' }}>✦ Start here — free</p>
+                  <p className="text-white/90 text-base font-black mb-1">Run your Workforce Snapshot</p>
+                  <p className="text-white/60 text-xs leading-relaxed">
+                    Five inputs, zero confidential data, one honest report — your <strong className="text-white/90">Future Readiness Score</strong>, AI risk heatmap, top at-risk roles, and what AI integration will actually cost. ~30 seconds.
+                  </p>
+                  <p className="text-[#34D399] text-xs font-bold mt-4">Run it →</p>
+                </Link>
+              )}
+
+              {/* Active Hiring — contextual nudge only while the feature is
+                  gated (daily AI-shortlist per role). STRATEGY §14/§16. */}
+              {!hasAH && (
+                <SubscribeButton product="active_hiring_monthly" className="plain-card card-hover p-6 text-left block w-full">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#A78BFA] mb-1.5">Active Hiring · $499/mo</p>
+                  <p className="text-white/90 text-base font-black mb-1">Daily AI-shortlist per open role</p>
+                  <p className="text-white/60 text-xs leading-relaxed">
+                    We scan the verified pool every day, score the top matches for each open role, and draft personalised intro emails awaiting your one-tap approval. Annual $4,990 (save ~17%).
+                  </p>
+                  <p className="text-[#A78BFA] text-xs font-bold mt-4">Subscribe →</p>
+                </SubscribeButton>
+              )}
+
+              {/* Connect Shapi WhatsApp — first-encounter entry point, shown
+                  until the company has paired their number. needsNumber renders
+                  the amber "add your number first" variant. */}
+              {!hasWhatsApp && (
+                <div className="sm:col-span-2">
+                  <WhatsAppConnectCard role="company" needsNumber />
+                </div>
+              )}
+
+              {/* Team members / invite */}
+              <div className="plain-card p-6 sm:col-span-2">
+                <div className="mb-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/40 mb-1">Team access</p>
+                  <p className="text-white/60 text-xs">Invite colleagues to view candidates and manage roles</p>
+                </div>
+
+                {teamMembers.length > 0 && (
+                  <div className="space-y-2 mb-4">
+                    {teamMembers.map(m => (
+                      <div key={m.id} className="flex items-center justify-between px-3 py-2 bg-white/[0.04] border border-white/[0.06] rounded-xl">
+                        <span className="text-white/70 text-sm">{m.email}</span>
+                        <span
+                          className="text-xs font-bold px-2 py-0.5 rounded-full"
+                          style={m.accepted_at
+                            ? { background: 'rgba(52,211,153,0.13)', color: '#34D399' }
+                            : { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.4)' }}
+                        >
+                          {m.accepted_at ? 'Active' : 'Invited'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <InviteForm />
+              </div>
+            </section>
 
           </main>
         </div>

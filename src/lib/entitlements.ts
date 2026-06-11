@@ -212,12 +212,30 @@ export async function hasEntitlementServer(
   userId: string,
   feature: string,
 ): Promise<{ allowed: boolean; requirement: Requirement | null }> {
+  // Core tier columns — these exist in every environment. Selected WITHOUT
+  // the product-flag columns: strategic_plan_purchased_at / brain_hr_os_active
+  // come from a schema migration that may not be applied yet, and Postgres
+  // 400s the WHOLE select when any column is missing — which made this return
+  // a null profile and read every paying user as 'free' the moment gates are
+  // enforced.
   const { data: profile } = await supabase
     .from('profiles')
-    .select('subscription_product, paid, plan_tier, subscription_tier, strategic_plan_purchased_at, brain_hr_os_active')
+    .select('subscription_product, paid, plan_tier, subscription_tier')
     .eq('id', userId)
     .single()
-  return hasEntitlement(profile as EntitlementProfile, feature)
+
+  // Product flags — best-effort. A missing column only disables the two
+  // product gates (they read as not-purchased), never the tier ladder.
+  const { data: flags } = await supabase
+    .from('profiles')
+    .select('strategic_plan_purchased_at, brain_hr_os_active')
+    .eq('id', userId)
+    .maybeSingle()
+
+  const merged: EntitlementProfile | null = profile
+    ? { ...(profile as EntitlementProfile), ...((flags || {}) as EntitlementProfile) }
+    : (flags as EntitlementProfile | null)
+  return hasEntitlement(merged, feature)
 }
 
 /* ──────────────────────────────────────────────────────────────────────── */

@@ -1,6 +1,30 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { LOCALES } from '@/lib/i18n/locales'
+
+// Locale codes a roles.translations entry may be keyed by (everything but en)
+const TRANSLATION_LOCALES = new Set(LOCALES.filter(l => l.code !== 'en').map(l => l.code as string))
+
+// Validate + sanitise a client-sent translations object into
+// { ar: { title, description, requirements }, ... }. Drops unknown locales
+// and non-string values. Returns null when nothing valid remains.
+function sanitiseTranslations(input: unknown): Record<string, { title: string; description: string; requirements: string }> | null {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return null
+  const out: Record<string, { title: string; description: string; requirements: string }> = {}
+  for (const [code, value] of Object.entries(input as Record<string, unknown>)) {
+    if (!TRANSLATION_LOCALES.has(code)) continue
+    if (!value || typeof value !== 'object' || Array.isArray(value)) continue
+    const v = value as Record<string, unknown>
+    const entry = {
+      title: typeof v.title === 'string' ? v.title.trim() : '',
+      description: typeof v.description === 'string' ? v.description.trim() : '',
+      requirements: typeof v.requirements === 'string' ? v.requirements.trim() : '',
+    }
+    if (entry.title || entry.description || entry.requirements) out[code] = entry
+  }
+  return Object.keys(out).length ? out : null
+}
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -35,10 +59,18 @@ export async function POST(request: Request) {
   if (!title) return NextResponse.json({ error: 'Role title required' }, { status: 400 })
   if (!salary_min || !salary_max) return NextResponse.json({ error: 'Salary range required' }, { status: 400 })
 
-  // Generate JD from answers using Claude
-  let description = ''
-  let requirements = ''
+  // JD body: the new flow ALWAYS sends a company-reviewed description
+  // (parsed from their internal JD, or AI-drafted via /draft-jd then edited
+  // in the form). When provided, we save it verbatim — no regeneration, no
+  // surprises. The Claude generation below is kept only as a fallback for
+  // legacy callers that send the brief without a description.
+  let description = typeof body.description === 'string' ? body.description.trim() : ''
+  let requirements = typeof body.requirements === 'string' ? body.requirements.trim() : ''
 
+  // Optional multilingual JD versions, reviewed in the form before publish.
+  const translations = sanitiseTranslations(body.translations)
+
+  if (!description) {
   try {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
     const response = await anthropic.messages.create({
@@ -81,38 +113,59 @@ Return JSON with exactly two keys:
     console.error('[company/roles] JD generation error:', err)
     // Don't fail — save with empty description, manager can edit
   }
+  }
 
-  const { data: role, error } = await supabase
+  const payload: Record<string, unknown> = {
+    company_id: user.id,
+    created_by: user.id,
+    title,
+    department: department || null,
+    location: location || null,
+    remote: remote || false,
+    salary_min,
+    salary_max,
+    salary_currency: salary_currency || 'USD',
+    salary_visible: salary_visible !== false,
+    engagement_type: ['permanent', 'contract', 'temp'].includes(engagement_type) ? engagement_type : 'permanent',
+    accepts_pivot_candidates: accepts_pivot_candidates === true,
+    description,
+    requirements,
+    what_success_looks_like: what_success_looks_like || null,
+    team_context: team_context || null,
+    status: 'active',
+    updated_at: new Date().toISOString(),
+  }
+  if (translations) payload.translations = translations
+
+  let { data: role, error } = await supabase
     .from('roles')
-    .insert({
-      company_id: user.id,
-      created_by: user.id,
-      title,
-      department: department || null,
-      location: location || null,
-      remote: remote || false,
-      salary_min,
-      salary_max,
-      salary_currency: salary_currency || 'USD',
-      salary_visible: salary_visible !== false,
-      engagement_type: ['permanent', 'contract', 'temp'].includes(engagement_type) ? engagement_type : 'permanent',
-      accepts_pivot_candidates: accepts_pivot_candidates === true,
-      description,
-      requirements,
-      what_success_looks_like: what_success_looks_like || null,
-      team_context: team_context || null,
-      status: 'active',
-      updated_at: new Date().toISOString(),
-    })
+    .insert(payload)
     .select()
     .single()
+
+  // Graceful degradation: if supabase/jd_translations.sql hasn't been run
+  // yet, the translations column doesn't exist — save the role without it
+  // rather than failing the whole publish.
+  let translationsSaved = !!translations
+  if (error && translations && /translations/i.test(error.message)) {
+    console.warn('[company/roles] translations column missing — run supabase/jd_translations.sql. Saving role without translations.')
+    delete payload.translations
+    translationsSaved = false
+    ;({ data: role, error } = await supabase.from('roles').insert(payload).select().single())
+  }
 
   if (error) {
     console.error('[company/roles] Insert error:', error.message)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json({ role })
+  return NextResponse.json({
+    role,
+    translations_saved: translationsSaved,
+    ...(translations && !translationsSaved
+      ? { warning: 'Role published, but translations could not be saved yet (database migration pending).' }
+      : {}),
+  })
 }
 
 export async function GET() {

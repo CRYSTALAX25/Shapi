@@ -1,9 +1,33 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { LOCALES } from '@/lib/i18n/locales'
 
 // Owner-scoped single-role operations. Every method re-checks that the role
 // belongs to the logged-in company (company_id === user.id) so there is no
 // cross-company access.
+
+// Locale codes a roles.translations entry may be keyed by (everything but en)
+const TRANSLATION_LOCALES = new Set(LOCALES.filter(l => l.code !== 'en').map(l => l.code as string))
+
+// Validate + sanitise a client-sent translations object (same shape as the
+// create route: { ar: { title, description, requirements }, ... }).
+// Passing {} explicitly clears all translations.
+function sanitiseTranslations(input: unknown): Record<string, { title: string; description: string; requirements: string }> | null {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return null
+  const out: Record<string, { title: string; description: string; requirements: string }> = {}
+  for (const [code, value] of Object.entries(input as Record<string, unknown>)) {
+    if (!TRANSLATION_LOCALES.has(code)) continue
+    if (!value || typeof value !== 'object' || Array.isArray(value)) continue
+    const v = value as Record<string, unknown>
+    const entry = {
+      title: typeof v.title === 'string' ? v.title.trim() : '',
+      description: typeof v.description === 'string' ? v.description.trim() : '',
+      requirements: typeof v.requirements === 'string' ? v.requirements.trim() : '',
+    }
+    if (entry.title || entry.description || entry.requirements) out[code] = entry
+  }
+  return out
+}
 
 async function getOwnedRole(roleId: string) {
   const supabase = await createClient()
@@ -68,6 +92,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (['draft', 'active', 'closed'].includes(body.status)) {
     updates.status = body.status
   }
+  // Multilingual JD versions ({ ar: { title, description, requirements }, ... }).
+  // Sending {} clears them. Requires supabase/jd_translations.sql — if the
+  // column is missing we retry without it below rather than failing the save.
+  if (body.translations !== undefined) {
+    const t = sanitiseTranslations(body.translations)
+    if (t !== null) updates.translations = t
+  }
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
@@ -82,13 +113,30 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   updates.updated_at = new Date().toISOString()
 
-  const { data: role, error } = await supabase
+  let { data: role, error } = await supabase
     .from('roles')
     .update(updates)
     .eq('id', id)
     .eq('company_id', ctx.user.id)
     .select()
     .single()
+
+  // Graceful degradation: translations column missing (migration not run yet)
+  if (error && 'translations' in updates && /translations/i.test(error.message)) {
+    console.warn('[company/roles/:id] translations column missing — run supabase/jd_translations.sql. Saving without translations.')
+    delete updates.translations
+    if (Object.keys(updates).length > 1) { // more than just updated_at
+      ;({ data: role, error } = await supabase
+        .from('roles')
+        .update(updates)
+        .eq('id', id)
+        .eq('company_id', ctx.user.id)
+        .select()
+        .single())
+    } else {
+      return NextResponse.json({ error: 'Translations could not be saved — database migration pending (supabase/jd_translations.sql)' }, { status: 500 })
+    }
+  }
 
   if (error) {
     console.error('[company/roles/:id] update error:', error.message)

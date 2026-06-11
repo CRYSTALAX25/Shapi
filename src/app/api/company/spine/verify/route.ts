@@ -7,12 +7,18 @@ import { NextResponse } from 'next/server'
 // VERIFIED ORG — mint seat-confirmation magic links.
 //
 // POST { seat_ids?: uuid[] } (default: ALL occupied seats)
-//   For each occupied seat: expire any previous pending token, mint a fresh
-//   one, then try WhatsApp (persons.whatsapp_number) and email (persons.email).
-//   The copyable link is ALWAYS returned per person — Twilio is on a trial
-//   plan (50/day cap) so the founder can paste links manually when sends fail.
+//   TOKEN GUARD — we do NOT blindly re-mint on every click:
+//     • seat already verified                → send_status 'already_verified', skip
+//     • latest token pending AND unexpired   → send_status 'already_sent',
+//       return the EXISTING link + sent date (no new token, nothing re-sent)
+//     • never sent / expired / disputed      → mint fresh + send → 'newly_sent'
+//   For newly-sent seats we try WhatsApp (persons.whatsapp_number) and email
+//   (persons.email) and report per-channel honesty in `channels` — Twilio is
+//   on a trial plan (50/day cap) so WhatsApp sends DO fail; the copyable link
+//   is always returned so the founder can paste it manually.
 //
-// GET — verification summary: counts by status + % verified of occupied seats.
+// GET — verification summary + per-seat latest-token detail (status, channel,
+//   sent date, expiry, link) for the canvas status panel.
 //
 // GRACEFUL DEGRADE: if the founder hasn't run supabase/verified_org.sql yet,
 // POST returns 409 with a clear message; GET returns { available: false }.
@@ -51,7 +57,38 @@ async function requireCompany() {
   return { supabase, user, companyName: (profile.company_name as string | null) || 'Your company' }
 }
 
-// ── GET: verification summary ────────────────────────────────────────────────
+type TokenRow = {
+  id: string
+  seat_id: string | null
+  token: string
+  status: string
+  sent_via: string | null
+  created_at: string
+  expires_at: string
+}
+
+// Latest token per seat, newest first. Admin client (RLS-exempt) but always
+// scoped to company_id = the authenticated company.
+async function latestTokensBySeat(
+  companyId: string,
+  seatIds: string[]
+): Promise<{ error?: DbError; bySeat?: Map<string, TokenRow> }> {
+  const admin = createAdminClient()
+  const { data, error } = await admin
+    .from('seat_confirmation_tokens')
+    .select('id, seat_id, token, status, sent_via, created_at, expires_at')
+    .eq('company_id', companyId)
+    .in('seat_id', seatIds)
+    .order('created_at', { ascending: false })
+  if (error) return { error }
+  const bySeat = new Map<string, TokenRow>()
+  for (const row of (data || []) as TokenRow[]) {
+    if (row.seat_id && !bySeat.has(row.seat_id)) bySeat.set(row.seat_id, row)
+  }
+  return { bySeat }
+}
+
+// ── GET: verification summary + per-seat latest-token detail ─────────────────
 export async function GET() {
   const ctx = await requireCompany()
   if ('error' in ctx) return ctx.error
@@ -59,7 +96,7 @@ export async function GET() {
 
   const { data: seats, error } = await supabase
     .from('roles_seats')
-    .select('id, person_id, status, verification_status')
+    .select('id, title, person_id, status, verification_status, verified_at, verified_via')
     .eq('company_id', user.id)
 
   if (error) {
@@ -77,15 +114,72 @@ export async function GET() {
   }
   const verifiedPct = occupied.length > 0 ? Math.round((byStatus.verified / occupied.length) * 100) : 0
 
+  // Per-seat detail for the status panel.
+  let details: Array<{
+    seat_id: string
+    seat_title: string
+    person_id: string
+    person_name: string
+    verification_status: string
+    verified_at: string | null
+    verified_via: string | null
+    latest_token: {
+      status: string
+      sent_via: string | null
+      sent_at: string
+      expires_at: string
+      link: string
+    } | null
+  }> = []
+
+  if (occupied.length > 0) {
+    const personIds = [...new Set(occupied.map(s => s.person_id as string))]
+    const { data: persons } = await supabase
+      .from('persons')
+      .select('id, full_name, preferred_name')
+      .in('id', personIds)
+    const personById = Object.fromEntries(
+      (persons || []).map(p => [p.id, (p.preferred_name as string | null) || (p.full_name as string)])
+    )
+
+    const tok = await latestTokensBySeat(user.id, occupied.map(s => s.id as string))
+    // Token table missing but seat columns present shouldn't happen (same
+    // migration) — degrade to "no tokens" rather than failing the summary.
+    const bySeat = tok.bySeat || new Map<string, TokenRow>()
+
+    details = occupied.map(s => {
+      const t = bySeat.get(s.id as string) || null
+      return {
+        seat_id: s.id as string,
+        seat_title: s.title as string,
+        person_id: s.person_id as string,
+        person_name: personById[s.person_id as string] || 'Unknown',
+        verification_status: (s.verification_status as string) || 'self_reported',
+        verified_at: (s.verified_at as string | null) || null,
+        verified_via: (s.verified_via as string | null) || null,
+        latest_token: t
+          ? {
+              status: t.status,
+              sent_via: t.sent_via,
+              sent_at: t.created_at,
+              expires_at: t.expires_at,
+              link: `${SITE}/confirm-seat/${t.token}`,
+            }
+          : null,
+      }
+    })
+  }
+
   return NextResponse.json({
     available: true,
     occupied_seats: occupied.length,
     by_status: byStatus,
     verified_pct: verifiedPct,
+    seats: details,
   })
 }
 
-// ── POST: mint tokens + send confirmations ──────────────────────────────────
+// ── POST: guarded mint + send ────────────────────────────────────────────────
 export async function POST(request: Request) {
   const ctx = await requireCompany()
   if ('error' in ctx) return ctx.error
@@ -122,17 +216,31 @@ export async function POST(request: Request) {
   const personById = Object.fromEntries((persons || []).map(p => [p.id, p]))
   const teamById = Object.fromEntries((teams || []).map(t => [t.id, t]))
 
+  // TOKEN GUARD — load the latest token per seat up-front so we can skip
+  // anything already confirmed or already pending+unexpired.
+  const tok = await latestTokensBySeat(user.id, seats.map(s => s.id as string))
+  if (tok.error) {
+    if (isMigrationMissing(tok.error)) return MIGRATION_409
+    return NextResponse.json({ error: tok.error.message }, { status: 500 })
+  }
+  const latestBySeat = tok.bySeat || new Map<string, TokenRow>()
+
   const admin = createAdminClient()
   const resendKey = process.env.RESEND_API_KEY || null
   const resend = resendKey ? new Resend(resendKey) : null
+  const now = Date.now()
 
+  type Channel = { channel: 'whatsapp' | 'email'; ok: boolean; to: string; error?: string }
   const results: {
     seat_id: string
     seat_title: string
     person_id: string
     person_name: string
+    send_status: 'newly_sent' | 'already_sent' | 'already_verified'
     link: string
     sent_via: string[]
+    sent_at: string | null
+    channels?: Channel[]
     errors?: string[]
   }[] = []
 
@@ -142,9 +250,35 @@ export async function POST(request: Request) {
     const personName = person.preferred_name || person.full_name
     const firstName = (personName || '').trim().split(' ')[0] || 'there'
     const teamName = teamById[seat.team_id as string]?.name || null
+    const base = {
+      seat_id: seat.id as string,
+      seat_title: seat.title as string,
+      person_id: person.id as string,
+      person_name: personName as string,
+    }
 
-    // Re-send semantics: expire any previous pending token for this seat so
-    // exactly one live link exists per seat at a time.
+    // 1. Seat already confirmed by the employee — nothing to send.
+    if (seat.verification_status === 'verified') {
+      results.push({ ...base, send_status: 'already_verified', link: '', sent_via: [], sent_at: null })
+      continue
+    }
+
+    // 2. A pending, unexpired link already exists — return it, don't re-mint.
+    const latest = latestBySeat.get(seat.id as string)
+    if (latest && latest.status === 'pending' && Date.parse(latest.expires_at) > now) {
+      results.push({
+        ...base,
+        send_status: 'already_sent',
+        link: `${SITE}/confirm-seat/${latest.token}`,
+        sent_via: latest.sent_via && latest.sent_via !== 'link' ? latest.sent_via.split('+') : [],
+        sent_at: latest.created_at,
+      })
+      continue
+    }
+
+    // 3. Never sent / expired / disputed → mint fresh + send.
+    //    Belt + suspenders: expire any stale pending rows (e.g. pending but
+    //    past expires_at) so exactly one live link exists per seat.
     const { error: expireErr } = await admin
       .from('seat_confirmation_tokens')
       .update({ status: 'expired' })
@@ -160,8 +294,11 @@ export async function POST(request: Request) {
     if (tokenErr || !tokenRow) {
       if (isMigrationMissing(tokenErr)) return MIGRATION_409
       results.push({
-        seat_id: seat.id, seat_title: seat.title, person_id: person.id,
-        person_name: personName, link: '', sent_via: [],
+        ...base,
+        send_status: 'newly_sent',
+        link: '',
+        sent_via: [],
+        sent_at: null,
         errors: [tokenErr?.message || 'Token mint failed'],
       })
       continue
@@ -170,19 +307,25 @@ export async function POST(request: Request) {
     const link = `${SITE}/confirm-seat/${tokenRow.token}`
     const sentVia: string[] = []
     const errors: string[] = []
+    const channels: Channel[] = []
 
-    // 1. WhatsApp first — degrades gracefully when Twilio creds are absent.
+    // a. WhatsApp first — degrades gracefully when Twilio creds are absent.
     if (person.whatsapp_number) {
       const msg =
         `Hi ${firstName} 👋 ${companyName} uses Shapi to keep a verified org chart.\n\n` +
         `Can you confirm your role — *${seat.title}*${teamName ? ` on ${teamName}` : ''}? ` +
         `Takes 10 seconds, no login:\n${link}`
       const wa = await sendWhatsApp(person.whatsapp_number, msg)
-      if (wa.success) sentVia.push('whatsapp')
-      else if (wa.error) errors.push(`WhatsApp: ${wa.error}`)
+      if (wa.success) {
+        sentVia.push('whatsapp')
+        channels.push({ channel: 'whatsapp', ok: true, to: person.whatsapp_number })
+      } else {
+        if (wa.error) errors.push(`WhatsApp: ${wa.error}`)
+        channels.push({ channel: 'whatsapp', ok: false, to: person.whatsapp_number, error: wa.error || 'send failed' })
+      }
     }
 
-    // 2. Email — belt + suspenders.
+    // b. Email — belt + suspenders.
     if (person.email && resend) {
       try {
         await resend.emails.send({
@@ -192,11 +335,14 @@ export async function POST(request: Request) {
           html: confirmEmailHtml({ firstName, companyName, seatTitle: seat.title, teamName, link }),
         })
         sentVia.push('email')
+        channels.push({ channel: 'email', ok: true, to: person.email })
       } catch (err) {
         errors.push(`Email: ${String(err)}`)
+        channels.push({ channel: 'email', ok: false, to: person.email, error: String(err) })
       }
     } else if (person.email && !resend) {
       errors.push('Email: RESEND_API_KEY not set')
+      channels.push({ channel: 'email', ok: false, to: person.email, error: 'RESEND_API_KEY not set' })
     }
 
     // Record what actually went out. 'link' = copyable link only (the founder
@@ -207,8 +353,12 @@ export async function POST(request: Request) {
       .eq('id', tokenRow.id)
 
     results.push({
-      seat_id: seat.id, seat_title: seat.title, person_id: person.id,
-      person_name: personName, link, sent_via: sentVia,
+      ...base,
+      send_status: 'newly_sent',
+      link,
+      sent_via: sentVia,
+      sent_at: new Date().toISOString(),
+      channels,
       ...(errors.length > 0 ? { errors } : {}),
     })
   }
@@ -217,9 +367,12 @@ export async function POST(request: Request) {
     results,
     summary: {
       total: results.length,
+      newly_sent: results.filter(r => r.send_status === 'newly_sent').length,
+      already_sent: results.filter(r => r.send_status === 'already_sent').length,
+      already_verified: results.filter(r => r.send_status === 'already_verified').length,
       whatsapp: results.filter(r => r.sent_via.includes('whatsapp')).length,
       email: results.filter(r => r.sent_via.includes('email')).length,
-      link_only: results.filter(r => r.sent_via.length === 0 && r.link).length,
+      link_only: results.filter(r => r.send_status === 'newly_sent' && r.sent_via.length === 0 && r.link).length,
     },
   })
 }

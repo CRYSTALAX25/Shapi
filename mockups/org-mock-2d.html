@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shapi Org Map — 2D with depth (mockup)</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Plus Jakarta Sans', sans-serif;
+    background:#060609; color:rgba(255,255,255,0.9);
+    overflow:hidden; height:100vh;
+    background-image: radial-gradient(circle, rgba(34,211,238,0.06) 1px, transparent 1px);
+    background-size:44px 44px;
+  }
+  header {
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 22px; background:rgba(6,6,9,0.85); backdrop-filter:blur(8px);
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  .logo { font-weight:900; font-size:20px; letter-spacing:-0.02em;
+    background:linear-gradient(135deg,#A78BFA,#22D3EE);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .hint { font-size:12px; color:rgba(255,255,255,0.4); }
+  .badge { font-size:11px; font-weight:700; padding:4px 12px; border-radius:999px;
+    background:rgba(52,211,153,0.13); color:#34D399; border:1px solid #34D39940; }
+  #viewport { position:absolute; inset:0; top:54px; cursor:grab; }
+  #world { position:absolute; transform-origin:0 0; }
+  svg#edges { position:absolute; top:0; left:0; overflow:visible; pointer-events:none; }
+  .edge { stroke:rgba(167,139,250,0.35); stroke-width:2; fill:none; transition:stroke .3s; }
+  .edge.hot { stroke:#22D3EE; stroke-width:2.5; filter:drop-shadow(0 0 6px rgba(34,211,238,0.6)); }
+  .node {
+    position:absolute; width:172px; padding:12px 14px; border-radius:14px;
+    background:linear-gradient(#0d0d14,#0d0d14) padding-box,
+      linear-gradient(135deg, rgba(34,211,238,0.25), rgba(167,139,250,0.25)) border-box;
+    border:1.5px solid transparent;
+    box-shadow:0 2px 4px rgba(0,0,0,0.5), 0 18px 44px rgba(0,0,0,0.45);
+    cursor:grab; user-select:none; transition:box-shadow .2s, transform .15s;
+  }
+  .node:hover { transform:translateY(-2px);
+    box-shadow:0 4px 8px rgba(0,0,0,0.5), 0 26px 60px rgba(0,0,0,0.55), 0 0 24px rgba(34,211,238,0.12); }
+  .node.dragging { cursor:grabbing; z-index:40; transform:scale(1.05) rotate(1.2deg);
+    box-shadow:0 12px 24px rgba(0,0,0,0.6), 0 40px 90px rgba(0,0,0,0.6), 0 0 40px rgba(34,211,238,0.25); }
+  .node.verified {
+    background:linear-gradient(#0d1410,#0d1410) padding-box,
+      linear-gradient(135deg, rgba(52,211,153,0.55), rgba(52,211,153,0.25)) border-box;
+    box-shadow:0 2px 4px rgba(0,0,0,0.5), 0 18px 44px rgba(0,0,0,0.45), 0 0 22px rgba(52,211,153,0.18);
+  }
+  .node .role { font-weight:800; font-size:13px; line-height:1.25; }
+  .node .person { font-size:11.5px; color:rgba(255,255,255,0.55); margin-top:3px; }
+  .node .meta { display:flex; gap:6px; margin-top:8px; align-items:center; }
+  .chip { font-size:9px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;
+    padding:2.5px 8px; border-radius:999px; }
+  .chip.team { background:rgba(167,139,250,0.13); color:#A78BFA; }
+  .chip.v { background:rgba(52,211,153,0.15); color:#34D399; }
+  .chip.sr { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.35); }
+  .node.ceo { width:190px;
+    background:linear-gradient(#0d0d14,#0d0d14) padding-box,
+      linear-gradient(135deg, #22D3EE, #A78BFA) border-box; }
+  #toast {
+    position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(140%);
+    z-index:60; width:460px; max-width:92vw; padding:18px 20px; border-radius:16px;
+    background:linear-gradient(#11111a,#11111a) padding-box,
+      linear-gradient(135deg, #FBBF24, #FB7185) border-box;
+    border:1.5px solid transparent; box-shadow:0 24px 70px rgba(0,0,0,0.7);
+    transition:transform .35s cubic-bezier(.2,.9,.3,1.2);
+  }
+  #toast.show { transform:translateX(-50%) translateY(0); }
+  #toast .t-title { font-weight:800; font-size:13px; color:#FBBF24; letter-spacing:0.08em; text-transform:uppercase; }
+  #toast .t-body { font-size:13.5px; margin-top:6px; line-height:1.45; color:rgba(255,255,255,0.85); }
+  #toast .t-body b { color:#22D3EE; }
+  #toast .t-actions { display:flex; gap:10px; margin-top:12px; }
+  #toast button { font-family:inherit; font-weight:700; font-size:12.5px; padding:8px 18px;
+    border-radius:999px; border:none; cursor:pointer; }
+  #toast .confirm { background:linear-gradient(135deg,#22D3EE,#A78BFA); color:#0B0B11; }
+  #toast .undo { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.8); }
+  .structure-pill { position:fixed; top:70px; right:22px; z-index:50; font-size:11px; font-weight:700;
+    padding:6px 14px; border-radius:999px; background:rgba(34,211,238,0.1); color:#22D3EE;
+    border:1px solid rgba(34,211,238,0.3); transition:all .3s; }
+  .structure-pill.changed { background:rgba(251,191,36,0.12); color:#FBBF24; border-color:rgba(251,191,36,0.4); }
+</style>
+</head>
+<body>
+<header>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <span class="logo">shapi</span>
+    <span style="font-size:13px;font-weight:700;">Org Map · Meridian Gulf</span>
+    <span class="badge">Org verified: 33%</span>
+  </div>
+  <span class="hint">drag a card onto another branch · scroll to zoom · drag background to pan</span>
+</header>
+<div class="structure-pill" id="structPill">Structure: Divisional</div>
+<div id="viewport"><div id="world">
+  <svg id="edges" width="2000" height="1200"></svg>
+</div></div>
+
+<div id="toast">
+  <div class="t-title">⚠ Structure change detected</div>
+  <div class="t-body" id="toastBody"></div>
+  <div class="t-actions">
+    <button class="confirm" onclick="confirmMove()">Confirm — log to audit trail</button>
+    <button class="undo" onclick="undoMove()">Undo</button>
+  </div>
+</div>
+
+<script>
+const NODES = [
+  { id:'ceo', role:'Chief Executive', person:'Omar Al-Rashid', team:'Exec', x:760, y:60, v:true, ceo:true },
+  { id:'ops', role:'Head of Operations', person:'Sara Haddad', team:'Ops · Dubai', x:380, y:260, v:true, parent:'ceo' },
+  { id:'eng', role:'Head of Engineering', person:'Layla Mansour', team:'Eng · Riyadh', x:780, y:260, v:false, parent:'ceo' },
+  { id:'sales', role:'Head of Sales', person:'Karim Aziz', team:'Sales · Dubai', x:1180, y:260, v:false, parent:'ceo' },
+  { id:'ops1', role:'Logistics Manager', person:'Fatima Noor', team:'Ops', x:240, y:470, v:true, parent:'ops' },
+  { id:'ops2', role:'Facilities Lead', person:'Hassan Ali', team:'Ops', x:480, y:470, v:false, parent:'ops' },
+  { id:'eng1', role:'Senior Back Engineer', person:'Yusuf Khan', team:'Eng', x:690, y:470, v:true, parent:'eng' },
+  { id:'eng2', role:'Data Analyst', person:'— vacant —', team:'Eng', x:920, y:470, v:false, parent:'eng' },
+  { id:'sal1', role:'Account Executive', person:'Mariam Said', team:'Sales', x:1170, y:470, v:false, parent:'sales' },
+];
+const world = document.getElementById('world');
+const svg = document.getElementById('edges');
+const els = {};
+let scale = 1, panX = 40, panY = 30;
+
+NODES.forEach(n => {
+  const d = document.createElement('div');
+  d.className = 'node' + (n.v ? ' verified' : '') + (n.ceo ? ' ceo' : '');
+  d.id = 'n-' + n.id;
+  d.innerHTML = `<div class="role">${n.role}</div><div class="person">${n.person}</div>
+    <div class="meta"><span class="chip team">${n.team}</span>
+    <span class="chip ${n.v?'v':'sr'}">${n.v?'✓ Verified':'Self-reported'}</span></div>`;
+  d.style.left = n.x + 'px'; d.style.top = n.y + 'px';
+  world.appendChild(d); els[n.id] = d;
+});
+
+function drawEdges(hotId) {
+  svg.innerHTML = '';
+  NODES.forEach(n => {
+    if (!n.parent) return;
+    const c = els[n.id], p = els[n.parent];
+    const x1 = p.offsetLeft + p.offsetWidth/2, y1 = p.offsetTop + p.offsetHeight;
+    const x2 = c.offsetLeft + c.offsetWidth/2, y2 = c.offsetTop;
+    const midY = (y1 + y2) / 2;
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`);
+    path.setAttribute('class', 'edge' + ((n.id===hotId||n.parent===hotId) ? ' hot' : ''));
+    svg.appendChild(path);
+  });
+}
+
+function applyView(){ world.style.transform = `translate(${panX}px,${panY}px) scale(${scale})`; }
+applyView(); drawEdges();
+
+let drag = null, panning = null, moved = null;
+const vp = document.getElementById('viewport');
+vp.addEventListener('pointerdown', e => {
+  const nodeEl = e.target.closest('.node');
+  if (nodeEl) {
+    const n = NODES.find(x => 'n-'+x.id === nodeEl.id);
+    if (n.ceo) return;
+    drag = { n, el: nodeEl, ox: e.clientX/scale - nodeEl.offsetLeft, oy: e.clientY/scale - nodeEl.offsetTop,
+             startX: nodeEl.offsetLeft, startY: nodeEl.offsetTop, startParent: n.parent };
+    nodeEl.classList.add('dragging');
+  } else { panning = { sx: e.clientX - panX, sy: e.clientY - panY }; vp.style.cursor = 'grabbing'; }
+});
+window.addEventListener('pointermove', e => {
+  if (drag) {
+    drag.el.style.left = (e.clientX/scale - drag.ox) + 'px';
+    drag.el.style.top = (e.clientY/scale - drag.oy) + 'px';
+    drawEdges(drag.n.id);
+  } else if (panning) { panX = e.clientX - panning.sx; panY = e.clientY - panning.sy; applyView(); }
+});
+window.addEventListener('pointerup', e => {
+  vp.style.cursor = 'grab';
+  if (panning) { panning = null; return; }
+  if (!drag) return;
+  drag.el.classList.remove('dragging');
+  // find nearest potential parent (any head/ceo node) by horizontal proximity
+  const heads = NODES.filter(n => ['ceo','ops','eng','sales'].includes(n.id) && n.id !== drag.n.id);
+  let best = null, bestD = 1e9;
+  heads.forEach(h => {
+    const he = els[h.id];
+    const dx = (drag.el.offsetLeft+86) - (he.offsetLeft+86), dy = drag.el.offsetTop - (he.offsetTop+90);
+    const d = Math.hypot(dx, dy);
+    if (d < bestD) { bestD = d; best = h; }
+  });
+  if (best && best.id !== drag.n.parent && bestD < 320) {
+    moved = { n: drag.n, from: drag.n.parent, to: best.id,
+              startX: drag.startX, startY: drag.startY };
+    drag.n.parent = best.id;
+    drawEdges(drag.n.id);
+    const fromName = NODES.find(x=>x.id===moved.from).role;
+    const toName = best.role;
+    document.getElementById('toastBody').innerHTML =
+      `<b>${drag.n.person}</b> now reports to <b>${toName}</b> (was ${fromName}).<br>
+       This shifts your org from <b>Divisional</b> toward <b>Matrix</b> — cross-functional reporting detected. Confirm the new structure?`;
+    document.getElementById('toast').classList.add('show');
+    const sp = document.getElementById('structPill');
+    sp.textContent = 'Structure: Divisional → Matrix?'; sp.classList.add('changed');
+  } else { drawEdges(); }
+  drag = null;
+});
+vp.addEventListener('wheel', e => {
+  e.preventDefault();
+  scale = Math.min(1.6, Math.max(0.45, scale * (e.deltaY > 0 ? 0.92 : 1.08)));
+  applyView();
+}, { passive:false });
+
+function confirmMove(){
+  document.getElementById('toast').classList.remove('show');
+  const sp = document.getElementById('structPill');
+  sp.textContent = 'Structure: Matrix · logged to audit trail ✓';
+  moved = null;
+}
+function undoMove(){
+  if (moved) {
+    moved.n.parent = moved.from;
+    els[moved.n.id].style.left = moved.startX + 'px';
+    els[moved.n.id].style.top = moved.startY + 'px';
+    drawEdges();
+    const sp = document.getElementById('structPill');
+    sp.textContent = 'Structure: Divisional'; sp.classList.remove('changed');
+  }
+  document.getElementById('toast').classList.remove('show');
+  moved = null;
+}
+</script>
+</body>
+</html>

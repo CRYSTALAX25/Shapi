@@ -1,8 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Next 16 removed the built-in ESLint integration — the old
+  // `eslint: { ignoreDuringBuilds: true }` key is no longer a valid option
+  // and only produced "Invalid next.config.ts options" warnings on startup.
   typescript: { ignoreBuildErrors: true },
-  eslint: { ignoreDuringBuilds: true },
   async redirects() {
     return [
       // Page renamed to Course Wallet — keep old links/bookmarks working.

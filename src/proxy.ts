@@ -27,7 +27,14 @@ export async function proxy(request: NextRequest) {
 
   // Protected routes — redirect to login if not authenticated
   const protectedPaths = ['/onboarding', '/dashboard', '/profile', '/evidence', '/cv-builder', '/pay', '/upload-cv', '/course-wallet', '/work-style', '/applications', '/company', '/candidates']
+  // Public exceptions inside protected prefixes. /company/pricing is a
+  // marketing page (linked from the /for-companies and /for-hrbps footers)
+  // and handles its own signed-out state — its CTAs route anonymous visitors
+  // to /signup?type=company. Walling it behind login dead-ends prospects.
+  const publicExceptions = ['/company/pricing']
   const isProtected = protectedPaths.some(path =>
+    request.nextUrl.pathname.startsWith(path)
+  ) && !publicExceptions.some(path =>
     request.nextUrl.pathname.startsWith(path)
   )
 

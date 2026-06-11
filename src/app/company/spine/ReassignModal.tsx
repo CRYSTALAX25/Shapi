@@ -49,11 +49,16 @@ type Props = {
   // Resolve when both the PATCH and the decision POST succeed. Reject (throw)
   // with a message to keep the modal open and surface the error.
   onConfirm: (args: { decisionType: string; justification: string }) => Promise<void>
+  // Pre-select a decision type — e.g. the canvas passes 'location_change' when
+  // a seat is dragged between locations in compare mode. User can still change it.
+  defaultDecisionType?: string
 }
 
-export default function ReassignModal({ ctx, onCancel, onConfirm }: Props) {
+export default function ReassignModal({ ctx, onCancel, onConfirm, defaultDecisionType }: Props) {
   const [justification, setJustification] = useState('')
-  const [decisionType, setDecisionType] = useState('restructure')
+  const [decisionType, setDecisionType] = useState(
+    DECISION_TYPES.some(d => d.value === defaultDecisionType) ? (defaultDecisionType as string) : 'restructure'
+  )
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)

@@ -55,12 +55,13 @@ export default function InviteForm() {
           value={email}
           onChange={e => { setEmail(e.target.value); if (status === 'error') setStatus('idle') }}
           disabled={status === 'sending'}
-          className="flex-1 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/40 disabled:opacity-50"
+          className="flex-1 bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white/90 placeholder-white/25 outline-none focus:border-[#22D3EE]/40 disabled:opacity-50"
         />
         <button
           type="submit"
           disabled={status === 'sending' || !email.trim()}
-          className="flex-shrink-0 bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] text-[#fff] text-xs font-black px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
+          className="flex-shrink-0 text-white text-xs font-black px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
+          style={{ background: 'linear-gradient(135deg, #22D3EE, #A78BFA)' }}
         >
           {status === 'sending' ? 'Inviting…' : 'Invite'}
         </button>
@@ -70,7 +71,7 @@ export default function InviteForm() {
         <p className="mt-2 text-[#34D399] text-xs font-bold">✓ Invite sent — refreshing list…</p>
       )}
       {status === 'error' && (
-        <p className="mt-2 text-[#F58E9A] text-xs">{errorMsg || 'Something went wrong — try again.'}</p>
+        <p className="mt-2 text-[#FB7185] text-xs">{errorMsg || 'Something went wrong — try again.'}</p>
       )}
     </div>
   )

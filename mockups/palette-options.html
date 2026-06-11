@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shapi — Final Accent Palette · 4 Options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060609;
+    --ink: rgba(255,255,255,0.9);
+    --ink-2: rgba(255,255,255,0.6);
+    --ink-3: rgba(255,255,255,0.4);
+    --ink-4: rgba(255,255,255,0.25);
+    --line: rgba(255,255,255,0.07);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+    line-height: 1.55;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.045) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+
+  /* ───────────────────────── Sticky nav ───────────────────────── */
+  .topnav {
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(14px);
+    background: rgba(6,6,9,0.82);
+    border-bottom: 1px solid var(--line);
+  }
+  .topnav-inner {
+    max-width: 1160px; margin: 0 auto; padding: 14px 24px;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .topnav .brand { font-weight: 900; font-size: 19px; letter-spacing: -0.02em; color: #fff; margin-right: 8px; }
+  .topnav .brand small { font-weight: 600; color: var(--ink-3); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; margin-left: 10px; }
+  .jump {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 14px; border-radius: 999px;
+    border: 1px solid var(--line); color: var(--ink-2);
+    text-decoration: none; font-size: 13px; font-weight: 700;
+    transition: all .2s ease;
+  }
+  .jump:hover { color: #fff; border-color: rgba(255,255,255,0.25); transform: translateY(-1px); }
+  .jump .dotpair { display: inline-flex; gap: 3px; }
+  .jump .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .jump.rec { border-color: rgba(157,140,255,0.45); }
+  .jump.rec::after { content: '★'; color: #FBBF24; font-size: 11px; }
+
+  /* ───────────────────────── Recommendation banner ───────────────────────── */
+  .rec-banner {
+    max-width: 1160px; margin: 26px auto 0; padding: 0 24px;
+  }
+  .rec-banner-inner {
+    border-radius: 16px; padding: 18px 24px;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    background: linear-gradient(#0d0c14,#0d0c14) padding-box,
+                linear-gradient(135deg, #9D8CFF, #34D399) border-box;
+    border: 1.5px solid transparent;
+    box-shadow: 0 18px 50px rgba(157,140,255,0.12);
+  }
+  .rec-banner .tag {
+    flex-shrink: 0; font-size: 11px; font-weight: 900; letter-spacing: 0.16em; text-transform: uppercase;
+    padding: 6px 12px; border-radius: 999px;
+    background: linear-gradient(135deg, #9D8CFF, #34D399); color: #060609;
+  }
+  .rec-banner p { font-size: 14.5px; color: var(--ink); }
+  .rec-banner p b { color: #fff; }
+
+  /* ───────────────────────── Section scaffolding ───────────────────────── */
+  .option { max-width: 1160px; margin: 0 auto; padding: 72px 24px 28px; }
+  .option + .option { border-top: 1px solid var(--line); margin-top: 44px; }
+
+  .opt-head { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 28px; flex-wrap: wrap; }
+  .opt-letter {
+    width: 58px; height: 58px; flex-shrink: 0; border-radius: 16px;
+    display: grid; place-items: center;
+    font-weight: 900; font-size: 24px; color: #060609;
+    background: var(--grad);
+  }
+  .opt-title h2 { font-size: 34px; font-weight: 900; letter-spacing: -0.02em; color: #fff; }
+  .opt-title h2 span { background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .opt-title .sub { color: var(--ink-2); font-size: 15px; max-width: 760px; margin-top: 6px; }
+  .opt-badge {
+    margin-left: auto; align-self: center;
+    font-size: 11px; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 7px 14px; border-radius: 999px;
+  }
+  .opt-badge.pick { background: rgba(52,211,153,0.13); color: #34D399; border: 1px solid rgba(52,211,153,0.35); }
+  .opt-badge.alt  { background: rgba(255,255,255,0.05); color: var(--ink-3); border: 1px solid var(--line); }
+
+  .args { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 36px; }
+  .arg {
+    background: #0d0d14; border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px;
+  }
+  .arg h4 { font-size: 10.5px; font-weight: 900; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 7px; color: var(--accent-label); }
+  .arg p { font-size: 13px; color: var(--ink-2); }
+  .arg p b { color: var(--ink); font-weight: 700; }
+
+  .block-label {
+    font-size: 11px; font-weight: 900; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-3); margin: 34px 0 14px; display: flex; align-items: center; gap: 12px;
+  }
+  .block-label::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+  /* ───────────────────────── Swatches ───────────────────────── */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 10px; }
+  .swatch {
+    border: 1px solid var(--line); border-radius: 13px; overflow: hidden;
+    background: #0d0d14; cursor: pointer; transition: transform .15s ease;
+  }
+  .swatch:hover { transform: translateY(-2px); }
+  .swatch .chip { height: 64px; position: relative; }
+  .swatch .chip .ratio {
+    position: absolute; right: 7px; bottom: 7px;
+    font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius: 999px;
+    background: rgba(6,6,9,0.65); color: rgba(255,255,255,0.85); backdrop-filter: blur(4px);
+  }
+  .swatch .meta { padding: 9px 11px; }
+  .swatch .meta .nm { font-size: 11.5px; font-weight: 800; color: var(--ink); }
+  .swatch .meta .hx { font-size: 10.5px; color: var(--ink-3); font-weight: 600; letter-spacing: 0.04em; }
+  .swatch .meta .role { font-size: 9.5px; color: var(--ink-4); margin-top: 1px; }
+
+  /* ───────────────────────── Hero mock ───────────────────────── */
+  .mock {
+    border-radius: 20px; border: 1px solid var(--line); overflow: hidden;
+    background: var(--bg);
+    background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
+    background-size: 40px 40px;
+    position: relative;
+  }
+  .mock-hero { padding: 26px 30px 48px; position: relative; overflow: hidden; }
+  .mock-hero .orb {
+    position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.16; pointer-events: none;
+  }
+  .mock-hero .orb.a { width: 340px; height: 340px; background: var(--p); top: -120px; right: -60px; }
+  .mock-hero .orb.b { width: 280px; height: 280px; background: var(--s); bottom: -140px; left: -40px; }
+
+  .mock-nav {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 9px 10px 9px 18px; border-radius: 999px;
+    background: color-mix(in srgb, var(--surface) 82%, transparent);
+    border: 1px solid var(--line); backdrop-filter: blur(10px);
+    position: relative; z-index: 2;
+  }
+  .wordmark {
+    font-weight: 900; letter-spacing: -0.02em;
+    background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .mock-nav .wordmark { font-size: 20px; }
+  .mock-nav .links { display: flex; gap: 18px; align-items: center; }
+  .mock-nav .links span { font-size: 12.5px; color: var(--ink-3); font-weight: 600; }
+  .mock-nav .links span:hover { color: var(--p); cursor: default; }
+  .mock-nav .cta-mini {
+    font-size: 12px; font-weight: 900; padding: 7px 15px; border-radius: 999px;
+    background: linear-gradient(var(--surface),var(--surface)) padding-box, var(--grad) border-box;
+    border: 1.5px solid transparent; color: var(--ink);
+  }
+
+  .hero-body { position: relative; z-index: 2; text-align: center; padding-top: 44px; max-width: 720px; margin: 0 auto; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 10.5px; font-weight: 900; letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 7px 15px; border-radius: 999px; margin-bottom: 20px;
+    background: color-mix(in srgb, var(--p) 12%, transparent);
+    color: var(--p); border: 1px solid color-mix(in srgb, var(--p) 30%, transparent);
+  }
+  .hero-body h1 { font-size: 46px; font-weight: 900; letter-spacing: -0.025em; line-height: 1.08; color: #fff; }
+  .hero-body h1 .grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero-body .lede { color: var(--ink-2); font-size: 15.5px; margin: 16px auto 28px; max-width: 520px; }
+  .hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-fill {
+    padding: 13px 28px; border-radius: 999px; font-weight: 900; font-size: 14px;
+    background: var(--grad); color: #060609; border: none; cursor: pointer; font-family: inherit;
+    box-shadow: 0 10px 30px color-mix(in srgb, var(--p) 30%, transparent);
+    transition: all .2s ease;
+  }
+  .btn-fill:hover { transform: translateY(-2px); box-shadow: 0 14px 38px color-mix(in srgb, var(--p) 42%, transparent); }
+  .btn-line {
+    padding: 13px 28px; border-radius: 999px; font-weight: 800; font-size: 14px; cursor: pointer; font-family: inherit;
+    background: linear-gradient(var(--bg),var(--bg)) padding-box, var(--grad) border-box;
+    border: 1.5px solid transparent; color: var(--ink);
+    transition: all .2s ease;
+  }
+  .btn-line:hover { transform: translateY(-2px); box-shadow: 0 8px 26px color-mix(in srgb, var(--s) 22%, transparent); }
+  .hero-trust { margin-top: 24px; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-3); }
+
+  /* verified pill — tinted (default treatment) */
+  .v-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 800; padding: 4px 11px; border-radius: 999px;
+    background: color-mix(in srgb, var(--ver) 13%, transparent);
+    color: var(--ver); border: 1px solid color-mix(in srgb, var(--ver) 28%, transparent);
+  }
+  /* verified seal — solid (Option D's distinct treatment) */
+  .v-seal {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 900; padding: 4px 11px; border-radius: 999px;
+    background: var(--ver-fill, var(--ver)); color: #fff; border: none;
+  }
+
+  /* ───────────────────────── Dashboard mock ───────────────────────── */
+  .mock-dash { padding: 26px 30px 30px; }
+  .dash-top { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+  .dash-top h3 { font-size: 19px; font-weight: 800; color: #fff; letter-spacing: -0.01em; }
+  .dash-top .when { font-size: 12px; color: var(--ink-3); }
+  .kpis { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .kpi {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 13px; border-radius: 999px; font-size: 12px; font-weight: 700;
+  }
+  .kpi b { font-weight: 900; }
+  .kpi.k1 { background: color-mix(in srgb, var(--p) 11%, transparent);   color: var(--p);   border: 1px solid color-mix(in srgb, var(--p) 26%, transparent); }
+  .kpi.k2 { background: color-mix(in srgb, var(--s) 11%, transparent);   color: var(--s);   border: 1px solid color-mix(in srgb, var(--s) 26%, transparent); }
+  .kpi.k3 { background: color-mix(in srgb, var(--prem) 12%, transparent); color: var(--prem); border: 1px solid color-mix(in srgb, var(--prem) 28%, transparent); }
+  .kpi.k4 { background: color-mix(in srgb, var(--punch) 11%, transparent); color: var(--punch); border: 1px solid color-mix(in srgb, var(--punch) 26%, transparent); }
+
+  .dash-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+  .dcard {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px;
+  }
+  .dcard.grad-border {
+    background: linear-gradient(var(--surface),var(--surface)) padding-box,
+                linear-gradient(135deg, color-mix(in srgb, var(--p) 32%, transparent), color-mix(in srgb, var(--s) 32%, transparent)) border-box;
+    border: 1px solid transparent;
+  }
+  .dcard .eyebrow { font-size: 10px; font-weight: 900; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 10px; }
+  .dcard .big { font-size: 32px; font-weight: 900; letter-spacing: -0.02em; }
+  .dcard .big.p { color: var(--p); } .dcard .big.s { color: var(--s); }
+  .dcard .note { font-size: 12px; color: var(--ink-3); margin-top: 5px; }
+  .dcard .note b { color: var(--ink-2); }
+  .dcard .person { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .dcard .avatar {
+    width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+    background: var(--grad); display: grid; place-items: center;
+    color: #060609; font-weight: 900; font-size: 14px;
+  }
+  .dcard .person .nm { font-size: 14px; font-weight: 800; color: var(--ink); }
+  .dcard .person .rl { font-size: 11.5px; color: var(--ink-3); }
+  .bar { height: 6px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; margin-top: 12px; }
+  .bar i { display: block; height: 100%; border-radius: 999px; background: var(--grad); }
+
+  /* ───────────────────────── Org chart mock ───────────────────────── */
+  .mock-org { padding: 34px 30px 40px; overflow-x: auto; }
+  .tree { display: flex; flex-direction: column; align-items: center; min-width: 560px; }
+  .node {
+    width: 218px; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; padding: 14px 16px; position: relative;
+  }
+  .node .nrow { display: flex; align-items: center; gap: 10px; }
+  .node .navatar {
+    width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+    display: grid; place-items: center; font-weight: 900; font-size: 12px; color: #060609;
+  }
+  .node .nm { font-size: 13px; font-weight: 800; color: var(--ink); }
+  .node .rl { font-size: 10.5px; color: var(--ink-3); }
+  .node .nfoot { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .ntag {
+    font-size: 9.5px; font-weight: 800; padding: 3px 8px; border-radius: 999px;
+    letter-spacing: 0.04em;
+  }
+  .node.root { border-color: color-mix(in srgb, var(--p) 40%, transparent); box-shadow: 0 8px 30px color-mix(in srgb, var(--p) 14%, transparent); }
+  .node.verified { border-color: color-mix(in srgb, var(--ver) 45%, transparent); box-shadow: 0 8px 30px color-mix(in srgb, var(--ver) 16%, transparent); }
+  .trunk { width: 1.5px; height: 26px; background: rgba(255,255,255,0.16); }
+  .branch { width: 282px; height: 1.5px; background: rgba(255,255,255,0.16); }
+  .children { display: flex; gap: 64px; }
+  .child { display: flex; flex-direction: column; align-items: center; }
+  .child .stem { width: 1.5px; height: 26px; background: rgba(255,255,255,0.16); }
+
+  /* ───────────────────────── Verdict strip ───────────────────────── */
+  .verdict {
+    margin-top: 30px; border-radius: 14px; padding: 16px 20px;
+    background: #0d0d14; border-left: 3px solid var(--p);
+    font-size: 13.5px; color: var(--ink-2);
+  }
+  .verdict b { color: #fff; }
+
+  footer { max-width: 1160px; margin: 60px auto 0; padding: 30px 24px 60px; border-top: 1px solid var(--line); color: var(--ink-4); font-size: 12px; }
+
+  .toast {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #16161f; border: 1px solid rgba(255,255,255,0.15); color: #fff;
+    padding: 10px 20px; border-radius: 999px; font-size: 13px; font-weight: 700;
+    opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── Option-scoped variables ───────────────────────────────────── */
+  #option-a {
+    --p: #9D8CFF; --s: #34D399; --ver: #34D399;
+    --prem: #FBBF24; --punch: #FB7185;
+    --surface: #0D0C14;
+    --grad: linear-gradient(135deg, #9D8CFF, #34D399);
+    --dot: rgba(157,140,255,0.07);
+    --accent-label: #9D8CFF;
+  }
+  #option-b {
+    --p: #4DA6FF; --s: #34D399; --ver: #34D399;
+    --prem: #FBBF24; --punch: #FB7185;
+    --surface: #0C0E14;
+    --grad: linear-gradient(135deg, #4DA6FF, #34D399);
+    --dot: rgba(77,166,255,0.07);
+    --accent-label: #4DA6FF;
+  }
+  #option-c {
+    --p: #8F7FF7; --s: #F5B544; --ver: #34D399;
+    --prem: #F5B544; --punch: #FB7185;
+    --surface: #0E0C13;
+    --grad: linear-gradient(135deg, #8F7FF7, #F5B544);
+    --dot: rgba(143,127,247,0.07);
+    --accent-label: #8F7FF7;
+  }
+  #option-d {
+    --p: #2EE6A8; --s: #60A5FA; --ver: #2EE6A8; --ver-fill: #047857;
+    --prem: #FBBF24; --punch: #FB7185;
+    --surface: #0C100F;
+    --grad: linear-gradient(135deg, #2EE6A8, #60A5FA);
+    --dot: rgba(46,230,168,0.07);
+    --accent-label: #2EE6A8;
+  }
+
+  @media (max-width: 720px) {
+    .hero-body h1 { font-size: 32px; }
+    .opt-title h2 { font-size: 26px; }
+    .mock-nav .links span:not(:last-child) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════ STICKY NAV ════════════════ -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <span class="brand">shapi <small>Final palette decision</small></span>
+    <a class="jump rec" href="#option-a"><span class="dotpair"><span class="dot" style="background:#9D8CFF"></span><span class="dot" style="background:#34D399"></span></span> Option A · Violet Mint</a>
+    <a class="jump" href="#option-b"><span class="dotpair"><span class="dot" style="background:#4DA6FF"></span><span class="dot" style="background:#34D399"></span></span> Option B · Ocean Emerald</a>
+    <a class="jump" href="#option-c"><span class="dotpair"><span class="dot" style="background:#8F7FF7"></span><span class="dot" style="background:#F5B544"></span></span> Option C · Solar Violet</a>
+    <a class="jump" href="#option-d"><span class="dotpair"><span class="dot" style="background:#2EE6A8"></span><span class="dot" style="background:#60A5FA"></span></span> Option D · Emerald Ink</a>
+  </div>
+</nav>
+
+<!-- ════════════════ RECOMMENDATION BANNER ════════════════ -->
+<div class="rec-banner">
+  <div class="rec-banner-inner">
+    <span class="tag">Recommendation</span>
+    <p><b>Option A — Violet Mint.</b> Violet owns "intelligence + premium" in a market drowning in HR-tool blue, and ending the brand gradient in verified-green makes the logo itself say what Shapi is: <b>intelligence that resolves into verified truth.</b></p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     OPTION A — VIOLET MINT
+═════════════════════════════════════════════════════════ -->
+<section class="option" id="option-a">
+  <div class="opt-head">
+    <div class="opt-letter">A</div>
+    <div class="opt-title">
+      <h2>Violet <span>Mint</span></h2>
+      <p class="sub">Your purple + green instinct, sharpened. Violet is the brand voice (intelligence, depth, premium); emerald appears <em>only</em> as verified/positive signal — so every green pixel is earned, never decorative. The gradient runs violet → emerald: the product's promise drawn as colour.</p>
+    </div>
+    <span class="opt-badge pick">★ Recommended</span>
+  </div>
+
+  <div class="args">
+    <div class="arg"><h4>Psychology</h4><p>Purple = <b>intelligence, judgment, premium</b> — the colour of insight rather than process. Green = growth and proof. Together: "we think, then we verify." Exactly the workforce-intelligence + verification story.</p></div>
+    <div class="arg"><h4>Differentiation</h4><p>LinkedIn, Workday, Greenhouse, ChartHop, every ATS: <b>blue</b>. A violet-led dark product instantly reads as a different species — an AI-native intelligence layer, not another HR portal.</p></div>
+    <div class="arg"><h4>Accessibility</h4><p>Violet #9D8CFF on #060609 = <b>7.3:1</b> (AA for body text, AAA for large). Emerald #34D399 = <b>10.5:1</b>. Both safe at chip/label sizes — no contrast compromises anywhere.</p></div>
+    <div class="arg"><h4>Verified green inside it</h4><p>The cleanest read of all four options. Green is the <b>only</b> warm-positive in a cool violet field, so a verified badge pops instantly. Rule: green is never used for decoration — only verified / success / "do this."</p></div>
+  </div>
+
+  <div class="block-label">Tokens</div>
+  <div class="swatches">
+    <div class="swatch" data-hex="#060609"><div class="chip" style="background:#060609;border-bottom:1px solid var(--line)"></div><div class="meta"><div class="nm">Deep Space</div><div class="hx">#060609</div><div class="role">page background</div></div></div>
+    <div class="swatch" data-hex="#0D0C14"><div class="chip" style="background:#0D0C14;border-bottom:1px solid var(--line)"></div><div class="meta"><div class="nm">Card Surface</div><div class="hx">#0D0C14</div><div class="role">cards · violet hint</div></div></div>
+    <div class="swatch" data-hex="#9D8CFF"><div class="chip" style="background:#9D8CFF"><span class="ratio">7.3:1</span></div><div class="meta"><div class="nm">Violet</div><div class="hx">#9D8CFF</div><div class="role">primary accent</div></div></div>
+    <div class="swatch" data-hex="#34D399"><div class="chip" style="background:#34D399"><span class="ratio">10.5:1</span></div><div class="meta"><div class="nm">Emerald</div><div class="hx">#34D399</div><div class="role">verified · positive · secondary</div></div></div>
+    <div class="swatch" data-hex="#FBBF24"><div class="chip" style="background:#FBBF24"><span class="ratio">12.1:1</span></div><div class="meta"><div class="nm">Amber</div><div class="hx">#FBBF24</div><div class="role">warning · premium tier</div></div></div>
+    <div class="swatch" data-hex="#FB7185"><div class="chip" style="background:#FB7185"><span class="ratio">7.5:1</span></div><div class="meta"><div class="nm">Coral</div><div class="hx">#FB7185</div><div class="role">punch · urgent</div></div></div>
+    <div class="swatch" data-hex="linear-gradient(135deg,#9D8CFF,#34D399)"><div class="chip" style="background:linear-gradient(135deg,#9D8CFF,#34D399)"></div><div class="meta"><div class="nm">Brand Gradient</div><div class="hx">135° violet→emerald</div><div class="role">logo · CTAs · hero text</div></div></div>
+    <div class="swatch" data-hex="rgba(255,255,255,0.9)"><div class="chip" style="background:linear-gradient(180deg,rgba(255,255,255,0.9) 25%,rgba(255,255,255,0.6) 25%,rgba(255,255,255,0.6) 50%,rgba(255,255,255,0.4) 50%,rgba(255,255,255,0.4) 75%,rgba(255,255,255,0.25) 75%)"></div><div class="meta"><div class="nm">Text Tiers</div><div class="hx">.90 / .60 / .40 / .25</div><div class="role">body · secondary · label · hint</div></div></div>
+  </div>
+
+  <div class="block-label">Homepage hero</div>
+  <div class="mock">
+    <div class="mock-hero">
+      <div class="orb a"></div><div class="orb b"></div>
+      <div class="mock-nav">
+        <span class="wordmark">shapi</span>
+        <div class="links"><span>Why Shapi</span><span>Pricing</span><span>For companies</span><span class="cta-mini">Get started</span></div>
+      </div>
+      <div class="hero-body">
+        <div class="hero-eyebrow">Verified workforce intelligence</div>
+        <h1>Stop guessing.<br>Hire what's <span class="grad">proven.</span></h1>
+        <p class="lede">Every claim on Shapi is classified — verified, assessed, or self-reported. Your next hire arrives with evidence, not adjectives.</p>
+        <div class="hero-ctas">
+          <button class="btn-fill">Get verified — $89</button>
+          <button class="btn-line">See a live profile →</button>
+        </div>
+        <div class="hero-trust"><span class="v-pill">✓ Verified</span> 2,400+ references independently sourced</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="block-label">Company dashboard</div>
+  <div class="mock">
+    <div class="mock-dash">
+      <div class="dash-top"><h3>Good morning, Falcon Logistics</h3><span class="when">Tuesday · 3 roles live</span></div>
+      <div class="kpis">
+        <span class="kpi k1"><b>12</b> shortlisted</span>
+        <span class="kpi k2"><b>8</b> verified candidates</span>
+        <span class="kpi k3"><b>2</b> premium tier</span>
+        <span class="kpi k4"><b>1</b> role at risk</span>
+      </div>
+      <div class="dash-cards">
+        <div class="dcard grad-border">
+          <div class="eyebrow">Skill density</div>
+          <div class="big p">74%</div>
+          <div class="note">of critical seats covered · <b>+6% this month</b></div>
+          <div class="bar"><i style="width:74%"></i></div>
+        </div>
+        <div class="dcard">
+          <div class="person">
+            <div class="avatar">RK</div>
+            <div><div class="nm">Rania Khalil</div><div class="rl">Operations Lead · Dubai</div></div>
+          </div>
+          <span class="v-pill">✓ Strongly Verified</span>
+          <div class="note" style="margin-top:10px">3 references sourced independently · salary history confirmed</div>
+        </div>
+        <div class="dcard">
+          <div class="eyebrow">Match score</div>
+          <div class="big s">92</div>
+          <div class="note">for <b>Fleet Supervisor</b> · evidence-weighted</div>
+          <div class="bar"><i style="width:92%"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="block-label">Org spine</div>
+  <div class="mock">
+    <div class="mock-org">
+      <div class="tree">
+        <div class="node root">
+          <div class="nrow"><div class="navatar" style="background:linear-gradient(135deg,#9D8CFF,#34D399)">SA</div><div><div class="nm">Sara Al-Mansoori</div><div class="rl">VP Operations</div></div></div>
+          <div class="nfoot"><span class="ntag" style="background:rgba(157,140,255,0.13);color:#9D8CFF">Keystone seat</span><span class="ntag" style="background:rgba(251,191,36,0.13);color:#FBBF24">AI-exposure 31%</span></div>
+        </div>
+        <div class="trunk"></div><div class="branch"></div>
+        <div class="children">
+          <div class="child"><div class="stem"></div>
+            <div class="node verified">
+              <div class="nrow"><div class="navatar" style="background:#34D399">RK</div><div><div class="nm">Rania Khalil</div><div class="rl">Operations Lead</div></div></div>
+              <div class="nfoot"><span class="v-pill">✓ Verified</span></div>
+            </div>
+          </div>
+          <div class="child"><div class="stem"></div>
+            <div class="node">
+              <div class="nrow"><div class="navatar" style="background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.5)">+</div><div><div class="nm" style="color:rgba(255,255,255,0.5)">Open seat</div><div class="rl">Fleet Supervisor</div></div></div>
+              <div class="nfoot"><span class="ntag" style="background:rgba(251,113,133,0.13);color:#FB7185">42 days unfilled</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict"><b>Verdict — take it.</b> It keeps the depth and premium feel the current kit had, fixes its weakness (cyan+purple are near-neighbours that blur together), and makes the moat colour structural. Violet for thinking, green for proof. Nobody in hiring looks like this.</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     OPTION B — OCEAN EMERALD
+═════════════════════════════════════════════════════════ -->
+<section class="option" id="option-b">
+  <div class="opt-head">
+    <div class="opt-letter">B</div>
+    <div class="opt-title">
+      <h2>Ocean <span>Emerald</span></h2>
+      <p class="sub">Your blue + green instinct. An electric azure — deliberately brighter and more saturated than LinkedIn's corporate #0A66C2 — paired with the same earned emerald. Safe, trustworthy, instantly legible as "credible tech."</p>
+    </div>
+    <span class="opt-badge alt">Strong runner-up</span>
+  </div>
+
+  <div class="args">
+    <div class="arg"><h4>Psychology</h4><p>Blue = <b>trust, stability, competence</b> — the most pre-validated trust colour in existence. Blue+green is the "credibility + growth" pairing banks and fintechs use because it works on everyone, everywhere.</p></div>
+    <div class="arg"><h4>Differentiation</h4><p>The honest weakness. Even electric azure sits in the same mental folder as LinkedIn, Indeed, Workday, Wise. You'd rely on layout and typography to feel different — <b>the colour itself won't do that work</b>.</p></div>
+    <div class="arg"><h4>Accessibility</h4><p>Azure #4DA6FF on #060609 = <b>7.9:1</b>, emerald = <b>10.5:1</b>. Technically the strongest-contrast pairing of the four. Zero issues at any size.</p></div>
+    <div class="arg"><h4>Verified green inside it</h4><p>Workable but softer than A: blue and green are adjacent hues, so a verified badge pops <b>less</b> against a blue field than against violet. The moat colour loses a little of its punch.</p></div>
+  </div>
+
+  <div class="block-label">Tokens</div>
+  <div class="swatches">
+    <div class="swatch" data-hex="#060609"><div class="chip" style="background:#060609;border-bottom:1px solid var(--line)"></div><div class="meta"><div class="nm">Deep Space</div><div class="hx">#060609</div><div class="role">page background</div></div></div>
+    <div class="swatch" data-hex="#0C0E14"><div class="chip" style="background:#0C0E14;border-bottom:1px solid var(--line)"></div><div class="meta"><div class="nm">Card Surface</div><div class="hx">#0C0E14</div><div class="role">cards · blue hint</div></div></div>
+    <div class="swatch" data-hex="#4DA6FF"><div class="chip" style="background:#4DA6FF"><span class="ratio">7.9:1</span></div><div class="meta"><div class="nm">Azure</div><div class="hx">#4DA6FF</div><div class="role">primary accent</div></div></div>
+    <div class="swatch" data-hex="#34D399"><div class="chip" style="background:#34D399"><span class="ratio">10.5:1</span></div><div class="meta"><div class="nm">Emerald</div><div class="hx">#34D399</div><div class="role">verified · positive · secondary</div></div></div>
+    <div class="swatch" data-hex="#FBBF24"><div class="chip" style="background:#FBBF24"><span class="ratio">12.1:1</span></div><div class="meta"><div class="nm">Amber</div><div class="hx">#FBBF24</div><div class="role">warning · premium tier</div></div></div>
+    <div class="swatch" data-hex="#FB7185"><div class="chip" style="background:#FB7185"><span class="ratio">7.5:1</span></div><div class="meta"><div class="nm">Coral</div><div class="hx">#FB7185</div><div class="role">punch · urgent</div></div></div>
+    <div class="swatch" data-hex="linear-gradient(135deg,#4DA6FF,#34D399)"><div class="chip" style="background:linear-gradient(135deg,#4DA6FF,#34D399)"></div><div class="meta"><div class="nm">Brand Gradient</div><div class="hx">135° azure→emerald</div><div class="role">logo · CTAs · hero text</div></div></div>
+    <div class="swatch" data-hex="rgba(255,255,255,0.9)"><div class="chip" style="background:linear-gradient(180deg,rgba(255,255,255,0.9) 25%,rgba(255,255,255,0.6) 25%,rgba(255,255,255,0.6) 50%,rgba(255,255,255,0.4) 50%,rgba(255,255,255,0.4) 75%,rgba(255,255,255,0.25) 75%)"></div><div class="meta"><div class="nm">Text Tiers</div><div class="hx">.90 / .60 / .40 / .25</div><div class="role">body · secondary · label · hint</div></div></div>
+  </div>
+
+  <div class="block-label">Homepage hero</div>
+  <div class="mock">
+    <div class="mock-hero">
+      <div class="orb a"></div><div class="orb b"></div>
+      <div class="mock-nav">
+        <span class="wordmark">shapi</span>
+        <div class="links"><span>Why Shapi</span><span>Pricing</span><span>For companies</span><span class="cta-mini">Get started</span></div>
+      </div>
+      <div class="hero-body">
+        <div class="hero-eyebrow">Verified workforce intelligence</div>
+        <h1>Stop guessing.<br>Hire what's <span class="grad">proven.</span></h1>
+        <p class="lede">Every claim on Shapi is classified — verified, assessed, or self-reported. Your next hire arrives with evidence, not adjectives.</p>
+        <div class="hero-ctas">
+          <button class="btn-fill">Get verified — $89</button>
+          <button class="btn-line">See a live profile →</button>
+        </div>
+        <div class="hero-trust"><span class="v-pill">✓ Verified</span> 2,400+ references independently sourced</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="block-label">Company dashboard</div>
+  <div class="mock">
+    <div class="mock-dash">
+      <div class="dash-top"><h3>Good morning, Falcon Logistics</h3><span class="when">Tuesday · 3 roles live</span></div>
+      <div class="kpis">
+        <span class="kpi k1"><b>12</b> shortlisted</span>
+        <span class="kpi k2"><b>8</b> verified candidates</span>
+        <span class="kpi k3"><b>2</b> premium tier</span>
+        <span class="kpi k4"><b>1</b> role at risk</span>
+      </div>
+      <div class="dash-cards">
+        <div class="dcard grad-border">
+          <div class="eyebrow">Skill density</div>
+          <div class="big p">74%</div>
+          <div class="note">of critical seats covered · <b>+6% this month</b></div>
+          <div class="bar"><i style="width:74%"></i></div>
+        </div>
+        <div class="dcard">
+          <div class="person">
+            <div class="avatar">RK</div>
+            <div><div class="nm">Rania Khalil</div><div class="rl">Operations Lead · Dubai</div></div>
+          </div>
+          <span class="v-pill">✓ Strongly Verified</span>
+          <div class="note" style="margin-top:10px">3 references sourced independently · salary history confirmed</div>
+        </div>
+        <div class="dcard">
+          <div class="eyebrow">Match score</div>
+          <div class="big s">92</div>
+          <div class="note">for <b>Fleet Supervisor</b> · evidence-weighted</div>
+          <div class="bar"><i style="width:92%"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="block-label">Org spine</div>
+  <div class="mock">
+    <div class="mock-org">
+      <div class="tree">
+        <div class="node root">
+          <div class="nrow"><div class="navatar" style="background:linear-gradient(135deg,#4DA6FF,#34D399)">SA</div><div><div class="nm">Sara Al-Mansoori</div><div class="rl">VP Operations</div></div></div>
+          <div class="nfoot"><span class="ntag" style="background:rgba(77,166,255,0.13);color:#4DA6FF">Keystone seat</span><span class="ntag" style="background:rgba(251,191,36,0.13);color:#FBBF24">AI-exposure 31%</span></div>
+        </div>
+        <div class="trunk"></div><div class="branch"></div>
+        <div class="children">
+          <div class="child"><div class="stem"></div>
+            <div class="node verified">
+              <div class="nrow"><div class="navatar" style="background:#34D399">RK</div><div><div class="nm">Rania Khalil</div><div class="rl">Operations Lead</div></div></div>
+              <div class="nfoot"><span class="v-pill">✓ Verified</span></div>
+            </div>
+          </div>
+          <div class="child"><div class="stem"></div>
+            <div class="node">
+              <div class="nrow"><div class="navatar" style="background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.5)">+</div><div><div class="nm" style="color:rgba(255,255,255,0.5)">Open seat</div><div class="rl">Fleet Supervisor</div></div></div>
+              <div class="nfoot"><span class="ntag" style="background:rgba(251,113,133,0.13);color:#FB7185">42 days unfilled</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict"><b>Verdict — the safe choice, and that's the problem.</b> Beautiful, legible, universally trusted — and visually filed next to every other hiring product on earth. Pick B only if "looks instantly credible to a conservative Gulf enterprise buyer" outweighs "looks like nothing else."</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     OPTION C — SOLAR VIOLET
+═════════════════════════════════════════════════════════ -->
+<section class="option" id="option-c">
+  <div class="opt-head">
+    <div class="opt-letter">C</div>
+    <div class="opt-title">
+      <h2>Solar <span>Violet</span></h2>
+      <p class="sub">The wildcard: iris violet + warm gold, with green removed from the brand entirely and reserved 100% for verification. Gold speaks fluently to the Gulf premium market; verified-green becomes the single most sacred colour in the product.</p>
+    </div>
+    <span class="opt-badge alt">Wildcard · premium play</span>
+  </div>
+
+  <div class="args">
+    <div class="arg"><h4>Psychology</h4><p>Violet + gold = <b>luxury, judgment, prestige</b> — closer to a private bank than an HR tool. In the UAE/KSA market gold carries real cultural weight for "premium, serious, established."</p></div>
+    <div class="arg"><h4>Differentiation</h4><p>Maximum. No hiring product on the market is violet-and-gold. Reads as an executive intelligence product — perfect for the $2.5–5k/mo Enterprise pitch and the investor deck.</p></div>
+    <div class="arg"><h4>Accessibility</h4><p>Iris #8F7FF7 = <b>6.3:1</b> (AA body, comfortably AAA large), gold #F5B544 = <b>11.1:1</b>. Caveat: gold and amber-warning are siblings — premium vs warning must be disambiguated by icon and context, not hue alone.</p></div>
+    <div class="arg"><h4>Verified green inside it</h4><p>The purest semantics possible: emerald is the <b>only green in the entire system</b>, used exclusively for verified/positive. When green appears, it can mean exactly one thing. The trade-off: green never gets brand-level airtime.</p></div>
+  </div>
+
+  <div class="block-label">Tokens</div>
+  <div class="swatches">
+    <div class="swatch" data-hex="#060609"><div class="chip" style="background:#060609;border-bottom:1px solid var(--line)"></div><div class="meta"><div class="nm">Deep Space</div><div class="hx">#060609</div><div class="role">page background</div></div></div>
+    <div class="swatch" data-hex="#0E0C13"><div class="chip" style="background:#0E0C13;border-bottom:1px solid var(--line)"></div><div class="meta"><div class="nm">Card Surface</div><div class="hx">#0E0C13</div><div class="role">cards · violet hint</div></div></div>
+    <div class="swatch" data-hex="#8F7FF7"><div class="chip" style="background:#8F7FF7"><span class="ratio">6.3:1</span></div><div class="meta"><div class="nm">Iris</div><div class="hx">#8F7FF7</div><div class="role">primary accent</div></div></div>
+    <div class="swatch" data-hex="#F5B544"><div class="chip" style="background:#F5B544"><span class="ratio">11.1:1</span></div><div class="meta"><div class="nm">Gold</div><div class="hx">#F5B544</div><div class="role">secondary · premium tier</div></div></div>
+    <div class="swatch" data-hex="#34D399"><div class="chip" style="background:#34D399"><span class="ratio">10.5:1</span></div><div class="meta"><div class="nm">Emerald</div><div class="hx">#34D399</div><div class="role">verified ONLY — the sacred green</div></div></div>
+    <div class="swatch" data-hex="#FBBF24"><div class="chip" style="background:#FBBF24"><span class="ratio">12.1:1</span></div><div class="meta"><div class="nm">Amber</div><div class="hx">#FBBF24</div><div class="role">warning (icon-disambiguated)</div></div></div>
+    <div class="swatch" data-hex="#FB7185"><div class="chip" style="background:#FB7185"><span class="ratio">7.5:1</span></div><div class="meta"><div class="nm">Coral</div><div class="hx">#FB7185</div><div class="role">punch · urgent</div></div></div>
+    <div class="swatch" data-hex="linear-gradient(135deg,#8F7FF7,#F5B544)"><div class="chip" style="background:linear-gradient(135deg,#8F7FF7,#F5B544)"></div><div class="meta"><div class="nm">Brand Gradient</div><div class="hx">135° iris→gold</div><div class="role">logo · CTAs · hero text</div></div></div>
+    <div class="swatch" data-hex="rgba(255,255,255,0.9)"><div class="chip" style="background:linear-gradient(180deg,rgba(255,255,255,0.9) 25%,rgba(255,255,255,0.6) 25%,rgba(255,255,255,0.6) 50%,rgba(255,255,255,0.4) 50%,rgba(255,255,255,0.4) 75%,rgba(255,255,255,0.25) 75%)"></div><div class="meta"><div class="nm">Text Tiers</div><div class="hx">.90 / .60 / .40 / .25</div><div class="role">body · secondary · label · hint</div></div></div>
+  </div>
+
+  <div class="block-label">Homepage hero</div>
+  <div class="mock">
+    <div class="mock-hero">
+      <div class="orb a"></div><div class="orb b"></div>
+      <div class="mock-nav">
+        <span class="wordmark">shapi</span>
+        <div class="links"><span>Why Shapi</span><span>Pricing</span><span>For companies</span><span class="cta-mini">Get started</span></div>
+      </div>
+      <div class="hero-body">
+        <div class="hero-eyebrow">Verified workforce intelligence</div>
+        <h1>Stop guessing.<br>Hire what's <span class="grad">proven.</span></h1>
+        <p class="lede">Every claim on Shapi is classified — verified, assessed, or self-reported. Your next hire arrives with evidence, not adjectives.</p>
+        <div class="hero-ctas">
+          <button class="btn-fill">Get verified — $89</button>
+          <button class="btn-line">See a live profile →</button>
+        </div>
+        <div class="hero-trust"><span class="v-pill">✓ Verified</span> 2,400+ references independently sourced</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="block-label">Company dashboard</div>
+  <div class="mock">
+    <div class="mock-dash">
+      <div class="dash-top"><h3>Good morning, Falcon Logistics</h3><span class="when">Tuesday · 3 roles live</span></div>
+      <div class="kpis">
+        <span class="kpi k1"><b>12</b> shortlisted</span>
+        <span class="kpi" style="background:rgba(52,211,153,0.11);color:#34D399;border:1px solid rgba(52,211,153,0.26)"><b>8</b> verified candidates</span>
+        <span class="kpi k3"><b>2</b> premium tier</span>
+        <span class="kpi k4"><b>1</b> role at risk</span>
+      </div>
+      <div class="dash-cards">
+        <div class="dcard grad-border">
+          <div class="eyebrow">Skill density</div>
+          <div class="big p">74%</div>
+          <div class="note">of critical seats covered · <b>+6% this month</b></div>
+          <div class="bar"><i style="width:74%"></i></div>
+        </div>
+        <div class="dcard">
+          <div class="person">
+            <div class="avatar">RK</div>
+            <div><div class="nm">Rania Khalil</div><div class="rl">Operations Lead · Dubai</div></div>
+          </div>
+          <span class="v-pill">✓ Strongly Verified</span>
+          <div class="note" style="margin-top:10px">3 references sourced independently · salary history confirmed</div>
+        </div>
+        <div class="dcard">
+          <div class="eyebrow">Match score</div>
+          <div class="big s">92</div>
+          <div class="note">for <b>Fleet Supervisor</b> · evidence-weighted</div>
+          <div class="bar"><i style="width:92%"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="block-label">Org spine</div>
+  <div class="mock">
+    <div class="mock-org">
+      <div class="tree">
+        <div class="node root">
+          <div class="nrow"><div class="navatar" style="background:linear-gradient(135deg,#8F7FF7,#F5B544)">SA</div><div><div class="nm">Sara Al-Mansoori</div><div class="rl">VP Operations</div></div></div>
+          <div class="nfoot"><span class="ntag" style="background:rgba(143,127,247,0.13);color:#8F7FF7">Keystone seat</span><span class="ntag" style="background:rgba(245,181,68,0.13);color:#F5B544">AI-exposure 31%</span></div>
+        </div>
+        <div class="trunk"></div><div class="branch"></div>
+        <div class="children">
+          <div class="child"><div class="stem"></div>
+            <div class="node verified">
+              <div class="nrow"><div class="navatar" style="background:#34D399">RK</div><div><div class="nm">Rania Khalil</div><div class="rl">Operations Lead</div></div></div>
+              <div class="nfoot"><span class="v-pill">✓ Verified</span></div>
+            </div>
+          </div>
+          <div class="child"><div class="stem"></div>
+            <div class="node">
+              <div class="nrow"><div class="navatar" style="background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.5)">+</div><div><div class="nm" style="color:rgba(255,255,255,0.5)">Open seat</div><div class="rl">Fleet Supervisor</div></div></div>
+              <div class="nfoot"><span class="ntag" style="background:rgba(251,113,133,0.13);color:#FB7185">42 days unfilled</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict"><b>Verdict — gorgeous, opinionated, slightly risky.</b> The strongest Enterprise/investor aesthetic of the four and the purest verified-green semantics. The risk: gold can read "fintech/loyalty" rather than "truth," and warm gold next to amber warnings needs discipline. A serious contender for marketing surfaces even if the product goes with A.</div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     OPTION D — EMERALD INK
+═════════════════════════════════════════════════════════ -->
+<section class="option" id="option-d">
+  <div class="opt-head">
+    <div class="opt-letter">D</div>
+    <div class="opt-title">
+      <h2>Emerald <span>Ink</span></h2>
+      <p class="sub">The full commitment: if verification is the moat, make verification-green the brand itself. Jade leads, glacier blue supports. Requires a strict rule to keep "brand green" and "verified green" from colliding — defined below.</p>
+    </div>
+    <span class="opt-badge alt">Bold thesis · needs discipline</span>
+  </div>
+
+  <div class="args">
+    <div class="arg"><h4>Psychology</h4><p>Green-led = <b>proof, growth, "go."</b> The brand stops describing verification and embodies it. Closest spiritual neighbour: Spotify's total ownership of one green — memorable precisely because nobody else dares.</p></div>
+    <div class="arg"><h4>Differentiation</h4><p>High — no hiring platform is green-led. But green-on-dark is heavily colonised by crypto/trading dashboards (Robinhood energy), which can cut against "trust layer" for a conservative HR buyer.</p></div>
+    <div class="arg"><h4>Accessibility</h4><p>Jade #2EE6A8 = <b>12.5:1</b> (the best primary contrast of any option), glacier #60A5FA = <b>8.0:1</b>. The Verified Seal uses white on deep emerald #047857 = <b>5.5:1</b> — AA-clean.</p></div>
+    <div class="arg"><h4>Verified green inside it</h4><p>The collision risk, solved by treatment: <b>brand jade is always tints, strokes and text — never a solid fill.</b> The Verified Seal is the ONLY solid-green element in the product: deep emerald #047857 fill, white text, shield check. Filled green = verified, full stop.</p></div>
+  </div>
+
+  <div class="block-label">Tokens</div>
+  <div class="swatches">
+    <div class="swatch" data-hex="#060609"><div class="chip" style="background:#060609;border-bottom:1px solid var(--line)"></div><div class="meta"><div class="nm">Deep Space</div><div class="hx">#060609</div><div class="role">page background</div></div></div>
+    <div class="swatch" data-hex="#0C100F"><div class="chip" style="background:#0C100F;border-bottom:1px solid var(--line)"></div><div class="meta"><div class="nm">Card Surface</div><div class="hx">#0C100F</div><div class="role">cards · green hint</div></div></div>
+    <div class="swatch" data-hex="#2EE6A8"><div class="chip" style="background:#2EE6A8"><span class="ratio">12.5:1</span></div><div class="meta"><div class="nm">Jade</div><div class="hx">#2EE6A8</div><div class="role">primary · tints/strokes/text only</div></div></div>
+    <div class="swatch" data-hex="#60A5FA"><div class="chip" style="background:#60A5FA"><span class="ratio">8.0:1</span></div><div class="meta"><div class="nm">Glacier</div><div class="hx">#60A5FA</div><div class="role">secondary accent</div></div></div>
+    <div class="swatch" data-hex="#047857"><div class="chip" style="background:#047857"><span class="ratio">5.5:1 (white)</span></div><div class="meta"><div class="nm">Verified Seal</div><div class="hx">#047857</div><div class="role">ONLY solid-green fill · white text</div></div></div>
+    <div class="swatch" data-hex="#FBBF24"><div class="chip" style="background:#FBBF24"><span class="ratio">12.1:1</span></div><div class="meta"><div class="nm">Amber</div><div class="hx">#FBBF24</div><div class="role">warning · premium tier</div></div></div>
+    <div class="swatch" data-hex="#FB7185"><div class="chip" style="background:#FB7185"><span class="ratio">7.5:1</span></div><div class="meta"><div class="nm">Coral</div><div class="hx">#FB7185</div><div class="role">punch · urgent</div></div></div>
+    <div class="swatch" data-hex="linear-gradient(135deg,#2EE6A8,#60A5FA)"><div class="chip" style="background:linear-gradient(135deg,#2EE6A8,#60A5FA)"></div><div class="meta"><div class="nm">Brand Gradient</div><div class="hx">135° jade→glacier</div><div class="role">logo · CTAs · hero text</div></div></div>
+    <div class="swatch" data-hex="rgba(255,255,255,0.9)"><div class="chip" style="background:linear-gradient(180deg,rgba(255,255,255,0.9) 25%,rgba(255,255,255,0.6) 25%,rgba(255,255,255,0.6) 50%,rgba(255,255,255,0.4) 50%,rgba(255,255,255,0.4) 75%,rgba(255,255,255,0.25) 75%)"></div><div class="meta"><div class="nm">Text Tiers</div><div class="hx">.90 / .60 / .40 / .25</div><div class="role">body · secondary · label · hint</div></div></div>
+  </div>
+
+  <div class="block-label">Homepage hero</div>
+  <div class="mock">
+    <div class="mock-hero">
+      <div class="orb a"></div><div class="orb b"></div>
+      <div class="mock-nav">
+        <span class="wordmark">shapi</span>
+        <div class="links"><span>Why Shapi</span><span>Pricing</span><span>For companies</span><span class="cta-mini">Get started</span></div>
+      </div>
+      <div class="hero-body">
+        <div class="hero-eyebrow">Verified workforce intelligence</div>
+        <h1>Stop guessing.<br>Hire what's <span class="grad">proven.</span></h1>
+        <p class="lede">Every claim on Shapi is classified — verified, assessed, or self-reported. Your next hire arrives with evidence, not adjectives.</p>
+        <div class="hero-ctas">
+          <button class="btn-fill">Get verified — $89</button>
+          <button class="btn-line">See a live profile →</button>
+        </div>
+        <div class="hero-trust"><span class="v-seal">✓ VERIFIED</span> 2,400+ references independently sourced</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="block-label">Company dashboard</div>
+  <div class="mock">
+    <div class="mock-dash">
+      <div class="dash-top"><h3>Good morning, Falcon Logistics</h3><span class="when">Tuesday · 3 roles live</span></div>
+      <div class="kpis">
+        <span class="kpi k1"><b>12</b> shortlisted</span>
+        <span class="kpi k2"><b>8</b> verified candidates</span>
+        <span class="kpi k3"><b>2</b> premium tier</span>
+        <span class="kpi k4"><b>1</b> role at risk</span>
+      </div>
+      <div class="dash-cards">
+        <div class="dcard grad-border">
+          <div class="eyebrow">Skill density</div>
+          <div class="big p">74%</div>
+          <div class="note">of critical seats covered · <b>+6% this month</b></div>
+          <div class="bar"><i style="width:74%"></i></div>
+        </div>
+        <div class="dcard">
+          <div class="person">
+            <div class="avatar">RK</div>
+            <div><div class="nm">Rania Khalil</div><div class="rl">Operations Lead · Dubai</div></div>
+          </div>
+          <span class="v-seal">✓ STRONGLY VERIFIED</span>
+          <div class="note" style="margin-top:10px">3 references sourced independently · salary history confirmed</div>
+        </div>
+        <div class="dcard">
+          <div class="eyebrow">Match score</div>
+          <div class="big s">92</div>
+          <div class="note">for <b>Fleet Supervisor</b> · evidence-weighted</div>
+          <div class="bar"><i style="width:92%"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="block-label">Org spine</div>
+  <div class="mock">
+    <div class="mock-org">
+      <div class="tree">
+        <div class="node root">
+          <div class="nrow"><div class="navatar" style="background:linear-gradient(135deg,#2EE6A8,#60A5FA)">SA</div><div><div class="nm">Sara Al-Mansoori</div><div class="rl">VP Operations</div></div></div>
+          <div class="nfoot"><span class="ntag" style="background:rgba(46,230,168,0.12);color:#2EE6A8">Keystone seat</span><span class="ntag" style="background:rgba(251,191,36,0.13);color:#FBBF24">AI-exposure 31%</span></div>
+        </div>
+        <div class="trunk"></div><div class="branch"></div>
+        <div class="children">
+          <div class="child"><div class="stem"></div>
+            <div class="node verified" style="border-color:rgba(4,120,87,0.7)">
+              <div class="nrow"><div class="navatar" style="background:#047857;color:#fff">RK</div><div><div class="nm">Rania Khalil</div><div class="rl">Operations Lead</div></div></div>
+              <div class="nfoot"><span class="v-seal">✓ VERIFIED</span></div>
+            </div>
+          </div>
+          <div class="child"><div class="stem"></div>
+            <div class="node">
+              <div class="nrow"><div class="navatar" style="background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.5)">+</div><div><div class="nm" style="color:rgba(255,255,255,0.5)">Open seat</div><div class="rl">Fleet Supervisor</div></div></div>
+              <div class="nfoot"><span class="ntag" style="background:rgba(251,113,133,0.13);color:#FB7185">42 days unfilled</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict"><b>Verdict — the bravest option, but it spends the moat colour on decoration.</b> When everything is green, the verified badge stops shouting — the seal treatment patches this, but Option A gets the same semantic clarity for free. Choose D only if you want Shapi's entire identity to be the checkmark.</div>
+</section>
+
+<footer>
+  Shapi palette comparison · built for the final accent decision · all contrast ratios measured against page background #060609 (WCAG 2.1) · click any swatch to copy its value · Plus Jakarta Sans throughout.
+</footer>
+
+<div class="toast" id="toast">Copied!</div>
+
+<script>
+  // Click-to-copy on swatches
+  const toast = document.getElementById('toast');
+  let toastTimer;
+  document.querySelectorAll('.swatch').forEach(sw => {
+    sw.addEventListener('click', () => {
+      const v = sw.dataset.hex;
+      navigator.clipboard && navigator.clipboard.writeText(v).then(() => {
+        toast.textContent = 'Copied ' + v;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 1400);
+      });
+    });
+  });
+</script>
+</body>
+</html>

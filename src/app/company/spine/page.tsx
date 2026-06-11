@@ -89,7 +89,9 @@ export default async function SpinePage({
 
   return (
     <main className="min-h-screen px-4 py-10 sm:py-14" style={{ background: '#0c0e11' }}>
-      <div className="max-w-3xl mx-auto">
+      {/* Wider shell than the rest of the company surface — the org map needs
+          horizontal room. The CSV + CRUD sections below stay at reading width. */}
+      <div className="max-w-6xl mx-auto">
         <Link href="/company/dashboard" className="text-xs font-bold mb-4 inline-block" style={{ color: ACCENT }}>
           ← Dashboard
         </Link>
@@ -150,18 +152,21 @@ export default async function SpinePage({
         )}
 
         <div className="space-y-5">
-          {/* Visual canvas FIRST — it's the spine's primary surface.
-              Four lens toggles + Current/Target state + drag-drop. */}
+          {/* Visual org map FIRST — it's the spine's primary surface.
+              Node-and-line chart with location tabs, compare mode,
+              Current/Target state + justification-gated drag-drop. */}
           <OrgCanvas locations={locations} teams={teams} persons={persons} seats={seats} />
 
           {/* CSV upload — primary intake for new companies. Manual CRUD
-              below is for tweaks and corrections. */}
-          <CsvImportSection planTier={planTier} />
+              below is for tweaks and corrections. Reading width. */}
+          <div className="max-w-3xl mx-auto w-full space-y-5">
+            <CsvImportSection planTier={planTier} />
 
-          <LocationsSection locations={locations} companyWebsite={(profile as { company_website?: string | null }).company_website || null} planTier={planTier} />
-          <TeamsSection teams={teams} locations={locations} />
-          <PersonsSection persons={persons} />
-          <SeatsSection seats={seats} teams={teams} persons={persons} />
+            <LocationsSection locations={locations} companyWebsite={(profile as { company_website?: string | null }).company_website || null} planTier={planTier} />
+            <TeamsSection teams={teams} locations={locations} />
+            <PersonsSection persons={persons} />
+            <SeatsSection seats={seats} teams={teams} persons={persons} />
+          </div>
         </div>
 
       </div>

@@ -16,7 +16,7 @@ export default async function Dashboard() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased, cv_tier, profile_live, subscription_product, right_to_work, work_style, type, cv_builder_chat, cv_builder_chat_updated_at, onboarding_complete')
+    .select('full_name, headline, cv_parsed, whatsapp_number, whatsapp_chat, completion_pct, paid, subscription_status, subscription_tier, company_name, cv_kit_purchased, cv_tier, profile_live, subscription_product, right_to_work, work_style, type, onboarding_complete')
     .eq('id', user.id)
     .single()
 
@@ -24,7 +24,19 @@ export default async function Dashboard() {
   // to show a "Finish your CV" resume card. We hide it once the profile is
   // built (cv_parsed=true OR completion_pct ≥ 80) — the draft has served
   // its purpose by then.
-  const draftRaw = (profile as { cv_builder_chat?: unknown } | null)?.cv_builder_chat
+  //
+  // Fetched SEPARATELY from the main profile select: cv_builder_chat comes
+  // from supabase/cv_draft.sql which may not be applied yet. When the column
+  // is missing, Postgres 400s the WHOLE select — which previously nulled the
+  // entire profile and broke the dashboard (and mis-routed company users to
+  // the candidate view). Best-effort: a failure here only hides the resume
+  // card, never the dashboard.
+  const { data: draftRow } = await supabase
+    .from('profiles')
+    .select('cv_builder_chat')
+    .eq('id', user.id)
+    .maybeSingle()
+  const draftRaw = (draftRow as { cv_builder_chat?: unknown } | null)?.cv_builder_chat
   const draftTurns = Array.isArray(draftRaw) ? draftRaw.length : 0
   const hasCvDraft = draftTurns >= 2 && !profile?.cv_parsed && (profile?.completion_pct ?? 0) < 80
 
