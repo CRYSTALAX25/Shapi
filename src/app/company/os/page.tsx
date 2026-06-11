@@ -37,9 +37,9 @@ type OsResponse = {
 }
 
 const SEVERITY_STYLE: Record<string, { bg: string; border: string; color: string; label: string }> = {
-  info:     { bg: 'rgba(106,168,245,0.10)', border: 'rgba(106,168,245,0.30)', color: '#6AA8F5', label: 'Info' },
+  info:     { bg: 'rgba(157, 140, 255, 0.10)', border: 'rgba(157, 140, 255, 0.30)', color: '#9D8CFF', label: 'Info' },
   warning:  { bg: 'rgba(251,191,36,0.10)',  border: 'rgba(251,191,36,0.30)',  color: '#FBBF24', label: 'Warning' },
-  critical: { bg: 'rgba(245,142,154,0.12)', border: 'rgba(245,142,154,0.35)', color: '#F58E9A', label: 'Critical' },
+  critical: { bg: 'rgba(251, 113, 133, 0.12)', border: 'rgba(251, 113, 133, 0.35)', color: '#FB7185', label: 'Critical' },
 }
 
 const KIND_LABEL: Record<string, string> = {
@@ -53,7 +53,7 @@ const KIND_LABEL: Record<string, string> = {
 function scoreColor(score: number): string {
   if (score >= 70) return '#34D399' // emerald — on-track
   if (score >= 40) return '#FBBF24' // amber  — needs attention
-  return '#F58E9A'                  // coral-red — high-risk
+  return '#FB7185'                  // coral-red — high-risk
 }
 
 // Render a small 5-point trend sparkline. We chose an inline SVG polyline
@@ -81,7 +81,7 @@ function TrendSparkline({ points }: { points: TrendPoint[] }) {
   const first = points[0].score
   const last = points[points.length - 1].score
   const delta = last - first
-  const deltaColor = delta > 0 ? '#34D399' : delta < 0 ? '#F58E9A' : '#A6A6B4'
+  const deltaColor = delta > 0 ? '#34D399' : delta < 0 ? '#FB7185' : '#A6A6B4'
   const deltaSign = delta > 0 ? '+' : ''
 
   return (
@@ -167,7 +167,7 @@ export default function WorkforceOsPage() {
     }
   }
 
-  const cardStyle = { background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }
+  const cardStyle = { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }
   const labelCls = 'text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider'
 
   const score = data?.current_score ?? null
@@ -176,7 +176,7 @@ export default function WorkforceOsPage() {
   const counts = data?.counts ?? { staffing_recs: 0, interviews_week: 0, candidates_active: 0 }
 
   return (
-    <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7]">
+    <div className="min-h-screen bg-[#060609] text-[#F4F4F7]">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -190,7 +190,7 @@ export default function WorkforceOsPage() {
           href="/"
           className="font-black text-xl tracking-tighter"
           style={{
-            background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+            background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -223,8 +223,8 @@ export default function WorkforceOsPage() {
         </div>
 
         {err && (
-          <div className="rounded-2xl p-4 mb-4" style={{ background: 'rgba(245,142,154,0.08)', border: '1px solid rgba(245,142,154,0.25)' }}>
-            <p className="text-[#F58E9A] text-sm">{err}</p>
+          <div className="rounded-2xl p-4 mb-4" style={{ background: 'rgba(251, 113, 133, 0.08)', border: '1px solid rgba(251, 113, 133, 0.25)' }}>
+            <p className="text-[#FB7185] text-sm">{err}</p>
           </div>
         )}
 
@@ -246,7 +246,7 @@ export default function WorkforceOsPage() {
                   <Link
                     href="/company/workforce-snapshot"
                     className="inline-block text-xs font-black px-4 py-2 rounded-full text-white"
-                    style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}
+                    style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
                   >
                     Run Workforce Snapshot →
                   </Link>
@@ -353,9 +353,9 @@ export default function WorkforceOsPage() {
                               disabled={isBusy}
                               className="text-xs font-bold px-3 py-1.5 rounded-full disabled:opacity-40"
                               style={{
-                                background: 'rgba(106,168,245,0.12)',
-                                color: '#6AA8F5',
-                                border: '1px solid rgba(106,168,245,0.30)',
+                                background: 'rgba(157, 140, 255, 0.12)',
+                                color: '#9D8CFF',
+                                border: '1px solid rgba(157, 140, 255, 0.30)',
                               }}
                             >
                               {isBusy ? '…' : 'Ack'}
@@ -391,11 +391,11 @@ export default function WorkforceOsPage() {
                   style={cardStyle}
                 >
                   <p className="text-[10px] text-[#A6A6B4]">Staffing recs open</p>
-                  <p className="text-2xl font-black mt-1" style={{ color: '#F08CAE' }}>{counts.staffing_recs}</p>
+                  <p className="text-2xl font-black mt-1" style={{ color: '#9D8CFF' }}>{counts.staffing_recs}</p>
                 </Link>
                 <div className="rounded-2xl p-4" style={cardStyle}>
                   <p className="text-[10px] text-[#A6A6B4]">Interviews this week</p>
-                  <p className="text-2xl font-black mt-1" style={{ color: '#6AA8F5' }}>{counts.interviews_week}</p>
+                  <p className="text-2xl font-black mt-1" style={{ color: '#9D8CFF' }}>{counts.interviews_week}</p>
                 </div>
                 <div className="rounded-2xl p-4" style={cardStyle}>
                   <p className="text-[10px] text-[#A6A6B4]">Candidates active</p>
@@ -433,7 +433,7 @@ export default function WorkforceOsPage() {
               <Link
                 href="/book-call?topic=workforce-os"
                 className="inline-block text-xs font-black px-4 py-2 rounded-full text-white"
-                style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}
+                style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
               >
                 Request invite to enterprise beta →
               </Link>

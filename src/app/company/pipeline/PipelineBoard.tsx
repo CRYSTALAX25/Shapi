@@ -6,11 +6,11 @@ import Link from 'next/link'
 
 const COMPANY_PARAMS = ['Skills & experience', 'Communication', 'Culture / team fit', 'Motivation & drive', 'Growth potential']
 const STAGES = [
-  { key: 'matched', label: 'Interested', color: '#6AA8F5' },
-  { key: 'shortlisted', label: 'Shortlisted', color: '#6AA8F5' },
-  { key: 'interviewing', label: 'Interviewing', color: '#4F8FE8' },
+  { key: 'matched', label: 'Interested', color: '#9D8CFF' },
+  { key: 'shortlisted', label: 'Shortlisted', color: '#9D8CFF' },
+  { key: 'interviewing', label: 'Interviewing', color: '#9D8CFF' },
   { key: 'offer', label: 'Offer', color: '#FBBF24' },
-  { key: 'hired', label: 'Hired', color: '#6AA8F5' },
+  { key: 'hired', label: 'Hired', color: '#9D8CFF' },
   { key: 'passed', label: 'Passed', color: '#7E7E8E' },
 ]
 
@@ -79,10 +79,10 @@ export default function PipelineBoard({ roleId, roleTitle, applications }: { rol
 
   if (applications.length === 0) {
     return (
-      <div className="bg-[#16161F] rounded-2xl p-10 text-center" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+      <div className="bg-[#0D0C14] rounded-2xl p-10 text-center" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
         <p className="text-[#F4F4F7] font-bold mb-1">No candidates in the pipeline for {roleTitle}</p>
         <p className="text-[#7E7E8E] text-sm mb-4">Shortlist candidates from the Candidates view and they&apos;ll appear here.</p>
-        <Link href="/company/dashboard" className="inline-block text-white text-sm font-bold px-5 py-2.5 rounded-full" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)' }}>Find candidates →</Link>
+        <Link href="/company/dashboard" className="inline-block text-white text-sm font-bold px-5 py-2.5 rounded-full" style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)' }}>Find candidates →</Link>
       </div>
     )
   }
@@ -94,7 +94,7 @@ export default function PipelineBoard({ roleId, roleTitle, applications }: { rol
           .filter(a => a.stage === stage.key)
           .sort((x, y) => (avg(y.company_scorecard) ?? -1) - (avg(x.company_scorecard) ?? -1))
         return (
-          <div key={stage.key} className="rounded-2xl p-3" style={{ background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div key={stage.key} className="rounded-2xl p-3" style={{ background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }}>
             <div className="flex items-center justify-between mb-3 px-1">
               <span className="text-xs font-black uppercase tracking-wider" style={{ color: stage.color }}>{stage.label}</span>
               <span className="text-[#8A8A99] text-xs font-bold">{inStage.length}</span>
@@ -115,11 +115,11 @@ export default function PipelineBoard({ roleId, roleTitle, applications }: { rol
                         <p className="text-[#F4F4F7] font-bold text-sm truncate">{idx === 0 && score != null ? '🥇 ' : ''}{c?.full_name || 'Candidate'}</p>
                         <p className="text-[#7E7E8E] text-[11px] truncate">{c?.headline || '—'}</p>
                         {a.reliability && a.reliability.count > 0 && (
-                          <p className="text-[10px] font-bold mt-0.5" style={{ color: '#6AA8F5' }}>✓ {a.reliability.avg}/5 interview rating ({a.reliability.count})</p>
+                          <p className="text-[10px] font-bold mt-0.5" style={{ color: '#9D8CFF' }}>✓ {a.reliability.avg}/5 interview rating ({a.reliability.count})</p>
                         )}
                       </div>
                       {score != null && (
-                        <span className="flex-shrink-0 text-xs font-black px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>{score}</span>
+                        <span className="flex-shrink-0 text-xs font-black px-2 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>{score}</span>
                       )}
                     </div>
 
@@ -137,11 +137,11 @@ export default function PipelineBoard({ roleId, roleTitle, applications }: { rol
 
                     {/* Booked interview */}
                     {iv?.scheduled_at && !isScoring && !isBooking && (
-                      <div className="mt-2 rounded-lg px-2 py-1.5" style={{ background: 'rgba(106,168,245,0.08)' }}>
-                        <p className="text-[11px] font-bold text-[#6AA8F5]">📅 {fmtWhen(iv.scheduled_at)}{iv.video_platform ? ` · ${PLATFORM_LABEL[iv.video_platform] || 'Video'}` : ''}</p>
+                      <div className="mt-2 rounded-lg px-2 py-1.5" style={{ background: 'rgba(157, 140, 255, 0.08)' }}>
+                        <p className="text-[11px] font-bold text-[#9D8CFF]">📅 {fmtWhen(iv.scheduled_at)}{iv.video_platform ? ` · ${PLATFORM_LABEL[iv.video_platform] || 'Video'}` : ''}</p>
                         {iv.video_platform === 'in_person'
                           ? iv.location && <p className="text-[10px] text-[#7E7E8E]">📍 {iv.location}</p>
-                          : iv.meeting_link && <a href={iv.meeting_link} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-[#6AA8F5]">Join call →</a>}
+                          : iv.meeting_link && <a href={iv.meeting_link} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-[#9D8CFF]">Join call →</a>}
                       </div>
                     )}
 
@@ -157,8 +157,8 @@ export default function PipelineBoard({ roleId, roleTitle, applications }: { rol
 
                     {/* Your feedback (summary) */}
                     {fb && (fb.rating != null || fb.move_forward != null) && !isFeedbacking && !isScoring && !isBooking && (
-                      <div className="mt-2 rounded-lg px-2 py-1.5" style={{ background: 'rgba(106,168,245,0.08)' }}>
-                        <p className="text-[11px] font-bold" style={{ color: '#6AA8F5' }}>
+                      <div className="mt-2 rounded-lg px-2 py-1.5" style={{ background: 'rgba(157, 140, 255, 0.08)' }}>
+                        <p className="text-[11px] font-bold" style={{ color: '#9D8CFF' }}>
                           Your feedback: {fb.rating != null ? `${fb.rating}/5` : '—'}{fb.move_forward != null ? ` · ${fb.move_forward ? 'Move forward' : 'Pass'}` : ''}
                         </p>
                       </div>
@@ -171,22 +171,22 @@ export default function PipelineBoard({ roleId, roleTitle, applications }: { rol
 
                     {!isScoring && !isBooking && !isFeedbacking && (
                       <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
-                        <button onClick={() => setScoring(a.candidate_id)} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(106,168,245,0.10)', color: '#6AA8F5' }}>
+                        <button onClick={() => setScoring(a.candidate_id)} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(157, 140, 255, 0.10)', color: '#9D8CFF' }}>
                           {a.company_scorecard ? 'Edit score' : 'Score'}
                         </button>
-                        <button onClick={() => setBooking(a.candidate_id)} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(79,143,232,0.10)', color: '#4F8FE8' }}>
+                        <button onClick={() => setBooking(a.candidate_id)} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(157, 140, 255, 0.10)', color: '#9D8CFF' }}>
                           {iv?.scheduled_at ? 'Reschedule' : 'Interview'}
                         </button>
-                        <button onClick={() => setFeedbacking(a.candidate_id)} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(106,168,245,0.10)', color: '#6AA8F5' }}>
+                        <button onClick={() => setFeedbacking(a.candidate_id)} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(157, 140, 255, 0.10)', color: '#9D8CFF' }}>
                           {fb ? 'Edit feedback' : 'Feedback'}
                         </button>
                         <Link href={`/candidates/${a.candidate_id}`} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.05)', color: '#C7C7D1' }}>View</Link>
-                        <Link href={`/company/prep/${roleId}/${a.candidate_id}`} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(79,143,232,0.10)', color: '#4F8FE8' }}>Prep brief</Link>
+                        <Link href={`/company/prep/${roleId}/${a.candidate_id}`} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'rgba(157, 140, 255, 0.10)', color: '#9D8CFF' }}>Prep brief</Link>
                         <select
                           value={a.stage}
                           disabled={busy === a.candidate_id}
                           onChange={e => move(a.candidate_id, e.target.value)}
-                          className="ml-auto text-[11px] font-bold rounded-lg px-1.5 py-1 bg-[#16161F]"
+                          className="ml-auto text-[11px] font-bold rounded-lg px-1.5 py-1 bg-[#0D0C14]"
                           style={{ border: '1px solid rgba(255,255,255,0.12)', color: '#C7C7D1' }}>
                           {STAGES.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
                         </select>
@@ -216,8 +216,8 @@ function ScoreEditor({ initial, onSave, onCancel, busy }: { initial: Record<stri
               <button key={n} onClick={() => setScores(s => ({ ...s, [p]: n }))}
                 className="flex-1 text-[11px] font-bold rounded py-1"
                 style={scores[p] === n
-                  ? { background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', color: '#fff' }
-                  : { background: '#16161F', border: '1px solid rgba(255,255,255,0.12)', color: '#7E7E8E' }}>
+                  ? { background: 'linear-gradient(135deg,#9D8CFF, #34D399)', color: '#fff' }
+                  : { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.12)', color: '#7E7E8E' }}>
                 {n}
               </button>
             ))}
@@ -225,7 +225,7 @@ function ScoreEditor({ initial, onSave, onCancel, busy }: { initial: Record<stri
         </div>
       ))}
       <div className="flex gap-2 pt-1">
-        <button onClick={() => onSave(scores)} disabled={busy} className="flex-1 text-[11px] font-black text-white rounded-lg py-1.5 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)' }}>{busy ? 'Saving…' : 'Save'}</button>
+        <button onClick={() => onSave(scores)} disabled={busy} className="flex-1 text-[11px] font-black text-white rounded-lg py-1.5 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)' }}>{busy ? 'Saving…' : 'Save'}</button>
         <button onClick={onCancel} className="text-[11px] font-bold rounded-lg py-1.5 px-3" style={{ background: 'rgba(255,255,255,0.05)', color: '#7E7E8E' }}>Cancel</button>
       </div>
     </div>
@@ -244,7 +244,7 @@ function InterviewEditor({ initial, onSave, onCancel, busy }: { initial: Intervi
   const [platform, setPlatform] = useState(initial?.video_platform || 'google_meet')
   const [link, setLink] = useState(initial?.meeting_link || '')
   const [loc, setLoc] = useState(initial?.location || '')
-  const inputStyle = { background: '#16161F', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '6px 8px', fontSize: 11, width: '100%', color: '#F4F4F7' } as const
+  const inputStyle = { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '6px 8px', fontSize: 11, width: '100%', color: '#F4F4F7' } as const
   return (
     <div className="mt-2 space-y-2">
       <div>
@@ -268,7 +268,7 @@ function InterviewEditor({ initial, onSave, onCancel, busy }: { initial: Intervi
       )}
       <div className="flex gap-2 pt-1">
         <button onClick={() => onSave({ scheduled_at: when ? new Date(when).toISOString() : '', video_platform: platform, meeting_link: link, location: loc })} disabled={busy || !when}
-          className="flex-1 text-[11px] font-black text-white rounded-lg py-1.5 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)' }}>{busy ? 'Saving…' : 'Book interview'}</button>
+          className="flex-1 text-[11px] font-black text-white rounded-lg py-1.5 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)' }}>{busy ? 'Saving…' : 'Book interview'}</button>
         <button onClick={onCancel} className="text-[11px] font-bold rounded-lg py-1.5 px-3" style={{ background: 'rgba(255,255,255,0.05)', color: '#7E7E8E' }}>Cancel</button>
       </div>
     </div>
@@ -285,20 +285,20 @@ function FeedbackEditor({ initial, onSave, onCancel, busy }: { initial: Feedback
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map(n => (
           <button key={n} onClick={() => setRating(n)} className="flex-1 text-[11px] font-bold rounded py-1"
-            style={rating === n ? { background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', color: '#fff' } : { background: '#16161F', border: '1px solid rgba(255,255,255,0.12)', color: '#7E7E8E' }}>{n}</button>
+            style={rating === n ? { background: 'linear-gradient(135deg,#9D8CFF, #34D399)', color: '#fff' } : { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.12)', color: '#7E7E8E' }}>{n}</button>
         ))}
       </div>
       <div className="flex gap-1.5">
         <button onClick={() => setForward(true)} className="flex-1 text-[11px] font-bold rounded py-1.5"
-          style={forward === true ? { background: 'rgba(106,168,245,0.15)', color: '#6AA8F5', border: '1px solid rgba(106,168,245,0.4)' } : { background: '#16161F', border: '1px solid rgba(255,255,255,0.12)', color: '#7E7E8E' }}>Move forward</button>
+          style={forward === true ? { background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF', border: '1px solid rgba(157, 140, 255, 0.4)' } : { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.12)', color: '#7E7E8E' }}>Move forward</button>
         <button onClick={() => setForward(false)} className="flex-1 text-[11px] font-bold rounded py-1.5"
-          style={forward === false ? { background: 'rgba(245,142,154,0.12)', color: '#F58E9A', border: '1px solid rgba(245,142,154,0.4)' } : { background: '#16161F', border: '1px solid rgba(255,255,255,0.12)', color: '#7E7E8E' }}>Pass</button>
+          style={forward === false ? { background: 'rgba(251, 113, 133, 0.12)', color: '#FB7185', border: '1px solid rgba(251, 113, 133, 0.4)' } : { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.12)', color: '#7E7E8E' }}>Pass</button>
       </div>
       <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} placeholder="Private notes (optional)"
-        style={{ background: '#16161F', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '6px 8px', fontSize: 11, width: '100%', color: '#F4F4F7', resize: 'vertical' }} />
+        style={{ background: '#0D0C14', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '6px 8px', fontSize: 11, width: '100%', color: '#F4F4F7', resize: 'vertical' }} />
       <div className="flex gap-2">
         <button onClick={() => onSave({ rating, move_forward: forward ?? false, notes })} disabled={busy || rating === 0}
-          className="flex-1 text-[11px] font-black text-white rounded-lg py-1.5 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)' }}>{busy ? 'Saving…' : 'Save feedback'}</button>
+          className="flex-1 text-[11px] font-black text-white rounded-lg py-1.5 disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)' }}>{busy ? 'Saving…' : 'Save feedback'}</button>
         <button onClick={onCancel} className="text-[11px] font-bold rounded-lg py-1.5 px-3" style={{ background: 'rgba(255,255,255,0.05)', color: '#7E7E8E' }}>Cancel</button>
       </div>
     </div>

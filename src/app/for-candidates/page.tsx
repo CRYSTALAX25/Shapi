@@ -9,8 +9,8 @@ type Score = 1 | 0 | 0.5
 function Mark({ v }: { v: 1 | 0 | 0.5 }) {
   if (v === 1) {
     return (
-      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full" style={{ background: 'rgba(106,168,245,0.15)' }}>
-        <svg className="w-3.5 h-3.5" style={{ color: '#6AA8F5' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.15)' }}>
+        <svg className="w-3.5 h-3.5" style={{ color: '#9D8CFF' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
         </svg>
       </span>
@@ -24,8 +24,8 @@ function Mark({ v }: { v: 1 | 0 | 0.5 }) {
     )
   }
   return (
-    <span className="inline-flex items-center justify-center w-7 h-7 rounded-full" style={{ background: 'rgba(245,142,154,0.12)' }}>
-      <svg className="w-3.5 h-3.5" style={{ color: '#F58E9A' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <span className="inline-flex items-center justify-center w-7 h-7 rounded-full" style={{ background: 'rgba(251, 113, 133, 0.12)' }}>
+      <svg className="w-3.5 h-3.5" style={{ color: '#FB7185' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
       </svg>
     </span>
@@ -75,44 +75,44 @@ function ForCandidatesInner() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7] overflow-x-hidden">
+    <div className="min-h-screen bg-[#060609] text-[#F4F4F7] overflow-x-hidden">
       <style>{`
         .grad-text {
-          background: linear-gradient(135deg, #6AA8F5, #F08CAE, #F58E9A, #6AA8F5);
+          background: linear-gradient(135deg, #9D8CFF, #34D399);
           background-size: 300% 300%;
           -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
         .card {
-          background: #16161F;
+          background: #0D0C14;
           border: 1px solid rgba(255,255,255,0.08);
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
           transition: all 0.3s ease;
         }
         .card:hover {
           transform: translateY(-4px);
-          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 20px 46px rgba(240,140,174,0.14);
-          border-color: rgba(240,140,174,0.28);
+          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 20px 46px rgba(157, 140, 255, 0.14);
+          border-color: rgba(157, 140, 255, 0.28);
         }
         .btn-primary {
-          background: linear-gradient(135deg, #6AA8F5, #F08CAE, #F58E9A);
+          background: linear-gradient(135deg, #9D8CFF, #34D399);
           color: #fff;
-          box-shadow: 0 8px 24px rgba(240,140,174,0.28);
+          box-shadow: 0 8px 24px rgba(157, 140, 255, 0.28);
           transition: all 0.25s ease;
         }
-        .btn-primary:hover { box-shadow: 0 12px 32px rgba(240,140,174,0.42); transform: translateY(-1px); }
+        .btn-primary:hover { box-shadow: 0 12px 32px rgba(157, 140, 255, 0.42); transform: translateY(-1px); }
         .grad-border-cta {
-          background: linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A) border-box;
+          background: linear-gradient(#0D0C14,#0D0C14) padding-box, linear-gradient(135deg, #9D8CFF, #34D399) border-box;
           border: 1.5px solid transparent; color: #F4F4F7;
           transition: all 0.25s ease;
         }
-        .grad-border-cta:hover { box-shadow: 0 8px 24px rgba(240,140,174,0.22); transform: translateY(-1px); }
+        .grad-border-cta:hover { box-shadow: 0 8px 24px rgba(157, 140, 255, 0.22); transform: translateY(-1px); }
         .btn-outline {
           background: transparent; border: 1px solid rgba(255,255,255,0.16); color: #F4F4F7;
           transition: all .25s ease;
         }
-        .btn-outline:hover { border-color: rgba(240,140,174,0.45); color: #fff; transform: translateY(-1px); }
+        .btn-outline:hover { border-color: rgba(157, 140, 255, 0.45); color: #fff; transform: translateY(-1px); }
         .nav-link { color:#A6A6B4; transition: color .2s ease; }
-        .nav-link:hover { background: linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .nav-link:hover { background: linear-gradient(135deg, #9D8CFF, #34D399); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
         .shapi-col { background: linear-gradient(180deg, rgba(251,113,133,0.10), rgba(251,113,133,0.02)); }
       `}</style>
 
@@ -166,7 +166,7 @@ function ForCandidatesInner() {
 
           {/* Free hook — blurred-profile preview, no signup required */}
           <p className="mt-5">
-            <Link href="/preview" className="text-sm font-bold hover:underline" style={{ color: '#6AA8F5' }}>
+            <Link href="/preview" className="text-sm font-bold hover:underline" style={{ color: '#9D8CFF' }}>
               ✨ Try it free — see your polished profile in 60 seconds →
             </Link>
           </p>
@@ -185,13 +185,13 @@ function ForCandidatesInner() {
             },
             {
               tag: t('forCandidates.pitch.panel2Tag'),
-              color: '#F08CAE',
+              color: '#9D8CFF',
               title: t('forCandidates.pitch.panel2Title'),
               body: t('forCandidates.pitch.panel2Body'),
             },
             {
               tag: t('forCandidates.pitch.panel3Tag'),
-              color: '#6AA8F5',
+              color: '#9D8CFF',
               title: t('forCandidates.pitch.panel3Title'),
               body: t('forCandidates.pitch.panel3Body'),
             },
@@ -239,7 +239,7 @@ function ForCandidatesInner() {
       {/* Comparison table */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-20">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>
+          <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>
             {t('forCandidates.comparison.eyebrow')}
           </div>
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#FB7185' }}>
@@ -284,7 +284,7 @@ function ForCandidatesInner() {
           </table>
         </div>
         <p className="text-center text-xs text-[#7E7E8E] mt-4">
-          <span className="font-black" style={{ color: '#6AA8F5' }}>✓</span> {t('forCandidates.comparison.legendIn')} · <span className="font-black text-[#A6A6B4]">~</span> {t('forCandidates.comparison.legendPartial')} · <span className="font-black" style={{ color: '#F58E9A' }}>✗</span> {t('forCandidates.comparison.legendOut')}.
+          <span className="font-black" style={{ color: '#9D8CFF' }}>✓</span> {t('forCandidates.comparison.legendIn')} · <span className="font-black text-[#A6A6B4]">~</span> {t('forCandidates.comparison.legendPartial')} · <span className="font-black" style={{ color: '#FB7185' }}>✗</span> {t('forCandidates.comparison.legendOut')}.
         </p>
       </section>
 
@@ -298,8 +298,8 @@ function ForCandidatesInner() {
 
         <div className="grid md:grid-cols-3 gap-4">
           {[
-            { step: t('forCandidates.how.step1Number'), color: '#6AA8F5', title: t('forCandidates.how.step1Title'), body: t('forCandidates.how.step1Body') },
-            { step: t('forCandidates.how.step2Number'), color: '#F08CAE', title: t('forCandidates.how.step2Title'), body: t('forCandidates.how.step2Body') },
+            { step: t('forCandidates.how.step1Number'), color: '#9D8CFF', title: t('forCandidates.how.step1Title'), body: t('forCandidates.how.step1Body') },
+            { step: t('forCandidates.how.step2Number'), color: '#9D8CFF', title: t('forCandidates.how.step2Title'), body: t('forCandidates.how.step2Body') },
             { step: t('forCandidates.how.step3Number'), color: '#FB7185', title: t('forCandidates.how.step3Title'), body: t('forCandidates.how.step3Body') },
           ].map((s, i) => (
             <div key={i} className="card rounded-2xl p-7">
@@ -316,10 +316,10 @@ function ForCandidatesInner() {
       {/* Sourced confidence callout */}
       <section className="relative z-10 max-w-4xl mx-auto px-6 pb-20">
         <div className="rounded-2xl p-7 text-center" style={{
-          background: 'linear-gradient(135deg, rgba(106,168,245,0.08), rgba(251,113,133,0.06))',
+          background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.08), rgba(251,113,133,0.06))',
           border: '1px solid rgba(255,255,255,0.10)',
         }}>
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#F08CAE' }}>{t('forCandidates.sources.eyebrow')}</p>
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#9D8CFF' }}>{t('forCandidates.sources.eyebrow')}</p>
           <p className="text-base md:text-lg text-[#C7C7D1] leading-relaxed">
             {t('forCandidates.sources.body')}
           </p>
@@ -337,11 +337,11 @@ function ForCandidatesInner() {
 
         <div className="grid md:grid-cols-5 gap-3">
           {[
-            { name: t('forCandidates.pricing.t1Name'), price: t('forCandidates.pricing.t1Price'), body: t('forCandidates.pricing.t1Body'), color: '#6AA8F5' },
-            { name: t('forCandidates.pricing.t2Name'), price: t('forCandidates.pricing.t2Price'), body: t('forCandidates.pricing.t2Body'), color: '#F08CAE' },
+            { name: t('forCandidates.pricing.t1Name'), price: t('forCandidates.pricing.t1Price'), body: t('forCandidates.pricing.t1Body'), color: '#9D8CFF' },
+            { name: t('forCandidates.pricing.t2Name'), price: t('forCandidates.pricing.t2Price'), body: t('forCandidates.pricing.t2Body'), color: '#9D8CFF' },
             { name: t('forCandidates.pricing.t3Name'), price: t('forCandidates.pricing.t3Price'), body: t('forCandidates.pricing.t3Body'), color: '#FB7185' },
-            { name: t('forCandidates.pricing.t4Name'), price: t('forCandidates.pricing.t4Price'), body: t('forCandidates.pricing.t4Body'), color: '#F58E9A' },
-            { name: t('forCandidates.pricing.t5Name'), price: t('forCandidates.pricing.t5Price'), body: t('forCandidates.pricing.t5Body'), color: '#6AA8F5' },
+            { name: t('forCandidates.pricing.t4Name'), price: t('forCandidates.pricing.t4Price'), body: t('forCandidates.pricing.t4Body'), color: '#FB7185' },
+            { name: t('forCandidates.pricing.t5Name'), price: t('forCandidates.pricing.t5Price'), body: t('forCandidates.pricing.t5Body'), color: '#9D8CFF' },
           ].map((tier, i) => (
             <div key={i} className="card rounded-2xl p-5">
               <p className="text-xs font-black uppercase tracking-wider mb-2" style={{ color: tier.color }}>{tier.name}</p>
@@ -355,7 +355,7 @@ function ForCandidatesInner() {
       {/* Final CTA */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-24">
         <div className="relative overflow-hidden rounded-3xl text-center py-20 px-8" style={{
-          background: '#16161F', border: '1px solid rgba(251,113,133,0.20)',
+          background: '#0D0C14', border: '1px solid rgba(251,113,133,0.20)',
         }}>
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(251,113,133,0.16), transparent 60%)' }} />
           <div className="relative">

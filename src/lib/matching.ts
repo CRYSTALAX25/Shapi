@@ -212,7 +212,7 @@ export function scoreCandidateForRole(candidate: MatchCandidate, role: MatchRole
 
 export function matchLabel(score: number): { label: string; colour: string } {
   if (score >= 75) return { label: 'Strong match', colour: 'bg-emerald-500/15 text-emerald-600' }
-  if (score >= 50) return { label: 'Good match', colour: 'bg-[#22D3EE]/10 text-[#0891B2]' }
-  if (score >= 30) return { label: 'Possible', colour: 'bg-[#A78BFA]/10 text-[#7C3AED]' }
+  if (score >= 50) return { label: 'Good match', colour: 'bg-[#9D8CFF]/10 text-[#0891B2]' }
+  if (score >= 30) return { label: 'Possible', colour: 'bg-[#9D8CFF]/10 text-[#7C3AED]' }
   return { label: 'Low match', colour: 'bg-[#0E0E1A]/[0.04] text-[#8A8A99]' }
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import ShapiCharacter from '@/components/ShapiCharacter'
+import ShapiLogo from '@/components/ShapiLogo'
 import LocalePicker from '@/components/LocalePicker'
 import WowHero from '@/components/WowHero'
 import { LocaleProvider, useTranslation } from '@/lib/i18n/LocaleContext'
@@ -76,10 +76,9 @@ function HomeInner() {
       {/* Nav — floating pill island */}
       <nav className="relative z-20 px-4 pt-5 max-w-7xl mx-auto">
         <div className="flex items-center justify-between gap-3 rounded-full ps-4 pe-2 py-2" style={{ background: 'rgba(13,12,20,0.8)', backdropFilter: 'blur(12px)', border: '1px solid var(--line)', boxShadow: '0 8px 30px rgba(0,0,0,0.4)' }}>
-          <div className="flex items-center gap-2">
-            <ShapiCharacter size={30} />
-            <span className="font-black text-xl tracking-tighter grad-text">shapi</span>
-          </div>
+          <Link href="/" className="flex items-center" aria-label="Shapi home">
+            <ShapiLogo size={30} variant="full" title="Shapi" />
+          </Link>
           <div className="flex items-center gap-5">
             <Link href="/ai-proof" className="nav-link text-sm hidden md:block">{t('common.nav.aiRiskCheck')}</Link>
             <Link href="/worth" className="nav-link text-sm hidden md:block">{t('common.nav.worth')}</Link>
@@ -114,12 +113,15 @@ function HomeInner() {
       <section className="relative z-10 py-12 my-4" style={{ background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="max-w-4xl mx-auto px-6 grid grid-cols-3 gap-8 text-center">
           {[
-            { n: t('home.stats.stat1Number'), label: t('home.stats.stat1Label'), color: 'var(--accent)' },
+            { n: t('home.stats.stat1Number'), label: t('home.stats.stat1Label'), grad: true },
             { n: t('home.stats.stat2Number'), label: t('home.stats.stat2Label'), color: 'var(--verified)' },
-            { n: t('home.stats.stat3Number'), label: t('home.stats.stat3Label'), color: 'var(--punch)' },
+            { n: t('home.stats.stat3Number'), label: t('home.stats.stat3Label'), color: 'var(--accent)' },
           ].map((s, i) => (
             <div key={i}>
-              <p className="text-4xl md:text-5xl font-black mb-1.5" style={{ color: s.color }}>{s.n}</p>
+              <p
+                className={`text-4xl md:text-5xl font-black mb-1.5 ${s.grad ? 'grad-text' : ''}`}
+                style={s.grad ? undefined : { color: s.color }}
+              >{s.n}</p>
               <p className="text-[#A6A6B4] text-sm">{s.label}</p>
             </div>
           ))}
@@ -176,8 +178,8 @@ function HomeInner() {
               <tr>
                 <th className="text-start p-3"></th>
                 <th className="p-3">
-                  <div className="flex flex-col items-center gap-1.5">
-                    <ShapiCharacter size={40} mood="happy" />
+                  <div className="flex flex-col items-center gap-2">
+                    <ShapiLogo size={34} variant="mark" title="Shapi" />
                     <span className="grad-text font-black text-base tracking-tighter">shapi</span>
                   </div>
                 </th>
@@ -206,11 +208,11 @@ function HomeInner() {
                   {[1, 2, 3, 4].map(col => (
                     <td key={col} className="p-3 text-center">
                       <span className="inline-flex items-center justify-center w-6 h-6 rounded-full" style={{
-                        background: row[col] ? 'rgba(52,211,153,0.14)' : 'rgba(251,113,133,0.12)',
+                        background: row[col] ? 'rgba(52,211,153,0.14)' : 'rgba(255,255,255,0.05)',
                       }}>
                         {row[col]
                           ? <svg className="w-3.5 h-3.5" style={{ color: 'var(--verified)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                          : <svg className="w-3.5 h-3.5" style={{ color: 'var(--punch)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>}
+                          : <svg className="w-3.5 h-3.5" style={{ color: '#5C5C6A' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>}
                       </span>
                     </td>
                   ))}
@@ -258,7 +260,7 @@ function HomeInner() {
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /> },
             { title: t('home.differentiators.item2Title'), tag: t('home.differentiators.item2Tag'), color: '#9D8CFF', desc: t('home.differentiators.item2Desc'),
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /> },
-            { title: t('home.differentiators.item3Title'), tag: t('home.differentiators.item3Tag'), color: '#FB7185', desc: t('home.differentiators.item3Desc'),
+            { title: t('home.differentiators.item3Title'), tag: t('home.differentiators.item3Tag'), color: '#34D399', desc: t('home.differentiators.item3Desc'),
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /> },
             { title: t('home.differentiators.item4Title'), tag: t('home.differentiators.item4Tag'), color: '#9D8CFF', desc: t('home.differentiators.item4Desc'),
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /> },
@@ -388,7 +390,7 @@ function HomeInner() {
           <h3 className="text-xl font-black">{t('home.pricing.companiesTitle')}</h3>
           <span className="text-[#7E7E8E] text-sm">{t('home.pricing.companiesSub')}</span>
         </div>
-        <p className="text-sm font-bold mb-6" style={{ color: 'var(--punch)' }}>{t('home.pricing.foundingBadge')}</p>
+        <p className="text-sm font-bold mb-6" style={{ color: 'var(--accent)' }}>{t('home.pricing.foundingBadge')}</p>
         <div className="grid md:grid-cols-3 gap-5">
           {[
             { name: t('home.pricing.tierStarterName'), standard: t('home.pricing.tierStarterStandard'), founding: t('home.pricing.tierStarterFounding'), per: t('home.pricing.tierStarterPer'), custom: false, popular: false, color: '#34D399',
@@ -481,7 +483,7 @@ function HomeInner() {
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/[0.08] py-10 px-6">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5">
-          <span className="font-black text-xl tracking-tighter grad-text">shapi</span>
+          <ShapiLogo size={26} variant="full" title="Shapi" />
           <div className="flex items-center gap-6 text-sm text-[#7E7E8E]">
             <Link href="/worth" className="hover:text-[#F4F4F7] transition-colors">{t('common.footer.worth')}</Link>
             <Link href="#pricing" className="hover:text-[#F4F4F7] transition-colors">{t('common.footer.pricing')}</Link>

@@ -244,24 +244,24 @@ export default function EditProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0E0E13] flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-white/[0.08] border-t-[#6AA8F5] animate-spin" />
+      <div className="min-h-screen bg-[#060609] flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-white/[0.08] border-t-[#9D8CFF] animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0E0E13]">
+    <div className="min-h-screen bg-[#060609]">
       <style>{`
         .gradient-border-card {
-          background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.15), rgba(240,140,174,0.15)) border-box;
+          background: linear-gradient(#0D0C14, #0D0C14) padding-box,
+                      linear-gradient(135deg, rgba(157, 140, 255, 0.15), rgba(157, 140, 255, 0.15)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .field { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #F4F4F7; outline: none; transition: border-color 0.2s; }
         .field::placeholder { color: #7E7E8E; }
-        .field:focus { border-color: rgba(106,168,245,0.5); }
+        .field:focus { border-color: rgba(157, 140, 255, 0.5); }
         label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #7E7E8E; margin-bottom: 8px; }
       `}</style>
 
@@ -272,7 +272,7 @@ export default function EditProfile() {
 
       <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-white/[0.08]">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+          background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <div className="flex items-center gap-4">
@@ -288,7 +288,7 @@ export default function EditProfile() {
         </div>
 
         {error && (
-          <div className="bg-[#F58E9A]/10 border border-[#F58E9A]/20 rounded-xl px-4 py-3 mb-6 text-sm text-[#F58E9A]">{error}</div>
+          <div className="bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3 mb-6 text-sm text-[#FB7185]">{error}</div>
         )}
 
         {/* Basic info */}
@@ -304,7 +304,7 @@ export default function EditProfile() {
             </div>
             <div>
               <label>Profile photo</label>
-              <label className="inline-block cursor-pointer text-xs font-bold px-3 py-2 rounded-lg" style={{ background: 'rgba(106,168,245,0.1)', color: '#6AA8F5', border: '1px solid rgba(106,168,245,0.25)' }}>
+              <label className="inline-block cursor-pointer text-xs font-bold px-3 py-2 rounded-lg" style={{ background: 'rgba(157, 140, 255, 0.1)', color: '#9D8CFF', border: '1px solid rgba(157, 140, 255, 0.25)' }}>
                 {uploadingImage ? 'Uploading…' : profileImageUrl ? 'Change photo' : 'Upload photo'}
                 <input type="file" accept="image/*" className="hidden"
                   onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f) }} />
@@ -371,7 +371,7 @@ export default function EditProfile() {
           <div className="flex items-center justify-between mb-5">
             <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">Work history</p>
             <button onClick={addJob}
-              className="text-xs text-[#6AA8F5] font-bold hover:opacity-80 transition-opacity flex items-center gap-1">
+              className="text-xs text-[#9D8CFF] font-bold hover:opacity-80 transition-opacity flex items-center gap-1">
               + Add role
             </button>
           </div>
@@ -385,7 +385,7 @@ export default function EditProfile() {
               <div key={i} className={`${i > 0 ? 'pt-6 border-t border-white/[0.08]' : ''}`}>
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-[#A6A6B4] text-xs font-bold">Role {i + 1}</p>
-                  <button onClick={() => removeJob(i)} className="text-[#F58E9A]/60 text-xs hover:text-[#F58E9A] transition-colors">Remove</button>
+                  <button onClick={() => removeJob(i)} className="text-[#FB7185]/60 text-xs hover:text-[#FB7185] transition-colors">Remove</button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                   <div>
@@ -520,7 +520,7 @@ export default function EditProfile() {
               <button
                 type="button"
                 onClick={() => setLanguagesSpoken(prev => [...prev, { language: '', level: 'Fluent' }])}
-                className="text-[#6AA8F5] text-xs font-bold hover:opacity-80"
+                className="text-[#9D8CFF] text-xs font-bold hover:opacity-80"
               >
                 + Add language
               </button>
@@ -548,13 +548,13 @@ export default function EditProfile() {
                       style={{ flex: 1, minWidth: 120 }}
                     >
                       {PROFICIENCY_LEVELS.map(lvl => (
-                        <option key={lvl} value={lvl} style={{ background: '#16161F' }}>{lvl}</option>
+                        <option key={lvl} value={lvl} style={{ background: '#0D0C14' }}>{lvl}</option>
                       ))}
                     </select>
                     <button
                       type="button"
                       onClick={() => setLanguagesSpoken(prev => prev.filter((_, j) => j !== i))}
-                      className="text-[#7E7E8E] hover:text-[#F58E9A] text-lg px-2"
+                      className="text-[#7E7E8E] hover:text-[#FB7185] text-lg px-2"
                       aria-label="Remove language"
                     >
                       ✕
@@ -569,7 +569,7 @@ export default function EditProfile() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="!mb-0">Right to work</label>
-              <button type="button" onClick={addRtw} className="text-[#6AA8F5] text-xs font-bold hover:opacity-80">+ Add country/region</button>
+              <button type="button" onClick={addRtw} className="text-[#9D8CFF] text-xs font-bold hover:opacity-80">+ Add country/region</button>
             </div>
             <p className="text-[#7E7E8E] text-xs mb-3">
               Where you&apos;re authorised to work, and on what basis. Add all that apply (e.g. UK PR, Saudi PR, EU/EEA via citizenship). Shown as self-reported until document-verified.
@@ -594,10 +594,10 @@ export default function EditProfile() {
                       style={{ flex: 1, minWidth: 150 }}
                     >
                       {RTW_BASIS.map(b => (
-                        <option key={b.value} value={b.value} style={{ background: '#16161F' }}>{b.label}</option>
+                        <option key={b.value} value={b.value} style={{ background: '#0D0C14' }}>{b.label}</option>
                       ))}
                     </select>
-                    <button type="button" onClick={() => removeRtw(i)} className="text-[#7E7E8E] hover:text-[#F58E9A] text-lg px-2" aria-label="Remove">✕</button>
+                    <button type="button" onClick={() => removeRtw(i)} className="text-[#7E7E8E] hover:text-[#FB7185] text-lg px-2" aria-label="Remove">✕</button>
                   </div>
                 ))}
               </div>
@@ -611,28 +611,28 @@ export default function EditProfile() {
               <div className="flex flex-wrap gap-3">
                 {languageProficiency.cefr_level && (
                   <div
-                    className="bg-[#6AA8F5]/10 border border-[#6AA8F5]/20 rounded-xl px-4 py-2 text-center cursor-help"
+                    className="bg-[#9D8CFF]/10 border border-[#9D8CFF]/20 rounded-xl px-4 py-2 text-center cursor-help"
                     title={`CEFR ${languageProficiency.cefr_level} (${languageProficiency.conversation_language || 'detected language'}): ${CEFR_INFO[languageProficiency.cefr_level] || 'Common European Framework of Reference for Languages — international standard for language proficiency from A1 (beginner) to C2 (mastery).'}`}
                   >
-                    <p className="text-[#6AA8F5] text-lg font-black">{languageProficiency.cefr_level}</p>
+                    <p className="text-[#9D8CFF] text-lg font-black">{languageProficiency.cefr_level}</p>
                     <p className="text-[#7E7E8E] text-xs">CEFR · {languageProficiency.conversation_language || 'Language'} <span className="opacity-50">ⓘ</span></p>
                   </div>
                 )}
                 {languageProficiency.ielts_equivalent && (
                   <div
-                    className="bg-[#F08CAE]/10 border border-[#F08CAE]/20 rounded-xl px-4 py-2 text-center cursor-help"
+                    className="bg-[#9D8CFF]/10 border border-[#9D8CFF]/20 rounded-xl px-4 py-2 text-center cursor-help"
                     title={`IELTS ${languageProficiency.ielts_equivalent}: International English Language Testing System band. ${IELTS_BAND_INFO[languageProficiency.ielts_equivalent.replace(/[^0-9-]/g, '')] || 'Bands range 0 (no English) to 9 (expert/native).'}`}
                   >
-                    <p className="text-[#F08CAE] text-lg font-black">{languageProficiency.ielts_equivalent}</p>
+                    <p className="text-[#9D8CFF] text-lg font-black">{languageProficiency.ielts_equivalent}</p>
                     <p className="text-[#7E7E8E] text-xs">IELTS equivalent <span className="opacity-50">ⓘ</span></p>
                   </div>
                 )}
                 {languageProficiency.english_level && languageProficiency.english_level !== 'unassessed' && (
                   <div
-                    className="bg-[#F58E9A]/10 border border-[#F58E9A]/20 rounded-xl px-4 py-2 text-center cursor-help"
+                    className="bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-2 text-center cursor-help"
                     title={`English CEFR ${languageProficiency.english_level}: ${CEFR_INFO[languageProficiency.english_level] || 'Common European Framework level for English specifically — A1 (beginner) through C2 (mastery).'}`}
                   >
-                    <p className="text-[#F58E9A] text-lg font-black">{languageProficiency.english_level}</p>
+                    <p className="text-[#FB7185] text-lg font-black">{languageProficiency.english_level}</p>
                     <p className="text-[#7E7E8E] text-xs">English CEFR <span className="opacity-50">ⓘ</span></p>
                   </div>
                 )}
@@ -670,10 +670,10 @@ export default function EditProfile() {
                   onClick={() => setJobSearchStatus(opt.value)}
                   className="text-left rounded-xl px-4 py-3 transition-all"
                   style={jobSearchStatus === opt.value
-                    ? { background: 'rgba(106,168,245,0.1)', border: '1px solid rgba(106,168,245,0.45)' }
+                    ? { background: 'rgba(157, 140, 255, 0.1)', border: '1px solid rgba(157, 140, 255, 0.45)' }
                     : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
                 >
-                  <p className="text-sm font-bold" style={{ color: jobSearchStatus === opt.value ? '#6AA8F5' : '#A6A6B4' }}>{opt.label}</p>
+                  <p className="text-sm font-bold" style={{ color: jobSearchStatus === opt.value ? '#9D8CFF' : '#A6A6B4' }}>{opt.label}</p>
                   <p className="text-[#7E7E8E] text-[11px] mt-0.5 leading-tight">{opt.sub}</p>
                 </button>
               ))}
@@ -695,7 +695,7 @@ export default function EditProfile() {
                     onClick={() => setOpenToEngagement(prev => on ? prev.filter(x => x !== o.v) : [...prev, o.v])}
                     className="text-sm font-bold px-4 py-2 rounded-full transition-all"
                     style={on
-                      ? { background: 'rgba(106,168,245,0.12)', border: '1px solid rgba(106,168,245,0.45)', color: '#6AA8F5' }
+                      ? { background: 'rgba(157, 140, 255, 0.12)', border: '1px solid rgba(157, 140, 255, 0.45)', color: '#9D8CFF' }
                       : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#A6A6B4' }}>
                     {on ? '✓ ' : ''}{o.l}
                   </button>
@@ -713,7 +713,7 @@ export default function EditProfile() {
             {targetRolesRaw && (
               <div className="flex flex-wrap gap-2 mt-2">
                 {targetRolesRaw.split(',').map(s => s.trim()).filter(Boolean).map((s, i) => (
-                  <span key={i} className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(106,168,245,0.10)', color: '#6AA8F5' }}>{s}</span>
+                  <span key={i} className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.10)', color: '#9D8CFF' }}>{s}</span>
                 ))}
               </div>
             )}
@@ -730,7 +730,7 @@ export default function EditProfile() {
                     onClick={() => setTargetIndustries(prev => on ? prev.filter(x => x !== ind) : [...prev, ind])}
                     className="text-sm font-bold px-3 py-1.5 rounded-full transition-all"
                     style={on
-                      ? { background: 'rgba(240,140,174,0.12)', border: '1px solid rgba(240,140,174,0.45)', color: '#F08CAE' }
+                      ? { background: 'rgba(157, 140, 255, 0.12)', border: '1px solid rgba(157, 140, 255, 0.45)', color: '#9D8CFF' }
                       : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#A6A6B4' }}>
                     {meta.emoji} {meta.label}
                   </button>
@@ -744,22 +744,22 @@ export default function EditProfile() {
             <div>
               <label>Currency</label>
               <select className="field" value={salCurrency} onChange={e => setSalCurrency(e.target.value)}>
-                {CURRENCIES.map(c => <option key={c} value={c} style={{ background: '#16161F' }}>{c}</option>)}
+                {CURRENCIES.map(c => <option key={c} value={c} style={{ background: '#0D0C14' }}>{c}</option>)}
               </select>
             </div>
             <div>
               <label>Per</label>
               <select className="field" value={salPeriod} onChange={e => setSalPeriod(e.target.value as 'month' | 'year')}>
-                <option value="month" style={{ background: '#16161F' }}>Month</option>
-                <option value="year" style={{ background: '#16161F' }}>Year</option>
+                <option value="month" style={{ background: '#0D0C14' }}>Month</option>
+                <option value="year" style={{ background: '#0D0C14' }}>Year</option>
               </select>
             </div>
             <label className="flex items-end gap-2 pb-3 cursor-pointer">
-              <input type="checkbox" checked={salAllowances} onChange={e => setSalAllowances(e.target.checked)} className="w-4 h-4 accent-[#6AA8F5]" />
+              <input type="checkbox" checked={salAllowances} onChange={e => setSalAllowances(e.target.checked)} className="w-4 h-4 accent-[#9D8CFF]" />
               <span className="text-[#C7C7D1] text-xs font-medium normal-case tracking-normal">Incl. allowances</span>
             </label>
             <label className="flex items-end gap-2 pb-3 cursor-pointer">
-              <input type="checkbox" checked={salFlexible} onChange={e => setSalFlexible(e.target.checked)} className="w-4 h-4 accent-[#6AA8F5]" />
+              <input type="checkbox" checked={salFlexible} onChange={e => setSalFlexible(e.target.checked)} className="w-4 h-4 accent-[#9D8CFF]" />
               <span className="text-[#C7C7D1] text-xs font-medium normal-case tracking-normal">Negotiable</span>
             </label>
           </div>
@@ -779,7 +779,7 @@ export default function EditProfile() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="!mb-0">Pivot tracks — open from a lower band</label>
-              <button type="button" onClick={addPivot} className="text-[#6AA8F5] text-xs font-bold hover:opacity-80">+ Add track</button>
+              <button type="button" onClick={addPivot} className="text-[#9D8CFF] text-xs font-bold hover:opacity-80">+ Add track</button>
             </div>
             <p className="text-[#7E7E8E] text-xs mb-3">
               Exploring a new field where you&apos;re still building experience? Set a fair, lower band for it — it rises as you upskill. Companies hiring for that track see the right number.
@@ -792,7 +792,7 @@ export default function EditProfile() {
                   <div key={i} className="rounded-xl p-3" style={{ background: 'rgba(14,14,26,0.04)', border: '1px solid rgba(14,14,26,0.08)' }}>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[#7E7E8E] text-[11px] font-bold uppercase tracking-wider">Pivot track {i + 1}</span>
-                      <button type="button" onClick={() => removePivot(i)} className="text-[#7E7E8E] hover:text-[#F58E9A] text-sm">✕</button>
+                      <button type="button" onClick={() => removePivot(i)} className="text-[#7E7E8E] hover:text-[#FB7185] text-sm">✕</button>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2">
                       <input className="field" value={p.track} onChange={e => updatePivot(i, 'track', e.target.value)} placeholder="Track, e.g. UX Design" />
@@ -811,7 +811,7 @@ export default function EditProfile() {
         <button
           onClick={save}
           disabled={saving}
-          className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] py-4 rounded-full font-black text-sm text-[#060609] hover:opacity-90 transition-opacity disabled:opacity-50"
+          className="w-full bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] py-4 rounded-full font-black text-sm text-[#060609] hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save changes →'}
         </button>

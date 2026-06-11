@@ -48,9 +48,9 @@ const tl: typeof en = {
     hero: {
       badgeDate: 'UAE launch · 2026',
       badgeAccess: 'Bukas na ang early access',
-      headlineLine1: 'Hiring na talagang',
-      headlineLine2: 'gumagana para sa tao.',
-      subhead: 'Hindi lang job board. Ito ang verification layer para sa hiring — references na independent ang pagkuha, skills na may ebidensiya, at mga kumpanyang totoong mapagkakatiwalaan.',
+      headlineLine1: 'Tigilan ang paghula.',
+      headlineLine2: 'Mag-hire ng napatunayan.',
+      subhead: 'Ang Shapi ang verification layer para sa hiring. Ang mga reference ay independyenteng kinukuha, ang mga skill ay pinatutunayan ng ebidensiya, at ang mga kumpanyang nag-hire ay may totoong trust score. Parehong panig ay nagdedesisyon base sa katotohanan.',
       subheadHighlight: 'verification layer para sa hiring',
       ctaBuild: 'Buuin ang verified profile ko — libre ang umpisa →',
       ctaHire: 'Nag-hihire ako — mag-post ng libreng role →',

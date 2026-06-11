@@ -99,17 +99,17 @@ export default async function RolesBoard() {
   }).sort((a, b) => b.match_score - a.match_score)
 
   return (
-    <div className="min-h-screen bg-[#0E0E13]">
+    <div className="min-h-screen bg-[#060609]">
       <style>{`
         .gradient-border-card {
-          background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.10), rgba(79,143,232,0.10)) border-box;
+          background: linear-gradient(#0D0C14, #0D0C14) padding-box,
+                      linear-gradient(135deg, rgba(157, 140, 255, 0.10), rgba(157, 140, 255, 0.10)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .card-hover:hover {
-          background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.22), rgba(79,143,232,0.22)) border-box;
+          background: linear-gradient(#0D0C14, #0D0C14) padding-box,
+                      linear-gradient(135deg, rgba(157, 140, 255, 0.22), rgba(157, 140, 255, 0.22)) border-box;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
       `}</style>
@@ -122,7 +122,7 @@ export default async function RolesBoard() {
       <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)]">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <Link href="/" className="font-black text-xl tracking-tighter" style={{
-            background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)',
+            background: 'linear-gradient(135deg,#9D8CFF, #34D399)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>shapi</Link>
           <div className="flex items-center gap-4">
@@ -145,13 +145,13 @@ export default async function RolesBoard() {
             company name in the previews — visible enough to feel real, gated
             enough to convert. */}
         {!hasBoard && scoredRoles.length > 0 && (
-          <div className="mb-5 rounded-2xl p-5 flex items-center gap-4" style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.12), rgba(240,140,174,0.12))', border: '1px solid rgba(240,140,174,0.30)' }}>
-            <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>🔓</div>
+          <div className="mb-5 rounded-2xl p-5 flex items-center gap-4" style={{ background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.12), rgba(157, 140, 255, 0.12))', border: '1px solid rgba(157, 140, 255, 0.30)' }}>
+            <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)' }}>🔓</div>
             <div className="flex-1 min-w-0">
               <p className="text-[#F4F4F7] font-black text-base mb-0.5">Unlock all {scoredRoles.length} roles · $19/mo</p>
               <p className="text-[#A6A6B4] text-xs leading-relaxed">You&apos;re seeing 3 previews. Roles Board unlocks every verified role + applies you straight from WhatsApp.</p>
             </div>
-            <Link href="/pay?product=roles_board_monthly" className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-black text-white whitespace-nowrap" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
+            <Link href="/pay?product=roles_board_monthly" className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-black text-white whitespace-nowrap" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
               Unlock →
             </Link>
           </div>

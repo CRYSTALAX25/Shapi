@@ -83,8 +83,8 @@ export default function RoleEditClient({ token, role, companyName }: { token: st
     finally { setPublishing(false) }
   }
 
-  const cardStyle = { background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }
-  const inputCls = 'w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/40'
+  const cardStyle = { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }
+  const inputCls = 'w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/40'
   const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }
   const labelCls = 'block text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1.5'
 
@@ -128,14 +128,14 @@ export default function RoleEditClient({ token, role, companyName }: { token: st
           <input value={location} onChange={e => setLocation(e.target.value)} className={inputCls} style={inputStyle} placeholder="e.g. Dubai" />
         </div>
         <label className="col-span-2 flex items-center gap-2 mt-1 cursor-pointer select-none">
-          <input type="checkbox" checked={remote} onChange={e => setRemote(e.target.checked)} className="accent-[#6AA8F5]" />
+          <input type="checkbox" checked={remote} onChange={e => setRemote(e.target.checked)} className="accent-[#9D8CFF]" />
           <span className="text-[#C7C7D1] text-sm">Remote OK</span>
         </label>
       </div>
 
       {msg && (
         <div className="rounded-xl px-4 py-3 text-sm font-bold"
-          style={{ background: msg.includes('✓') || msg.includes('🎉') ? 'rgba(52,211,153,0.10)' : 'rgba(245,142,154,0.10)', color: msg.includes('✓') || msg.includes('🎉') ? '#34D399' : '#F58E9A' }}>
+          style={{ background: msg.includes('✓') || msg.includes('🎉') ? 'rgba(52,211,153,0.10)' : 'rgba(251, 113, 133, 0.10)', color: msg.includes('✓') || msg.includes('🎉') ? '#34D399' : '#FB7185' }}>
           {msg}
         </div>
       )}
@@ -149,7 +149,7 @@ export default function RoleEditClient({ token, role, companyName }: { token: st
         {status !== 'active' && (
           <button type="button" onClick={publish} disabled={saving || publishing}
             className="flex-1 py-3.5 rounded-full font-black text-sm text-white disabled:opacity-50"
-            style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
+            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
             {publishing ? 'Publishing…' : 'Publish role'}
           </button>
         )}

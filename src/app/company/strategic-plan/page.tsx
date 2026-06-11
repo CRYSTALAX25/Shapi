@@ -60,7 +60,7 @@ type Engagement = {
   updated_at: string
 }
 
-const cardStyle = { background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }
+const cardStyle = { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }
 const labelCls = 'text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider'
 
 function stepStatus(engagement: Engagement | null, stepNum: number, columnFilled: boolean): StepStatus {
@@ -205,7 +205,7 @@ export default function TierBWorkspace() {
   const isLocked = engagement?.status === 'locked'
 
   return (
-    <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7]">
+    <div className="min-h-screen bg-[#060609] text-[#F4F4F7]">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -218,7 +218,7 @@ export default function TierBWorkspace() {
           href="/"
           className="font-black text-xl tracking-tighter"
           style={{
-            background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+            background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -253,10 +253,10 @@ export default function TierBWorkspace() {
             and missed the small error text at the bottom — this version
             puts it where the eye lands. */}
         {!loading && engagement && err && (
-          <div className="rounded-2xl p-4 mb-5 flex items-start gap-3" style={{ background: 'rgba(245,142,154,0.10)', border: '1px solid rgba(245,142,154,0.35)' }}>
-            <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm" style={{ background: 'rgba(245,142,154,0.20)' }}>⚠</div>
+          <div className="rounded-2xl p-4 mb-5 flex items-start gap-3" style={{ background: 'rgba(251, 113, 133, 0.10)', border: '1px solid rgba(251, 113, 133, 0.35)' }}>
+            <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm" style={{ background: 'rgba(251, 113, 133, 0.20)' }}>⚠</div>
             <div className="flex-1 min-w-0">
-              <p className="text-[#F58E9A] font-bold text-sm">{err}</p>
+              <p className="text-[#FB7185] font-bold text-sm">{err}</p>
               <p className="text-[#A6A6B4] text-[11px] mt-1 leading-relaxed">Re-run the step that failed — most engine-capacity issues clear within 30-60 seconds.</p>
             </div>
             <button
@@ -280,20 +280,20 @@ export default function TierBWorkspace() {
               href={`/book-call?topic=founder-session&engagement=${engagement.id}`}
               className="block rounded-2xl p-4 mb-5 transition-opacity hover:opacity-95"
               style={{
-                background: 'linear-gradient(135deg, rgba(106,168,245,0.14), rgba(240,140,174,0.10))',
-                border: '1px solid rgba(240,140,174,0.40)',
+                background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.14), rgba(157, 140, 255, 0.10))',
+                border: '1px solid rgba(157, 140, 255, 0.40)',
               }}
             >
               <div className="flex items-center gap-3.5">
-                <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>👋</div>
+                <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)' }}>👋</div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#F08CAE' }}>Included with your engagement</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: '#9D8CFF' }}>Included with your engagement</p>
                   <p className="text-[#F4F4F7] font-black text-base mb-0.5">Your founder strategy session — 30 minutes with Ana</p>
                   <p className="text-[#A6A6B4] text-xs leading-relaxed">
                     Talk through your plan with the founder. Pressure-test the trickier calls, decide what to action first. Best run after Step 3 (the workforce plan).
                   </p>
                 </div>
-                <span className="flex-shrink-0 text-[#F08CAE] text-xs font-black whitespace-nowrap hidden sm:inline">Book session →</span>
+                <span className="flex-shrink-0 text-[#9D8CFF] text-xs font-black whitespace-nowrap hidden sm:inline">Book session →</span>
               </div>
             </Link>
 
@@ -329,7 +329,7 @@ export default function TierBWorkspace() {
                   placeholder="e.g. 4 BUs: Product (40 ppl, squad-based), Sales (12 ppl, geo-split EMEA/APAC), Ops (8 ppl, centralised), G&A (6 ppl). CEO + COO + 4 BU heads. Decisions flow through weekly exec."
                   rows={4}
                   disabled={isLocked}
-                  className="w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/50"
+                  className="w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50"
                   style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
                 />
 
@@ -360,7 +360,7 @@ export default function TierBWorkspace() {
                   placeholder="e.g. Move fast, ship in public, low ceremony, async-first, manager-light."
                   rows={3}
                   disabled={isLocked}
-                  className="w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/50"
+                  className="w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50"
                   style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
                 />
 
@@ -371,7 +371,7 @@ export default function TierBWorkspace() {
                   placeholder="e.g. Founder-led, two co-CEOs, weekly all-hands, decisions written up in docs."
                   rows={2}
                   disabled={isLocked}
-                  className="w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/50"
+                  className="w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50"
                   style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
                 />
 
@@ -382,7 +382,7 @@ export default function TierBWorkspace() {
                   placeholder="e.g. Comfortable shipping unfinished things to learn; conservative on hiring above market; bullish on AI tools, cautious on AI agents in customer flow."
                   rows={2}
                   disabled={isLocked}
-                  className="w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/50"
+                  className="w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50"
                   style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
                 />
 
@@ -457,7 +457,7 @@ export default function TierBWorkspace() {
                 onClick={lockEngagement}
                 disabled={!allDone || isLocked || locking}
                 className="ml-4 px-5 py-2.5 rounded-full font-black text-xs text-white disabled:opacity-40 whitespace-nowrap"
-                style={{ background: isLocked ? 'rgba(52,211,153,0.18)' : 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', color: isLocked ? '#34D399' : 'white' }}
+                style={{ background: isLocked ? 'rgba(52,211,153,0.18)' : 'linear-gradient(135deg, #9D8CFF, #34D399)', color: isLocked ? '#34D399' : 'white' }}
               >
                 {isLocked ? 'Locked' : locking ? 'Locking…' : 'Lock engagement'}
               </button>
@@ -471,7 +471,7 @@ export default function TierBWorkspace() {
 
         {!loading && !engagement && err && (
           <div className="rounded-2xl p-6" style={cardStyle}>
-            <p className="text-[#F58E9A] text-sm">{err}</p>
+            <p className="text-[#FB7185] text-sm">{err}</p>
           </div>
         )}
       </div>
@@ -520,7 +520,7 @@ function DiagnosticOutput({ data }: { data: Record<string, unknown> }) {
 function scoreColour(s: number): string {
   if (s >= 7) return '#34D399'
   if (s >= 4) return '#FBBF24'
-  return '#F58E9A'
+  return '#FB7185'
 }
 
 function DnaOutput({ data }: { data: Record<string, unknown> }) {
@@ -550,7 +550,7 @@ function DnaOutput({ data }: { data: Record<string, unknown> }) {
       {/* Visual dashboard — average DNA score + horizontal bar chart for
           the 5 dimensions. Ana asked for 'show a graph and the average
           scoring in a dashboard' — this is that. SVG-only, no chart lib. */}
-      <div className="rounded-2xl p-5" style={{ background: 'rgba(106,168,245,0.05)', border: '1px solid rgba(106,168,245,0.20)' }}>
+      <div className="rounded-2xl p-5" style={{ background: 'rgba(157, 140, 255, 0.05)', border: '1px solid rgba(157, 140, 255, 0.20)' }}>
         <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-5 items-center">
           {/* Average score ring */}
           <div className="flex flex-col items-center">
@@ -587,7 +587,7 @@ function DnaOutput({ data }: { data: Record<string, unknown> }) {
         </div>
 
         {data.headline_archetype && (
-          <p className="text-[#F08CAE] text-sm font-bold mt-4 pt-4 border-t border-white/[0.06] text-center md:text-left">
+          <p className="text-[#9D8CFF] text-sm font-bold mt-4 pt-4 border-t border-white/[0.06] text-center md:text-left">
             {String(data.headline_archetype)}
           </p>
         )}
@@ -618,12 +618,12 @@ function DnaOutput({ data }: { data: Record<string, unknown> }) {
 // 6 buckets, each with its accent colour. Automate is the new one — AI
 // accent (steel blue / purple) signals "machine, not human" without judgement.
 const BUCKETS = [
-  { key: 'replace',  label: 'Replace',  color: '#F58E9A', bg: 'rgba(245,142,154,0.10)', border: 'rgba(245,142,154,0.30)' },
-  { key: 'augment',  label: 'Augment',  color: '#6AA8F5', bg: 'rgba(106,168,245,0.10)', border: 'rgba(106,168,245,0.30)' },
+  { key: 'replace',  label: 'Replace',  color: '#FB7185', bg: 'rgba(251, 113, 133, 0.10)', border: 'rgba(251, 113, 133, 0.30)' },
+  { key: 'augment',  label: 'Augment',  color: '#9D8CFF', bg: 'rgba(157, 140, 255, 0.10)', border: 'rgba(157, 140, 255, 0.30)' },
   { key: 'reskill',  label: 'Reskill',  color: '#FBBF24', bg: 'rgba(251,191,36,0.10)',  border: 'rgba(251,191,36,0.30)' },
-  { key: 'redeploy', label: 'Redeploy', color: '#F08CAE', bg: 'rgba(240,140,174,0.10)', border: 'rgba(240,140,174,0.30)' },
+  { key: 'redeploy', label: 'Redeploy', color: '#9D8CFF', bg: 'rgba(157, 140, 255, 0.10)', border: 'rgba(157, 140, 255, 0.30)' },
   { key: 'protect',  label: 'Protect',  color: '#34D399', bg: 'rgba(52,211,153,0.10)',  border: 'rgba(52,211,153,0.30)' },
-  { key: 'automate', label: '✦ Automate', color: '#A78BFA', bg: 'rgba(167,139,250,0.12)', border: 'rgba(167,139,250,0.35)' },
+  { key: 'automate', label: '✦ Automate', color: '#9D8CFF', bg: 'rgba(157, 140, 255, 0.12)', border: 'rgba(157, 140, 255, 0.35)' },
 ] as const
 
 function WorkforcePlanOutput({ data }: { data: Record<string, unknown> }) {
@@ -631,7 +631,7 @@ function WorkforcePlanOutput({ data }: { data: Record<string, unknown> }) {
   return (
     <div className="mt-4 space-y-3">
       {data.headline_call && (
-        <p className="text-[#F08CAE] text-sm font-bold">{String(data.headline_call)}</p>
+        <p className="text-[#9D8CFF] text-sm font-bold">{String(data.headline_call)}</p>
       )}
       {horizons.map(h => {
         const block = (data[h] as Record<string, unknown> | undefined) || {}
@@ -685,7 +685,7 @@ function WorkforcePlanOutput({ data }: { data: Record<string, unknown> }) {
               <div className="mt-3 pt-3 border-t border-white/[0.05]">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-2">Scenarios</p>
                 {scenarios.map((s, i) => (
-                  <div key={i} className="mt-1.5 pl-2 border-l-2" style={{ borderColor: '#6AA8F5' }}>
+                  <div key={i} className="mt-1.5 pl-2 border-l-2" style={{ borderColor: '#9D8CFF' }}>
                     <p className="text-[#C7C7D1] text-xs font-bold">{String(s.name || '—')} · {String(s.headline || '')}</p>
                     <p className="text-[#A6A6B4] text-[11px] mt-0.5">Δ headcount: {String(s.headcount_delta || '—')}</p>
                   </div>
@@ -712,21 +712,21 @@ function PeopleOutlayOutput({ data }: { data: Record<string, unknown> }) {
   const tierColour = (t: string | null | undefined) => {
     if (t === 'premium') return { bg: 'rgba(251,191,36,0.15)', fg: '#FBBF24', label: 'Premium' }
     if (t === 'strong') return { bg: 'rgba(52,211,153,0.15)', fg: '#34D399', label: 'Strong' }
-    if (t === 'basic') return { bg: 'rgba(106,168,245,0.15)', fg: '#6AA8F5', label: 'Verified' }
+    if (t === 'basic') return { bg: 'rgba(157, 140, 255, 0.15)', fg: '#9D8CFF', label: 'Verified' }
     return { bg: 'rgba(255,255,255,0.06)', fg: '#A6A6B4', label: 'Unverified' }
   }
 
   const typeChip = (t: string | undefined) => {
-    if (t === 'new_hire') return { bg: 'rgba(240,140,174,0.14)', fg: '#F08CAE', label: 'New hire' }
+    if (t === 'new_hire') return { bg: 'rgba(157, 140, 255, 0.14)', fg: '#9D8CFF', label: 'New hire' }
     if (t === 'reskill') return { bg: 'rgba(251,191,36,0.14)', fg: '#FBBF24', label: 'Reskill' }
-    if (t === 'redeploy') return { bg: 'rgba(106,168,245,0.14)', fg: '#6AA8F5', label: 'Redeploy' }
+    if (t === 'redeploy') return { bg: 'rgba(157, 140, 255, 0.14)', fg: '#9D8CFF', label: 'Redeploy' }
     return { bg: 'rgba(255,255,255,0.05)', fg: '#A6A6B4', label: t || 'role' }
   }
 
   return (
     <div className="mt-4 space-y-3">
       {headline && (
-        <p className="text-[#F08CAE] text-sm font-bold">{headline}</p>
+        <p className="text-[#9D8CFF] text-sm font-bold">{headline}</p>
       )}
 
       {/* Summary band — at-a-glance moat signal */}
@@ -764,7 +764,7 @@ function PeopleOutlayOutput({ data }: { data: Record<string, unknown> }) {
             {Array.isArray(g.must_have_skills) && g.must_have_skills.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-2.5">
                 {g.must_have_skills.slice(0, 6).map((s, j) => (
-                  <span key={j} className="text-[9px] font-medium px-2 py-0.5 rounded" style={{ background: 'rgba(106,168,245,0.10)', color: '#6AA8F5' }}>{s}</span>
+                  <span key={j} className="text-[9px] font-medium px-2 py-0.5 rounded" style={{ background: 'rgba(157, 140, 255, 0.10)', color: '#9D8CFF' }}>{s}</span>
                 ))}
               </div>
             )}
@@ -798,7 +798,7 @@ function PeopleOutlayOutput({ data }: { data: Record<string, unknown> }) {
                             )}
                           </div>
                           <div className="flex-shrink-0 text-right">
-                            <p className="text-[#6AA8F5] font-black text-sm">{c.match_score}<span className="text-[9px]">%</span></p>
+                            <p className="text-[#9D8CFF] font-black text-sm">{c.match_score}<span className="text-[9px]">%</span></p>
                             <p className="text-[#7E7E8E] text-[9px]">match</p>
                           </div>
                         </div>
@@ -862,13 +862,13 @@ function PlaybookOutput({ data }: { data: Record<string, unknown> }) {
     <div className="mt-4 space-y-3">
       {/* ── 30/60/90 timeline header — the at-a-glance roadmap ── */}
       {milestones.length > 0 && (
-        <div className="rounded-2xl p-4" style={{ background: 'linear-gradient(135deg, rgba(52,211,153,0.10), rgba(106,168,245,0.06))', border: '1px solid rgba(52,211,153,0.30)' }}>
+        <div className="rounded-2xl p-4" style={{ background: 'linear-gradient(135deg, rgba(52,211,153,0.10), rgba(157, 140, 255, 0.06))', border: '1px solid rgba(52,211,153,0.30)' }}>
           <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: '#34D399' }}>✦ 90-day execution timeline</p>
           <div className="grid grid-cols-3 gap-2">
             {([
               { label: 'Day 0–30', items: bucketed.d30, accent: '#34D399' },
-              { label: 'Day 31–60', items: bucketed.d60, accent: '#6AA8F5' },
-              { label: 'Day 61–90', items: bucketed.d90, accent: '#F08CAE' },
+              { label: 'Day 31–60', items: bucketed.d60, accent: '#9D8CFF' },
+              { label: 'Day 61–90', items: bucketed.d90, accent: '#9D8CFF' },
             ]).map(slot => (
               <div key={slot.label} className="rounded-lg p-2.5" style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${slot.accent}33` }}>
                 <div className="flex items-center justify-between mb-1.5">
@@ -898,10 +898,10 @@ function PlaybookOutput({ data }: { data: Record<string, unknown> }) {
       <div className="grid md:grid-cols-2 gap-3">
         {/* Hiring plan card */}
         {Object.keys(hiring).length > 0 && (
-          <div className="rounded-2xl p-4" style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.25)' }}>
+          <div className="rounded-2xl p-4" style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.25)' }}>
             <div className="flex items-center gap-2 mb-2.5">
               <span className="text-base">👥</span>
-              <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#6AA8F5' }}>Hiring plan</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#9D8CFF' }}>Hiring plan</p>
             </div>
             {Array.isArray(hiring.q1_q2_roles) && (hiring.q1_q2_roles as string[]).length > 0 && (
               <div className="mb-2.5">
@@ -918,7 +918,7 @@ function PlaybookOutput({ data }: { data: Record<string, unknown> }) {
                 <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1">Channels</p>
                 <div className="flex flex-wrap gap-1">
                   {(hiring.channels as string[]).map((c, i) => (
-                    <span key={i} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.14)', color: '#6AA8F5' }}>{c}</span>
+                    <span key={i} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.14)', color: '#9D8CFF' }}>{c}</span>
                   ))}
                 </div>
               </div>
@@ -934,10 +934,10 @@ function PlaybookOutput({ data }: { data: Record<string, unknown> }) {
 
         {/* Outplacement card */}
         {Object.keys(outplacement).length > 0 && (
-          <div className="rounded-2xl p-4" style={{ background: 'rgba(240,140,174,0.08)', border: '1px solid rgba(240,140,174,0.25)' }}>
+          <div className="rounded-2xl p-4" style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.25)' }}>
             <div className="flex items-center gap-2 mb-2.5">
               <span className="text-base">🛟</span>
-              <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#F08CAE' }}>Outplacement</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#9D8CFF' }}>Outplacement</p>
             </div>
             {Array.isArray(outplacement.tiered_support) && (
               <div className="mb-2.5">
@@ -954,7 +954,7 @@ function PlaybookOutput({ data }: { data: Record<string, unknown> }) {
                 <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1">Vendor options</p>
                 <div className="flex flex-wrap gap-1">
                   {(outplacement.vendor_options as string[]).map((v, i) => (
-                    <span key={i} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.14)', color: '#F08CAE' }}>{v}</span>
+                    <span key={i} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.14)', color: '#9D8CFF' }}>{v}</span>
                   ))}
                 </div>
               </div>
@@ -1004,13 +1004,13 @@ function PlaybookOutput({ data }: { data: Record<string, unknown> }) {
       )}
 
       {/* ── HR Portal placeholder — fuller vision per Ana 2026-06-03 ── */}
-      <div className="rounded-2xl p-4" style={{ background: 'linear-gradient(135deg, rgba(167,139,250,0.10), rgba(106,168,245,0.06))', border: '1px dashed rgba(167,139,250,0.40)' }}>
+      <div className="rounded-2xl p-4" style={{ background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.10), rgba(157, 140, 255, 0.06))', border: '1px dashed rgba(157, 140, 255, 0.40)' }}>
         <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ background: 'rgba(167,139,250,0.18)' }}>🧭</div>
+          <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ background: 'rgba(157, 140, 255, 0.18)' }}>🧭</div>
           <div className="flex-1">
             <div className="flex items-center justify-between gap-2 flex-wrap">
-              <p className="text-[#A78BFA] font-bold text-sm">Per-employee HR portal — now live</p>
-              <Link href="/company/people" className="text-[11px] font-black px-3 py-1.5 rounded-full text-white" style={{ background: 'linear-gradient(135deg,#7c93f5,#A78BFA)' }}>
+              <p className="text-[#9D8CFF] font-bold text-sm">Per-employee HR portal — now live</p>
+              <Link href="/company/people" className="text-[11px] font-black px-3 py-1.5 rounded-full text-white" style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)' }}>
                 Open People →
               </Link>
             </div>
@@ -1026,7 +1026,7 @@ function PlaybookOutput({ data }: { data: Record<string, unknown> }) {
                 { icon: '🎓', label: 'Training', sub: 'courses · certifications · paths' },
                 { icon: '💬', label: 'WhatsApp logging', sub: '"I\'m sick today" → logged + notifies manager' },
               ].map((b, i) => (
-                <div key={i} className="rounded-lg p-2" style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.18)' }}>
+                <div key={i} className="rounded-lg p-2" style={{ background: 'rgba(157, 140, 255, 0.06)', border: '1px solid rgba(157, 140, 255, 0.18)' }}>
                   <p className="text-[#F4F4F7] text-[11px] font-bold">{b.icon} {b.label}</p>
                   <p className="text-[#A6A6B4] text-[10px] mt-0.5 leading-snug">{b.sub}</p>
                 </div>

@@ -3,35 +3,37 @@
 import { useMemo } from 'react'
 import Link from 'next/link'
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
-import ShapiCharacter from '@/components/ShapiCharacter'
+import ShapiLogo from '@/components/ShapiLogo'
 import { useTranslation } from '@/lib/i18n/LocaleContext'
 
-// WOW hero — an animated treatment that WRAPS the existing dual-audience hero.
-// It does NOT change any copy (all text still comes from the same t() keys, so
-// all 9 locales + RTL keep working) and it preserves both signup CTAs and the
-// candidate/company chooser. The motion is brand-driven: an aurora gradient
-// mesh in violet→emerald→coral (Violet Mint palette — violet leads, emerald is
-// the proof-glow, coral the rare punch), a "constellation" of North-Star nodes connecting
-// (Shapi's matching cue), staggered fade-up of the headline, and a magnetic /
-// springy hover on the two CTAs.
+// WOW hero — a calm, premium, 2026-AI-era treatment wrapping the dual-audience
+// hero. All copy still comes from the same t() keys (9 locales + RTL intact) and
+// both signup CTAs + the candidate/company chooser are preserved.
 //
-// prefers-reduced-motion: every animation here is gated behind useReducedMotion.
-// When a user prefers reduced motion, the aurora + constellation render as a
-// static (non-animating) layer and the staggered entrance collapses to plain,
-// instantly-visible content — no transforms, no opacity tweens, no float.
+// Palette discipline (Violet Mint): violet is the workhorse, emerald means
+// proven/verified, and the violet→emerald gradient carries the punch word.
+// There is NO coral on any text — the only coral in the hero is a single 6px
+// live-pulse dot on the status badge.
+//
+// Motion is transform/opacity only (GPU-friendly, fast LCP): an aurora mesh,
+// a North-Star constellation that ties back to the logo, magnetic spring CTAs,
+// and a staggered reveal. Everything is gated behind useReducedMotion.
 
 export default function WowHero() {
   const { t } = useTranslation()
   const reduce = useReducedMotion()
 
-  // Staggered container — children fade-up in sequence. With reduced motion the
-  // stagger/offset are zeroed so everything is visible immediately.
+  // Headline: line 1 plain, line 2 with only the FINAL word in the
+  // violet→emerald gradient (the founder-approved "…proven." treatment).
+  const line2 = t('home.hero.headlineLine2')
+  const line2Words = line2.trim().split(/\s+/)
+  const line2Lead = line2Words.slice(0, -1).join(' ')
+  const line2Punch = line2Words[line2Words.length - 1] ?? ''
+
   const container: Variants = {
     hidden: {},
     show: {
-      transition: reduce
-        ? {}
-        : { staggerChildren: 0.09, delayChildren: 0.05 },
+      transition: reduce ? {} : { staggerChildren: 0.09, delayChildren: 0.05 },
     },
   }
 
@@ -57,34 +59,36 @@ export default function WowHero() {
         initial="hidden"
         animate="show"
       >
-        {/* Breathing North-Star mark */}
-        <motion.div className="flex justify-center mb-5" variants={item}>
+        {/* North-Star mark — the real brand logo, gently breathing */}
+        <motion.div className="flex justify-center mb-6" variants={item}>
           <motion.div
             animate={reduce ? undefined : { y: [0, -8, 0] }}
-            transition={
-              reduce
-                ? undefined
-                : { duration: 6, repeat: Infinity, ease: 'easeInOut' }
-            }
+            transition={reduce ? undefined : { duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ filter: 'drop-shadow(0 8px 30px rgba(157,140,255,0.45))' }}
           >
-            <ShapiCharacter size={76} mood="happy" />
+            <ShapiLogo size={72} variant="mark" title="Shapi" />
           </motion.div>
         </motion.div>
 
-        {/* Status badge */}
+        {/* Status badge — coral appears ONLY as the 6px live pulse dot */}
         <motion.div
-          className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full mb-4"
+          className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full mb-5"
           style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
           variants={item}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#34D399] animate-pulse" />
+          <span className="relative flex h-1.5 w-1.5">
+            <span
+              className="absolute inline-flex h-full w-full rounded-full opacity-60"
+              style={{ background: '#FB7185', animation: reduce ? undefined : 'wowPing 2s cubic-bezier(0,0,0.2,1) infinite' }}
+            />
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: '#FB7185' }} />
+          </span>
           <span className="text-[#A6A6B4] text-xs font-medium">{t('home.hero.badgeDate')}</span>
           <span className="text-white/15">·</span>
-          <span className="text-xs font-bold" style={{ color: '#FB7185' }}>{t('home.hero.badgeAccess')}</span>
+          <span className="text-xs font-bold" style={{ color: 'var(--accent)' }}>{t('home.hero.badgeAccess')}</span>
         </motion.div>
 
-        {/* Audience chooser — preserved. Candidates land here by default;
-            companies tap through to the dedicated workforce-intelligence page. */}
+        {/* Audience chooser — preserved routing + intent */}
         <motion.div className="flex flex-wrap justify-center gap-2 mb-8 text-xs font-bold" variants={item}>
           <span className="px-3 py-1.5 rounded-full" style={{ background: 'rgba(157,140,255,0.15)', color: 'var(--accent)', border: '1px solid rgba(157,140,255,0.30)' }}>
             {t('home.chooser.candidate')}
@@ -94,21 +98,23 @@ export default function WowHero() {
           </Link>
         </motion.div>
 
-        {/* Headline — line 1 plain, line 2 in the brand gradient ("Shape what's next.") */}
+        {/* Headline — "Stop guessing." / "Hire what's proven." with "proven." gradient */}
         <motion.h1 className="text-6xl md:text-[88px] font-black leading-[0.92] tracking-tighter mb-7" variants={item}>
           <span className="block">{t('home.hero.headlineLine1')}</span>
-          <span
-            className="block"
-            style={{
-              background: 'linear-gradient(135deg, #9D8CFF, #34D399, #FB7185, #9D8CFF)',
-              backgroundSize: '300% 300%',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              animation: reduce ? undefined : 'wowGradientShift 7s ease infinite',
-            }}
-          >
-            {t('home.hero.headlineLine2')}
+          <span className="block">
+            {line2Lead && <span>{line2Lead} </span>}
+            <span
+              style={{
+                background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+                backgroundSize: '220% 220%',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                animation: reduce ? undefined : 'wowGradientShift 7s ease infinite',
+              }}
+            >
+              {line2Punch}
+            </span>
           </span>
         </motion.h1>
 
@@ -181,7 +187,7 @@ export default function WowHero() {
                     </span>
                     <div className="min-w-0 text-xs">
                       <span className="font-bold text-[#F4F4F7]">{label}</span>
-                      <span className="text-[#7E7E8E]"> — {sub}</span>
+                      <span className="text-[#7E7E8E]"> · {sub}</span>
                     </div>
                   </div>
                 ))}
@@ -199,19 +205,20 @@ export default function WowHero() {
       {/* keyframes scoped to the hero */}
       <style>{`
         @keyframes wowGradientShift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-        @keyframes wowAurora { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(0,-4%,0) scale(1.12); } }
+        @keyframes wowPing { 75%,100% { transform: scale(2.6); opacity: 0; } }
       `}</style>
     </section>
   )
 }
 
-/* ---------- Aurora gradient mesh ---------- */
+/* ---------- Aurora gradient mesh (violet → emerald only) ---------- */
 function AuroraMesh({ reduce }: { reduce: boolean }) {
-  // Three brand-coloured radial blobs, GPU-friendly (transform/opacity only).
+  // Brand-coloured radial blobs, GPU-friendly (transform/opacity only).
+  // Violet leads; emerald is the proof-glow. No coral — green stays meaningful.
   const blobs = [
     { c: 'rgba(157,140,255,0.20)', cls: 'top-[-6rem] left-1/4 w-[600px] h-[600px]', dur: 11 },
-    { c: 'rgba(52,211,153,0.14)', cls: 'top-10 right-1/4 w-[520px] h-[520px]', dur: 13 },
-    { c: 'rgba(251,113,133,0.10)', cls: '-bottom-24 left-1/2 -translate-x-1/2 w-[440px] h-[440px]', dur: 15 },
+    { c: 'rgba(52,211,153,0.13)', cls: 'top-10 right-1/4 w-[520px] h-[520px]', dur: 13 },
+    { c: 'rgba(157,140,255,0.10)', cls: '-bottom-24 left-1/2 -translate-x-1/2 w-[460px] h-[460px]', dur: 15 },
   ]
   return (
     <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
@@ -243,7 +250,7 @@ function Constellation({ reduce }: { reduce: boolean }) {
   const edges: [number, number][] = [
     [0, 2], [2, 6], [6, 3], [3, 1], [4, 6], [4, 5], [4, 7],
   ]
-  // Violet leads; emerald is the proof-glow accent (every third node).
+  // Violet leads; emerald "verified" nodes are every third — no coral.
   const colors = ['#9D8CFF', '#9D8CFF', '#34D399']
 
   return (

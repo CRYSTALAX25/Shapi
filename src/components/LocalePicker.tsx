@@ -47,7 +47,7 @@ export default function LocalePicker() {
         aria-label="Choose language"
         className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-colors"
         style={{
-          background: '#16161F',
+          background: '#0D0C14',
           border: '1px solid rgba(255,255,255,0.10)',
           color: '#C7C7D1',
         }}
@@ -77,7 +77,7 @@ export default function LocalePicker() {
           aria-label="Languages"
           className="absolute right-0 top-full mt-2 z-50 rounded-xl py-1 min-w-[180px]"
           style={{
-            background: '#16161F',
+            background: '#0D0C14',
             border: '1px solid rgba(255,255,255,0.10)',
             boxShadow: '0 12px 32px rgba(0,0,0,0.55)',
           }}
@@ -93,7 +93,7 @@ export default function LocalePicker() {
                 onClick={() => handleSelect(l.code)}
                 className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm transition-colors"
                 style={{
-                  background: active ? 'rgba(106,168,245,0.10)' : 'transparent',
+                  background: active ? 'rgba(157, 140, 255, 0.10)' : 'transparent',
                   color: active ? '#F4F4F7' : '#C7C7D1',
                 }}
                 onMouseEnter={e => {

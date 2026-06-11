@@ -18,10 +18,10 @@ export const metadata = { title: 'Lifecycle Playbooks · Shapi' }
 // the stub. The actual binding document is authored by counsel.
 // ────────────────────────────────────────────────────────────────────────────
 
-const ACCENT = '#7c93f5'
-const BG = '#0c0e11'
-const HEADING_STYLE: React.CSSProperties = { color: '#f4f6f9' }
-const BODY_STYLE: React.CSSProperties = { color: '#9ca3af' }
+const ACCENT = '#9D8CFF'
+const BG = '#060609'
+const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
+const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
 
 type Person = {
   id: string
@@ -150,7 +150,7 @@ export default async function PersonLifecyclePage({
           className="mb-6 p-4 rounded-xl text-xs leading-relaxed"
           style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.28)', color: '#FBBF24' }}
         >
-          <strong style={{ color: '#f4f6f9' }}>Vetted templates only — never AI-drafted.</strong>{' '}
+          <strong style={{ color: 'rgba(255,255,255,0.9)' }}>Vetted templates only — never AI-drafted.</strong>{' '}
           Shapi routes you to the correct counsel-reviewed document for the chosen country and program
           type. UAE, KSA and India differ on notice periods, end-of-service and probation. Shapi does
           not generate the binding legal wording — a licensed adviser does.

@@ -88,17 +88,17 @@ export default function Evidence() {
   const allDone = activeUploads.length > 0 && activeUploads.every(u => u.status !== 'uploading')
 
   return (
-    <div className="min-h-screen bg-[#0E0E13]">
+    <div className="min-h-screen bg-[#060609]">
       <style>{`
         .gradient-border-card {
-          background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.10), rgba(240,140,174,0.10)) border-box;
+          background: linear-gradient(#0D0C14, #0D0C14) padding-box,
+                      linear-gradient(135deg, rgba(157, 140, 255, 0.10), rgba(157, 140, 255, 0.10)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .drop-active {
-          background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.5), rgba(240,140,174,0.5)) border-box !important;
+          background: linear-gradient(#0D0C14, #0D0C14) padding-box,
+                      linear-gradient(135deg, rgba(157, 140, 255, 0.5), rgba(157, 140, 255, 0.5)) border-box !important;
         }
         .evidence-thumb:hover .evidence-overlay { opacity: 1; }
       `}</style>
@@ -110,7 +110,7 @@ export default function Evidence() {
 
       <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-[rgba(255,255,255,0.08)]">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+          background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <Link href="/profile?tab=verification" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1] transition-colors">← Profile</Link>
@@ -153,8 +153,8 @@ export default function Evidence() {
           onClick={() => fileRef.current?.click()}
           className={`gradient-border-card rounded-2xl p-14 text-center cursor-pointer mb-5 transition-all ${dragging ? 'drop-active scale-[1.01]' : ''}`}
         >
-          <div className="w-14 h-14 rounded-xl bg-[rgba(245,142,154,0.10)] flex items-center justify-center mx-auto mb-4">
-            <svg className="w-7 h-7 text-[#F58E9A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-14 h-14 rounded-xl bg-[rgba(251, 113, 133, 0.10)] flex items-center justify-center mx-auto mb-4">
+            <svg className="w-7 h-7 text-[#FB7185]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
             </svg>
@@ -177,19 +177,19 @@ export default function Evidence() {
             {activeUploads.map((u, i) => (
               <div key={i} className="gradient-border-card rounded-xl px-5 py-4 flex items-center gap-4">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                  u.status === 'done' ? 'bg-[rgba(106,168,245,0.15)]' :
-                  u.status === 'error' ? 'bg-[rgba(245,142,154,0.15)]' : 'bg-[rgba(255,255,255,0.05)]'
+                  u.status === 'done' ? 'bg-[rgba(157, 140, 255, 0.15)]' :
+                  u.status === 'error' ? 'bg-[rgba(251, 113, 133, 0.15)]' : 'bg-[rgba(255,255,255,0.05)]'
                 }`}>
                   {u.status === 'uploading' && (
                     <div className="w-3 h-3 rounded-full border-2 border-[rgba(255,255,255,0.15)] border-t-[rgba(255,255,255,0.6)] animate-spin" />
                   )}
                   {u.status === 'done' && (
-                    <svg className="w-4 h-4 text-[#6AA8F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-[#9D8CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                     </svg>
                   )}
                   {u.status === 'error' && (
-                    <svg className="w-4 h-4 text-[#F58E9A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-[#FB7185]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   )}
@@ -228,7 +228,7 @@ export default function Evidence() {
                     />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center gap-2">
-                      <svg className="w-8 h-8 text-[#F58E9A]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-8 h-8 text-[#FB7185]/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                           d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                       </svg>
@@ -241,8 +241,8 @@ export default function Evidence() {
                     <div className="flex items-start justify-between gap-1">
                       <p className="text-white/80 text-xs font-medium leading-tight line-clamp-2 flex-1">{item.file_name}</p>
                       <span style={{
-                        background: item.status === 'verified' ? 'rgba(106,168,245,0.15)' : 'rgba(106,168,245,0.12)',
-                        color: item.status === 'verified' ? '#6AA8F5' : '#6AA8F5',
+                        background: item.status === 'verified' ? 'rgba(157, 140, 255, 0.15)' : 'rgba(157, 140, 255, 0.12)',
+                        color: item.status === 'verified' ? '#9D8CFF' : '#9D8CFF',
                         fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 100, flexShrink: 0,
                       }}>
                         {item.status === 'verified' ? '✓ Verified' : '✓ Saved'}
@@ -256,7 +256,7 @@ export default function Evidence() {
                             href={item.url}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-[#6AA8F5] text-xs font-bold hover:text-white transition-colors"
+                            className="text-[#9D8CFF] text-xs font-bold hover:text-white transition-colors"
                             onClick={e => e.stopPropagation()}
                           >
                             Open →
@@ -265,7 +265,7 @@ export default function Evidence() {
                         <button
                           onClick={() => deleteItem(item.id)}
                           disabled={deleting === item.id}
-                          className="text-[#F58E9A]/70 text-xs font-bold hover:text-[#F58E9A] transition-colors disabled:opacity-40"
+                          className="text-[#FB7185]/70 text-xs font-bold hover:text-[#FB7185] transition-colors disabled:opacity-40"
                         >
                           {deleting === item.id ? '…' : 'Remove'}
                         </button>
@@ -285,7 +285,7 @@ export default function Evidence() {
         {allDone && (
           <Link href="/dashboard"
             className="block w-full text-center py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity"
-            style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}>
+            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
             Done — back to dashboard →
           </Link>
         )}

@@ -19,8 +19,8 @@ type Role = {
 
 const STATUS_BADGE: Record<string, { label: string; style: React.CSSProperties }> = {
   draft: { label: 'Draft', style: { background: 'rgba(251,191,36,0.12)', color: '#FBBF24' } },
-  active: { label: 'Active', style: { background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' } },
-  closed: { label: 'Closed', style: { background: 'rgba(245,142,154,0.12)', color: '#F58E9A' } },
+  active: { label: 'Active', style: { background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' } },
+  closed: { label: 'Closed', style: { background: 'rgba(251, 113, 133, 0.12)', color: '#FB7185' } },
 }
 
 const ENGAGEMENT_LABEL: Record<string, string> = {
@@ -61,16 +61,16 @@ function RoleCard({ role }: { role: Role }) {
               <span>{(role.department || role.location) ? ' · ' : ''}{ENGAGEMENT_LABEL[role.engagement_type] || role.engagement_type}</span>
             )}
           </p>
-          {salary && <p className="text-[#6AA8F5] text-xs font-semibold mt-1">{salary}</p>}
+          {salary && <p className="text-[#9D8CFF] text-xs font-semibold mt-1">{salary}</p>}
         </div>
         <div className="flex flex-col items-end gap-2 flex-shrink-0">
           <Link href={`/company/roles/${role.id}`}
-            className="bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] text-[#fff] text-xs font-black px-4 py-2 rounded-full hover:opacity-90 transition-opacity whitespace-nowrap">
+            className="bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] text-[#fff] text-xs font-black px-4 py-2 rounded-full hover:opacity-90 transition-opacity whitespace-nowrap">
             {role.status === 'draft' ? 'Review draft →' : 'View / edit →'}
           </Link>
           {role.status === 'active' && (
             <Link href={`/company/dashboard?role=${role.id}`}
-              className="text-[#6AA8F5] text-xs font-bold hover:opacity-80 whitespace-nowrap">
+              className="text-[#9D8CFF] text-xs font-bold hover:opacity-80 whitespace-nowrap">
               See pipeline →
             </Link>
           )}
@@ -107,17 +107,17 @@ export default async function CompanyRoles() {
   const closed = allRoles.filter(r => r.status === 'closed')
 
   return (
-    <div className="min-h-screen" style={{ background: '#0E0E13' }}>
+    <div className="min-h-screen" style={{ background: '#060609' }}>
       <style>{`
         .gradient-border-card {
-          background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.12), rgba(79,143,232,0.12)) border-box;
+          background: linear-gradient(#0D0C14, #0D0C14) padding-box,
+                      linear-gradient(135deg, rgba(157, 140, 255, 0.12), rgba(157, 140, 255, 0.12)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .card-hover:hover {
-          background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.25), rgba(79,143,232,0.25)) border-box;
+          background: linear-gradient(#0D0C14, #0D0C14) padding-box,
+                      linear-gradient(135deg, rgba(157, 140, 255, 0.25), rgba(157, 140, 255, 0.25)) border-box;
         }
       `}</style>
 
@@ -127,7 +127,7 @@ export default async function CompanyRoles() {
       }} />
 
       <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-6xl mx-auto">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         <Link href="/company/dashboard" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1] transition-colors">← Dashboard</Link>
       </nav>
 
@@ -139,7 +139,7 @@ export default async function CompanyRoles() {
             <p className="text-[#A6A6B4] text-sm">Manage, edit and publish the roles you&apos;re hiring for.</p>
           </div>
           <Link href="/company/roles/new"
-            className="flex-shrink-0 bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] px-5 py-2.5 rounded-full font-black text-xs text-[#fff] hover:opacity-90 transition-opacity">
+            className="flex-shrink-0 bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] px-5 py-2.5 rounded-full font-black text-xs text-[#fff] hover:opacity-90 transition-opacity">
             + Post a role
           </Link>
         </div>
@@ -153,7 +153,7 @@ export default async function CompanyRoles() {
               Post your first role and we&apos;ll start matching verified candidates to it — or draft one over WhatsApp and review it here.
             </p>
             <Link href="/company/roles/new"
-              className="bg-gradient-to-r from-[#6AA8F5] to-[#4F8FE8] px-6 py-3 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity">
+              className="bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] px-6 py-3 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity">
               Post a role →
             </Link>
           </div>

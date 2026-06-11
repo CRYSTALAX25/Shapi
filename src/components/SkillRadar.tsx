@@ -80,15 +80,15 @@ export default function SkillRadar({
         {/* Data shape */}
         <defs>
           <linearGradient id="radarFill" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#6AA8F5" stopOpacity={0.4} />
-            <stop offset="100%" stopColor="#4F8FE8" stopOpacity={0.4} />
+            <stop offset="0%" stopColor="#9D8CFF" stopOpacity={0.4} />
+            <stop offset="100%" stopColor="#9D8CFF" stopOpacity={0.4} />
           </linearGradient>
         </defs>
-        <path d={pathD} fill="url(#radarFill)" stroke="#6AA8F5" strokeWidth={2} strokeLinejoin="round" />
+        <path d={pathD} fill="url(#radarFill)" stroke="#9D8CFF" strokeWidth={2} strokeLinejoin="round" />
 
         {/* Data point dots */}
         {Object.values(pts).map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r={4} fill="#6AA8F5" stroke="#16161F" strokeWidth={1.5} />
+          <circle key={i} cx={p.x} cy={p.y} r={4} fill="#9D8CFF" stroke="#0D0C14" strokeWidth={1.5} />
         ))}
 
         {/* Axis labels */}
@@ -116,7 +116,7 @@ export default function SkillRadar({
                 y={ly + 16}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                fill="#6AA8F5"
+                fill="#9D8CFF"
                 fontSize={14}
                 fontWeight={900}
                 style={{ userSelect: 'none' }}
@@ -148,9 +148,9 @@ export function SkillSummary({ data }: { data: SkillQuadrant | null }) {
             key={key}
             className="text-xs font-bold px-2.5 py-1 rounded-full"
             style={{
-              background: highlight ? 'rgba(106,168,245,0.10)' : 'rgba(255,255,255,0.05)',
-              color: highlight ? '#6AA8F5' : '#A6A6B4',
-              border: `1px solid ${highlight ? 'rgba(106,168,245,0.2)' : 'rgba(255,255,255,0.08)'}`,
+              background: highlight ? 'rgba(157, 140, 255, 0.10)' : 'rgba(255,255,255,0.05)',
+              color: highlight ? '#9D8CFF' : '#A6A6B4',
+              border: `1px solid ${highlight ? 'rgba(157, 140, 255, 0.2)' : 'rgba(255,255,255,0.08)'}`,
             }}
           >
             {icon} {label} {score}

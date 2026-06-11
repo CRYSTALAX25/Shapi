@@ -48,9 +48,9 @@ const bn: typeof en = {
     hero: {
       badgeDate: 'UAE launch · 2026',
       badgeAccess: 'Early access চালু',
-      headlineLine1: 'মানুষের জন্য সত্যিই',
-      headlineLine2: 'কাজ করে এমন hiring।',
-      subhead: 'আরেকটা job board নয়। এটাই hiring-এর verification layer — references আমরা স্বাধীনভাবে সংগ্রহ করি, skills প্রমাণ দিয়ে যাচাই হয়, এবং কোম্পানি যাদের আপনি সত্যিই বিশ্বাস করতে পারেন।',
+      headlineLine1: 'অনুমান করা বন্ধ করুন।',
+      headlineLine2: 'নিয়োগ দিন প্রমাণিতকে।',
+      subhead: 'Shapi হলো hiring-এর verification layer। References আমরা স্বাধীনভাবে সংগ্রহ করি, skills প্রমাণ দিয়ে যাচাই হয়, এবং নিয়োগকারী কোম্পানির একটি বাস্তব trust score থাকে। দুই পক্ষই তথ্যের ভিত্তিতে সিদ্ধান্ত নেয়।',
       subheadHighlight: 'verification layer for hiring',
       ctaBuild: 'আমার verified profile তৈরি করুন — শুরু ফ্রি →',
       ctaHire: 'আমি hire করছি — ফ্রি role পোস্ট করুন →',

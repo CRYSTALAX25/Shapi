@@ -20,12 +20,12 @@ export const metadata = { title: 'HR Portal · Shapi' }
 // every tile carries a polished, informative empty state.
 // ────────────────────────────────────────────────────────────────────────────
 
-const ACCENT = '#7c93f5'
-const PURPLE = '#A78BFA'
-const BG = '#0c0e11'
-const CARD = '#13161b'
-const HEADING_STYLE: React.CSSProperties = { color: '#f4f6f9' }
-const BODY_STYLE: React.CSSProperties = { color: '#9ca3af' }
+const ACCENT = '#9D8CFF'
+const PURPLE = '#9D8CFF'
+const BG = '#060609'
+const CARD = '#0D0C14'
+const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
+const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
 const HAIRLINE = '1px solid rgba(255,255,255,0.06)'
 
 // ── Types (only the columns we read) ────────────────────────────────────────
@@ -175,11 +175,11 @@ const PROGRAM_TYPE_LABEL: Record<string, string> = {
 }
 
 const PROGRAM_STATUS_STYLE: Record<string, { bg: string; color: string }> = {
-  open: { bg: 'rgba(124,147,245,0.14)', color: ACCENT },
-  in_progress: { bg: 'rgba(167,139,250,0.14)', color: PURPLE },
+  open: { bg: 'rgba(157, 140, 255, 0.14)', color: ACCENT },
+  in_progress: { bg: 'rgba(157, 140, 255, 0.14)', color: PURPLE },
   completed: { bg: 'rgba(52,211,153,0.12)', color: '#34D399' },
-  abandoned: { bg: 'rgba(255,255,255,0.06)', color: '#9ca3af' },
-  escalated: { bg: 'rgba(245,142,154,0.12)', color: '#F58E9A' },
+  abandoned: { bg: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' },
+  escalated: { bg: 'rgba(251, 113, 133, 0.12)', color: '#FB7185' },
 }
 
 function milestoneCount(m: unknown): number {
@@ -305,9 +305,9 @@ export default async function PersonHrPortalPage({
         {/* Privacy banner — the PDPL gate is part of the product story. */}
         <div
           className="mb-6 p-4 rounded-xl text-xs leading-relaxed"
-          style={{ background: 'rgba(124,147,245,0.08)', border: `1px solid ${ACCENT}33`, color: '#c9d2f5' }}
+          style={{ background: 'rgba(157, 140, 255, 0.08)', border: `1px solid ${ACCENT}33`, color: '#c9d2f5' }}
         >
-          <strong style={{ color: '#f4f6f9' }}>RBAC + PDPL floor.</strong> This record is visible
+          <strong style={{ color: 'rgba(255,255,255,0.9)' }}>RBAC + PDPL floor.</strong> This record is visible
           only to the company owner, the assigned HRBP, and the reporting manager — enforced at the
           database row level. Medical (sick-leave) entries logged with consent are extra-gated and
           shown here as consent-logged only, never with clinical detail.
@@ -320,7 +320,7 @@ export default async function PersonHrPortalPage({
               <Link
                 href={`/company/people/${personId}/lifecycle`}
                 className="inline-block text-xs font-bold px-3 py-1.5 rounded-lg"
-                style={{ background: 'rgba(124,147,245,0.14)', color: ACCENT }}
+                style={{ background: 'rgba(157, 140, 255, 0.14)', color: ACCENT }}
               >
                 Open Lifecycle Playbooks (PIP / Separation) →
               </Link>
@@ -365,7 +365,7 @@ export default async function PersonHrPortalPage({
                           <span
                             key={m.label}
                             className="text-[10px] px-2 py-1 rounded-md"
-                            style={{ background: 'rgba(124,147,245,0.10)', color: ACCENT }}
+                            style={{ background: 'rgba(157, 140, 255, 0.10)', color: ACCENT }}
                           >
                             {m.label}: {m.n} milestone{m.n === 1 ? '' : 's'}
                           </span>
@@ -464,8 +464,8 @@ export default async function PersonHrPortalPage({
                       key={a.id}
                       className="flex items-center justify-between gap-2 rounded-lg px-3 py-2"
                       style={{
-                        background: isMedical ? 'rgba(245,142,154,0.06)' : 'rgba(255,255,255,0.02)',
-                        border: isMedical ? '1px solid rgba(245,142,154,0.25)' : HAIRLINE,
+                        background: isMedical ? 'rgba(251, 113, 133, 0.06)' : 'rgba(255,255,255,0.02)',
+                        border: isMedical ? '1px solid rgba(251, 113, 133, 0.25)' : HAIRLINE,
                       }}
                     >
                       <div className="min-w-0 flex-1">
@@ -482,7 +482,7 @@ export default async function PersonHrPortalPage({
                         {/* PDPL gate: for consent-logged medical rows we deliberately
                             do NOT render notes/clinical detail — only the masked label. */}
                         {isMedical ? (
-                          <p className="text-[10px] mt-0.5 font-bold" style={{ color: '#F58E9A' }}>
+                          <p className="text-[10px] mt-0.5 font-bold" style={{ color: '#FB7185' }}>
                             🔒 Medical — consent-logged, HRBP-visible only
                           </p>
                         ) : (
@@ -573,7 +573,7 @@ export default async function PersonHrPortalPage({
           <Tile
             icon="🎓"
             title="Training"
-            badge={{ label: 'Coming next', color: PURPLE, bg: 'rgba(167,139,250,0.12)' }}
+            badge={{ label: 'Coming next', color: PURPLE, bg: 'rgba(157, 140, 255, 0.12)' }}
           >
             <EmptyState>
               No training records yet. Courses, certifications and skill paths will populate from
@@ -615,7 +615,7 @@ export default async function PersonHrPortalPage({
                     {a.medical_consent_logged && (
                       <span
                         className="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full"
-                        style={{ background: 'rgba(245,142,154,0.12)', color: '#F58E9A' }}
+                        style={{ background: 'rgba(251, 113, 133, 0.12)', color: '#FB7185' }}
                       >
                         🔒 Consent-logged
                       </span>

@@ -60,15 +60,15 @@ export default function CompMenu({ userId, kind }: { userId: string; kind: 'cand
   return (
     <div className="relative inline-block">
       <button type="button" onClick={() => setOpen(o => !o)}
-        className="text-xs font-bold text-[#6AA8F5] hover:text-[#F08CAE] px-2 py-1 rounded border border-[#6AA8F5]/30 hover:border-[#F08CAE]/50">
+        className="text-xs font-bold text-[#9D8CFF] hover:text-[#9D8CFF] px-2 py-1 rounded border border-[#9D8CFF]/30 hover:border-[#9D8CFF]/50">
         Comp ▾
       </button>
-      {msg && <span className="ml-2 text-[10px] text-[#F08CAE]">{msg}</span>}
+      {msg && <span className="ml-2 text-[10px] text-[#9D8CFF]">{msg}</span>}
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div className="absolute right-0 mt-1 z-50 min-w-[200px] rounded-lg shadow-2xl py-1"
-            style={{ background: '#16161F', border: '1px solid rgba(255,255,255,0.12)' }}>
+            style={{ background: '#0D0C14', border: '1px solid rgba(255,255,255,0.12)' }}>
             {actions.map(a => (
               <button key={a} type="button" onClick={() => { setOpen(false); run(a) }} disabled={busy === a}
                 className="w-full text-left px-3 py-1.5 text-xs text-[#C7C7D1] hover:bg-white/[0.05] disabled:opacity-50">

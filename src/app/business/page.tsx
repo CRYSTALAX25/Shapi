@@ -51,7 +51,7 @@ const PHASES = [
   {
     n: 1,
     title: 'Licensing & compliance',
-    color: '#6AA8F5',
+    color: '#9D8CFF',
     points: [
       'Register the business and pick a legal structure (sole trader vs company).',
       'Get the trade licence / permits your field legally requires.',
@@ -61,7 +61,7 @@ const PHASES = [
   {
     n: 2,
     title: 'Unit economics',
-    color: '#F08CAE',
+    color: '#9D8CFF',
     points: [
       'Know your true cost per job: labour + materials + overhead.',
       'Set a margin that survives slow months — use the calculator above.',
@@ -71,7 +71,7 @@ const PHASES = [
   {
     n: 3,
     title: 'Customer acquisition',
-    color: '#F58E9A',
+    color: '#FB7185',
     points: [
       'Win your first 5 clients through your network — then ask for referrals.',
       'List on local marketplaces and keep a simple before/after portfolio.',
@@ -190,10 +190,10 @@ export default function BusinessBlueprint() {
   }
 
   const inputCls =
-    'w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/50'
+    'w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50'
   const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }
   const labelCls = 'text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider'
-  const cardStyle = { background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }
+  const cardStyle = { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }
   // Pre-filled figures show in coral so they read as "Shapi's suggestion — adjust me".
   const calcInputCls = `${inputCls} ${suggested ? '!text-[#FB7185] font-bold' : ''}`
   // Digital businesses have no per-job "materials" — relabel to tech-stack costs.
@@ -202,10 +202,10 @@ export default function BusinessBlueprint() {
   const materialsLabel = isDigital ? 'Tech stack & tools (per month, ~1,000 users)' : 'Materials cost (per job)'
 
   return (
-    <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7]">
+    <div className="min-h-screen bg-[#060609] text-[#F4F4F7]">
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
       <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-4xl mx-auto">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         <Link href="/translate" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7]">← Career Translator</Link>
       </nav>
 
@@ -234,11 +234,11 @@ export default function BusinessBlueprint() {
           <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-1">🧮 Pricing calculator</p>
           <p className="text-[#7E7E8E] text-xs mb-4">What should you charge per job to stay in business? Type your costs — the quote updates live.</p>
           <button onClick={suggestFigures} disabled={suggestLoading || !field.trim()}
-            className="mb-4 text-xs font-bold px-3 py-1.5 rounded-full disabled:opacity-40" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5', border: '1px solid rgba(106,168,245,0.25)' }}>
+            className="mb-4 text-xs font-bold px-3 py-1.5 rounded-full disabled:opacity-40" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF', border: '1px solid rgba(157, 140, 255, 0.25)' }}>
             {suggestLoading ? 'Thinking…' : `💡 Suggest typical figures${field.trim() ? ` for ${field.trim()}` : ''}`}
           </button>
           {suggested && (
-            <p className="text-[#6AA8F5] text-xs mb-4 -mt-2">Pre-filled with typical figures for {field || 'this field'}{country ? ` in ${country}` : ''}{bp?.pricing_suggestion?.note ? ` — ${bp.pricing_suggestion.note}` : ''}. Adjust to your real costs.</p>
+            <p className="text-[#9D8CFF] text-xs mb-4 -mt-2">Pre-filled with typical figures for {field || 'this field'}{country ? ` in ${country}` : ''}{bp?.pricing_suggestion?.note ? ` — ${bp.pricing_suggestion.note}` : ''}. Adjust to your real costs.</p>
           )}
 
           <div className="grid sm:grid-cols-2 gap-3">
@@ -283,11 +283,11 @@ export default function BusinessBlueprint() {
             </div>
             <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.05)' }}>
               <p className={labelCls}>Your profit</p>
-              <p className="text-sm font-black mt-0.5" style={{ color: '#F08CAE' }}>{currency} {fmt(profit)}</p>
+              <p className="text-sm font-black mt-0.5" style={{ color: '#9D8CFF' }}>{currency} {fmt(profit)}</p>
             </div>
-            <div className="rounded-xl p-3" style={{ background: 'rgba(106,168,245,0.12)', border: '1px solid rgba(106,168,245,0.3)' }}>
+            <div className="rounded-xl p-3" style={{ background: 'rgba(157, 140, 255, 0.12)', border: '1px solid rgba(157, 140, 255, 0.3)' }}>
               <p className={labelCls}>Quote client</p>
-              <p className="text-sm font-black mt-0.5" style={{ color: '#6AA8F5' }}>{currency} {fmt(quote)}</p>
+              <p className="text-sm font-black mt-0.5" style={{ color: '#9D8CFF' }}>{currency} {fmt(quote)}</p>
             </div>
           </div>
         </div>
@@ -317,24 +317,24 @@ export default function BusinessBlueprint() {
           <p className="text-[#7E7E8E] text-xs mb-4">Get the exact licensing, registration body and insurance checklist for your trade in {country.trim() || 'your country'}.</p>
           <button onClick={getSteps} disabled={loading || !field.trim() || !country.trim()}
             className="w-full sm:w-auto px-6 py-3 rounded-full font-black text-sm text-white disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
+            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
             {loading ? 'Building your checklist…' : `🚀 Get ${country.trim() || 'country'}-specific steps`}
           </button>
-          {err && <p className="text-[#F58E9A] text-xs mt-3">{err}</p>}
+          {err && <p className="text-[#FB7185] text-xs mt-3">{err}</p>}
 
           {bp && (() => {
             const entityUrl = (e: Entity) =>
               e.url && /^https?:\/\//i.test(e.url)
                 ? e.url
                 : `https://www.google.com/search?q=${encodeURIComponent(`${e.name || ''} ${bp.country || ''} official`)}`
-            const fitColor = (bp.fit?.score ?? 0) >= 7 ? '#6AA8F5' : (bp.fit?.score ?? 0) >= 4 ? '#F08CAE' : '#F58E9A'
+            const fitColor = (bp.fit?.score ?? 0) >= 7 ? '#9D8CFF' : (bp.fit?.score ?? 0) >= 4 ? '#9D8CFF' : '#FB7185'
             return (
             <div className="mt-5 space-y-4">
               {/* Verdict — the go/no-go headline */}
               {bp.verdict && (() => {
                 const rec = (bp.verdict.recommendation || '').toLowerCase()
                 const go = rec.includes('go') && !rec.includes('not')
-                const vc = go ? '#6AA8F5' : rec.includes('caution') ? '#FBBF24' : '#F58E9A'
+                const vc = go ? '#9D8CFF' : rec.includes('caution') ? '#FBBF24' : '#FB7185'
                 const vlabel = go ? '✅ GO' : rec.includes('caution') ? '⚠️ PROCEED WITH CAUTION' : '⛔ NOT NOW'
                 return (
                   <div className="rounded-xl p-4" style={{ background: `${vc}14`, border: `1px solid ${vc}40` }}>
@@ -375,11 +375,11 @@ export default function BusinessBlueprint() {
                   {bp.fit.verdict && <p className="text-[#C7C7D1] text-sm leading-relaxed mb-2">{bp.fit.verdict}</p>}
                   <div className="grid sm:grid-cols-2 gap-3">
                     {bp.fit.strengths && bp.fit.strengths.length > 0 && (
-                      <div><p className="text-[#6AA8F5] text-[10px] font-bold uppercase mb-1">✓ You already bring</p>
+                      <div><p className="text-[#9D8CFF] text-[10px] font-bold uppercase mb-1">✓ You already bring</p>
                         <ul className="space-y-0.5">{bp.fit.strengths.map((s, i) => <li key={i} className="text-[#A6A6B4] text-xs">• {s}</li>)}</ul></div>
                     )}
                     {bp.fit.gaps && bp.fit.gaps.length > 0 && (
-                      <div><p className="text-[#F58E9A] text-[10px] font-bold uppercase mb-1">△ You&apos;d need</p>
+                      <div><p className="text-[#FB7185] text-[10px] font-bold uppercase mb-1">△ You&apos;d need</p>
                         <ul className="space-y-0.5">{bp.fit.gaps.map((s, i) => <li key={i} className="text-[#A6A6B4] text-xs">• {s}</li>)}</ul></div>
                     )}
                   </div>
@@ -390,7 +390,7 @@ export default function BusinessBlueprint() {
               {bp.ownership && (() => {
                 const o = bp.ownership
                 const can = (o.can_sole_own || '').toLowerCase()
-                const oc = can === 'yes' ? '#6AA8F5' : can === 'no' ? '#F58E9A' : '#FBBF24'
+                const oc = can === 'yes' ? '#9D8CFF' : can === 'no' ? '#FB7185' : '#FBBF24'
                 const label = can === 'yes' ? 'Sole ownership ✓' : can === 'no' ? 'Local partner required' : 'Conditional'
                 return (
                   <div className="rounded-xl p-4" style={{ background: `${oc}14`, border: `1px solid ${oc}33` }}>
@@ -410,9 +410,9 @@ export default function BusinessBlueprint() {
 
               {/* What you can automate (AI era) */}
               {bp.automation && (bp.automation.tasks?.length ?? 0) > 0 && (
-                <div className="rounded-xl p-4" style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.2)' }}>
-                  <p className="text-[#6AA8F5] text-[10px] font-bold uppercase tracking-wider mb-2">🤖 What you can automate (cut labour cost)</p>
-                  <ul className="space-y-1 mb-2">{bp.automation.tasks!.map((t, i) => <li key={i} className="text-[#C7C7D1] text-xs flex gap-2"><span className="text-[#6AA8F5]">•</span><span>{t}</span></li>)}</ul>
+                <div className="rounded-xl p-4" style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.2)' }}>
+                  <p className="text-[#9D8CFF] text-[10px] font-bold uppercase tracking-wider mb-2">🤖 What you can automate (cut labour cost)</p>
+                  <ul className="space-y-1 mb-2">{bp.automation.tasks!.map((t, i) => <li key={i} className="text-[#C7C7D1] text-xs flex gap-2"><span className="text-[#9D8CFF]">•</span><span>{t}</span></li>)}</ul>
                   {bp.automation.note && <p className="text-[#7E7E8E] text-[11px]">{bp.automation.note}</p>}
                 </div>
               )}
@@ -421,14 +421,14 @@ export default function BusinessBlueprint() {
               {((bp.pros?.length ?? 0) > 0 || (bp.cons?.length ?? 0) > 0) && (
                 <div className="grid sm:grid-cols-2 gap-3">
                   {bp.pros && bp.pros.length > 0 && (
-                    <div className="rounded-xl p-4" style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.2)' }}>
-                      <p className="text-[#6AA8F5] text-[10px] font-bold uppercase tracking-wider mb-2">👍 Pros in {bp.country}</p>
+                    <div className="rounded-xl p-4" style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.2)' }}>
+                      <p className="text-[#9D8CFF] text-[10px] font-bold uppercase tracking-wider mb-2">👍 Pros in {bp.country}</p>
                       <ul className="space-y-1">{bp.pros.map((s, i) => <li key={i} className="text-[#C7C7D1] text-xs">• {s}</li>)}</ul>
                     </div>
                   )}
                   {bp.cons && bp.cons.length > 0 && (
-                    <div className="rounded-xl p-4" style={{ background: 'rgba(245,142,154,0.08)', border: '1px solid rgba(245,142,154,0.2)' }}>
-                      <p className="text-[#F58E9A] text-[10px] font-bold uppercase tracking-wider mb-2">👎 Watch-outs in {bp.country}</p>
+                    <div className="rounded-xl p-4" style={{ background: 'rgba(251, 113, 133, 0.08)', border: '1px solid rgba(251, 113, 133, 0.2)' }}>
+                      <p className="text-[#FB7185] text-[10px] font-bold uppercase tracking-wider mb-2">👎 Watch-outs in {bp.country}</p>
                       <ul className="space-y-1">{bp.cons.map((s, i) => <li key={i} className="text-[#C7C7D1] text-xs">• {s}</li>)}</ul>
                     </div>
                   )}
@@ -459,7 +459,7 @@ export default function BusinessBlueprint() {
               {((bp.structures?.length ?? 0) > 0 || bp.time_estimate) && (
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                   {bp.structures?.map((s, i) => <span key={i} className="font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#C7C7D1' }}>🏛 {s}</span>)}
-                  {bp.time_estimate && <span className="font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>⏱️ {bp.time_estimate}</span>}
+                  {bp.time_estimate && <span className="font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>⏱️ {bp.time_estimate}</span>}
                 </div>
               )}
 
@@ -470,8 +470,8 @@ export default function BusinessBlueprint() {
                   <div className="space-y-2">
                     {bp.launch_plan.map((ph, i) => (
                       <div key={i} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                        <p className="text-[#F4F4F7] font-bold text-sm mb-1.5"><span className="text-[#6AA8F5]">{i + 1}.</span> {ph.phase}</p>
-                        <ul className="space-y-1">{(ph.steps || []).map((st, j) => <li key={j} className="text-[#A6A6B4] text-xs flex gap-2"><span className="text-[#6AA8F5]">•</span><span>{st}</span></li>)}</ul>
+                        <p className="text-[#F4F4F7] font-bold text-sm mb-1.5"><span className="text-[#9D8CFF]">{i + 1}.</span> {ph.phase}</p>
+                        <ul className="space-y-1">{(ph.steps || []).map((st, j) => <li key={j} className="text-[#A6A6B4] text-xs flex gap-2"><span className="text-[#9D8CFF]">•</span><span>{st}</span></li>)}</ul>
                       </div>
                     ))}
                   </div>
@@ -485,12 +485,12 @@ export default function BusinessBlueprint() {
                   <div className="space-y-2">
                     {bp.entities.map((e, i) => (
                       <a key={i} href={entityUrl(e)} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 hover:opacity-90 transition-opacity" style={{ background: 'rgba(106,168,245,0.10)', border: '1px solid rgba(106,168,245,0.2)' }}>
+                        className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 hover:opacity-90 transition-opacity" style={{ background: 'rgba(157, 140, 255, 0.10)', border: '1px solid rgba(157, 140, 255, 0.2)' }}>
                         <div className="min-w-0">
                           <p className="text-[#F4F4F7] text-sm font-bold">{e.name}</p>
                           {e.what && <p className="text-[#A6A6B4] text-xs">{e.what}</p>}
                         </div>
-                        <span className="text-[#6AA8F5] text-xs font-bold flex-shrink-0">Open ↗</span>
+                        <span className="text-[#9D8CFF] text-xs font-bold flex-shrink-0">Open ↗</span>
                       </a>
                     ))}
                   </div>
@@ -501,7 +501,7 @@ export default function BusinessBlueprint() {
               {bp.contacts && bp.contacts.length > 0 && (
                 <div>
                   <p className={`${labelCls} mb-2`}>🤝 Contacts to make first</p>
-                  <ul className="space-y-1">{bp.contacts.map((s, i) => <li key={i} className="text-[#C7C7D1] text-xs flex gap-2"><span style={{ color: '#F08CAE' }}>•</span><span>{s}</span></li>)}</ul>
+                  <ul className="space-y-1">{bp.contacts.map((s, i) => <li key={i} className="text-[#C7C7D1] text-xs flex gap-2"><span style={{ color: '#9D8CFF' }}>•</span><span>{s}</span></li>)}</ul>
                 </div>
               )}
 
@@ -521,7 +521,7 @@ export default function BusinessBlueprint() {
                 <p className="text-[#7E7E8E] text-[11px] leading-relaxed pt-2 border-t border-white/[0.08]">⚠️ {bp.disclaimer}</p>
               )}
               <button onClick={() => getSteps(true)} disabled={loading}
-                className="text-xs font-bold px-3 py-1.5 rounded-full disabled:opacity-40" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5', border: '1px solid rgba(106,168,245,0.25)' }}>
+                className="text-xs font-bold px-3 py-1.5 rounded-full disabled:opacity-40" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF', border: '1px solid rgba(157, 140, 255, 0.25)' }}>
                 {loading ? 'Researching live figures…' : '🔍 Refresh with live figures (slower)'}
               </button>
             </div>

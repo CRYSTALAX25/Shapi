@@ -41,10 +41,10 @@ export default async function CandidatesPage() {
   const cardStyle = { border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)' }
 
   return (
-    <div className="min-h-screen bg-[#0E0E13]">
+    <div className="min-h-screen bg-[#060609]">
       <nav className="px-6 py-5 flex items-center justify-between max-w-6xl mx-auto border-b border-[rgba(255,255,255,0.08)]">
         <Link href="/" className="font-black text-2xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)',
+          background: 'linear-gradient(135deg,#9D8CFF, #34D399)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <div className="flex items-center gap-4">
@@ -62,7 +62,7 @@ export default async function CandidatesPage() {
             <p className="text-[#A6A6B4]">{count} candidates with verified profiles</p>
           </div>
           {isPaid && (
-            <span className="text-xs font-bold px-3 py-1.5 rounded-full capitalize" style={{ background: 'rgba(106,168,245,0.10)', color: '#6AA8F5' }}>
+            <span className="text-xs font-bold px-3 py-1.5 rounded-full capitalize" style={{ background: 'rgba(157, 140, 255, 0.10)', color: '#9D8CFF' }}>
               {company.subscription_tier} plan
             </span>
           )}
@@ -70,7 +70,7 @@ export default async function CandidatesPage() {
 
         {/* Paywall banner */}
         {!isPaid && count > 0 && (
-          <div className="rounded-2xl p-7 mb-8 flex items-center justify-between gap-6 text-white" style={{ background: 'linear-gradient(135deg, #6AA8F5, #4F8FE8)' }}>
+          <div className="rounded-2xl p-7 mb-8 flex items-center justify-between gap-6 text-white" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
             <div>
               <p className="font-black text-lg mb-1">
                 {count} verified candidate{count !== 1 ? 's' : ''} matched
@@ -80,14 +80,14 @@ export default async function CandidatesPage() {
               </p>
             </div>
             <Link href="/company/pricing"
-              className="bg-white text-[#0E0E13] px-6 py-3 rounded-full font-bold text-sm hover:bg-white/90 transition-colors flex-shrink-0">
+              className="bg-white text-[#060609] px-6 py-3 rounded-full font-bold text-sm hover:bg-white/90 transition-colors flex-shrink-0">
               Unlock candidates →
             </Link>
           </div>
         )}
 
         {count === 0 ? (
-          <div className="bg-[#16161F] rounded-2xl p-12 text-center" style={cardStyle}>
+          <div className="bg-[#0D0C14] rounded-2xl p-12 text-center" style={cardStyle}>
             <div className="w-12 h-12 bg-[rgba(255,255,255,0.05)] rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-[#7E7E8E] text-xl">◎</span>
             </div>
@@ -97,7 +97,7 @@ export default async function CandidatesPage() {
         ) : (
           <div className="grid gap-4">
             {candidates!.map((c: Candidate) => (
-              <div key={c.id} className="bg-[#16161F] rounded-2xl p-6" style={cardStyle}>
+              <div key={c.id} className="bg-[#0D0C14] rounded-2xl p-6" style={cardStyle}>
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-1">
@@ -105,7 +105,7 @@ export default async function CandidatesPage() {
                         {isPaid ? (c.full_name || 'Anonymous Candidate') : 'Verified Candidate'}
                       </h3>
                       {c.completion_pct >= 80 && (
-                        <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>
+                        <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>
                           Verified
                         </span>
                       )}
@@ -135,14 +135,14 @@ export default async function CandidatesPage() {
                     )}
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <div className="text-2xl font-black" style={{ color: '#6AA8F5' }}>{c.completion_pct}%</div>
+                    <div className="text-2xl font-black" style={{ color: '#9D8CFF' }}>{c.completion_pct}%</div>
                     <div className="text-xs text-[#7E7E8E]">complete</div>
                   </div>
                 </div>
                 {!isPaid && (
                   <div className="mt-4 pt-4 border-t border-[rgba(255,255,255,0.06)] flex items-center justify-between">
                     <p className="text-xs text-[#7E7E8E]">Subscribe to view full profile, references &amp; contact</p>
-                    <Link href="/company/pricing" className="text-xs font-bold hover:underline" style={{ color: '#6AA8F5' }}>
+                    <Link href="/company/pricing" className="text-xs font-bold hover:underline" style={{ color: '#9D8CFF' }}>
                       Unlock →
                     </Link>
                   </div>

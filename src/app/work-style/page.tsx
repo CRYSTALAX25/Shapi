@@ -40,12 +40,12 @@ export default function WorkStylePage() {
   const previewScores = done || (allAnswered ? scoreWorkStyle(answers) : null)
 
   return (
-    <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7]">
-      <style>{`.gradient-border-card { background: linear-gradient(#16161F, #16161F) padding-box, linear-gradient(135deg, rgba(106,168,245,0.10), rgba(240,140,174,0.10)) border-box; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35); }`}</style>
+    <div className="min-h-screen bg-[#060609] text-[#F4F4F7]">
+      <style>{`.gradient-border-card { background: linear-gradient(#0D0C14, #0D0C14) padding-box, linear-gradient(135deg, rgba(157, 140, 255, 0.10), rgba(157, 140, 255, 0.10)) border-box; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35); }`}</style>
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
 
       <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between max-w-3xl mx-auto">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         <Link href="/profile" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1]">Profile</Link>
       </nav>
 
@@ -58,12 +58,12 @@ export default function WorkStylePage() {
           <div className="gradient-border-card rounded-2xl p-6 mb-6">
             <div className="flex items-center gap-2 mb-4">
               <h2 className="text-[#F4F4F7] font-black text-lg">Your Work Style</h2>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.12)', color: '#F08CAE' }}>◆ Shapi-assessed</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>◆ Shapi-assessed</span>
             </div>
             {DIMENSIONS.map(d => (
               <ScoreBar key={d.key} dim={d} score={done[d.key] ?? 50} />
             ))}
-            <Link href="/profile" className="block text-center mt-5 py-3 rounded-xl font-black text-sm text-white" style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}>
+            <Link href="/profile" className="block text-center mt-5 py-3 rounded-xl font-black text-sm text-white" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
               View on your profile →
             </Link>
           </div>
@@ -80,9 +80,9 @@ export default function WorkStylePage() {
                         <button key={s.v} onClick={() => setAnswers(prev => ({ ...prev, [q.id]: s.v }))}
                           className="flex-1 min-w-[80px] py-2 rounded-lg text-[11px] font-bold transition-colors"
                           style={{
-                            background: active ? 'rgba(106,168,245,0.15)' : 'rgba(255,255,255,0.05)',
-                            color: active ? '#6AA8F5' : '#7E7E8E',
-                            border: `1px solid ${active ? 'rgba(106,168,245,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                            background: active ? 'rgba(157, 140, 255, 0.15)' : 'rgba(255,255,255,0.05)',
+                            color: active ? '#9D8CFF' : '#7E7E8E',
+                            border: `1px solid ${active ? 'rgba(157, 140, 255, 0.4)' : 'rgba(255,255,255,0.08)'}`,
                           }}>
                           {s.label}
                         </button>
@@ -100,10 +100,10 @@ export default function WorkStylePage() {
               </div>
             )}
 
-            {error && <p className="text-[#F58E9A] text-xs mb-3">{error}</p>}
+            {error && <p className="text-[#FB7185] text-xs mb-3">{error}</p>}
             <button onClick={submit} disabled={!allAnswered || saving}
               className="w-full py-3.5 rounded-xl font-black text-sm transition-opacity disabled:opacity-40 text-white"
-              style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}>
+              style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
               {saving ? 'Saving…' : allAnswered ? 'Save to my profile' : `Answer all ${QUESTIONS.length} (${answeredCount} done)`}
             </button>
           </>
@@ -122,7 +122,7 @@ function ScoreBar({ dim, score }: { dim: { key: string; poleA: string; poleB: st
         <span className="text-[#7E7E8E]">{dim.poleA}</span>
       </div>
       <div className="relative h-2 rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }}>
-        <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full" style={{ left: `calc(${score}% - 6px)`, background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }} />
+        <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full" style={{ left: `calc(${score}% - 6px)`, background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }} />
       </div>
     </div>
   )

@@ -40,7 +40,7 @@ export default function StepCard({
   return (
     <div
       className="rounded-2xl"
-      style={{ background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }}
+      style={{ background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }}
     >
       <button
         type="button"
@@ -50,8 +50,8 @@ export default function StepCard({
         <span
           className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-sm font-black"
           style={{
-            background: status === 'done' ? 'rgba(52,211,153,0.18)' : 'rgba(106,168,245,0.15)',
-            color: status === 'done' ? '#34D399' : '#6AA8F5',
+            background: status === 'done' ? 'rgba(52,211,153,0.18)' : 'rgba(157, 140, 255, 0.15)',
+            color: status === 'done' ? '#34D399' : '#9D8CFF',
           }}
         >
           {step}
@@ -78,7 +78,7 @@ export default function StepCard({
                 onClick={() => onSave()}
                 disabled={saving}
                 className="px-5 py-2.5 rounded-full font-black text-xs text-white disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}
+                style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
               >
                 {saving ? 'Working…' : saveLabel}
               </button>

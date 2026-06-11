@@ -15,40 +15,40 @@ export default function ForCompaniesPage() {
 function ForCompaniesInner() {
   const { t } = useTranslation()
   return (
-    <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7] overflow-x-hidden">
+    <div className="min-h-screen bg-[#060609] text-[#F4F4F7] overflow-x-hidden">
       <style>{`
         .grad-text {
-          background: linear-gradient(135deg, #6AA8F5, #F08CAE, #F58E9A, #6AA8F5);
+          background: linear-gradient(135deg, #9D8CFF, #34D399);
           background-size: 300% 300%;
           -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
         .btn-primary {
-          background: linear-gradient(135deg, #6AA8F5, #F08CAE, #F58E9A);
+          background: linear-gradient(135deg, #9D8CFF, #34D399);
           color: #fff;
-          box-shadow: 0 8px 24px rgba(240,140,174,0.28);
+          box-shadow: 0 8px 24px rgba(157, 140, 255, 0.28);
           transition: all 0.25s ease;
         }
-        .btn-primary:hover { box-shadow: 0 12px 32px rgba(240,140,174,0.42); transform: translateY(-1px); }
+        .btn-primary:hover { box-shadow: 0 12px 32px rgba(157, 140, 255, 0.42); transform: translateY(-1px); }
         .btn-outline {
           background: #0B0B0F; color: #F4F4F7;
           border: 1px solid rgba(255,255,255,0.16);
           transition: all .25s ease;
         }
         .btn-outline:hover {
-          border-color: rgba(240,140,174,0.4);
-          box-shadow: 0 8px 24px rgba(240,140,174,0.18);
+          border-color: rgba(157, 140, 255, 0.4);
+          box-shadow: 0 8px 24px rgba(157, 140, 255, 0.18);
           transform: translateY(-1px);
         }
         .card {
-          background: #16161F;
+          background: #0D0C14;
           border: 1px solid rgba(255,255,255,0.08);
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
           transition: all 0.3s ease;
         }
         .card:hover {
           transform: translateY(-3px);
-          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 20px 46px rgba(240,140,174,0.14);
-          border-color: rgba(240,140,174,0.28);
+          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 20px 46px rgba(157, 140, 255, 0.14);
+          border-color: rgba(157, 140, 255, 0.28);
         }
         .nav-link { color:#A6A6B4; transition: color .2s ease; }
         .nav-link:hover { color:#F4F4F7; }
@@ -94,13 +94,13 @@ function ForCompaniesInner() {
       {/* Hero */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 pt-20 pb-20">
         <div className="absolute top-0 left-1/4 w-[520px] h-[520px] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(106,168,245,0.16) 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(circle, rgba(157, 140, 255, 0.16) 0%, transparent 70%)' }} />
         <div className="absolute top-10 right-1/4 w-[420px] h-[420px] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(240,140,174,0.14) 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(circle, rgba(157, 140, 255, 0.14) 0%, transparent 70%)' }} />
 
         <div className="relative">
           <span className="inline-block text-[11px] font-black tracking-[0.25em] uppercase px-3 py-1.5 rounded-full mb-7"
-            style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>
+            style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>
             {t('forCompanies.hero.badge')}
           </span>
           <h1 className="text-5xl md:text-7xl font-black leading-[0.95] tracking-tighter mb-7"
@@ -162,19 +162,19 @@ function ForCompaniesInner() {
             {
               icon: '🛡️',
               title: t('forCompanies.pitch.p1Title'),
-              color: '#6AA8F5',
+              color: '#9D8CFF',
               desc: t('forCompanies.pitch.p1Desc'),
             },
             {
               icon: '🧠',
               title: t('forCompanies.pitch.p2Title'),
-              color: '#F08CAE',
+              color: '#9D8CFF',
               desc: t('forCompanies.pitch.p2Desc'),
             },
             {
               icon: '⚡',
               title: t('forCompanies.pitch.p3Title'),
-              color: '#F58E9A',
+              color: '#FB7185',
               desc: t('forCompanies.pitch.p3Desc'),
             },
           ].map((p) => (
@@ -198,7 +198,7 @@ function ForCompaniesInner() {
       <section className="relative z-10 max-w-6xl mx-auto px-6 py-20">
         <div className="mb-12">
           <span className="inline-block text-[11px] font-black tracking-[0.25em] uppercase px-3 py-1.5 rounded-full mb-5"
-            style={{ background: 'rgba(240,140,174,0.12)', color: '#F08CAE' }}>
+            style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>
             {t('forCompanies.usps.eyebrow')}
           </span>
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter max-w-3xl"
@@ -304,7 +304,7 @@ function ForCompaniesInner() {
                     const isShapi = col === 1
                     let color = '#7E7E8E'
                     if (v === '✓') color = isShapi ? '#FB7185' : '#34D399'
-                    if (v === '✗') color = '#F58E9A'
+                    if (v === '✗') color = '#FB7185'
                     if (v === '~') color = '#FBBF24'
                     return (
                       <td
@@ -326,7 +326,7 @@ function ForCompaniesInner() {
           <p className="text-[11px] text-[#7E7E8E] mt-4 px-2">
             <span className="font-bold" style={{ color: '#34D399' }}>✓</span> {t('forCompanies.comparison.legendIn')} ·{' '}
             <span className="font-bold" style={{ color: '#FBBF24' }}>~</span> {t('forCompanies.comparison.legendPartial')} ·{' '}
-            <span className="font-bold" style={{ color: '#F58E9A' }}>✗</span> {t('forCompanies.comparison.legendOut')}.
+            <span className="font-bold" style={{ color: '#FB7185' }}>✗</span> {t('forCompanies.comparison.legendOut')}.
           </p>
         </div>
       </section>
@@ -344,19 +344,19 @@ function ForCompaniesInner() {
           {[
             {
               step: t('forCompanies.how.step1Number'),
-              color: '#6AA8F5',
+              color: '#9D8CFF',
               title: t('forCompanies.how.step1Title'),
               desc: t('forCompanies.how.step1Desc'),
             },
             {
               step: t('forCompanies.how.step2Number'),
-              color: '#F08CAE',
+              color: '#9D8CFF',
               title: t('forCompanies.how.step2Title'),
               desc: t('forCompanies.how.step2Desc'),
             },
             {
               step: t('forCompanies.how.step3Number'),
-              color: '#F58E9A',
+              color: '#FB7185',
               title: t('forCompanies.how.step3Title'),
               desc: t('forCompanies.how.step3Desc'),
             },
@@ -379,11 +379,11 @@ function ForCompaniesInner() {
         <div
           className="rounded-2xl p-6 md:p-8"
           style={{
-            background: 'rgba(106,168,245,0.06)',
-            border: '1px solid rgba(106,168,245,0.18)',
+            background: 'rgba(157, 140, 255, 0.06)',
+            border: '1px solid rgba(157, 140, 255, 0.18)',
           }}
         >
-          <p className="text-[11px] font-black tracking-[0.25em] uppercase mb-3" style={{ color: '#6AA8F5' }}>
+          <p className="text-[11px] font-black tracking-[0.25em] uppercase mb-3" style={{ color: '#9D8CFF' }}>
             {t('forCompanies.sources.eyebrow')}
           </p>
           <p className="text-[#C7C7D1] text-base md:text-lg leading-relaxed">
@@ -409,7 +409,7 @@ function ForCompaniesInner() {
             {
               name: t('forCompanies.pricing.t1Name'),
               price: t('forCompanies.pricing.t1Price'),
-              color: '#6AA8F5',
+              color: '#9D8CFF',
               desc: t('forCompanies.pricing.t1Desc'),
               cta: t('forCompanies.pricing.t1Cta'),
               href: '/signup?type=company',
@@ -420,7 +420,7 @@ function ForCompaniesInner() {
               name: t('forCompanies.pricing.t2Name'),
               price: t('forCompanies.pricing.t2Price'),
               priceSuffix: t('forCompanies.pricing.t2Suffix'),
-              color: '#F08CAE',
+              color: '#9D8CFF',
               desc: t('forCompanies.pricing.t2Desc'),
               cta: t('forCompanies.pricing.t2Cta'),
               href: '/signup?type=company',
@@ -430,7 +430,7 @@ function ForCompaniesInner() {
               name: t('forCompanies.pricing.t3Name'),
               price: t('forCompanies.pricing.t3Price'),
               priceSuffix: t('forCompanies.pricing.t3Suffix'),
-              color: '#F58E9A',
+              color: '#FB7185',
               desc: t('forCompanies.pricing.t3Desc'),
               cta: t('forCompanies.pricing.t3Cta'),
               href: '/signup?type=company',
@@ -453,9 +453,9 @@ function ForCompaniesInner() {
               style={
                 tier.highlight
                   ? {
-                      background: 'linear-gradient(160deg, #1A1622, #16161F)',
-                      border: '1px solid rgba(240,140,174,0.3)',
-                      boxShadow: '0 20px 50px rgba(240,140,174,0.18)',
+                      background: 'linear-gradient(160deg, #131220, #0D0C14)',
+                      border: '1px solid rgba(157, 140, 255, 0.3)',
+                      boxShadow: '0 20px 50px rgba(157, 140, 255, 0.18)',
                     }
                   : undefined
               }
@@ -492,7 +492,7 @@ function ForCompaniesInner() {
         <div
           className="relative overflow-hidden rounded-3xl text-center py-16 md:py-20 px-8"
           style={{
-            background: '#16161F',
+            background: '#0D0C14',
             border: '1px solid rgba(255,255,255,0.08)',
           }}
         >

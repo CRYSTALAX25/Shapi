@@ -395,23 +395,23 @@ function confirmEmailHtml(opts: {
   <div style="max-width:560px;margin:0 auto;padding:40px 24px">
     <div style="margin-bottom:32px">
       <span style="font-size:22px;font-weight:900;letter-spacing:-0.5px;
-                   background:linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A);
+                   background:linear-gradient(135deg, #9D8CFF, #34D399);
                    -webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</span>
     </div>
-    <div style="background:#0d0d14;border:1px solid rgba(34,211,238,0.15);border-radius:16px;padding:32px">
+    <div style="background:#0D0C14;border:1px solid rgba(157, 140, 255, 0.15);border-radius:16px;padding:32px">
       <h1 style="color:#fff;font-size:22px;font-weight:900;margin:0 0 12px">Hi ${firstName}, one quick confirmation.</h1>
       <p style="color:rgba(255,255,255,0.55);font-size:15px;line-height:1.65;margin:0 0 16px">
         ${companyName} uses Shapi to keep a verified org chart. We have you down as:
       </p>
-      <div style="background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.12);border-radius:10px;padding:14px 18px;margin:20px 0">
-        <p style="color:#22D3EE;font-size:16px;font-weight:900;margin:0">${seatTitle}</p>
+      <div style="background:rgba(157, 140, 255, 0.06);border:1px solid rgba(157, 140, 255, 0.12);border-radius:10px;padding:14px 18px;margin:20px 0">
+        <p style="color:#9D8CFF;font-size:16px;font-weight:900;margin:0">${seatTitle}</p>
         ${teamName ? `<p style="color:rgba(255,255,255,0.45);font-size:13px;margin:4px 0 0">${teamName}</p>` : ''}
       </div>
       <p style="color:rgba(255,255,255,0.55);font-size:15px;line-height:1.65;margin:0 0 16px">
         Is that right? Takes 10 seconds — no account needed.
       </p>
       <a href="${link}" style="display:inline-block;margin-top:8px;padding:14px 28px;
-        background:linear-gradient(135deg,#22D3EE,#A78BFA);color:#060609;font-size:14px;
+        background:linear-gradient(135deg,#9D8CFF, #34D399);color:#060609;font-size:14px;
         font-weight:900;border-radius:100px;text-decoration:none">Confirm my role →</a>
     </div>
     <p style="color:rgba(255,255,255,0.2);font-size:12px;margin-top:24px;text-align:center">

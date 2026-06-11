@@ -20,19 +20,19 @@ import type {
 // decided_by_user_id from auth.uid() and writes the audit row server-side.
 // ────────────────────────────────────────────────────────────────────────────
 
-const ACCENT = '#7c93f5'
-const PURPLE = '#A78BFA'
+const ACCENT = '#9D8CFF'
+const PURPLE = '#9D8CFF'
 const SUCCESS = '#34D399'
 const CORAL = '#FB7185'
 const AMBER = '#FBBF24'
-const CARD = '#13161b'
-const HEADING_STYLE: React.CSSProperties = { color: '#f4f6f9' }
-const BODY_STYLE: React.CSSProperties = { color: '#9ca3af' }
+const CARD = '#0D0C14'
+const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
+const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
 const HAIRLINE = '1px solid rgba(255,255,255,0.06)'
 const INPUT_STYLE: React.CSSProperties = {
   background: 'rgba(255,255,255,0.03)',
   border: '1px solid rgba(255,255,255,0.10)',
-  color: '#f4f6f9',
+  color: 'rgba(255,255,255,0.9)',
 }
 
 type Program = {
@@ -75,10 +75,10 @@ const PROGRAM_TYPE_LABEL: Record<string, string> = {
 }
 
 const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
-  open: { bg: 'rgba(124,147,245,0.14)', color: ACCENT },
-  in_progress: { bg: 'rgba(167,139,250,0.14)', color: PURPLE },
+  open: { bg: 'rgba(157, 140, 255, 0.14)', color: ACCENT },
+  in_progress: { bg: 'rgba(157, 140, 255, 0.14)', color: PURPLE },
   completed: { bg: 'rgba(52,211,153,0.12)', color: SUCCESS },
-  abandoned: { bg: 'rgba(255,255,255,0.06)', color: '#9ca3af' },
+  abandoned: { bg: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' },
   escalated: { bg: 'rgba(251,113,133,0.12)', color: CORAL },
 }
 
@@ -271,7 +271,7 @@ export default function LifecycleClient({
           <button
             onClick={() => { setProgramType('pip'); setShowForm(true); resetForm() }}
             className="px-4 py-2.5 rounded-xl text-sm font-bold"
-            style={{ background: 'rgba(167,139,250,0.14)', color: PURPLE, border: `1px solid ${PURPLE}44` }}
+            style={{ background: 'rgba(157, 140, 255, 0.14)', color: PURPLE, border: `1px solid ${PURPLE}44` }}
           >
             Start a PIP
           </button>
@@ -292,7 +292,7 @@ export default function LifecycleClient({
             <button
               onClick={() => { setShowForm(false); resetForm() }}
               className="text-xs font-bold"
-              style={{ color: '#9ca3af' }}
+              style={{ color: 'rgba(255,255,255,0.5)' }}
             >
               Cancel
             </button>
@@ -307,8 +307,8 @@ export default function LifecycleClient({
                 className="px-3 py-1.5 rounded-lg text-xs font-bold"
                 style={
                   programType === pt
-                    ? { background: ACCENT, color: '#0c0e11' }
-                    : { background: 'rgba(255,255,255,0.04)', color: '#9ca3af', border: HAIRLINE }
+                    ? { background: ACCENT, color: '#060609' }
+                    : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.5)', border: HAIRLINE }
                 }
               >
                 {pt === 'pip' ? 'PIP' : 'Separation'}
@@ -337,14 +337,14 @@ export default function LifecycleClient({
             selectedTemplate ? (
               <div
                 className="rounded-xl p-4 mb-4"
-                style={{ background: 'rgba(124,147,245,0.06)', border: `1px solid ${ACCENT}33` }}
+                style={{ background: 'rgba(157, 140, 255, 0.06)', border: `1px solid ${ACCENT}33` }}
               >
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: 'rgba(52,211,153,0.12)', color: SUCCESS }}>
                     Vetted template
                   </span>
                   <span className="text-xs font-black" style={HEADING_STYLE}>{selectedTemplate.title}</span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.05)', color: '#9ca3af' }}>
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)' }}>
                     {selectedTemplate.ref}
                   </span>
                 </div>
@@ -416,7 +416,7 @@ export default function LifecycleClient({
             <label className="block text-[10px] font-bold uppercase tracking-wider" style={{ color: ACCENT }}>
               Private notes
             </label>
-            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(245,142,154,0.12)', color: CORAL }}>
+            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(251, 113, 133, 0.12)', color: CORAL }}>
               🔒 Restricted — excluded from Company Brain RAG
             </span>
           </div>
@@ -453,7 +453,7 @@ export default function LifecycleClient({
             onClick={handleCreate}
             disabled={submitting}
             className="px-4 py-2.5 rounded-xl text-sm font-bold disabled:opacity-50"
-            style={{ background: '#eef1f6', color: '#0c0e11' }}
+            style={{ background: '#eef1f6', color: '#060609' }}
           >
             {submitting ? 'Creating…' : `Open ${programType === 'pip' ? 'PIP' : 'Separation'}`}
           </button>
@@ -499,7 +499,7 @@ export default function LifecycleClient({
                         Vetted template
                       </span>
                       <span className="text-[11px]" style={BODY_STYLE}>{tpl.title}</span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.05)', color: '#9ca3af' }}>{tpl.ref}</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)' }}>{tpl.ref}</span>
                     </div>
                   )}
 
@@ -510,7 +510,7 @@ export default function LifecycleClient({
                       { label: '60d', lines: toLines(p.milestones_60d) },
                       { label: '90d', lines: toLines(p.milestones_90d) },
                     ].map((m) => (
-                      <div key={m.label} className="rounded-lg p-2" style={{ background: 'rgba(124,147,245,0.06)' }}>
+                      <div key={m.label} className="rounded-lg p-2" style={{ background: 'rgba(157, 140, 255, 0.06)' }}>
                         <p className="text-[10px] font-bold mb-1" style={{ color: ACCENT }}>{m.label}</p>
                         {m.lines.length === 0 ? (
                           <p className="text-[10px]" style={BODY_STYLE}>—</p>
@@ -527,7 +527,7 @@ export default function LifecycleClient({
 
                   {/* Private notes — restricted badge */}
                   {p.private_notes && (
-                    <div className="rounded-lg p-2 mb-2" style={{ background: 'rgba(245,142,154,0.06)', border: '1px solid rgba(245,142,154,0.20)' }}>
+                    <div className="rounded-lg p-2 mb-2" style={{ background: 'rgba(251, 113, 133, 0.06)', border: '1px solid rgba(251, 113, 133, 0.20)' }}>
                       <p className="text-[9px] font-bold uppercase tracking-wider mb-1" style={{ color: CORAL }}>
                         🔒 Private notes · restricted — excluded from Company Brain RAG
                       </p>
@@ -571,14 +571,14 @@ export default function LifecycleClient({
                           onClick={handleAdvance}
                           disabled={advanceSubmitting}
                           className="px-3 py-1.5 rounded-lg text-[11px] font-bold disabled:opacity-50"
-                          style={{ background: '#eef1f6', color: '#0c0e11' }}
+                          style={{ background: '#eef1f6', color: '#060609' }}
                         >
                           {advanceSubmitting ? 'Saving…' : 'Confirm + audit'}
                         </button>
                         <button
                           onClick={() => setAdvancingId(null)}
                           className="px-3 py-1.5 rounded-lg text-[11px] font-bold"
-                          style={{ color: '#9ca3af' }}
+                          style={{ color: 'rgba(255,255,255,0.5)' }}
                         >
                           Cancel
                         </button>
@@ -617,7 +617,7 @@ export default function LifecycleClient({
               return (
                 <li key={d.id} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.02)', border: HAIRLINE }}>
                   <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: 'rgba(124,147,245,0.12)', color: ACCENT }}>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: 'rgba(157, 140, 255, 0.12)', color: ACCENT }}>
                       {d.decision_type.replace('_', ' ')}
                     </span>
                     <span className="text-[10px]" style={BODY_STYLE}>{fmtDateTime(d.decided_at)}</span>

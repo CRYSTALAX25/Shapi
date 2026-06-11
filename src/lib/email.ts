@@ -20,12 +20,12 @@ function emailShell(body: string) {
     <!-- Logo -->
     <div style="margin-bottom:32px">
       <span style="font-size:22px;font-weight:900;letter-spacing:-0.5px;
-                   background:linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A);
+                   background:linear-gradient(135deg, #9D8CFF, #34D399);
                    -webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</span>
     </div>
 
     <!-- Card -->
-    <div style="background:#0d0d14;border:1px solid rgba(34,211,238,0.15);border-radius:16px;padding:32px">
+    <div style="background:#0D0C14;border:1px solid rgba(157, 140, 255, 0.15);border-radius:16px;padding:32px">
       ${body}
     </div>
 
@@ -46,7 +46,7 @@ function p(text: string) {
 }
 function btn(label: string, href: string) {
   return `<a href="${href}" style="display:inline-block;margin-top:8px;padding:14px 28px;
-    background:linear-gradient(135deg,#22D3EE,#A78BFA);color:#060609;font-size:14px;
+    background:linear-gradient(135deg,#9D8CFF, #34D399);color:#060609;font-size:14px;
     font-weight:900;border-radius:100px;text-decoration:none">${label}</a>`
 }
 function divider() {
@@ -63,9 +63,9 @@ export async function sendProfileLiveEmail(to: string, name: string, profileId: 
     ${h1(`${firstName}, your profile is live. 🎉`)}
     ${p(`Your Shapi profile has been verified and is now visible to hiring companies. You're ahead of 95% of candidates — most never complete verification.`)}
     ${p(`Share your profile link with anyone. Companies on Shapi can already see you.`)}
-    <div style="background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.12);border-radius:10px;padding:14px 18px;margin:20px 0">
+    <div style="background:rgba(157, 140, 255, 0.06);border:1px solid rgba(157, 140, 255, 0.12);border-radius:10px;padding:14px 18px;margin:20px 0">
       <p style="color:rgba(255,255,255,0.35);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 4px">Your profile link</p>
-      <a href="${profileUrl}" style="color:#22D3EE;font-size:14px;font-weight:700;text-decoration:none;word-break:break-all">${profileUrl}</a>
+      <a href="${profileUrl}" style="color:#9D8CFF;font-size:14px;font-weight:700;text-decoration:none;word-break:break-all">${profileUrl}</a>
     </div>
     ${btn('View your profile →', profileUrl)}
     ${divider()}
@@ -99,7 +99,7 @@ export async function sendCvKitEmail(to: string, name: string, tier: 'kit' | 'pr
         · AI-written CV in English + every language you speak<br>
         · Industry-targeted versions, re-framed per sector<br>
         · Print-ready PDFs, download anytime, link never expires`)}
-      ${p(`<strong style="color:#22D3EE">Plus what Pro ($59) adds:</strong><br>
+      ${p(`<strong style="color:#9D8CFF">Plus what Pro ($59) adds:</strong><br>
         · <strong style="color:rgba(255,255,255,0.7)">WhatsApp deep-dive interviews</strong> — per-industry conversations that pull out the achievements your CV missed, then rewrite each version with them<br>
         · <strong style="color:rgba(255,255,255,0.7)">Verification chain</strong> — we independently contact your past managers, plus colleagues + stakeholders they nominate (you don't pick what they say)<br>
         · <strong style="color:rgba(255,255,255,0.7)">AI cross-check report</strong> — Claude analyses every reference against your CV claims and flags what's independently confirmed<br>
@@ -129,7 +129,7 @@ export async function sendCvKitEmail(to: string, name: string, tier: 'kit' | 'pr
       · All print-ready PDFs`)}
     ${p(`You can download as many times as you like — the link never expires.`)}
     ${divider()}
-    ${p(`<span style="font-size:13px;color:rgba(255,255,255,0.4)"><strong style="color:#22D3EE">Want more?</strong> Upgrade to <strong style="color:rgba(255,255,255,0.7)">CV Pro ($59)</strong> for WhatsApp deep-dive interviews, an independent verification chain (we contact your references directly), an AI cross-check report, and a Career Roadmap. Find the upgrade on your dashboard.</span>`)}
+    ${p(`<span style="font-size:13px;color:rgba(255,255,255,0.4)"><strong style="color:#9D8CFF">Want more?</strong> Upgrade to <strong style="color:rgba(255,255,255,0.7)">CV Pro ($59)</strong> for WhatsApp deep-dive interviews, an independent verification chain (we contact your references directly), an AI cross-check report, and a Career Roadmap. Find the upgrade on your dashboard.</span>`)}
   `)
 
   await getResend().emails.send({
@@ -197,8 +197,8 @@ export async function sendNominatedReferenceEmail(opts: {
     ${h1(`A quick word about ${candidateName}.`)}
     ${p(`Hi ${refereeFirst} — <strong style="color:rgba(255,255,255,0.75)">${nominatorName}</strong> at ${nominatorCompany} suggested you worked with ${candidateFirst} and might be able to share a perspective.`)}
     ${p(`${candidateFirst} is on Shapi — a verified hiring platform. ${nominatorName} nominated you as ${roleLabel} who knows their work well.`)}
-    <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:10px;padding:14px 18px;margin:16px 0">
-      <p style="color:rgba(167,139,250,0.8);font-size:13px;font-weight:700;margin:0">${candidateFirst} doesn&apos;t know we&apos;ve reached out — you can be completely candid.</p>
+    <div style="background:rgba(157, 140, 255, 0.08);border:1px solid rgba(157, 140, 255, 0.2);border-radius:10px;padding:14px 18px;margin:16px 0">
+      <p style="color:rgba(157, 140, 255, 0.8);font-size:13px;font-weight:700;margin:0">${candidateFirst} doesn&apos;t know we&apos;ve reached out — you can be completely candid.</p>
     </div>
     ${p(`3 short questions. Takes 2 minutes.`)}
     ${btn(`Share your perspective →`, referenceUrl)}
@@ -251,7 +251,7 @@ export async function sendCompanyMatchEmail(
 
   const html = emailShell(`
     ${h1(`New ${label} match for ${roleName}`)}
-    ${p(`A verified candidate just completed their profile and scored <strong style="color:#22D3EE">${matchScore}%</strong> against your <strong style="color:rgba(255,255,255,0.8)">${roleName}</strong> role — that puts them in the <em>${label} match</em> category.`)}
+    ${p(`A verified candidate just completed their profile and scored <strong style="color:#9D8CFF">${matchScore}%</strong> against your <strong style="color:rgba(255,255,255,0.8)">${roleName}</strong> role — that puts them in the <em>${label} match</em> category.`)}
     ${p(`${candidateCount > 1 ? `There are now ${candidateCount} scored candidates for this role.` : `They're the first scored candidate for this role.`} View their profile and start a conversation directly from your dashboard.`)}
     ${btn('View matches →', dashboardUrl)}
     ${divider()}
@@ -290,7 +290,7 @@ export async function sendWelcomeEmail({ to, name }: { to: string; name: string 
     ${btn('Check your AI risk →', `${SITE}/ai-proof`)}
     ${divider()}
     ${p(`Already explored? Your dashboard is home base — everything you build with us lives there.`)}
-    <a href="${SITE}/dashboard" style="color:#22D3EE;font-size:14px;font-weight:700;text-decoration:none">Go to your dashboard →</a>
+    <a href="${SITE}/dashboard" style="color:#9D8CFF;font-size:14px;font-weight:700;text-decoration:none">Go to your dashboard →</a>
     ${signoff()}
   `)
 
@@ -368,8 +368,8 @@ export async function sendConciergeOutreach(opts: {
 
   const html = emailShell(`
     ${h1(`${who} would like to connect`)}
-    <div style="background:rgba(106,168,245,0.06);border:1px solid rgba(106,168,245,0.18);border-radius:10px;padding:14px 18px;margin:0 0 20px">
-      <p style="color:rgba(106,168,245,0.85);font-size:12px;font-weight:700;margin:0">Reached out via Shapi — profile independently verified</p>
+    <div style="background:rgba(157, 140, 255, 0.06);border:1px solid rgba(157, 140, 255, 0.18);border-radius:10px;padding:14px 18px;margin:0 0 20px">
+      <p style="color:rgba(157, 140, 255, 0.85);font-size:12px;font-weight:700;margin:0">Reached out via Shapi — profile independently verified</p>
     </div>
     <p style="color:rgba(255,255,255,0.7);font-size:15px;line-height:1.7;margin:0 0 16px">${safeBody}</p>
     ${divider()}
@@ -401,7 +401,7 @@ export async function sendConciergeNudge(opts: {
 
   const html = emailShell(`
     ${h1(`${firstName}, ${count} new ${roleWord} worth a look.`)}
-    ${p(`Your Shapi Concierge scanned today&apos;s openings and drafted personalised intros for <strong style="color:#22D3EE">${count} ${roleWord}</strong> that fit your profile. Each one&apos;s ready — review and approve before it goes out.`)}
+    ${p(`Your Shapi Concierge scanned today&apos;s openings and drafted personalised intros for <strong style="color:#9D8CFF">${count} ${roleWord}</strong> that fit your profile. Each one&apos;s ready — review and approve before it goes out.`)}
     ${p(`You&apos;ve got ${count} new ${roleWord} worth a look — review &amp; approve in your Shapi dashboard.`)}
     ${btn('Review your drafts →', dashboardUrl)}
     ${divider()}
@@ -444,8 +444,8 @@ export async function sendConciergeReplyAlert(opts: {
     ${h1(`${firstName}, a hiring manager replied. 🎉`)}
     ${p(`Good news — the team at <strong style="color:rgba(255,255,255,0.8)">${companyName}</strong> just replied about the <strong style="color:rgba(255,255,255,0.8)">${roleName}</strong> role your Concierge reached out about.`)}
     ${safeReply ? `
-    <div style="background:rgba(106,168,245,0.06);border:1px solid rgba(106,168,245,0.18);border-radius:10px;padding:14px 18px;margin:0 0 20px">
-      <p style="color:rgba(106,168,245,0.85);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin:0 0 8px">What they said</p>
+    <div style="background:rgba(157, 140, 255, 0.06);border:1px solid rgba(157, 140, 255, 0.18);border-radius:10px;padding:14px 18px;margin:0 0 20px">
+      <p style="color:rgba(157, 140, 255, 0.85);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin:0 0 8px">What they said</p>
       <p style="color:rgba(255,255,255,0.7);font-size:14px;line-height:1.6;margin:0">${safeReply}</p>
     </div>` : ''}
     ${p(`We&apos;ve already proposed an interview in your Shapi pipeline. Let&apos;s get you booked — open your dashboard to confirm a time.`)}
@@ -520,7 +520,7 @@ export async function sendCompanyWelcomeEmail(opts: {
     </ol>
     ${btn('Build my org spine →', `${SITE}/company/spine`)}
     ${divider()}
-    ${p(`Receipt + invoice come from Stripe directly. Manage billing or cancel from your <a href="${SITE}/api/stripe/portal" style="color:#6AA8F5">customer portal</a>.`)}
+    ${p(`Receipt + invoice come from Stripe directly. Manage billing or cancel from your <a href="${SITE}/api/stripe/portal" style="color:#9D8CFF">customer portal</a>.`)}
     ${p('Need help importing data, or a setup call? Reply to this email — we read every one.')}
   `)
   await getResend().emails.send({

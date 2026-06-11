@@ -182,8 +182,8 @@ export default function SignupWhatsApp({
   if (stage === 'code') {
     return (
       <div className="space-y-3">
-        <div className="rounded-2xl p-4" style={{ background: 'rgba(106,168,245,0.10)', border: '1px solid rgba(106,168,245,0.30)' }}>
-          <p className="text-[#6AA8F5] text-xs font-bold mb-1">
+        <div className="rounded-2xl p-4" style={{ background: 'rgba(157, 140, 255, 0.10)', border: '1px solid rgba(157, 140, 255, 0.30)' }}>
+          <p className="text-[#9D8CFF] text-xs font-bold mb-1">
             {deliveredVia === 'whatsapp' ? '💬' : '📱'} Code sent to {normalisedPhone}
           </p>
           <p className="text-[#A6A6B4] text-xs leading-relaxed">
@@ -208,7 +208,7 @@ export default function SignupWhatsApp({
           type="button"
           onClick={verifyCode}
           disabled={loading || code.replace(/\D/g, '').length < 6}
-          className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-full bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading ? 'Verifying…' : 'Verify and continue →'}
         </button>
@@ -217,7 +217,7 @@ export default function SignupWhatsApp({
           <button type="button" onClick={() => { setStage('phone'); setCode(''); setError(null) }} className="text-[#7E7E8E] hover:text-[#C7C7D1] transition-colors">
             ← Change number
           </button>
-          <button type="button" onClick={resend} disabled={resendCooldown > 0 || loading} className="text-[#6AA8F5] hover:underline disabled:opacity-50 disabled:cursor-not-allowed">
+          <button type="button" onClick={resend} disabled={resendCooldown > 0 || loading} className="text-[#9D8CFF] hover:underline disabled:opacity-50 disabled:cursor-not-allowed">
             {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code'}
           </button>
         </div>
@@ -240,7 +240,7 @@ export default function SignupWhatsApp({
         type="button"
         onClick={sendCode}
         disabled={!initialType || !agreedToTerms || loading || !phoneValid}
-        className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-full bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {loading ? 'Sending code…' : 'Send WhatsApp code →'}
       </button>

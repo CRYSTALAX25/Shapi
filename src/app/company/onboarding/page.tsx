@@ -43,7 +43,7 @@ const APPROX_TURNS = 7
 
 export default function CompanyOnboarding() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0E0E13]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#060609]" />}>
       <CompanyOnboardingInner />
     </Suspense>
   )
@@ -197,9 +197,9 @@ function CompanyOnboardingInner() {
   // Already-onboarded / wrong-type redirect handoff.
   if (redirecting) {
     return (
-      <div className="min-h-screen bg-[#0E0E13] flex flex-col items-center justify-center px-6">
-        <div className="flex items-center gap-2" style={{ color: '#F08CAE' }}>
-          <div className="w-4 h-4 rounded-full border-2 border-[#F08CAE]/30 border-t-[#F08CAE] animate-spin" />
+      <div className="min-h-screen bg-[#060609] flex flex-col items-center justify-center px-6">
+        <div className="flex items-center gap-2" style={{ color: '#9D8CFF' }}>
+          <div className="w-4 h-4 rounded-full border-2 border-[#9D8CFF]/30 border-t-[#9D8CFF] animate-spin" />
           <span className="text-xs font-bold">Loading…</span>
         </div>
       </div>
@@ -215,25 +215,25 @@ function CompanyOnboardingInner() {
   // the chat and then redirect.
   if (!guardChecked) {
     return (
-      <div className="min-h-screen bg-[#0E0E13] flex flex-col items-center justify-center px-6">
+      <div className="min-h-screen bg-[#060609] flex flex-col items-center justify-center px-6">
         <p className="text-[#A6A6B4] text-sm">Loading your company…</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0E0E13] flex flex-col">
+    <div className="min-h-screen bg-[#060609] flex flex-col">
       {/* Nav */}
-      <nav className="px-6 py-4 flex items-center justify-between border-b border-[rgba(255,255,255,0.08)] bg-[#0E0E13]/80 backdrop-blur sticky top-0 z-10">
+      <nav className="px-6 py-4 flex items-center justify-between border-b border-[rgba(255,255,255,0.08)] bg-[#060609]/80 backdrop-blur sticky top-0 z-10">
         <Link href="/" className="font-bold text-xl tracking-tight" style={{
-          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+          background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <div className="flex items-center gap-4">
           <span className="text-xs text-[#5C5C6A] hidden sm:inline">Company setup</span>
           <button
             onClick={() => setMode('form')}
-            className="text-xs text-[#6AA8F5] font-medium hover:underline"
+            className="text-xs text-[#9D8CFF] font-medium hover:underline"
             title="Switch to the classic form — fill the fields yourself"
           >
             Prefer a form? Skip to manual entry →
@@ -254,7 +254,7 @@ function CompanyOnboardingInner() {
               width: `${turnPct}%`,
               background: saving
                 ? '#34D399'
-                : 'linear-gradient(90deg,#6AA8F5,#F08CAE,#F58E9A)',
+                : 'linear-gradient(90deg, #9D8CFF, #34D399)',
             }}
           />
         </div>
@@ -268,9 +268,9 @@ function CompanyOnboardingInner() {
               className={`max-w-[85%] rounded-2xl px-5 py-4 text-sm leading-relaxed ${
                 m.role === 'user'
                   ? 'text-white rounded-br-sm'
-                  : 'bg-[#16161F] text-[#C7C7D1] border border-[rgba(255,255,255,0.08)] shadow-sm rounded-bl-sm'
+                  : 'bg-[#0D0C14] text-[#C7C7D1] border border-[rgba(255,255,255,0.08)] shadow-sm rounded-bl-sm'
               }`}
-              style={m.role === 'user' ? { background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' } : undefined}
+              style={m.role === 'user' ? { background: 'linear-gradient(135deg, #9D8CFF, #34D399)' } : undefined}
             >
               {m.content.split('\n').map((line, j) => {
                 const parts = line.split(/\*\*(.*?)\*\*/g)
@@ -288,11 +288,11 @@ function CompanyOnboardingInner() {
 
         {(loading || saving) && (
           <div className="flex justify-start">
-            <div className="bg-[#16161F] border border-[rgba(255,255,255,0.08)] shadow-sm rounded-2xl rounded-bl-sm px-5 py-4">
+            <div className="bg-[#0D0C14] border border-[rgba(255,255,255,0.08)] shadow-sm rounded-2xl rounded-bl-sm px-5 py-4">
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-[#6AA8F5]/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 bg-[#6AA8F5]/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 bg-[#6AA8F5]/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="w-2 h-2 bg-[#9D8CFF]/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 bg-[#9D8CFF]/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 bg-[#9D8CFF]/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
           </div>
@@ -300,7 +300,7 @@ function CompanyOnboardingInner() {
 
         {error && (
           <div className="flex justify-start">
-            <div className="max-w-[85%] rounded-2xl px-4 py-3 text-xs text-[#F58E9A]" style={{ background: 'rgba(245,142,154,0.10)', border: '1px solid rgba(245,142,154,0.25)' }}>
+            <div className="max-w-[85%] rounded-2xl px-4 py-3 text-xs text-[#FB7185]" style={{ background: 'rgba(251, 113, 133, 0.10)', border: '1px solid rgba(251, 113, 133, 0.25)' }}>
               {error}
             </div>
           </div>
@@ -310,7 +310,7 @@ function CompanyOnboardingInner() {
       </div>
 
       {/* Input */}
-      <div className="sticky bottom-0 bg-[#0E0E13]/80 backdrop-blur border-t border-[rgba(255,255,255,0.08)] px-4 py-4">
+      <div className="sticky bottom-0 bg-[#060609]/80 backdrop-blur border-t border-[rgba(255,255,255,0.08)] px-4 py-4">
         <div className="max-w-2xl mx-auto flex gap-3">
           <textarea
             value={input}
@@ -319,21 +319,21 @@ function CompanyOnboardingInner() {
             placeholder="Type your answer... (Enter to send)"
             rows={1}
             disabled={saving}
-            className="flex-1 bg-[#16161F] border border-[rgba(255,255,255,0.08)] rounded-2xl px-5 py-3.5 text-sm text-[#F4F4F7] placeholder-[#5C5C6A] focus:outline-none focus:border-[#6AA8F5] transition-colors resize-none disabled:opacity-50"
+            className="flex-1 bg-[#0D0C14] border border-[rgba(255,255,255,0.08)] rounded-2xl px-5 py-3.5 text-sm text-[#F4F4F7] placeholder-[#5C5C6A] focus:outline-none focus:border-[#9D8CFF] transition-colors resize-none disabled:opacity-50"
             style={{ minHeight: '52px', maxHeight: '120px' }}
           />
           <button
             onClick={send}
             disabled={!input.trim() || loading || saving}
             className="text-white px-5 py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)' }}
+            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
           >
             Send
           </button>
         </div>
         <p className="text-center text-xs text-[#5C5C6A] mt-2">
           Prefer to fill it in yourself?{' '}
-          <button onClick={() => setMode('form')} className="text-[#6AA8F5] hover:underline font-medium">
+          <button onClick={() => setMode('form')} className="text-[#9D8CFF] hover:underline font-medium">
             Skip to manual entry
           </button>
         </p>

@@ -16,7 +16,7 @@ type Report = {
 const verdictMeta = (v: Report['verdict']) => {
   if (v === 'safe') return { color: '#34D399', label: 'AI-resilient', emoji: '🛡️' }
   if (v === 'caution') return { color: '#FBBF24', label: 'Needs redesign', emoji: '⚠️' }
-  return { color: '#F58E9A', label: 'High automation risk', emoji: '🔴' }
+  return { color: '#FB7185', label: 'High automation risk', emoji: '🔴' }
 }
 
 export default function RoleAIProof() {
@@ -54,16 +54,16 @@ export default function RoleAIProof() {
   const meta = report ? verdictMeta(report.verdict) : null
   const pct = report ? Math.round((report.score / 10) * 100) : 0
 
-  const inputCls = 'w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/50'
+  const inputCls = 'w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50'
   const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }
   const labelCls = 'text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider'
-  const cardStyle = { background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }
+  const cardStyle = { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }
 
   return (
-    <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7]">
+    <div className="min-h-screen bg-[#060609] text-[#F4F4F7]">
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
       <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-4xl mx-auto">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         <Link href="/company/dashboard" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7]">← Dashboard</Link>
       </nav>
 
@@ -92,16 +92,16 @@ export default function RoleAIProof() {
           </div>
           <button onClick={run} disabled={loading || !title.trim() || !description.trim()}
             className="mt-4 w-full sm:w-auto px-6 py-3 rounded-full font-black text-sm text-white disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
+            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
             {loading ? 'Reading the role…' : 'Score this role →'}
           </button>
-          {err && <p className="text-[#F58E9A] text-xs mt-3">{err}</p>}
+          {err && <p className="text-[#FB7185] text-xs mt-3">{err}</p>}
         </div>
 
         {report && meta && (
           <div className="space-y-5">
             {/* Score card */}
-            <div className="rounded-2xl p-6" style={{ background: '#16161F', border: `1px solid ${meta.color}55` }}>
+            <div className="rounded-2xl p-6" style={{ background: '#0D0C14', border: `1px solid ${meta.color}55` }}>
               <div className="flex items-baseline gap-3 mb-3">
                 <p className="text-6xl font-black" style={{ color: meta.color }}>{report.score}<span className="text-2xl text-[#7E7E8E]">/10</span></p>
                 <span className="text-xs font-black px-2.5 py-1 rounded-full" style={{ background: `${meta.color}26`, color: meta.color }}>{meta.emoji} {meta.label}</span>
@@ -116,7 +116,7 @@ export default function RoleAIProof() {
             <div className="grid sm:grid-cols-2 gap-4">
               {report.tasks_at_risk?.length > 0 && (
                 <div className="rounded-2xl p-5" style={cardStyle}>
-                  <p className="text-[#F58E9A] text-[10px] font-bold uppercase tracking-wider mb-2">🤖 Tasks AI can do</p>
+                  <p className="text-[#FB7185] text-[10px] font-bold uppercase tracking-wider mb-2">🤖 Tasks AI can do</p>
                   <ul className="space-y-1.5">{report.tasks_at_risk.map((t, i) => <li key={i} className="text-[#C7C7D1] text-xs leading-relaxed">• {t}</li>)}</ul>
                 </div>
               )}
@@ -130,16 +130,16 @@ export default function RoleAIProof() {
 
             {/* Augment with AI */}
             {report.augment_with_ai?.length > 0 && (
-              <div className="rounded-2xl p-5" style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.2)' }}>
-                <p className="text-[#6AA8F5] text-[10px] font-bold uppercase tracking-wider mb-2">⚡ Augment with AI</p>
-                <ul className="space-y-1.5">{report.augment_with_ai.map((s, i) => <li key={i} className="text-[#C7C7D1] text-xs leading-relaxed flex gap-2"><span className="text-[#6AA8F5]">•</span><span>{s}</span></li>)}</ul>
+              <div className="rounded-2xl p-5" style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.2)' }}>
+                <p className="text-[#9D8CFF] text-[10px] font-bold uppercase tracking-wider mb-2">⚡ Augment with AI</p>
+                <ul className="space-y-1.5">{report.augment_with_ai.map((s, i) => <li key={i} className="text-[#C7C7D1] text-xs leading-relaxed flex gap-2"><span className="text-[#9D8CFF]">•</span><span>{s}</span></li>)}</ul>
               </div>
             )}
 
             {/* Redesign */}
             {report.redesign_suggestion && (
-              <div className="rounded-2xl p-5" style={{ background: 'linear-gradient(135deg, rgba(240,140,174,0.10), rgba(251,191,36,0.08))', border: '1px solid rgba(240,140,174,0.25)' }}>
-                <p className="text-[#F08CAE] text-[10px] font-bold uppercase tracking-wider mb-2">🧬 Redesign suggestion</p>
+              <div className="rounded-2xl p-5" style={{ background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.10), rgba(251,191,36,0.08))', border: '1px solid rgba(157, 140, 255, 0.25)' }}>
+                <p className="text-[#9D8CFF] text-[10px] font-bold uppercase tracking-wider mb-2">🧬 Redesign suggestion</p>
                 <p className="text-[#F4F4F7] text-sm leading-relaxed">{report.redesign_suggestion}</p>
               </div>
             )}

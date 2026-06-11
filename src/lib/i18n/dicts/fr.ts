@@ -42,9 +42,9 @@ const fr: typeof en = {
     hero: {
       badgeDate: 'Lancement EAU · 2026',
       badgeAccess: 'Accès anticipé ouvert',
-      headlineLine1: 'Un recrutement qui',
-      headlineLine2: 'marche pour de vrai.',
-      subhead: "Pas un énième job board. La couche de vérification du recrutement — références sourcées en toute indépendance, compétences prouvées par preuves, entreprises dignes de confiance.",
+      headlineLine1: 'Arrêtez de deviner.',
+      headlineLine2: 'Recrutez du prouvé.',
+      subhead: "Shapi est la couche de vérification du recrutement. Les références sont sourcées en toute indépendance, les compétences sont prouvées par des preuves, et les entreprises qui recrutent portent un véritable score de confiance. Chaque côté décide sur des faits.",
       subheadHighlight: 'couche de vérification du recrutement',
       ctaBuild: 'Créer mon profil vérifié — gratuit →',
       ctaHire: 'Je recrute — publier une offre gratuite →',

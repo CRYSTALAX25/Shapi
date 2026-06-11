@@ -54,11 +54,11 @@ export default async function CompanyPipeline({ searchParams }: { searchParams: 
   }
 
   return (
-    <div className="min-h-screen bg-[#0E0E13]">
+    <div className="min-h-screen bg-[#060609]">
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
 
       <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-6xl mx-auto">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         <Link href="/company/dashboard" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1] transition-colors">← Dashboard</Link>
       </nav>
 
@@ -75,17 +75,17 @@ export default async function CompanyPipeline({ searchParams }: { searchParams: 
               <Link key={r.id} href={`/company/pipeline?role=${r.id}`}
                 className="text-sm font-bold px-4 py-2 rounded-full transition-all"
                 style={selectedRoleId === r.id
-                  ? { background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)', color: '#fff' }
-                  : { background: '#16161F', border: '1px solid rgba(255,255,255,0.08)', color: '#A6A6B4' }}>
+                  ? { background: 'linear-gradient(135deg,#9D8CFF, #34D399)', color: '#fff' }
+                  : { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)', color: '#A6A6B4' }}>
                 {r.title}{r.status !== 'active' ? ` · ${r.status}` : ''}
               </Link>
             ))}
           </div>
         ) : (
-          <div className="bg-[#16161F] rounded-2xl p-10 text-center" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="bg-[#0D0C14] rounded-2xl p-10 text-center" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
             <p className="text-[#F4F4F7] font-bold mb-1">No roles yet</p>
             <p className="text-[#7E7E8E] text-sm mb-4">Post a role and shortlist candidates to start your pipeline.</p>
-            <Link href="/company/roles/new" className="inline-block text-white text-sm font-bold px-5 py-2.5 rounded-full" style={{ background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)' }}>Post a role →</Link>
+            <Link href="/company/roles/new" className="inline-block text-white text-sm font-bold px-5 py-2.5 rounded-full" style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)' }}>Post a role →</Link>
           </div>
         )}
 

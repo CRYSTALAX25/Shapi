@@ -203,9 +203,9 @@ export default function CultureSurveyForm({
         className="w-full rounded-full py-4 text-sm font-black tracking-tight transition-all"
         style={{
           background: ready && !submitting
-            ? 'linear-gradient(135deg,#FB7185,#F08CAE)'
+            ? 'linear-gradient(135deg,#FB7185, #9D8CFF)'
             : 'rgba(255,255,255,0.06)',
-          color: ready && !submitting ? '#0E0E13' : '#7E7E8E',
+          color: ready && !submitting ? '#060609' : '#7E7E8E',
           cursor: ready && !submitting ? 'pointer' : 'not-allowed',
           border: 'none',
         }}

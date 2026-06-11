@@ -35,14 +35,14 @@ export default async function BrainPage() {
     .select('id', { count: 'exact', head: true })
     .eq('company_id', user.id)
 
-  const ACCENT = '#7c93f5'
-  const HEADING_STYLE: React.CSSProperties = { color: '#f4f6f9' }
-  const BODY_STYLE: React.CSSProperties = { color: '#9ca3af' }
+  const ACCENT = '#9D8CFF'
+  const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
+  const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
 
   const isEnterprise = planTier === 'enterprise'
 
   return (
-    <main className="min-h-screen px-4 py-10 sm:py-14" style={{ background: '#0c0e11' }}>
+    <main className="min-h-screen px-4 py-10 sm:py-14" style={{ background: '#060609' }}>
       <div className="max-w-3xl mx-auto">
         <Link href="/company/dashboard" className="text-xs font-bold mb-4 inline-block" style={{ color: ACCENT }}>
           ← Dashboard
@@ -58,7 +58,7 @@ export default async function BrainPage() {
           <p className="text-sm leading-relaxed" style={BODY_STYLE}>
             Drop in meeting notes, handover docs, process write-ups. Shapi chunks and embeds them,
             then answers questions over your own knowledge. Everything is anchored to a{' '}
-            <strong style={{ color: '#f4f6f9' }}>seat</strong>, not a person.
+            <strong style={{ color: 'rgba(255,255,255,0.9)' }}>seat</strong>, not a person.
           </p>
         </header>
 
@@ -66,7 +66,7 @@ export default async function BrainPage() {
         <div
           className="mb-6 p-5 rounded-2xl"
           style={{
-            background: 'linear-gradient(135deg, rgba(106,168,245,0.10), rgba(167,139,250,0.10))',
+            background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.10), rgba(157, 140, 255, 0.10))',
             border: `1px solid ${ACCENT}55`,
           }}
         >
@@ -74,7 +74,7 @@ export default async function BrainPage() {
             Seat Inheritance Playbook
           </p>
           <p className="text-sm leading-relaxed mb-3" style={BODY_STYLE}>
-            Knowledge is attached to the <strong style={{ color: '#f4f6f9' }}>seat</strong>, so when
+            Knowledge is attached to the <strong style={{ color: 'rgba(255,255,255,0.9)' }}>seat</strong>, so when
             someone leaves, their context stays. The next person to fill that seat inherits a
             conversational onboarding co-pilot on day one — the handover survives the departure.
           </p>

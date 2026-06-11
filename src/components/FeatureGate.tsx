@@ -107,8 +107,8 @@ function LockedShell({
         {children}
       </div>
 
-      {/* Lock card overlay — Palette E tokens (#13161b card / #7c93f5 accent
-          / #f4f6f9 heading / #9ca3af body). When Palette E ships platform-
+      {/* Lock card overlay — Palette E tokens (#0D0C14 card / #9D8CFF accent
+          / rgba(255,255,255,0.9) heading / rgba(255,255,255,0.5) body). When Palette E ships platform-
           wide, the rest of the UI matches. */}
       <div
         className="absolute inset-0 flex items-center justify-center p-4"
@@ -116,27 +116,27 @@ function LockedShell({
       >
         <div
           className={compact ? 'max-w-sm w-full rounded-2xl p-5 text-center' : 'max-w-md w-full rounded-2xl p-6 text-center'}
-          style={{ background: '#13161b', border: '1px solid rgba(124,147,245,0.30)', boxShadow: '0 24px 60px rgba(0,0,0,0.55)' }}
+          style={{ background: '#0D0C14', border: '1px solid rgba(157, 140, 255, 0.30)', boxShadow: '0 24px 60px rgba(0,0,0,0.55)' }}
         >
           <div
             className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center text-xl"
-            style={{ background: 'rgba(124,147,245,0.14)', border: '1px solid rgba(124,147,245,0.35)' }}
+            style={{ background: 'rgba(157, 140, 255, 0.14)', border: '1px solid rgba(157, 140, 255, 0.35)' }}
           >
             🔒
           </div>
-          <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#7c93f5' }}>
+          <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#9D8CFF' }}>
             {requirement?.kind === 'product' ? 'Engagement / retainer' : 'Premium tier'}
           </p>
-          <h3 className={compact ? 'text-base font-black mb-1' : 'text-lg font-black mb-2'} style={{ color: '#f4f6f9' }}>
+          <h3 className={compact ? 'text-base font-black mb-1' : 'text-lg font-black mb-2'} style={{ color: 'rgba(255,255,255,0.9)' }}>
             {displayTitle}
           </h3>
-          <p className="text-xs leading-relaxed mb-4" style={{ color: '#9ca3af' }}>
+          <p className="text-xs leading-relaxed mb-4" style={{ color: 'rgba(255,255,255,0.5)' }}>
             {displayDescription}
           </p>
           <Link
             href={displayUpgradeHref}
             className={compact ? 'inline-block px-4 py-2 rounded-full font-black text-xs' : 'inline-block px-5 py-2.5 rounded-full font-black text-xs'}
-            style={{ background: '#eef1f6', color: '#0c0e11' }}
+            style={{ background: '#eef1f6', color: '#060609' }}
           >
             {displayUpgradeLabel} →
           </Link>

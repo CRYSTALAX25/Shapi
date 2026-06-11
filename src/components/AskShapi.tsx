@@ -28,15 +28,15 @@ const INTRO_COMPANY: Msg = {
 }
 
 // Theme tokens
-const CANVAS = '#0E0E13'
-const PANEL = '#16161F'
+const CANVAS = '#060609'
+const PANEL = '#0D0C14'
 const BORDER = 'rgba(255,255,255,0.08)'
 const FILL = 'rgba(255,255,255,0.05)'
 const TEXT = '#F4F4F7'
 const TEXT_DIM = '#C7C7D1'
 const TEXT_FAINT = '#A6A6B4'
-const BLUE = '#6AA8F5'
-const CTA = 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)'
+const BLUE = '#9D8CFF'
+const CTA = 'linear-gradient(135deg, #9D8CFF, #34D399)'
 
 export default function AskShapi() {
   const [open, setOpen] = useState(false)

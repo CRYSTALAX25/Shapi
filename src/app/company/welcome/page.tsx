@@ -84,13 +84,13 @@ export default async function CompanyWelcome({
   // proof-enough that the checkout completed. We just show the celebration.
 
   return (
-    <main className="min-h-screen px-4 py-10 sm:py-14" style={{ background: '#0c0e11' }}>
+    <main className="min-h-screen px-4 py-10 sm:py-14" style={{ background: '#060609' }}>
       <div className="max-w-3xl mx-auto">
 
         {/* Hero */}
         <div className="text-center mb-10">
           <ShapiCharacter mood="happy" size={80} className="mx-auto mb-5" />
-          <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: '#6AA8F5' }}>
+          <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: '#9D8CFF' }}>
             Welcome to {plan.name}
           </p>
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-3" style={{ color: '#F4F4F7' }}>
@@ -102,14 +102,14 @@ export default async function CompanyWelcome({
         </div>
 
         {/* Unlocked */}
-        <div className="rounded-2xl p-5 mb-6" style={{ background: '#13161b', border: '1px solid rgba(106,168,245,0.20)' }}>
-          <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: '#6AA8F5' }}>
+        <div className="rounded-2xl p-5 mb-6" style={{ background: '#0D0C14', border: '1px solid rgba(157, 140, 255, 0.20)' }}>
+          <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: '#9D8CFF' }}>
             What you unlocked
           </p>
           <div className="grid sm:grid-cols-2 gap-2.5">
             {plan.unlocked.map((u, i) => (
               <div key={i} className="flex items-start gap-2.5">
-                <svg className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#6AA8F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                <svg className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#9D8CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
                 <p className="text-sm text-[#C7C7D1]">{u}</p>
               </div>
             ))}
@@ -117,7 +117,7 @@ export default async function CompanyWelcome({
         </div>
 
         {/* Next actions */}
-        <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: '#9ca3af' }}>
+        <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: 'rgba(255,255,255,0.5)' }}>
           What next? (ranked by leverage)
         </p>
         <div className="space-y-3 mb-8">
@@ -128,14 +128,14 @@ export default async function CompanyWelcome({
               className="block rounded-2xl p-5 transition-all hover:opacity-90"
               style={{
                 background: i === 0
-                  ? 'linear-gradient(135deg, rgba(106,168,245,0.12), rgba(240,140,174,0.08))'
-                  : '#13161b',
-                border: i === 0 ? '1px solid rgba(106,168,245,0.35)' : '1px solid rgba(255,255,255,0.08)',
+                  ? 'linear-gradient(135deg, rgba(157, 140, 255, 0.12), rgba(157, 140, 255, 0.08))'
+                  : '#0D0C14',
+                border: i === 0 ? '1px solid rgba(157, 140, 255, 0.35)' : '1px solid rgba(255,255,255,0.08)',
               }}
             >
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0"
-                  style={{ background: 'rgba(106,168,245,0.14)', border: '1px solid rgba(106,168,245,0.25)' }}>
+                  style={{ background: 'rgba(157, 140, 255, 0.14)', border: '1px solid rgba(157, 140, 255, 0.25)' }}>
                   {a.emoji}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -150,14 +150,14 @@ export default async function CompanyWelcome({
         </div>
 
         {/* Bottom: receipt + billing */}
-        <div className="rounded-xl p-4 text-xs" style={{ background: '#13161b', border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="rounded-xl p-4 text-xs" style={{ background: '#0D0C14', border: '1px solid rgba(255,255,255,0.06)' }}>
           <p className="mb-2" style={{ color: '#C7C7D1' }}>
             <strong>Need anything?</strong>
           </p>
           <ul className="space-y-1.5" style={{ color: '#A6A6B4' }}>
             <li>• Receipt + invoice: emailed by Stripe to <strong>{user.email}</strong></li>
-            <li>• Manage billing / cancel: <Link href="/api/stripe/portal" className="underline" style={{ color: '#6AA8F5' }}>Stripe customer portal</Link></li>
-            <li>• Migration help (CSV import, setup call): reply to your receipt or email <a href="mailto:hello@shapi.io" className="underline" style={{ color: '#6AA8F5' }}>hello@shapi.io</a></li>
+            <li>• Manage billing / cancel: <Link href="/api/stripe/portal" className="underline" style={{ color: '#9D8CFF' }}>Stripe customer portal</Link></li>
+            <li>• Migration help (CSV import, setup call): reply to your receipt or email <a href="mailto:hello@shapi.io" className="underline" style={{ color: '#9D8CFF' }}>hello@shapi.io</a></li>
           </ul>
         </div>
 

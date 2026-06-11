@@ -47,9 +47,9 @@ const es: typeof en = {
     hero: {
       badgeDate: 'Lanzamiento EAU · 2026',
       badgeAccess: 'Acceso anticipado abierto',
-      headlineLine1: 'Contratación que',
-      headlineLine2: 'funciona para humanos.',
-      subhead: 'No es otra bolsa de empleo. Es la capa de verificación para contratar — referencias obtenidas de forma independiente, habilidades probadas con evidencia y empresas en las que sí puedes confiar.',
+      headlineLine1: 'Deja de adivinar.',
+      headlineLine2: 'Contrata lo comprobado.',
+      subhead: 'Shapi es la capa de verificación para contratar. Las referencias se obtienen de forma independiente, las habilidades se prueban con evidencia y las empresas que contratan tienen una puntuación de confianza real. Ambas partes deciden con hechos.',
       subheadHighlight: 'capa de verificación para contratar',
       ctaBuild: 'Crear mi perfil verificado — gratis →',
       ctaHire: 'Estoy contratando — publica un puesto gratis →',

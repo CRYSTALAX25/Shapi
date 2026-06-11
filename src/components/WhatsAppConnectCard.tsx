@@ -95,7 +95,7 @@ export default function WhatsAppConnectCard({
       <div
         className="rounded-2xl p-5"
         style={{
-          background: 'linear-gradient(135deg, rgba(251,191,36,0.10), rgba(106,168,245,0.06))',
+          background: 'linear-gradient(135deg, rgba(251,191,36,0.10), rgba(157, 140, 255, 0.06))',
           border: '1px solid rgba(251,191,36,0.30)',
         }}
       >
@@ -117,7 +117,7 @@ export default function WhatsAppConnectCard({
             </p>
             <a
               href={numberHref}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-black text-[#0E0E13] whitespace-nowrap"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-black text-[#060609] whitespace-nowrap"
               style={{ background: '#FBBF24' }}
             >
               Add your number →
@@ -135,7 +135,7 @@ export default function WhatsAppConnectCard({
     <div
       className="rounded-2xl p-5"
       style={{
-        background: 'linear-gradient(135deg, rgba(37,211,102,0.10), rgba(106,168,245,0.06))',
+        background: 'linear-gradient(135deg, rgba(37,211,102,0.10), rgba(157, 140, 255, 0.06))',
         border: '1px solid rgba(37,211,102,0.30)',
       }}
     >

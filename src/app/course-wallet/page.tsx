@@ -38,13 +38,13 @@ type CourseFilter = 'all' | 'saved' | 'verified'
 // Cost/subsidy label driven by subsidy_type + tier.
 function costLabel(c: Pick<Course, 'tier' | 'subsidy_type' | 'subsidy_detail'>) {
   if (c.subsidy_type === 'government') {
-    return { icon: '🏛', text: c.subsidy_detail ? `Government-subsidised · ${c.subsidy_detail}` : 'Government-subsidised', color: '#6AA8F5', bg: 'rgba(106,168,245,0.15)' }
+    return { icon: '🏛', text: c.subsidy_detail ? `Government-subsidised · ${c.subsidy_detail}` : 'Government-subsidised', color: '#9D8CFF', bg: 'rgba(157, 140, 255, 0.15)' }
   }
   if (c.subsidy_type === 'employer') {
-    return { icon: '🏢', text: c.subsidy_detail ? `Employer-sponsored · ${c.subsidy_detail}` : 'Employer-sponsored', color: '#F08CAE', bg: 'rgba(240,140,174,0.15)' }
+    return { icon: '🏢', text: c.subsidy_detail ? `Employer-sponsored · ${c.subsidy_detail}` : 'Employer-sponsored', color: '#9D8CFF', bg: 'rgba(157, 140, 255, 0.15)' }
   }
   if (c.tier === 'paid') {
-    return { icon: '🔵', text: 'Paid', color: '#F08CAE', bg: 'rgba(240,140,174,0.12)' }
+    return { icon: '🔵', text: 'Paid', color: '#9D8CFF', bg: 'rgba(157, 140, 255, 0.12)' }
   }
   return { icon: '⚪', text: 'Free', color: '#A6A6B4', bg: 'rgba(255,255,255,0.05)' }
 }
@@ -99,7 +99,7 @@ function UpskillContent() {
   }
 
   if (loading) {
-    return <div className="min-h-screen bg-[#0E0E13] flex items-center justify-center text-[#A6A6B4] text-sm">Loading…</div>
+    return <div className="min-h-screen bg-[#060609] flex items-center justify-center text-[#A6A6B4] text-sm">Loading…</div>
   }
 
   // If arrived via ?skill=X and X isn't already a roadmap gap, prepend a
@@ -116,14 +116,14 @@ function UpskillContent() {
     : gaps
 
   return (
-    <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7]">
+    <div className="min-h-screen bg-[#060609] text-[#F4F4F7]">
       <style>{`
-        .gradient-border-card { background: linear-gradient(#16161F,#16161F) padding-box, linear-gradient(135deg, rgba(106,168,245,0.15), rgba(240,140,174,0.15)) border-box; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35); }
+        .gradient-border-card { background: linear-gradient(#0D0C14,#0D0C14) padding-box, linear-gradient(135deg, rgba(157, 140, 255, 0.15), rgba(157, 140, 255, 0.15)) border-box; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35); }
       `}</style>
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
 
       <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-4xl mx-auto">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         <Link href={`/profile?tab=${backTab}`} className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1]">← Profile</Link>
       </nav>
 
@@ -137,7 +137,7 @@ function UpskillContent() {
         <div id="my-courses" className="gradient-border-card rounded-2xl p-5 mb-6">
           <div className="flex items-center justify-between mb-4">
             <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">My courses</p>
-            <button onClick={() => setAddOpen(o => !o)} className="text-[#6AA8F5] text-xs font-bold border border-[#6AA8F5]/30 hover:border-[#6AA8F5]/60 px-3 py-1.5 rounded-full transition-colors">
+            <button onClick={() => setAddOpen(o => !o)} className="text-[#9D8CFF] text-xs font-bold border border-[#9D8CFF]/30 hover:border-[#9D8CFF]/60 px-3 py-1.5 rounded-full transition-colors">
               {addOpen ? 'Close' : '+ Add a course'}
             </button>
           </div>
@@ -155,8 +155,8 @@ function UpskillContent() {
                 <button key={key} onClick={() => setFilter(key)}
                   className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
                   style={{
-                    background: filter === key ? 'rgba(106,168,245,0.12)' : 'rgba(255,255,255,0.05)',
-                    color: filter === key ? '#6AA8F5' : '#A6A6B4',
+                    background: filter === key ? 'rgba(157, 140, 255, 0.12)' : 'rgba(255,255,255,0.05)',
+                    color: filter === key ? '#9D8CFF' : '#A6A6B4',
                   }}>{label}</button>
               ))}
             </div>
@@ -186,7 +186,7 @@ function UpskillContent() {
         {/* Trust note */}
         <div className="gradient-border-card rounded-2xl p-4 mb-6">
           <p className="text-[#C7C7D1] text-xs leading-relaxed">
-            <span className="text-[#6AA8F5] font-bold">✓ Verified</span> = you added a checkable certificate link, or completed it through Shapi · <span className="text-[#A6A6B4] font-bold">○ Self-reported</span> = your claim, not yet checked. Verified learning shows companies real, provable growth.
+            <span className="text-[#9D8CFF] font-bold">✓ Verified</span> = you added a checkable certificate link, or completed it through Shapi · <span className="text-[#A6A6B4] font-bold">○ Self-reported</span> = your claim, not yet checked. Verified learning shows companies real, provable growth.
           </p>
         </div>
 
@@ -197,7 +197,7 @@ function UpskillContent() {
           <div className="gradient-border-card rounded-2xl p-8 text-center mb-6">
             <p className="text-[#A6A6B4] font-bold mb-1">No skill gaps yet</p>
             <p className="text-[#7E7E8E] text-sm mb-4">Generate your Career Roadmap first — it identifies exactly what to learn next.</p>
-            <Link href="/profile" className="inline-block px-5 py-2.5 rounded-full font-black text-sm" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', color: '#fff' }}>
+            <Link href="/profile" className="inline-block px-5 py-2.5 rounded-full font-black text-sm" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', color: '#fff' }}>
               Go to Career Roadmap →
             </Link>
           </div>
@@ -256,13 +256,13 @@ function UpskillContent() {
               }
               const highlighted = focusSkill && gap.skill.toLowerCase() === focusSkill.toLowerCase()
               return (
-                <div key={i} className="gradient-border-card rounded-2xl p-5" style={highlighted ? { borderColor: 'rgba(106,168,245,0.4)' } : undefined}>
+                <div key={i} className="gradient-border-card rounded-2xl p-5" style={highlighted ? { borderColor: 'rgba(157, 140, 255, 0.4)' } : undefined}>
                   <div className="flex items-center justify-between mb-1">
                     <h3 className="font-black text-[#F4F4F7]">{gap.skill}</h3>
                     {gap.priority && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{
-                        background: gap.priority === 'high' ? 'rgba(245,142,154,0.12)' : gap.priority === 'medium' ? 'rgba(240,140,174,0.12)' : 'rgba(255,255,255,0.05)',
-                        color: gap.priority === 'high' ? '#F58E9A' : gap.priority === 'medium' ? '#F08CAE' : '#A6A6B4',
+                        background: gap.priority === 'high' ? 'rgba(251, 113, 133, 0.12)' : gap.priority === 'medium' ? 'rgba(157, 140, 255, 0.12)' : 'rgba(255,255,255,0.05)',
+                        color: gap.priority === 'high' ? '#FB7185' : gap.priority === 'medium' ? '#9D8CFF' : '#A6A6B4',
                       }}>{gap.priority} priority</span>
                     )}
                   </div>
@@ -270,12 +270,12 @@ function UpskillContent() {
 
                   {/* Shapi's picks — 2 best free + 2 best paid, by rating & price */}
                   {(freeRecs.length > 0 || paidRecs.length > 0) && (
-                    <div className="rounded-xl p-3 mb-4" style={{ background: 'rgba(240,140,174,0.08)', border: '1px solid rgba(240,140,174,0.2)' }}>
-                      <p className="text-[#F08CAE] text-[10px] font-bold uppercase tracking-wider mb-2">⭐ Shapi recommends — best by rating &amp; price</p>
+                    <div className="rounded-xl p-3 mb-4" style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.2)' }}>
+                      <p className="text-[#9D8CFF] text-[10px] font-bold uppercase tracking-wider mb-2">⭐ Shapi recommends — best by rating &amp; price</p>
                       <div className="grid md:grid-cols-2 gap-4">
                         {/* Free group */}
                         <div>
-                          <p className="text-[#6AA8F5] text-[10px] font-bold uppercase tracking-wider mb-2">Free</p>
+                          <p className="text-[#9D8CFF] text-[10px] font-bold uppercase tracking-wider mb-2">Free</p>
                           <div className="space-y-1.5">
                             {freeRecs.length > 0
                               ? freeRecs.map((c, k) => <RecRow key={k} c={c} saved={isSavedKP(c)} onSave={() => toggleRec(c)} />)
@@ -284,7 +284,7 @@ function UpskillContent() {
                         </div>
                         {/* Paid group */}
                         <div>
-                          <p className="text-[#F08CAE] text-[10px] font-bold uppercase tracking-wider mb-2">Paid</p>
+                          <p className="text-[#9D8CFF] text-[10px] font-bold uppercase tracking-wider mb-2">Paid</p>
                           <div className="space-y-1.5">
                             {paidRecs.length > 0
                               ? paidRecs.map((c, k) => <RecRow key={k} c={c} saved={isSavedKP(c)} onSave={() => toggleRec(c)} />)
@@ -302,7 +302,7 @@ function UpskillContent() {
                     <div className="flex flex-wrap gap-1.5">
                       {['Coursera', 'Udemy', 'edX', 'YouTube', 'LinkedIn'].map(p => (
                         <a key={p} href={courseSearchUrl(p, gap.skill)} target="_blank" rel="noopener noreferrer"
-                          className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/[0.05] text-[#6AA8F5] hover:bg-white/[0.08] transition-colors">{p} ↗</a>
+                          className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/[0.05] text-[#9D8CFF] hover:bg-white/[0.08] transition-colors">{p} ↗</a>
                       ))}
                     </div>
                     <p className="text-[#7E7E8E] text-[10px] mt-2">Found one you like? Add it with its link using <strong className="text-[#A6A6B4]">+ Add a course</strong> at the top.</p>
@@ -316,14 +316,14 @@ function UpskillContent() {
 
         {/* Financing */}
         <div id="financing" className="gradient-border-card rounded-2xl p-5 mb-8 scroll-mt-24">
-          <p className="text-[#F08CAE] text-xs font-bold uppercase tracking-wider mb-1">💳 Financing — don&apos;t let cost stop you</p>
+          <p className="text-[#9D8CFF] text-xs font-bold uppercase tracking-wider mb-1">💳 Financing — don&apos;t let cost stop you</p>
           <p className="text-[#A6A6B4] text-xs mb-4">Routes to take a paid course without paying upfront.</p>
           <div className="grid md:grid-cols-2 gap-3">
             {FINANCING_OPTIONS.map((f, i) => (
               <div key={i} className="bg-white/[0.05] rounded-xl p-3">
                 <p className="text-[#F4F4F7] text-sm font-bold mb-1">{f.title}</p>
                 <p className="text-[#A6A6B4] text-xs leading-relaxed">{f.detail}</p>
-                {f.href && <a href={f.href} target="_blank" rel="noopener noreferrer" className="text-[#6AA8F5] text-xs font-bold mt-1 inline-block">Learn more ↗</a>}
+                {f.href && <a href={f.href} target="_blank" rel="noopener noreferrer" className="text-[#9D8CFF] text-xs font-bold mt-1 inline-block">Learn more ↗</a>}
               </div>
             ))}
           </div>
@@ -354,16 +354,16 @@ function AddCourseForm({ onAdd, onDone }: { onAdd: (p: Record<string, unknown>) 
   return (
     <div className="bg-white/[0.05] rounded-xl p-4 mb-3 space-y-3">
       <input value={name} onChange={e => setName(e.target.value)} placeholder="Course name (e.g. AI for Everyone)"
-        className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/40" />
+        className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/40" />
       <input value={platform} onChange={e => setPlatform(e.target.value)} placeholder="Platform (Coursera, Udemy, …)"
-        className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/40" />
+        className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/40" />
       <input value={courseUrl} onChange={e => setCourseUrl(e.target.value)} placeholder="Direct course link (paste the URL so you can jump back to it)"
-        className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/40" />
+        className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/40" />
       <div className="flex gap-2">
         {['in_progress', 'completed'].map(s => (
           <button key={s} onClick={() => setStatus(s)}
             className="flex-1 py-2 rounded-lg text-xs font-bold transition-colors"
-            style={{ background: status === s ? 'rgba(106,168,245,0.12)' : 'rgba(255,255,255,0.05)', color: status === s ? '#6AA8F5' : '#A6A6B4' }}>
+            style={{ background: status === s ? 'rgba(157, 140, 255, 0.12)' : 'rgba(255,255,255,0.05)', color: status === s ? '#9D8CFF' : '#A6A6B4' }}>
             {s === 'in_progress' ? 'In progress' : 'Completed'}
           </button>
         ))}
@@ -371,22 +371,22 @@ function AddCourseForm({ onAdd, onDone }: { onAdd: (p: Record<string, unknown>) 
       {status === 'completed' && (
         <div>
           <input value={credUrl} onChange={e => setCredUrl(e.target.value)} placeholder="Certificate verification link (makes it ✓ Verified)"
-            className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/40" />
+            className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/40" />
           <p className="text-[#7E7E8E] text-[10px] mt-1">Paste the public certificate URL from Coursera/Udemy/Credly etc. Leave blank to keep it self-reported.</p>
         </div>
       )}
       <label className="flex items-center gap-2 cursor-pointer select-none">
-        <input type="checkbox" checked={liked} onChange={e => setLiked(e.target.checked)} className="accent-[#6AA8F5]" />
+        <input type="checkbox" checked={liked} onChange={e => setLiked(e.target.checked)} className="accent-[#9D8CFF]" />
         <span className="text-[#C7C7D1] text-xs">{liked ? '❤️' : '🤍'} Save to my wallet</span>
       </label>
       <div className="flex gap-2">
         <button onClick={() => submit(false)} disabled={saving || !name.trim()}
           className="flex-1 py-2.5 rounded-lg font-black text-sm disabled:opacity-40"
-          style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', color: '#fff' }}>
+          style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', color: '#fff' }}>
           {saving ? 'Saving…' : 'Add course'}
         </button>
         <button onClick={() => submit(true)} disabled={saving || !name.trim()}
-          className="px-4 py-2.5 rounded-lg font-bold text-sm border border-[#6AA8F5]/30 text-[#6AA8F5] hover:border-[#6AA8F5]/60 disabled:opacity-40 transition-colors">
+          className="px-4 py-2.5 rounded-lg font-bold text-sm border border-[#9D8CFF]/30 text-[#9D8CFF] hover:border-[#9D8CFF]/60 disabled:opacity-40 transition-colors">
           ❤️ Save
         </button>
       </div>
@@ -408,7 +408,7 @@ function RecRow({ c, saved, onSave }: { c: SuggestedCourse; saved: boolean; onSa
           className="flex-shrink-0 text-base leading-none p-1.5 -m-1.5 rounded-full transition-transform hover:scale-110 active:scale-95">{saved ? '❤️' : '🤍'}</button>
         <a href={url} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-0 flex items-center justify-between gap-2 hover:opacity-90">
           <span className="text-[#F4F4F7] text-xs font-bold truncate">{c.name}{c.platform ? <span className="text-[#A6A6B4] font-normal"> · {c.platform}</span> : null}</span>
-          <span className="text-[#F08CAE] text-xs font-bold flex-shrink-0">Open ↗</span>
+          <span className="text-[#9D8CFF] text-xs font-bold flex-shrink-0">Open ↗</span>
         </a>
       </div>
       <div className="flex items-center gap-1.5 mt-1 flex-wrap pl-7">
@@ -422,7 +422,7 @@ function RecRow({ c, saved, onSave }: { c: SuggestedCourse; saved: boolean; onSa
           <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.15)', color: '#FBBF24' }}>⭐ Most-taken</span>
         )}
         {cost.label && (
-          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: cost.tier === 'paid' ? 'rgba(240,140,174,0.12)' : 'rgba(106,168,245,0.12)', color: cost.tier === 'paid' ? '#F08CAE' : '#6AA8F5' }}>{cost.label}</span>
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: cost.tier === 'paid' ? 'rgba(157, 140, 255, 0.12)' : 'rgba(157, 140, 255, 0.12)', color: cost.tier === 'paid' ? '#9D8CFF' : '#9D8CFF' }}>{cost.label}</span>
         )}
         {showBand && (
           <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: '#A6A6B4' }}>{c.price_band}</span>
@@ -452,7 +452,7 @@ function CourseRow({ course, onUpdate, onRemove }: { course: Course; onUpdate: (
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-[#F4F4F7] text-sm font-bold truncate">{course.course_name}</span>
           {verified ? (
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}>✓ Verified</span>
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' }}>✓ Verified</span>
           ) : (
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#A6A6B4' }}>○ Self-reported</span>
           )}
@@ -462,10 +462,10 @@ function CourseRow({ course, onUpdate, onRemove }: { course: Course; onUpdate: (
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#A6A6B4' }}>⏱️ {course.duration_hours}h</span>
           )}
           {course.sponsored_by && (
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(240,140,174,0.15)', color: '#F08CAE' }}>🏢 Sponsored by {course.sponsored_by}</span>
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' }}>🏢 Sponsored by {course.sponsored_by}</span>
           )}
         </div>
-        <p className="text-[#A6A6B4] text-xs">{course.platform || '—'} · {course.status === 'completed' ? 'Completed' : course.status === 'in_progress' ? 'In progress' : 'Interested'}{course.course_url ? ' · ' : ''}{course.course_url && <a href={course.course_url} target="_blank" rel="noopener noreferrer" className="text-[#6AA8F5]">open course ↗</a>}{course.credential_url ? ' · ' : ''}{course.credential_url && <a href={course.credential_url} target="_blank" rel="noopener noreferrer" className="text-[#6AA8F5]">view cert ↗</a>}</p>
+        <p className="text-[#A6A6B4] text-xs">{course.platform || '—'} · {course.status === 'completed' ? 'Completed' : course.status === 'in_progress' ? 'In progress' : 'Interested'}{course.course_url ? ' · ' : ''}{course.course_url && <a href={course.course_url} target="_blank" rel="noopener noreferrer" className="text-[#9D8CFF]">open course ↗</a>}{course.credential_url ? ' · ' : ''}{course.credential_url && <a href={course.credential_url} target="_blank" rel="noopener noreferrer" className="text-[#9D8CFF]">view cert ↗</a>}</p>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
         <button type="button" onClick={(e) => { e.stopPropagation(); e.preventDefault(); onUpdate({ ...ctx, liked: !liked }) }}
@@ -476,9 +476,9 @@ function CourseRow({ course, onUpdate, onRemove }: { course: Course; onUpdate: (
         </button>
         {course.status !== 'completed' && (
           <button onClick={() => onUpdate({ ...ctx, status: 'completed' })}
-            className="text-[#6AA8F5] text-xs font-bold">Mark done</button>
+            className="text-[#9D8CFF] text-xs font-bold">Mark done</button>
         )}
-        <button onClick={() => onRemove(course.id)} className="text-[#7E7E8E] hover:text-[#F58E9A] text-xs">✕</button>
+        <button onClick={() => onRemove(course.id)} className="text-[#7E7E8E] hover:text-[#FB7185] text-xs">✕</button>
       </div>
     </div>
   )
@@ -486,7 +486,7 @@ function CourseRow({ course, onUpdate, onRemove }: { course: Course; onUpdate: (
 
 export default function UpskillPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0E0E13]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#060609]" />}>
       <UpskillContent />
     </Suspense>
   )

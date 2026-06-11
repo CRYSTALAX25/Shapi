@@ -71,19 +71,19 @@ export default function JdActions({ role, jd }: { role: string; jd: StarterJD })
       <div className="flex flex-wrap items-center gap-2">
         <button type="button" onClick={() => create('post')} disabled={!!busy}
           className="text-[11px] font-black px-3 py-1.5 rounded-full text-white disabled:opacity-50"
-          style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
+          style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
           {busy === 'post' ? 'Creating…' : '✚ Post this role'}
         </button>
         <button type="button" onClick={() => create('scan')} disabled={!!busy}
-          className="text-[11px] font-bold px-3 py-1.5 rounded-full text-[#6AA8F5] border border-[#6AA8F5]/30 hover:border-[#6AA8F5]/60 disabled:opacity-50">
+          className="text-[11px] font-bold px-3 py-1.5 rounded-full text-[#9D8CFF] border border-[#9D8CFF]/30 hover:border-[#9D8CFF]/60 disabled:opacity-50">
           {busy === 'scan' ? 'Creating…' : '🔍 Scan candidates'}
         </button>
         <button type="button" onClick={() => create('phone')} disabled={!!busy}
-          className="text-[11px] font-bold px-3 py-1.5 rounded-full text-[#F08CAE] border border-[#F08CAE]/30 hover:border-[#F08CAE]/60 disabled:opacity-50">
+          className="text-[11px] font-bold px-3 py-1.5 rounded-full text-[#9D8CFF] border border-[#9D8CFF]/30 hover:border-[#9D8CFF]/60 disabled:opacity-50">
           {busy === 'phone' ? 'Sending…' : '📱 Send to my phone'}
         </button>
       </div>
-      {err && <p className="text-[10px] text-[#F58E9A]">{err}</p>}
+      {err && <p className="text-[10px] text-[#FB7185]">{err}</p>}
       {ok && <p className="text-[10px] text-[#34D399]">{ok}</p>}
     </div>
   )

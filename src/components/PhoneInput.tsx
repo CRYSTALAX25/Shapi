@@ -183,10 +183,10 @@ export default function PhoneInput({
   const isDark = theme === 'dark'
   const surface = isDark ? 'rgba(255,255,255,0.05)' : '#fff'
   const surfaceBorder = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'
-  const text = isDark ? '#F4F4F7' : '#0c0e11'
+  const text = isDark ? '#F4F4F7' : '#060609'
   const muted = isDark ? '#A6A6B4' : '#6b7280'
-  const dropdownBg = isDark ? '#16161F' : '#fff'
-  const hoverBg = isDark ? 'rgba(106,168,245,0.08)' : 'rgba(106,168,245,0.06)'
+  const dropdownBg = isDark ? '#0D0C14' : '#fff'
+  const hoverBg = isDark ? 'rgba(157, 140, 255, 0.08)' : 'rgba(157, 140, 255, 0.06)'
 
   return (
     <div className="relative" ref={containerRef}>

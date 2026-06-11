@@ -119,7 +119,7 @@ export default function UploadCV() {
               value={whatsapp}
               onChange={e => setWhatsapp(e.target.value)}
               placeholder="+971 50 123 4567"
-              className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] focus:outline-none focus:border-[#6AA8F5]/50 transition-colors"
+              className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] focus:outline-none focus:border-[#9D8CFF]/50 transition-colors"
             />
             <p className="text-[10px] text-[#7E7E8E] mt-2">Include country code · UAE: +971 · KSA: +966 · UK: +44</p>
           </div>
@@ -127,7 +127,7 @@ export default function UploadCV() {
           <button
             onClick={saveWhatsapp}
             disabled={saving}
-            className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity disabled:opacity-50 mb-3"
+            className="w-full bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity disabled:opacity-50 mb-3"
           >
             {saving ? 'Saving...' : "That's me done — send me a WhatsApp →"}
           </button>
@@ -148,8 +148,8 @@ export default function UploadCV() {
       <Screen>
         <div className="max-w-md w-full">
           <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-full bg-[rgba(240,140,174,0.12)] border border-[rgba(240,140,174,0.2)] flex items-center justify-center mx-auto mb-5">
-              <svg className="w-6 h-6 text-[#F08CAE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-14 h-14 rounded-full bg-[rgba(157, 140, 255, 0.12)] border border-[rgba(157, 140, 255, 0.2)] flex items-center justify-center mx-auto mb-5">
+              <svg className="w-6 h-6 text-[#9D8CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
             </div>
@@ -167,7 +167,7 @@ export default function UploadCV() {
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="First name is fine"
-                className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] focus:outline-none focus:border-[#6AA8F5]/50 transition-colors"
+                className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] focus:outline-none focus:border-[#9D8CFF]/50 transition-colors"
               />
             </div>
             <div>
@@ -177,18 +177,18 @@ export default function UploadCV() {
                 value={whatsapp}
                 onChange={e => setWhatsapp(e.target.value)}
                 placeholder="+971 50 123 4567"
-                className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] focus:outline-none focus:border-[#6AA8F5]/50 transition-colors"
+                className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] focus:outline-none focus:border-[#9D8CFF]/50 transition-colors"
               />
               <p className="text-[10px] text-[#7E7E8E] mt-2">Include country code · UAE: +971 · KSA: +966 · UK: +44</p>
             </div>
           </div>
 
-          {error && <p className="text-[#F58E9A] text-sm text-center mb-3">{error}</p>}
+          {error && <p className="text-[#FB7185] text-sm text-center mb-3">{error}</p>}
 
           <button
             onClick={saveNoCV}
             disabled={saving}
-            className="w-full bg-gradient-to-r from-[#F08CAE] to-[#6AA8F5] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity disabled:opacity-50 mb-3"
+            className="w-full bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity disabled:opacity-50 mb-3"
           >
             {saving ? 'Saving...' : 'Start my profile — WhatsApp me →'}
           </button>
@@ -208,7 +208,7 @@ export default function UploadCV() {
     return (
       <Screen>
         <div className="max-w-md w-full text-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#6AA8F5] to-[#F08CAE] flex items-center justify-center mx-auto mb-6">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#9D8CFF] to-[#9D8CFF] flex items-center justify-center mx-auto mb-6">
             <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
@@ -230,8 +230,8 @@ export default function UploadCV() {
               'Matched companies can view your profile',
             ].map((item, i) => (
               <div key={i} className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full bg-[rgba(106,168,245,0.12)] flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#6AA8F5]" />
+                <div className="w-5 h-5 rounded-full bg-[rgba(157, 140, 255, 0.12)] flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#9D8CFF]" />
                 </div>
                 <p className="text-sm text-[#A6A6B4]">{item}</p>
               </div>
@@ -240,7 +240,7 @@ export default function UploadCV() {
 
           <button
             onClick={() => router.push('/dashboard')}
-            className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity"
+            className="w-full bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity"
           >
             Go to my dashboard →
           </button>
@@ -258,15 +258,15 @@ export default function UploadCV() {
           50% { background-position: 100% 50%; }
         }
         .gradient-border-card {
-          background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.2), rgba(240,140,174,0.2)) border-box;
+          background: linear-gradient(#0D0C14, #0D0C14) padding-box,
+                      linear-gradient(135deg, rgba(157, 140, 255, 0.2), rgba(157, 140, 255, 0.2)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
           transition: all 0.25s ease;
         }
         .drop-zone-active {
-          background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.6), rgba(240,140,174,0.6)) border-box !important;
+          background: linear-gradient(#0D0C14, #0D0C14) padding-box,
+                      linear-gradient(135deg, rgba(157, 140, 255, 0.6), rgba(157, 140, 255, 0.6)) border-box !important;
           transform: scale(1.01);
         }
       `}</style>
@@ -274,7 +274,7 @@ export default function UploadCV() {
       <div className="max-w-md w-full">
         <div className="text-center mb-10">
           <span className="font-black text-2xl tracking-tighter" style={{
-            background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+            background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
             backgroundSize: '200% 200%',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -295,8 +295,8 @@ export default function UploadCV() {
           onClick={() => fileRef.current?.click()}
           className={`gradient-border-card rounded-2xl p-14 text-center cursor-pointer mb-4 ${dragging ? 'drop-zone-active' : 'hover:bg-[rgba(255,255,255,0.03)]'}`}
         >
-          <div className="w-14 h-14 rounded-xl bg-[rgba(106,168,245,0.10)] flex items-center justify-center mx-auto mb-5">
-            <svg className="w-7 h-7 text-[#6AA8F5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-14 h-14 rounded-xl bg-[rgba(157, 140, 255, 0.10)] flex items-center justify-center mx-auto mb-5">
+            <svg className="w-7 h-7 text-[#9D8CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
@@ -313,7 +313,7 @@ export default function UploadCV() {
         </div>
 
         {error && (
-          <p className="text-[#F58E9A] text-sm text-center mb-3 bg-[#F58E9A]/10 border border-[#F58E9A]/20 rounded-xl px-4 py-3">
+          <p className="text-[#FB7185] text-sm text-center mb-3 bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3">
             {error}
           </p>
         )}
@@ -332,7 +332,7 @@ export default function UploadCV() {
 // Shared dark layout wrapper
 function Screen({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#0E0E13] flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-[#060609] flex flex-col items-center justify-center px-6">
       <div className="fixed inset-0 pointer-events-none" style={{
         backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',

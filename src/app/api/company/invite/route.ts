@@ -56,14 +56,14 @@ export async function POST(request: Request) {
       html: `
         <div style="font-family:-apple-system,sans-serif;max-width:520px;margin:0 auto;padding:40px 24px;background:#060609;border-radius:16px">
           <p style="font-size:22px;font-weight:900;letter-spacing:-0.5px;margin:0 0 28px;
-            background:linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A);-webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</p>
-          <div style="background:#0d0d14;border:1px solid rgba(34,211,238,0.15);border-radius:16px;padding:28px">
+            background:linear-gradient(135deg, #9D8CFF, #34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</p>
+          <div style="background:#0D0C14;border:1px solid rgba(157, 140, 255, 0.15);border-radius:16px;padding:28px">
             <h1 style="color:#fff;font-size:20px;font-weight:900;margin:0 0 12px">You're invited to ${companyName}</h1>
             <p style="color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;margin:0 0 24px">
               You've been invited to join <strong style="color:rgba(255,255,255,0.8)">${companyName}</strong> on Shapi —
               the verified hiring platform. You'll be able to view candidate matches and manage roles alongside your team.
             </p>
-            <a href="${signupUrl}" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#22D3EE,#A78BFA);
+            <a href="${signupUrl}" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#9D8CFF, #34D399);
               color:#060609;font-size:14px;font-weight:900;border-radius:100px;text-decoration:none">
               Accept invitation →
             </a>

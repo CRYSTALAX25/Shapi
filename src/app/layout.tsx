@@ -10,11 +10,18 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://shapi.io"),
   title: "Shapi — Shape what's next",
-  description: "The verified hiring platform built for the world that's coming. For every person navigating what AI means for their career, and every company trying to hire the humans who'll take them forward.",
+  description:
+    "Stop guessing. Hire what's proven. Shapi verifies references independently, proves skills with evidence, and scores the companies doing the hiring — so both sides decide on facts.",
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
   openGraph: {
     title: "Shapi — Shape what's next",
-    description: "The verified hiring platform built for the world that's coming.",
+    description: "Stop guessing. Hire what's proven. The verification layer for hiring.",
     url: "https://shapi.io",
     siteName: "Shapi",
     locale: "en_US",

@@ -5,7 +5,7 @@ import ShapiCharacter from '@/components/ShapiCharacter'
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-[#0E0E13] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-[#060609] flex items-center justify-center px-6">
       <div className="fixed inset-0 pointer-events-none" style={{
         backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
@@ -19,7 +19,7 @@ export default function NotFound() {
           That page doesn&apos;t exist — or you might not have access to it yet.
         </p>
         <Link href="/dashboard"
-          className="inline-block bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] px-6 py-3 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity">
+          className="inline-block bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] px-6 py-3 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity">
           Back to dashboard →
         </Link>
       </div>

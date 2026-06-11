@@ -22,10 +22,10 @@
 
 import { useEffect, useMemo, useState } from 'react'
 
-const ACCENT = '#7c93f5'
-const HEADING: React.CSSProperties = { color: '#f4f6f9' }
-const BODY: React.CSSProperties = { color: '#9ca3af' }
-const CARD = '#13161b'
+const ACCENT = '#9D8CFF'
+const HEADING: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
+const BODY: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
+const CARD = '#0D0C14'
 
 type Provenance = 'brain' | 'delegation'
 
@@ -122,11 +122,11 @@ function rankRedeployCandidates(vacancy: Vacancy, roster: RosterEntry[]) {
 
 function StatusPill({ status }: { status: string | null }) {
   const map: Record<string, { bg: string; fg: string; label: string }> = {
-    planned: { bg: 'rgba(124,147,245,0.15)', fg: ACCENT, label: 'Planned' },
+    planned: { bg: 'rgba(157, 140, 255, 0.15)', fg: ACCENT, label: 'Planned' },
     vacant: { bg: 'rgba(251,113,133,0.15)', fg: '#FB7185', label: 'Vacant' },
     active: { bg: 'rgba(52,211,153,0.15)', fg: '#34D399', label: 'Active' },
   }
-  const s = (status && map[status]) || { bg: 'rgba(156,163,175,0.15)', fg: '#9ca3af', label: status || '—' }
+  const s = (status && map[status]) || { bg: 'rgba(156,163,175,0.15)', fg: 'rgba(255,255,255,0.5)', label: status || '—' }
   return (
     <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: s.bg, color: s.fg }}>
       {s.label}
@@ -252,7 +252,7 @@ export default function SkillDensityMatrix({ planTier, companyName }: Props) {
               onChange={e => setQuery(e.target.value)}
               placeholder="e.g. data analyst, SQL, Riyadh, financial modelling…"
               className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-              style={{ background: '#0c0e11', border: '1px solid rgba(255,255,255,0.1)', color: '#f4f6f9' }}
+              style={{ background: '#060609', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.9)' }}
             />
             {data.vacancies.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-3">
@@ -262,7 +262,7 @@ export default function SkillDensityMatrix({ planTier, companyName }: Props) {
                     key={v.seat_id}
                     onClick={() => setQuery(v.title)}
                     className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
-                    style={{ background: 'rgba(124,147,245,0.12)', color: ACCENT }}
+                    style={{ background: 'rgba(157, 140, 255, 0.12)', color: ACCENT }}
                   >
                     {v.title}
                   </button>
@@ -311,7 +311,7 @@ export default function SkillDensityMatrix({ planTier, companyName }: Props) {
             </div>
             <div className="flex flex-wrap gap-4 mt-3 text-[10px]" style={BODY}>
               <LegendDot color={ACCENT} label="Skill from brain ingestion" />
-              <LegendDot color="#A78BFA" label="Skill from delegated work" />
+              <LegendDot color="#9D8CFF" label="Skill from delegated work" />
             </div>
           </section>
 
@@ -336,7 +336,7 @@ export default function SkillDensityMatrix({ planTier, companyName }: Props) {
                             {[v.seniority, v.function, v.team_name, v.location_name].filter(Boolean).join(' · ') || 'No location set'}
                           </p>
                         </div>
-                        <span className="text-[11px] font-bold whitespace-nowrap" style={{ color: ranked.length ? '#34D399' : '#9ca3af' }}>
+                        <span className="text-[11px] font-bold whitespace-nowrap" style={{ color: ranked.length ? '#34D399' : 'rgba(255,255,255,0.5)' }}>
                           {ranked.length} internal {ranked.length === 1 ? 'match' : 'matches'}
                         </span>
                       </div>
@@ -349,7 +349,7 @@ export default function SkillDensityMatrix({ planTier, companyName }: Props) {
                       ) : (
                         <div className="space-y-2">
                           {ranked.slice(0, 6).map(({ entry, overlap, matched }) => (
-                            <div key={entry.seat_id} className="flex items-start justify-between gap-3 p-3 rounded-xl" style={{ background: '#0c0e11', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div key={entry.seat_id} className="flex items-start justify-between gap-3 p-3 rounded-xl" style={{ background: '#060609', border: '1px solid rgba(255,255,255,0.05)' }}>
                               <div className="min-w-0">
                                 <p className="text-sm font-bold truncate" style={HEADING}>
                                   {entry.person_name || entry.seat_title}
@@ -387,7 +387,7 @@ export default function SkillDensityMatrix({ planTier, companyName }: Props) {
 function Stat({ label, value, accent }: { label: string; value: number; accent?: string }) {
   return (
     <div className="rounded-xl p-4" style={{ background: CARD, border: '1px solid rgba(255,255,255,0.06)' }}>
-      <p className="text-2xl font-black" style={{ color: accent || '#f4f6f9' }}>{value}</p>
+      <p className="text-2xl font-black" style={{ color: accent || 'rgba(255,255,255,0.9)' }}>{value}</p>
       <p className="text-[10px] font-bold uppercase tracking-wider mt-0.5" style={BODY}>{label}</p>
     </div>
   )
@@ -406,7 +406,7 @@ function HolderChip({ holder }: { holder: Holder }) {
   const fromBrain = holder.sources.includes('brain')
   const fromDelegation = holder.sources.includes('delegation')
   // Border colour cues provenance; delegation tints purple, brain tints accent.
-  const borderColor = fromDelegation && !fromBrain ? '#A78BFA' : ACCENT
+  const borderColor = fromDelegation && !fromBrain ? '#9D8CFF' : ACCENT
   const isVacant = !holder.person_name
   const name = holder.person_name || `${holder.seat_title} (vacant — inherited)`
   const context = [holder.person_name ? holder.seat_title : null, holder.location_name]
@@ -416,17 +416,17 @@ function HolderChip({ holder }: { holder: Holder }) {
     <span
       className="inline-flex flex-col px-3 py-1.5 rounded-lg"
       style={{
-        background: '#0c0e11',
+        background: '#060609',
         border: `1px solid ${borderColor}55`,
         opacity: isVacant ? 0.7 : 1,
       }}
       title={`${name}${context ? ` — ${context}` : ''} · source: ${holder.sources.join(' + ')}`}
     >
-      <span className="text-xs font-bold leading-tight" style={{ color: '#f4f6f9' }}>{name}</span>
+      <span className="text-xs font-bold leading-tight" style={{ color: 'rgba(255,255,255,0.9)' }}>{name}</span>
       {context && <span className="text-[10px] leading-tight" style={BODY}>{context}</span>}
       <span className="flex gap-1 mt-0.5">
         {fromBrain && <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: ACCENT }} title="brain ingestion" />}
-        {fromDelegation && <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: '#A78BFA' }} title="delegated work" />}
+        {fromDelegation && <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ background: '#9D8CFF' }} title="delegated work" />}
       </span>
     </span>
   )
@@ -442,13 +442,13 @@ function EmptyState({ companyName, signalRows }: { companyName: string; signalRo
         {companyName}&apos;s capability map is still empty
       </h2>
       <p className="text-sm leading-relaxed mb-5" style={BODY}>
-        Skill density isn&apos;t something you type in — Shapi <span style={{ color: '#f4f6f9' }}>detects</span> it
+        Skill density isn&apos;t something you type in — Shapi <span style={{ color: 'rgba(255,255,255,0.9)' }}>detects</span> it
         as work flows through your org. Two signals feed the matrix:
       </p>
 
       <div className="space-y-3 mb-5">
         <div className="flex gap-3">
-          <span className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black" style={{ background: 'rgba(124,147,245,0.15)', color: ACCENT }}>1</span>
+          <span className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black" style={{ background: 'rgba(157, 140, 255, 0.15)', color: ACCENT }}>1</span>
           <div>
             <p className="text-sm font-bold" style={HEADING}>Delegated-deliverable extraction</p>
             <p className="text-xs leading-relaxed" style={BODY}>
@@ -459,7 +459,7 @@ function EmptyState({ companyName, signalRows }: { companyName: string; signalRo
           </div>
         </div>
         <div className="flex gap-3">
-          <span className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black" style={{ background: 'rgba(167,139,250,0.15)', color: '#A78BFA' }}>2</span>
+          <span className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black" style={{ background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' }}>2</span>
           <div>
             <p className="text-sm font-bold" style={HEADING}>Company Brain ingestion</p>
             <p className="text-xs leading-relaxed" style={BODY}>
@@ -471,7 +471,7 @@ function EmptyState({ companyName, signalRows }: { companyName: string; signalRo
         </div>
       </div>
 
-      <div className="p-4 rounded-xl" style={{ background: '#0c0e11', border: '1px solid rgba(255,255,255,0.06)' }}>
+      <div className="p-4 rounded-xl" style={{ background: '#060609', border: '1px solid rgba(255,255,255,0.06)' }}>
         <p className="text-xs" style={BODY}>
           Once those signals start flowing, this page becomes your internal redeployment engine: type any
           open vacancy and see exactly who inside the company already does that work.{' '}

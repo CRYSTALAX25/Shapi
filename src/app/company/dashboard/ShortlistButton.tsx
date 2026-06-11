@@ -44,7 +44,7 @@ export default function ShortlistButton({
     return (
       <div className="flex flex-col items-end gap-1">
         <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black"
-          style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5', border: '1px solid rgba(106,168,245,0.3)' }}>
+          style={{ background: 'rgba(157,140,255,0.15)', color: '#9D8CFF', border: '1px solid rgba(157,140,255,0.3)' }}>
           🤝 Mutual match!
         </span>
         <span className="text-[10px] text-white/25">Introduction sent</span>
@@ -59,7 +59,7 @@ export default function ShortlistButton({
       className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 disabled:opacity-50"
       style={
         shortlisted
-          ? { background: 'rgba(106,168,245,0.12)', border: '1px solid rgba(106,168,245,0.3)', color: '#6AA8F5' }
+          ? { background: 'rgba(157,140,255,0.12)', border: '1px solid rgba(157,140,255,0.3)', color: '#9D8CFF' }
           : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.45)' }
       }
     >

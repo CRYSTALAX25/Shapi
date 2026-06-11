@@ -22,9 +22,9 @@ import SkillDensityMatrix from './SkillDensityMatrix'
 
 export const metadata = { title: 'Skill Density · Shapi' }
 
-const ACCENT = '#7c93f5'
-const HEADING_STYLE: React.CSSProperties = { color: '#f4f6f9' }
-const BODY_STYLE: React.CSSProperties = { color: '#9ca3af' }
+const ACCENT = '#9D8CFF'
+const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
+const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
 
 export default async function SkillDensityPage() {
   const supabase = await createClient()
@@ -44,7 +44,7 @@ export default async function SkillDensityPage() {
   const companyName = profile.company_name || 'Your org'
 
   return (
-    <main className="min-h-screen px-4 py-10 sm:py-14" style={{ background: '#0c0e11' }}>
+    <main className="min-h-screen px-4 py-10 sm:py-14" style={{ background: '#060609' }}>
       <div className="max-w-4xl mx-auto">
         <Link href="/company/spine" className="text-xs font-bold mb-4 inline-block" style={{ color: ACCENT }}>
           ← Org Spine
@@ -59,7 +59,7 @@ export default async function SkillDensityPage() {
           </h1>
           <p className="text-sm leading-relaxed" style={BODY_STYLE}>
             Before you open a requisition, look inward. Shapi maps the verified skills already living
-            inside <span style={{ color: '#f4f6f9' }}>{companyName}</span> against every open seat — so
+            inside <span style={{ color: 'rgba(255,255,255,0.9)' }}>{companyName}</span> against every open seat — so
             instead of hiring three external data analysts, you discover the two people in Riyadh Ops
             who already do the work and just redeploy them.
           </p>

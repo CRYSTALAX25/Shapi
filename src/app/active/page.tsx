@@ -73,17 +73,17 @@ const STAGE_LABELS: Record<string, string> = {
   archived: 'Archived',
 }
 const STAGE_COLORS: Record<string, string> = {
-  researching: 'rgba(106,168,245,0.15)',
-  outreach_sent: 'rgba(106,168,245,0.15)',
-  interview: 'rgba(106,168,245,0.15)',
-  offer: 'rgba(106,168,245,0.15)',
+  researching: 'rgba(157, 140, 255, 0.15)',
+  outreach_sent: 'rgba(157, 140, 255, 0.15)',
+  interview: 'rgba(157, 140, 255, 0.15)',
+  offer: 'rgba(157, 140, 255, 0.15)',
   archived: 'rgba(255,255,255,0.05)',
 }
 const STAGE_TEXT: Record<string, string> = {
-  researching: '#6AA8F5',
-  outreach_sent: '#6AA8F5',
-  interview: '#6AA8F5',
-  offer: '#6AA8F5',
+  researching: '#9D8CFF',
+  outreach_sent: '#9D8CFF',
+  interview: '#9D8CFF',
+  offer: '#9D8CFF',
   archived: '#7E7E8E',
 }
 
@@ -243,26 +243,26 @@ export default function ActivePage() {
   }
 
   const matchColor = (score: number) =>
-    score >= 70 ? '#6AA8F5' : score >= 50 ? '#6AA8F5' : '#F08CAE'
+    score >= 70 ? '#9D8CFF' : score >= 50 ? '#9D8CFF' : '#9D8CFF'
 
   return (
-    <div className="min-h-screen bg-[#0E0E13]">
+    <div className="min-h-screen bg-[#060609]">
       <style>{`
         .gradient-border-card {
-          background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.10), rgba(79,143,232,0.10)) border-box;
+          background: linear-gradient(#0D0C14, #0D0C14) padding-box,
+                      linear-gradient(135deg, rgba(157, 140, 255, 0.10), rgba(157, 140, 255, 0.10)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .card-hover:hover {
-          background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.22), rgba(79,143,232,0.22)) border-box;
+          background: linear-gradient(#0D0C14, #0D0C14) padding-box,
+                      linear-gradient(135deg, rgba(157, 140, 255, 0.22), rgba(157, 140, 255, 0.22)) border-box;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .tab-active {
-          background: linear-gradient(135deg, rgba(106,168,245,0.12), rgba(79,143,232,0.12));
-          border-color: rgba(106,168,245,0.3);
-          color: #6AA8F5;
+          background: linear-gradient(135deg, rgba(157, 140, 255, 0.12), rgba(157, 140, 255, 0.12));
+          border-color: rgba(157, 140, 255, 0.3);
+          color: #9D8CFF;
         }
         textarea, input, select {
           background: rgba(255,255,255,0.05);
@@ -276,9 +276,9 @@ export default function ActivePage() {
           transition: border-color 0.2s;
         }
         textarea:focus, input:focus, select:focus {
-          border-color: rgba(106,168,245,0.4);
+          border-color: rgba(157, 140, 255, 0.4);
         }
-        select option { background: #16161F; }
+        select option { background: #0D0C14; }
       `}</style>
 
       <div className="fixed inset-0 pointer-events-none" style={{
@@ -290,7 +290,7 @@ export default function ActivePage() {
       <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)]">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Link href="/" className="font-black text-xl tracking-tighter" style={{
-            background: 'linear-gradient(135deg,#6AA8F5,#4F8FE8)',
+            background: 'linear-gradient(135deg,#9D8CFF, #34D399)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>shapi</Link>
           <div className="flex items-center gap-4">
@@ -306,7 +306,7 @@ export default function ActivePage() {
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-3xl font-black text-[#F4F4F7]">Shapi Active</h1>
             <span className="text-xs font-bold px-3 py-1 rounded-full"
-              style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}>
+              style={{ background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' }}>
               Outbound pipeline
             </span>
           </div>
@@ -369,7 +369,7 @@ export default function ActivePage() {
                 onClick={scan}
                 disabled={scanning || !targetRole.trim()}
                 className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-black text-white disabled:opacity-50 transition-opacity"
-                style={{ background: 'linear-gradient(135deg, #6AA8F5, #4F8FE8)' }}
+                style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
               >
                 {scanning ? (
                   <>
@@ -384,7 +384,7 @@ export default function ActivePage() {
               {scanning && (
                 <p className="text-[#7E7E8E] text-xs mt-3">Searching live job boards. This takes 20-40 seconds...</p>
               )}
-              {scanError && <p className="text-[#F58E9A] text-sm mt-3">{scanError}</p>}
+              {scanError && <p className="text-[#FB7185] text-sm mt-3">{scanError}</p>}
             </div>
 
             {/* Draft config (shown when jobs exist) */}
@@ -444,9 +444,9 @@ export default function ActivePage() {
                         disabled={drafting && draftJob?.url === job.url}
                         className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all"
                         style={{
-                          background: draftJob?.url === job.url && draft ? 'rgba(106,168,245,0.15)' : 'rgba(255,255,255,0.05)',
-                          border: draftJob?.url === job.url && draft ? '1px solid rgba(106,168,245,0.3)' : '1px solid rgba(255,255,255,0.08)',
-                          color: draftJob?.url === job.url && draft ? '#6AA8F5' : '#A6A6B4',
+                          background: draftJob?.url === job.url && draft ? 'rgba(157, 140, 255, 0.15)' : 'rgba(255,255,255,0.05)',
+                          border: draftJob?.url === job.url && draft ? '1px solid rgba(157, 140, 255, 0.3)' : '1px solid rgba(255,255,255,0.08)',
+                          color: draftJob?.url === job.url && draft ? '#9D8CFF' : '#A6A6B4',
                         }}
                       >
                         {drafting && draftJob?.url === job.url ? (
@@ -472,7 +472,7 @@ export default function ActivePage() {
 
                     {/* Draft output */}
                     {draftJob?.url === job.url && draft && (
-                      <div className="mt-4 rounded-xl p-4" style={{ background: 'rgba(106,168,245,0.06)', border: '1px solid rgba(106,168,245,0.15)' }}>
+                      <div className="mt-4 rounded-xl p-4" style={{ background: 'rgba(157, 140, 255, 0.06)', border: '1px solid rgba(157, 140, 255, 0.15)' }}>
                         {draft.subject && (
                           <p className="text-[#A6A6B4] text-xs font-bold mb-1">Subject: <span className="text-[#C7C7D1]">{draft.subject}</span></p>
                         )}
@@ -487,7 +487,7 @@ export default function ActivePage() {
                               setTimeout(() => setCopied(false), 1500)
                             }}
                             className="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
-                            style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}
+                            style={{ background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' }}
                           >
                             {copied ? '✓ Copied!' : 'Copy'}
                           </button>
@@ -524,9 +524,9 @@ export default function ActivePage() {
                 onClick={() => setAddingApp(!addingApp)}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold transition-all"
                 style={{
-                  background: addingApp ? 'rgba(106,168,245,0.15)' : 'rgba(255,255,255,0.05)',
-                  border: addingApp ? '1px solid rgba(106,168,245,0.3)' : '1px solid rgba(255,255,255,0.08)',
-                  color: addingApp ? '#6AA8F5' : '#A6A6B4',
+                  background: addingApp ? 'rgba(157, 140, 255, 0.15)' : 'rgba(255,255,255,0.05)',
+                  border: addingApp ? '1px solid rgba(157, 140, 255, 0.3)' : '1px solid rgba(255,255,255,0.08)',
+                  color: addingApp ? '#9D8CFF' : '#A6A6B4',
                 }}
               >
                 {addingApp ? '✕ Cancel' : '+ Add application'}
@@ -563,7 +563,7 @@ export default function ActivePage() {
                 <button
                   onClick={addApplication}
                   className="px-5 py-2.5 rounded-xl text-sm font-black text-white"
-                  style={{ background: 'linear-gradient(135deg, #6AA8F5, #4F8FE8)' }}
+                  style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
                 >
                   Save application
                 </button>
@@ -627,7 +627,7 @@ export default function ActivePage() {
                       <button
                         onClick={() => runPrep(app)}
                         className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all"
-                        style={{ background: 'rgba(106,168,245,0.12)', border: '1px solid rgba(106,168,245,0.2)', color: '#6AA8F5' }}
+                        style={{ background: 'rgba(157, 140, 255, 0.12)', border: '1px solid rgba(157, 140, 255, 0.2)', color: '#9D8CFF' }}
                       >
                         🎯 Prep for interview
                       </button>
@@ -682,7 +682,7 @@ export default function ActivePage() {
             {prepping && (
               <div className="gradient-border-card rounded-2xl p-12 text-center">
                 <div className="flex justify-center mb-6">
-                  <svg className="animate-spin w-8 h-8 text-[#6AA8F5]" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin w-8 h-8 text-[#9D8CFF]" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
@@ -737,7 +737,7 @@ export default function ActivePage() {
                     </div>
                     <div className="grid md:grid-cols-3 gap-4">
                       <div className="gradient-border-card rounded-2xl p-5">
-                        <h3 className="text-[#6AA8F5] text-xs font-bold uppercase tracking-wider mb-3">Recent news</h3>
+                        <h3 className="text-[#9D8CFF] text-xs font-bold uppercase tracking-wider mb-3">Recent news</h3>
                         <ul className="space-y-2">
                           {prep.company_snapshot.recent_news?.map((n, i) => (
                             <li key={i} className="text-[#C7C7D1] text-xs leading-relaxed">• {n}</li>
@@ -745,7 +745,7 @@ export default function ActivePage() {
                         </ul>
                       </div>
                       <div className="gradient-border-card rounded-2xl p-5">
-                        <h3 className="text-[#6AA8F5] text-xs font-bold uppercase tracking-wider mb-3">Culture</h3>
+                        <h3 className="text-[#9D8CFF] text-xs font-bold uppercase tracking-wider mb-3">Culture</h3>
                         <ul className="space-y-2">
                           {prep.company_snapshot.culture_themes?.map((t, i) => (
                             <li key={i} className="text-[#C7C7D1] text-xs leading-relaxed">• {t}</li>
@@ -753,7 +753,7 @@ export default function ActivePage() {
                         </ul>
                       </div>
                       <div className="gradient-border-card rounded-2xl p-5">
-                        <h3 className="text-[#F58E9A] text-xs font-bold uppercase tracking-wider mb-3">Challenges / watch for</h3>
+                        <h3 className="text-[#FB7185] text-xs font-bold uppercase tracking-wider mb-3">Challenges / watch for</h3>
                         <ul className="space-y-2">
                           {prep.company_snapshot.known_challenges?.map((c, i) => (
                             <li key={i} className="text-[#C7C7D1] text-xs leading-relaxed">• {c}</li>
@@ -763,11 +763,11 @@ export default function ActivePage() {
                     </div>
                     {prep.why_they_will_love_you?.length > 0 && (
                       <div className="gradient-border-card rounded-2xl p-6">
-                        <h3 className="text-[#6AA8F5] text-xs font-bold uppercase tracking-wider mb-3">Why they&apos;ll want you</h3>
+                        <h3 className="text-[#9D8CFF] text-xs font-bold uppercase tracking-wider mb-3">Why they&apos;ll want you</h3>
                         <ul className="space-y-3">
                           {prep.why_they_will_love_you.map((r, i) => (
                             <li key={i} className="flex gap-3">
-                              <span className="text-[#6AA8F5] font-black flex-shrink-0">0{i + 1}</span>
+                              <span className="text-[#9D8CFF] font-black flex-shrink-0">0{i + 1}</span>
                               <p className="text-[#C7C7D1] text-sm leading-relaxed">{r}</p>
                             </li>
                           ))}
@@ -783,14 +783,14 @@ export default function ActivePage() {
                     {/* Conversation starters — most actionable, show first */}
                     {prep.social_intel?.conversation_starters?.length > 0 && (
                       <div className="rounded-2xl p-6"
-                        style={{ background: 'linear-gradient(135deg, rgba(106,168,245,0.08), rgba(79,143,232,0.08))', border: '1px solid rgba(106,168,245,0.2)' }}>
-                        <h3 className="text-[#6AA8F5] text-xs font-bold uppercase tracking-wider mb-4">
+                        style={{ background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.08), rgba(157, 140, 255, 0.08))', border: '1px solid rgba(157, 140, 255, 0.2)' }}>
+                        <h3 className="text-[#9D8CFF] text-xs font-bold uppercase tracking-wider mb-4">
                           💬 Use these in the interview
                         </h3>
                         <ul className="space-y-3">
                           {prep.social_intel.conversation_starters.map((s, i) => (
                             <li key={i} className="flex gap-3">
-                              <span className="text-[#6AA8F5] font-black flex-shrink-0 text-sm">→</span>
+                              <span className="text-[#9D8CFF] font-black flex-shrink-0 text-sm">→</span>
                               <p className="text-[#F4F4F7] text-sm leading-relaxed italic">&ldquo;{s}&rdquo;</p>
                             </li>
                           ))}
@@ -801,7 +801,7 @@ export default function ActivePage() {
                     {/* Leadership voice */}
                     {prep.social_intel?.leadership_voice && (
                       <div className="gradient-border-card rounded-2xl p-5">
-                        <h3 className="text-[#6AA8F5] text-xs font-bold uppercase tracking-wider mb-2">
+                        <h3 className="text-[#9D8CFF] text-xs font-bold uppercase tracking-wider mb-2">
                           🎙 What leadership is championing right now
                         </h3>
                         <p className="text-[#C7C7D1] text-sm leading-relaxed">{prep.social_intel.leadership_voice}</p>
@@ -824,8 +824,8 @@ export default function ActivePage() {
                               )}
                             </div>
                             {post.how_to_use && (
-                              <div className="rounded-lg p-3" style={{ background: 'rgba(106,168,245,0.06)', border: '1px solid rgba(106,168,245,0.1)' }}>
-                                <p className="text-[#6AA8F5] text-[10px] font-bold uppercase tracking-wider mb-1">How to use this</p>
+                              <div className="rounded-lg p-3" style={{ background: 'rgba(157, 140, 255, 0.06)', border: '1px solid rgba(157, 140, 255, 0.1)' }}>
+                                <p className="text-[#9D8CFF] text-[10px] font-bold uppercase tracking-wider mb-1">How to use this</p>
                                 <p className="text-[#C7C7D1] text-xs leading-relaxed">{post.how_to_use}</p>
                               </div>
                             )}
@@ -837,11 +837,11 @@ export default function ActivePage() {
                     {/* Social themes */}
                     {prep.social_intel?.social_themes?.length > 0 && (
                       <div className="gradient-border-card rounded-2xl p-5">
-                        <h3 className="text-[#6AA8F5] text-xs font-bold uppercase tracking-wider mb-3">Recurring themes across their social</h3>
+                        <h3 className="text-[#9D8CFF] text-xs font-bold uppercase tracking-wider mb-3">Recurring themes across their social</h3>
                         <div className="flex flex-wrap gap-2">
                           {prep.social_intel.social_themes.map((t, i) => (
                             <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full"
-                              style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5', border: '1px solid rgba(106,168,245,0.2)' }}>
+                              style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF', border: '1px solid rgba(157, 140, 255, 0.2)' }}>
                               {t}
                             </span>
                           ))}
@@ -862,13 +862,13 @@ export default function ActivePage() {
                   <div className="space-y-4">
                     {prep.your_stories.map((story, i) => (
                       <div key={i} className="gradient-border-card rounded-2xl p-6">
-                        <p className="text-[#7E7E8E] text-xs font-bold mb-3">Use for: <span className="text-[#6AA8F5]">&quot;{story.use_for_question}&quot;</span></p>
+                        <p className="text-[#7E7E8E] text-xs font-bold mb-3">Use for: <span className="text-[#9D8CFF]">&quot;{story.use_for_question}&quot;</span></p>
                         <div className="grid md:grid-cols-2 gap-4">
                           {[
-                            { label: 'S — Situation', content: story.situation, color: '#6AA8F5' },
-                            { label: 'T — Task', content: story.task, color: '#6AA8F5' },
-                            { label: 'A — Action', content: story.action, color: '#6AA8F5' },
-                            { label: 'R — Result', content: story.result, color: '#6AA8F5' },
+                            { label: 'S — Situation', content: story.situation, color: '#9D8CFF' },
+                            { label: 'T — Task', content: story.task, color: '#9D8CFF' },
+                            { label: 'A — Action', content: story.action, color: '#9D8CFF' },
+                            { label: 'R — Result', content: story.result, color: '#9D8CFF' },
                           ].map(({ label, content, color }) => (
                             <div key={label}>
                               <p className="text-xs font-bold mb-1" style={{ color }}>{label}</p>
@@ -889,12 +889,12 @@ export default function ActivePage() {
                         <h3 className="text-[#F4F4F7] font-bold mb-3">&ldquo;{q.question}&rdquo;</h3>
                         <div className="space-y-3">
                           <div>
-                            <p className="text-[#6AA8F5] text-xs font-bold mb-1">Your angle</p>
+                            <p className="text-[#9D8CFF] text-xs font-bold mb-1">Your angle</p>
                             <p className="text-[#C7C7D1] text-sm leading-relaxed">{q.your_answer_angle}</p>
                           </div>
                           {q.watch_out_for && (
                             <div>
-                              <p className="text-[#F58E9A] text-xs font-bold mb-1">⚠️ Watch out for</p>
+                              <p className="text-[#FB7185] text-xs font-bold mb-1">⚠️ Watch out for</p>
                               <p className="text-[#C7C7D1] text-sm leading-relaxed">{q.watch_out_for}</p>
                             </div>
                           )}
@@ -911,14 +911,14 @@ export default function ActivePage() {
                     <ul className="space-y-4">
                       {prep.questions_to_ask_them?.map((q, i) => (
                         <li key={i} className="flex gap-3">
-                          <span className="text-[#6AA8F5] font-black flex-shrink-0">Q{i + 1}</span>
+                          <span className="text-[#9D8CFF] font-black flex-shrink-0">Q{i + 1}</span>
                           <p className="text-[#C7C7D1] text-sm leading-relaxed">{q}</p>
                         </li>
                       ))}
                     </ul>
                     {prep.red_flags_to_probe?.length > 0 && (
                       <div className="mt-6 pt-5 border-t border-[rgba(255,255,255,0.08)]">
-                        <h3 className="text-[#F58E9A] text-xs font-bold uppercase tracking-wider mb-3">Red flags to probe</h3>
+                        <h3 className="text-[#FB7185] text-xs font-bold uppercase tracking-wider mb-3">Red flags to probe</h3>
                         <ul className="space-y-2">
                           {prep.red_flags_to_probe.map((r, i) => (
                             <li key={i} className="text-[#C7C7D1] text-sm leading-relaxed">⚠️ {r}</li>
@@ -932,7 +932,7 @@ export default function ActivePage() {
                 {/* Salary */}
                 {prepSection === 'salary' && (
                   <div className="gradient-border-card rounded-2xl p-6">
-                    <h3 className="text-[#6AA8F5] text-xs font-bold uppercase tracking-wider mb-4">Salary intelligence</h3>
+                    <h3 className="text-[#9D8CFF] text-xs font-bold uppercase tracking-wider mb-4">Salary intelligence</h3>
                     <p className="text-[#C7C7D1] text-sm leading-relaxed">{prep.salary_intel}</p>
                   </div>
                 )}

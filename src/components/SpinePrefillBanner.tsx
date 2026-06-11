@@ -86,9 +86,9 @@ type Props = {
 export default function SpinePrefillBanner({ spine, applied, onApply, fieldsLabel }: Props) {
   if (!spine?.hasSpine) return null
 
-  const accent = applied ? '#34D399' : '#6AA8F5'
-  const accentBg = applied ? 'rgba(52,211,153,0.08)' : 'rgba(106,168,245,0.08)'
-  const accentBorder = applied ? 'rgba(52,211,153,0.30)' : 'rgba(106,168,245,0.30)'
+  const accent = applied ? '#34D399' : '#9D8CFF'
+  const accentBg = applied ? 'rgba(52,211,153,0.08)' : 'rgba(157, 140, 255, 0.08)'
+  const accentBorder = applied ? 'rgba(52,211,153,0.30)' : 'rgba(157, 140, 255, 0.30)'
 
   return (
     <div
@@ -110,7 +110,7 @@ export default function SpinePrefillBanner({ spine, applied, onApply, fieldsLabe
               migration has run). The data-loop trust line. */}
           {spine.verification && (
             spine.verification.verified_pct > 0 ? (
-              <p className="text-xs mt-1 font-bold" style={{ color: '#22D3EE' }}>
+              <p className="text-xs mt-1 font-bold" style={{ color: '#9D8CFF' }}>
                 ✓ Based on {spine.verification.verified_pct}% verified org data
                 ({spine.verification.verified_seats} of {spine.verification.occupied_seats} seats
                 confirmed by employees).
@@ -127,7 +127,7 @@ export default function SpinePrefillBanner({ spine, applied, onApply, fieldsLabe
             type="button"
             onClick={onApply}
             className="text-xs font-black px-4 py-2 rounded-full whitespace-nowrap"
-            style={{ background: '#6AA8F5', color: '#fff' }}
+            style={{ background: '#9D8CFF', color: '#fff' }}
           >
             Pre-fill now
           </button>

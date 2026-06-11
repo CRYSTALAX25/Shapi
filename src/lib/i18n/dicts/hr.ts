@@ -46,9 +46,9 @@ const hr: typeof en = {
     hero: {
       badgeDate: 'UAE lansiranje · 2026',
       badgeAccess: 'Rani pristup otvoren',
-      headlineLine1: 'Zapošljavanje koje',
-      headlineLine2: 'doista radi za ljude.',
-      subhead: 'Nije još jedan oglasnik. Sloj provjere za zapošljavanje — reference koje sami pronalazimo, vještine dokazane dokazima, tvrtke kojima zaista možete vjerovati.',
+      headlineLine1: 'Prestanite nagađati.',
+      headlineLine2: 'Zaposlite dokazano.',
+      subhead: 'Shapi je sloj provjere za zapošljavanje. Reference pronalazimo neovisno, vještine se dokazuju dokazima, a tvrtke koje zapošljavaju nose stvarnu ocjenu povjerenja. Obje strane odlučuju na temelju činjenica.',
       subheadHighlight: 'sloj provjere za zapošljavanje',
       ctaBuild: 'Izgradite provjeren profil — besplatan start →',
       ctaHire: 'Zapošljavam — objavi oglas besplatno →',

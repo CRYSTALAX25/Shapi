@@ -5,9 +5,9 @@ import DelegationBoard from './DelegationBoard'
 
 export const metadata = { title: 'Workload Delegation · Shapi' }
 
-const ACCENT = '#7c93f5'
-const HEADING_STYLE: React.CSSProperties = { color: '#f4f6f9' }
-const BODY_STYLE: React.CSSProperties = { color: '#9ca3af' }
+const ACCENT = '#9D8CFF'
+const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
+const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
 
 type SeatRow = {
   id: string
@@ -73,7 +73,7 @@ export default async function DelegationPage() {
   const planTier = (profile as { plan_tier?: string | null }).plan_tier || 'free'
 
   return (
-    <main className="min-h-screen px-4 py-10 sm:py-14" style={{ background: '#0c0e11' }}>
+    <main className="min-h-screen px-4 py-10 sm:py-14" style={{ background: '#060609' }}>
       <div className="max-w-3xl mx-auto">
         <Link href="/company/dashboard" className="text-xs font-bold mb-4 inline-block" style={{ color: ACCENT }}>
           ← Dashboard

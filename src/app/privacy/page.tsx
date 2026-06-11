@@ -9,7 +9,7 @@ const UPDATED = '21 May 2026'
 
 export default function PrivacyPolicy() {
   return (
-    <div className="min-h-screen bg-[#0E0E13]">
+    <div className="min-h-screen bg-[#060609]">
       <div className="fixed inset-0 pointer-events-none" style={{
         backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
@@ -17,7 +17,7 @@ export default function PrivacyPolicy() {
 
       <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)] max-w-3xl mx-auto flex items-center justify-between">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+          background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <Link href="/terms" className="text-[#A6A6B4] text-sm hover:text-[#C7C7D1] transition-colors">Terms →</Link>
@@ -36,7 +36,7 @@ export default function PrivacyPolicy() {
 
           <Section title="1. Who we are">
             Shapi is operated by Ana O. Barber. For any privacy question or request, contact us at{' '}
-            <a href="mailto:hello@shapi.io" className="text-[#6AA8F5]">hello@shapi.io</a>. We are the data
+            <a href="mailto:hello@shapi.io" className="text-[#9D8CFF]">hello@shapi.io</a>. We are the data
             controller for the personal data described below.
           </Section>
 
@@ -68,7 +68,7 @@ export default function PrivacyPolicy() {
             turn nominate). We tell each referee who we are, why we are contacting them, and that their input is
             confidential. Referees can decline. Their responses are used to produce your verification report; you
             are not shown who said what. If you are a referee and want your data removed, email{' '}
-            <a href="mailto:hello@shapi.io" className="text-[#6AA8F5]">hello@shapi.io</a>.
+            <a href="mailto:hello@shapi.io" className="text-[#9D8CFF]">hello@shapi.io</a>.
           </Section>
 
           <Section title="5. AI processing">
@@ -101,14 +101,14 @@ export default function PrivacyPolicy() {
           <Section title="8. Data retention">
             We keep your data for as long as your account is active. You can ask us to delete your account and
             associated data at any time by emailing{' '}
-            <a href="mailto:hello@shapi.io" className="text-[#6AA8F5]">hello@shapi.io</a>. Some records may be
+            <a href="mailto:hello@shapi.io" className="text-[#9D8CFF]">hello@shapi.io</a>. Some records may be
             retained where required by law (e.g. payment records).
           </Section>
 
           <Section title="9. Your rights">
             Depending on where you live, you may have the right to access, correct, export, or delete your data,
             to object to or restrict processing, and to withdraw consent. To exercise any of these, email{' '}
-            <a href="mailto:hello@shapi.io" className="text-[#6AA8F5]">hello@shapi.io</a>. You can also unsubscribe
+            <a href="mailto:hello@shapi.io" className="text-[#9D8CFF]">hello@shapi.io</a>. You can also unsubscribe
             from marketing email using the link in any such email.
           </Section>
 
@@ -128,12 +128,12 @@ export default function PrivacyPolicy() {
           </Section>
 
           <Section title="13. Contact">
-            Questions or requests: <a href="mailto:hello@shapi.io" className="text-[#6AA8F5]">hello@shapi.io</a>.
+            Questions or requests: <a href="mailto:hello@shapi.io" className="text-[#9D8CFF]">hello@shapi.io</a>.
           </Section>
         </div>
 
         <div className="mt-12 pt-6 border-t border-[rgba(255,255,255,0.08)]">
-          <Link href="/signup" className="text-[#6AA8F5] text-sm font-bold hover:opacity-80">← Back to sign up</Link>
+          <Link href="/signup" className="text-[#9D8CFF] text-sm font-bold hover:opacity-80">← Back to sign up</Link>
         </div>
       </div>
     </div>

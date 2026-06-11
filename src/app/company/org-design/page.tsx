@@ -51,7 +51,7 @@ function formatMoney(n: number | undefined, currency: string): string {
 
 export default function OrgDesignPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0E0E13]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#060609]" />}>
       <OrgDesignInner />
     </Suspense>
   )
@@ -134,15 +134,15 @@ function OrgDesignInner() {
     }
   }
 
-  const cardStyle = { background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }
+  const cardStyle = { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }
   const labelCls = 'text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider'
-  const inputCls = 'w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/50'
+  const inputCls = 'w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50'
   const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }
 
   const currency = design?.cost_envelope?.currency || 'USD'
 
   return (
-    <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7]">
+    <div className="min-h-screen bg-[#060609] text-[#F4F4F7]">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -156,7 +156,7 @@ function OrgDesignInner() {
           href="/"
           className="font-black text-xl tracking-tighter"
           style={{
-            background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+            background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -209,7 +209,7 @@ function OrgDesignInner() {
           </div>
         )}
         {intakeToken && intakeLoaded === 'fail' && (
-          <div className="mb-6 rounded-xl p-3 text-xs" style={{ background: 'rgba(245,142,154,0.10)', border: '1px solid rgba(245,142,154,0.25)', color: '#F58E9A' }}>
+          <div className="mb-6 rounded-xl p-3 text-xs" style={{ background: 'rgba(251, 113, 133, 0.10)', border: '1px solid rgba(251, 113, 133, 0.25)', color: '#FB7185' }}>
             That voice-intake link is expired or revoked. Type the inputs below — or text &quot;design my org via voice&quot; on WhatsApp again to get a fresh link.
           </div>
         )}
@@ -278,13 +278,13 @@ function OrgDesignInner() {
               </div>
             </div>
 
-            {err && <p className="text-[#F58E9A] text-sm">{err}</p>}
+            {err && <p className="text-[#FB7185] text-sm">{err}</p>}
 
             <button
               onClick={run}
               disabled={loading || !currentTeam.trim() || !strategy.trim() || !aiPlan.trim()}
               className="w-full py-4 rounded-full font-black text-white text-sm disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}
+              style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
             >
               {loading ? 'Designing your year-2 org…' : 'Design my target org →'}
             </button>
@@ -298,8 +298,8 @@ function OrgDesignInner() {
           <div className="space-y-5">
             {/* Hero summary */}
             <div className="rounded-2xl p-6" style={{
-              background: 'linear-gradient(135deg, rgba(106,168,245,0.10), rgba(240,140,174,0.10))',
-              border: '1px solid rgba(240,140,174,0.30)',
+              background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.10), rgba(157, 140, 255, 0.10))',
+              border: '1px solid rgba(157, 140, 255, 0.30)',
             }}>
               <p className={`${labelCls} mb-2`}>The honest read</p>
               <p className="text-[#F4F4F7] text-lg leading-snug font-bold">
@@ -327,7 +327,7 @@ function OrgDesignInner() {
                           {t.reports_to && (
                             <span
                               className="text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
-                              style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}
+                              style={{ background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' }}
                             >
                               ↗ {t.reports_to}
                             </span>
@@ -369,7 +369,7 @@ function OrgDesignInner() {
                               <span
                                 key={k}
                                 className="text-[10px] px-2 py-0.5 rounded-full"
-                                style={{ background: 'rgba(240,140,174,0.12)', color: '#F08CAE' }}
+                                style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}
                               >
                                 {r}
                               </span>
@@ -399,14 +399,14 @@ function OrgDesignInner() {
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span
                           className="text-[11px] font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}
+                          style={{ background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' }}
                         >
                           {d.from || '—'}
                         </span>
                         <span className="text-[#7E7E8E] text-sm">→</span>
                         <span
                           className="text-[11px] font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: 'rgba(240,140,174,0.15)', color: '#F08CAE' }}
+                          style={{ background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' }}
                         >
                           {d.to || '—'}
                         </span>
@@ -424,13 +424,13 @@ function OrgDesignInner() {
               <div className="grid sm:grid-cols-2 gap-3">
                 <div
                   className="rounded-xl p-4"
-                  style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.25)' }}
+                  style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.25)' }}
                 >
-                  <p className="text-[#6AA8F5] text-xs font-black uppercase tracking-wider mb-2">Year 1</p>
+                  <p className="text-[#9D8CFF] text-xs font-black uppercase tracking-wider mb-2">Year 1</p>
                   <ul className="space-y-1.5">
                     {(design.growth_path?.y1 ?? []).map((m, i) => (
                       <li key={i} className="flex gap-2 text-[#C7C7D1] text-xs leading-relaxed">
-                        <span className="text-[#6AA8F5]">→</span>
+                        <span className="text-[#9D8CFF]">→</span>
                         <span>{m}</span>
                       </li>
                     ))}
@@ -486,10 +486,10 @@ function OrgDesignInner() {
               <div className="grid sm:grid-cols-2 gap-3 mb-4">
                 <div
                   className="rounded-xl p-4 text-center"
-                  style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.25)' }}
+                  style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.25)' }}
                 >
                   <p className="text-[10px] text-[#7E7E8E] font-bold uppercase tracking-wider mb-1">Year 1</p>
-                  <p className="text-xl md:text-2xl font-black" style={{ color: '#6AA8F5' }}>
+                  <p className="text-xl md:text-2xl font-black" style={{ color: '#9D8CFF' }}>
                     {formatMoney(design.cost_envelope?.y1_low, currency)} – {formatMoney(design.cost_envelope?.y1_high, currency)}
                   </p>
                 </div>
@@ -509,7 +509,7 @@ function OrgDesignInner() {
                   <ul className="space-y-1">
                     {design.cost_envelope!.drivers!.map((d, i) => (
                       <li key={i} className="text-[#C7C7D1] text-xs leading-relaxed flex gap-2">
-                        <span className="text-[#F08CAE]">·</span>
+                        <span className="text-[#9D8CFF]">·</span>
                         <span>{d}</span>
                       </li>
                     ))}

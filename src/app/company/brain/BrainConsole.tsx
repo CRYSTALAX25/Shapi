@@ -21,21 +21,21 @@ type SearchResult = {
   score: number | null
 }
 
-const ACCENT = '#7c93f5'
+const ACCENT = '#9D8CFF'
 const SUCCESS = '#34D399'
 const DANGER = '#FB7185'
 const AMBER = '#FBBF24'
-const HEADING_STYLE: React.CSSProperties = { color: '#f4f6f9' }
-const BODY_STYLE: React.CSSProperties = { color: '#9ca3af' }
-const CTA_STYLE: React.CSSProperties = { background: '#eef1f6', color: '#0c0e11' }
+const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
+const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
+const CTA_STYLE: React.CSSProperties = { background: '#eef1f6', color: '#060609' }
 const INPUT_STYLE: React.CSSProperties = {
-  background: '#0c0e11',
-  border: '1px solid rgba(124,147,245,0.20)',
-  color: '#f4f6f9',
+  background: '#060609',
+  border: '1px solid rgba(157, 140, 255, 0.20)',
+  color: 'rgba(255,255,255,0.9)',
 }
 const CARD_STYLE: React.CSSProperties = {
-  background: '#13161b',
-  border: '1px solid rgba(124,147,245,0.14)',
+  background: '#0D0C14',
+  border: '1px solid rgba(157, 140, 255, 0.14)',
   borderRadius: '1rem',
 }
 
@@ -281,18 +281,18 @@ export default function BrainConsole({
         {results && results.length > 0 && (
           <div className="space-y-3 mt-2">
             {results.map((r) => (
-              <div key={r.id} className="p-3 rounded-lg" style={{ background: '#0c0e11', border: '1px solid rgba(124,147,245,0.10)' }}>
+              <div key={r.id} className="p-3 rounded-lg" style={{ background: '#060609', border: '1px solid rgba(157, 140, 255, 0.10)' }}>
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={sensitivityBadge(r.sensitivity)}>
                     {r.sensitivity}
                   </span>
                   {seatTitle(r.anchor_seat_id) && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: ACCENT }}>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.12)', color: ACCENT }}>
                       seat · {seatTitle(r.anchor_seat_id)}
                     </span>
                   )}
                   {teamName(r.anchor_team_id) && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.12)', color: '#A78BFA' }}>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>
                       team · {teamName(r.anchor_team_id)}
                     </span>
                   )}
@@ -311,7 +311,7 @@ export default function BrainConsole({
         )}
 
         {!results && !hasEntries && (
-          <div className="mt-4 p-4 rounded-xl text-center" style={{ background: '#0c0e11', border: `1px dashed ${ACCENT}40` }}>
+          <div className="mt-4 p-4 rounded-xl text-center" style={{ background: '#060609', border: `1px dashed ${ACCENT}40` }}>
             <p className="text-sm font-bold mb-1" style={HEADING_STYLE}>The brain is empty</p>
             <p className="text-xs" style={BODY_STYLE}>
               Add your first handover note or process doc above. Once it&apos;s in, you can ask

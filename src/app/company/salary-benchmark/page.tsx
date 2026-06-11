@@ -91,16 +91,16 @@ export default function SalaryBenchmark() {
   }
 
   const inputCls =
-    'w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/50'
+    'w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50'
   const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }
   const labelCls = 'text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider'
-  const cardStyle = { background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }
+  const cardStyle = { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }
 
   return (
-    <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7]">
+    <div className="min-h-screen bg-[#060609] text-[#F4F4F7]">
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
       <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-4xl mx-auto">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         <Link href="/dashboard" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7]">← Dashboard</Link>
       </nav>
 
@@ -162,7 +162,7 @@ export default function SalaryBenchmark() {
                     className="text-xs font-bold px-3 py-1.5 rounded-full transition-opacity"
                     style={
                       active
-                        ? { background: 'rgba(106,168,245,0.20)', color: '#6AA8F5', border: '1px solid rgba(106,168,245,0.45)' }
+                        ? { background: 'rgba(157, 140, 255, 0.20)', color: '#9D8CFF', border: '1px solid rgba(157, 140, 255, 0.45)' }
                         : { background: 'rgba(255,255,255,0.05)', color: '#A6A6B4', border: '1px solid rgba(255,255,255,0.08)' }
                     }>
                     {l}
@@ -174,10 +174,10 @@ export default function SalaryBenchmark() {
 
           <button onClick={submit} disabled={loading || !role.trim() || !country.trim()}
             className="mt-5 w-full sm:w-auto px-6 py-3 rounded-full font-black text-sm text-white disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
+            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
             {loading ? 'Building band…' : '💰 Get salary band + global gap'}
           </button>
-          {err && <p className="text-[#F58E9A] text-xs mt-3">{err}</p>}
+          {err && <p className="text-[#FB7185] text-xs mt-3">{err}</p>}
         </div>
 
         {/* Result */}
@@ -191,11 +191,11 @@ export default function SalaryBenchmark() {
             {/* Big band */}
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-2">
               <span className="text-[#7E7E8E] text-sm font-bold">{bm.currency || ''}</span>
-              <span className="text-3xl md:text-4xl font-black tracking-tighter" style={{ color: '#6AA8F5' }}>
+              <span className="text-3xl md:text-4xl font-black tracking-tighter" style={{ color: '#9D8CFF' }}>
                 {fmt(bm.min)}
               </span>
               <span className="text-[#7E7E8E] text-2xl font-black">–</span>
-              <span className="text-3xl md:text-4xl font-black tracking-tighter" style={{ color: '#6AA8F5' }}>
+              <span className="text-3xl md:text-4xl font-black tracking-tighter" style={{ color: '#9D8CFF' }}>
                 {fmt(bm.max)}
               </span>
             </div>
@@ -204,16 +204,16 @@ export default function SalaryBenchmark() {
             <div className="flex flex-wrap gap-2 mb-4">
               {typeof bm.median === 'number' && (
                 <div className="inline-flex items-center gap-2 rounded-full px-3 py-1"
-                  style={{ background: 'rgba(240,140,174,0.12)', border: '1px solid rgba(240,140,174,0.3)' }}>
-                  <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#F08CAE' }}>{country} median</span>
-                  <span className="text-sm font-black" style={{ color: '#F08CAE' }}>{bm.currency || ''} {fmt(bm.median)}</span>
+                  style={{ background: 'rgba(157, 140, 255, 0.12)', border: '1px solid rgba(157, 140, 255, 0.3)' }}>
+                  <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#9D8CFF' }}>{country} median</span>
+                  <span className="text-sm font-black" style={{ color: '#9D8CFF' }}>{bm.currency || ''} {fmt(bm.median)}</span>
                 </div>
               )}
               {typeof bm.global_median === 'number' && (
                 <div className="inline-flex items-center gap-2 rounded-full px-3 py-1"
-                  style={{ background: 'rgba(106,168,245,0.12)', border: '1px solid rgba(106,168,245,0.3)' }}>
-                  <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#6AA8F5' }}>Global median (USD)</span>
-                  <span className="text-sm font-black" style={{ color: '#6AA8F5' }}>$ {fmt(bm.global_median)}</span>
+                  style={{ background: 'rgba(157, 140, 255, 0.12)', border: '1px solid rgba(157, 140, 255, 0.3)' }}>
+                  <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#9D8CFF' }}>Global median (USD)</span>
+                  <span className="text-sm font-black" style={{ color: '#9D8CFF' }}>$ {fmt(bm.global_median)}</span>
                 </div>
               )}
             </div>
@@ -221,7 +221,7 @@ export default function SalaryBenchmark() {
             {/* Regional vs global gap — explicit one-liner */}
             {bm.regional_vs_global_note && (
               <p className="text-[#F4F4F7] text-sm font-bold leading-relaxed mb-3 rounded-lg px-3 py-2"
-                style={{ background: 'rgba(240,140,174,0.10)', border: '1px solid rgba(240,140,174,0.25)' }}>
+                style={{ background: 'rgba(157, 140, 255, 0.10)', border: '1px solid rgba(157, 140, 255, 0.25)' }}>
                 {bm.regional_vs_global_note}
               </p>
             )}

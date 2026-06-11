@@ -29,19 +29,19 @@ type Delegation = {
 }
 
 const CARD = 'rounded-2xl border p-5'
-const CARD_STYLE: React.CSSProperties = { background: '#13161b', borderColor: 'rgba(124,147,245,0.18)' }
-const HEADING_STYLE: React.CSSProperties = { color: '#f4f6f9' }
-const BODY_STYLE: React.CSSProperties = { color: '#9ca3af' }
-const ACCENT = '#7c93f5'
-const CTA_STYLE: React.CSSProperties = { background: '#eef1f6', color: '#0c0e11' }
+const CARD_STYLE: React.CSSProperties = { background: '#0D0C14', borderColor: 'rgba(157, 140, 255, 0.18)' }
+const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
+const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
+const ACCENT = '#9D8CFF'
+const CTA_STYLE: React.CSSProperties = { background: '#eef1f6', color: '#060609' }
 const INPUT = 'w-full px-3 py-2 rounded-lg text-sm'
 const INPUT_STYLE: React.CSSProperties = {
-  background: '#0c0e11',
-  border: '1px solid rgba(124,147,245,0.20)',
-  color: '#f4f6f9',
+  background: '#060609',
+  border: '1px solid rgba(157, 140, 255, 0.20)',
+  color: 'rgba(255,255,255,0.9)',
 }
 const LABEL = 'block text-[10px] font-bold uppercase tracking-wider mb-1'
-const LABEL_STYLE: React.CSSProperties = { color: '#9ca3af' }
+const LABEL_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
 
 function today(): string {
   return new Date().toISOString().slice(0, 10)
@@ -345,7 +345,7 @@ export default function DelegationBoard({
         </h2>
 
         {activeDelegations.length === 0 ? (
-          <div className="mt-3 p-4 rounded-xl text-center" style={{ background: '#0c0e11', border: '1px dashed rgba(124,147,245,0.25)' }}>
+          <div className="mt-3 p-4 rounded-xl text-center" style={{ background: '#060609', border: '1px dashed rgba(157, 140, 255, 0.25)' }}>
             <p className="text-sm font-bold mb-1" style={HEADING_STYLE}>No delegations yet</p>
             <p className="text-xs leading-relaxed" style={BODY_STYLE}>
               When a person is overloaded or about to leave, delegate a slice of their workload to a
@@ -361,7 +361,7 @@ export default function DelegationBoard({
               const to = seatById.get(d.to_seat_id)
               const cap = capacity.get(d.to_seat_id)
               return (
-                <div key={d.id} className="p-3 rounded-xl" style={{ background: '#0c0e11', border: '1px solid rgba(124,147,245,0.14)' }}>
+                <div key={d.id} className="p-3 rounded-xl" style={{ background: '#060609', border: '1px solid rgba(157, 140, 255, 0.14)' }}>
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="min-w-0">
                       <p className="text-sm font-bold truncate" style={HEADING_STYLE}>
@@ -411,7 +411,7 @@ export default function DelegationBoard({
                   {d.ai_detected_skills_gained && d.ai_detected_skills_gained.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1">
                       {d.ai_detected_skills_gained.map(s => (
-                        <span key={s} className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: 'rgba(124,147,245,0.14)', color: ACCENT }}>
+                        <span key={s} className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: 'rgba(157, 140, 255, 0.14)', color: ACCENT }}>
                           {s}
                         </span>
                       ))}

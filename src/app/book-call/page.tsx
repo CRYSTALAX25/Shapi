@@ -111,7 +111,7 @@ function BookCallInner() {
   const engagement = searchParams.get('engagement') || ''
 
   return (
-    <div className="min-h-screen bg-[#0E0E13]">
+    <div className="min-h-screen bg-[#060609]">
       {/* Force dark UI for native <select> dropdowns + kill Chrome's white
           autofill background. Without this, opened dropdowns showed a white
           panel (impossible to read), and prefilled inputs landed in
@@ -119,18 +119,18 @@ function BookCallInner() {
       <style>{`
         .book-call-form select, .book-call-form option {
           color-scheme: dark;
-          background-color: #16161F;
+          background-color: #0D0C14;
           color: #F4F4F7;
         }
         .book-call-form option {
-          background-color: #16161F !important;
+          background-color: #0D0C14 !important;
           color: #F4F4F7 !important;
         }
         .book-call-form input:-webkit-autofill,
         .book-call-form input:-webkit-autofill:hover,
         .book-call-form input:-webkit-autofill:focus,
         .book-call-form input:-webkit-autofill:active {
-          -webkit-box-shadow: 0 0 0 30px #16161F inset !important;
+          -webkit-box-shadow: 0 0 0 30px #0D0C14 inset !important;
           -webkit-text-fill-color: #F4F4F7 !important;
           caret-color: #F4F4F7 !important;
           transition: background-color 9999s ease-in-out 0s;
@@ -139,7 +139,7 @@ function BookCallInner() {
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
 
       <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] max-w-3xl mx-auto flex items-center justify-between">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         {authed ? (
           <Link href="/company/dashboard" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1]">← Dashboard</Link>
         ) : (
@@ -163,7 +163,7 @@ function BookCallInner() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block px-6 py-3 rounded-full font-black text-sm text-white"
-                style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}
+                style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
               >
                 Pick a time on the calendar →
               </a>
@@ -171,14 +171,14 @@ function BookCallInner() {
             <p className="text-[#7E7E8E] text-[11px] mt-5">
               Confirmation email sent to your inbox. Look out for <strong className="text-[#C7C7D1]">hello@shapi.io</strong>.
             </p>
-            <Link href="/company/dashboard" className="inline-block mt-3 text-[#6AA8F5] text-sm font-bold hover:underline">
+            <Link href="/company/dashboard" className="inline-block mt-3 text-[#9D8CFF] text-sm font-bold hover:underline">
               Back to dashboard
             </Link>
           </div>
         ) : (
           <>
             <div className="mb-8">
-              <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: '#F08CAE' }}>{topicLabel}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: '#9D8CFF' }}>{topicLabel}</p>
               <h1 className="text-3xl md:text-4xl font-black tracking-tighter mb-2" style={{ color: '#FB7185' }}>{topic === 'founder-session' ? 'Book your founder session' : 'Book a call'}</h1>
               <p className="text-[#A6A6B4] text-sm leading-relaxed">
                 {topic === 'founder-session'
@@ -203,7 +203,7 @@ function BookCallInner() {
                 <div>
                   <label className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Company size</label>
                   <select value={companySize} onChange={e => setCompanySize(e.target.value)}
-                    className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3 text-sm text-[#F4F4F7] focus:outline-none focus:border-[#6AA8F5]/40">
+                    className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3 text-sm text-[#F4F4F7] focus:outline-none focus:border-[#9D8CFF]/40">
                     <option value="">Select…</option>
                     <option value="<10">&lt;10</option>
                     <option value="10-50">10–50</option>
@@ -215,7 +215,7 @@ function BookCallInner() {
                 <div>
                   <label className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Timeline</label>
                   <select value={timeline} onChange={e => setTimeline(e.target.value)}
-                    className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3 text-sm text-[#F4F4F7] focus:outline-none focus:border-[#6AA8F5]/40">
+                    className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3 text-sm text-[#F4F4F7] focus:outline-none focus:border-[#9D8CFF]/40">
                     <option value="">Select…</option>
                     <option value="this-month">This month</option>
                     <option value="next-quarter">Next quarter</option>
@@ -228,19 +228,19 @@ function BookCallInner() {
                 <label className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider mb-1.5 block">What&apos;s on your mind?</label>
                 <textarea value={message} onChange={e => setMessage(e.target.value)} rows={4}
                   placeholder="What are you trying to solve? What does success look like? Anything specific you'd like Ana to bring to the call."
-                  className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/40"
+                  className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/40"
                   style={{ resize: 'vertical' }} />
               </div>
 
               {status === 'error' && (
-                <p className="text-[#F58E9A] text-xs bg-[#F58E9A]/10 border border-[#F58E9A]/20 rounded-xl px-4 py-3">
+                <p className="text-[#FB7185] text-xs bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3">
                   {errMsg || 'Something went wrong — try again.'}
                 </p>
               )}
 
               <button type="submit" disabled={status === 'sending' || !name.trim() || !email.trim() || !company.trim()}
                 className="w-full py-4 rounded-full font-black text-sm text-white disabled:opacity-50"
-                style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}>
+                style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
                 {status === 'sending' ? 'Sending…' : 'Request a call →'}
               </button>
               <p className="text-[#7E7E8E] text-[11px] text-center">We reply within one business day.</p>
@@ -259,14 +259,14 @@ function Field({ label, value, onChange, type = 'text', required, placeholder }:
     <div>
       <label className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider mb-1.5 block">{label}</label>
       <input type={type} value={value} onChange={e => onChange(e.target.value)} required={required} placeholder={placeholder}
-        className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/40" />
+        className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 py-3 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/40" />
     </div>
   )
 }
 
 export default function BookCallPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0E0E13]" />}>
+    <Suspense fallback={<div className="min-h-screen bg-[#060609]" />}>
       <BookCallInner />
     </Suspense>
   )

@@ -71,11 +71,11 @@ export default function UpdatePassword() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0E0E13] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-[#060609] flex items-center justify-center px-6">
       <style>{`
         .gradient-border-card {
-          background: linear-gradient(#16161F, #16161F) padding-box,
-                      linear-gradient(135deg, rgba(106,168,245,0.2), rgba(240,140,174,0.2)) border-box;
+          background: linear-gradient(#0D0C14, #0D0C14) padding-box,
+                      linear-gradient(135deg, rgba(157, 140, 255, 0.2), rgba(157, 140, 255, 0.2)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
@@ -88,7 +88,7 @@ export default function UpdatePassword() {
 
       <div className="relative z-10 max-w-md w-full">
         <div className="text-center mb-10">
-          <Link href="/" className="font-black text-2xl tracking-tighter" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+          <Link href="/" className="font-black text-2xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
           <h1 className="text-2xl font-black text-[#F4F4F7] mt-6 mb-2">
             {done ? 'Password updated' : 'Set a new password'}
           </h1>
@@ -98,12 +98,12 @@ export default function UpdatePassword() {
         </div>
 
         {recoverable === false && !done && (
-          <div className="rounded-2xl p-5 text-center" style={{ background: 'rgba(245,142,154,0.10)', border: '1px solid rgba(245,142,154,0.30)' }}>
-            <p className="text-[#F58E9A] font-bold mb-2">This reset link is invalid or expired.</p>
+          <div className="rounded-2xl p-5 text-center" style={{ background: 'rgba(251, 113, 133, 0.10)', border: '1px solid rgba(251, 113, 133, 0.30)' }}>
+            <p className="text-[#FB7185] font-bold mb-2">This reset link is invalid or expired.</p>
             <p className="text-[#A6A6B4] text-xs leading-relaxed mb-4">
               Reset links are single-use and expire after ~1 hour. Request a fresh one.
             </p>
-            <Link href="/reset-password" className="inline-block px-5 py-2.5 rounded-full font-black text-xs text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE)' }}>
+            <Link href="/reset-password" className="inline-block px-5 py-2.5 rounded-full font-black text-xs text-white" style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)' }}>
               Send a new link →
             </Link>
           </div>
@@ -140,7 +140,7 @@ export default function UpdatePassword() {
             />
 
             {error && (
-              <p className="text-[#F58E9A] text-xs bg-[#F58E9A]/10 border border-[#F58E9A]/20 rounded-xl px-4 py-3">
+              <p className="text-[#FB7185] text-xs bg-[#FB7185]/10 border border-[#FB7185]/20 rounded-xl px-4 py-3">
                 {error}
               </p>
             )}
@@ -148,7 +148,7 @@ export default function UpdatePassword() {
             <button
               type="submit"
               disabled={loading || recoverable !== true}
-              className="w-full bg-gradient-to-r from-[#6AA8F5] to-[#F08CAE] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+              className="w-full bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed mt-2"
             >
               {loading ? 'Updating…' : recoverable === null ? 'Verifying link…' : 'Set new password →'}
             </button>

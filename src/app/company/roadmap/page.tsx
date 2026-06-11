@@ -30,15 +30,15 @@ type Roadmap = {
 }
 
 const URGENCY_COLOR: Record<string, string> = {
-  'now': '#F58E9A',
+  'now': '#FB7185',
   'next quarter': '#FBBF24',
-  'next 6-12 months': '#6AA8F5',
+  'next 6-12 months': '#9D8CFF',
 }
 
 const RISK_COLOR: Record<string, string> = {
   low: '#34D399',
   medium: '#FBBF24',
-  high: '#F58E9A',
+  high: '#FB7185',
 }
 
 export default function CompanyRoadmap() {
@@ -109,11 +109,11 @@ export default function CompanyRoadmap() {
     }
   }
 
-  const cardStyle = { background: '#16161F', border: '1px solid rgba(255,255,255,0.08)' }
+  const cardStyle = { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }
   const labelCls = 'text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider'
 
   return (
-    <div className="min-h-screen bg-[#0E0E13] text-[#F4F4F7]">
+    <div className="min-h-screen bg-[#060609] text-[#F4F4F7]">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -126,7 +126,7 @@ export default function CompanyRoadmap() {
           href="/"
           className="font-black text-xl tracking-tighter"
           style={{
-            background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)',
+            background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -168,7 +168,7 @@ export default function CompanyRoadmap() {
               onChange={e => setTeamComposition(e.target.value)}
               placeholder="e.g. 5 engineers, 1 designer, 2 sales reps, 1 marketing lead, 1 ops manager"
               rows={3}
-              className="w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#6AA8F5]/50 mb-4"
+              className="w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50 mb-4"
               style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
             />
             <p className="text-[#7E7E8E] text-[11px] mb-4">Roles + counts only — no names, no salaries. Better answers in, sharper roadmap out.</p>
@@ -176,11 +176,11 @@ export default function CompanyRoadmap() {
               onClick={generate}
               disabled={loading}
               className="px-6 py-3 rounded-full font-black text-sm text-white disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg,#6AA8F5,#F08CAE,#F58E9A)' }}
+              style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
             >
               {loading ? 'Building your roadmap…' : 'Generate Hiring Roadmap'}
             </button>
-            {err && <p className="text-[#F58E9A] text-xs mt-3">{err}</p>}
+            {err && <p className="text-[#FB7185] text-xs mt-3">{err}</p>}
           </div>
           </>
         )}
@@ -218,7 +218,7 @@ export default function CompanyRoadmap() {
                         {/* Starter JD — ready to amend, refine via WhatsApp */}
                         {p.starter_jd && (p.starter_jd.headline || (p.starter_jd.responsibilities && p.starter_jd.responsibilities.length > 0)) && (
                           <details className="mt-3 pt-3 border-t border-white/[0.06]">
-                            <summary className="cursor-pointer text-[#F08CAE] text-[11px] font-bold uppercase tracking-wider list-none flex items-center justify-between">
+                            <summary className="cursor-pointer text-[#9D8CFF] text-[11px] font-bold uppercase tracking-wider list-none flex items-center justify-between">
                               <span>📄 Starter JD — tap to view, refine on WhatsApp</span>
                               <span className="text-[#7E7E8E] text-[10px]">expand</span>
                             </summary>
@@ -239,7 +239,7 @@ export default function CompanyRoadmap() {
                                   <p className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider mb-1">Must-haves</p>
                                   <div className="flex flex-wrap gap-1">
                                     {p.starter_jd.must_haves.map((m, j) => (
-                                      <span key={j} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>{m}</span>
+                                      <span key={j} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>{m}</span>
                                     ))}
                                   </div>
                                 </div>
@@ -257,7 +257,7 @@ export default function CompanyRoadmap() {
                               {p.starter_jd.salary_band && (
                                 <p className="text-[#34D399] text-[11px] font-bold">💸 {p.starter_jd.salary_band}</p>
                               )}
-                              <p className="text-[#7E7E8E] text-[10px] italic pt-1">Refine on WhatsApp: text <strong className="text-[#F08CAE]">&quot;edit JD for {p.role || 'this role'}&quot;</strong> to iterate, then text <strong className="text-[#F08CAE]">&quot;[JD_DONE]&quot;</strong> to post it as a draft role.</p>
+                              <p className="text-[#7E7E8E] text-[10px] italic pt-1">Refine on WhatsApp: text <strong className="text-[#9D8CFF]">&quot;edit JD for {p.role || 'this role'}&quot;</strong> to iterate, then text <strong className="text-[#9D8CFF]">&quot;[JD_DONE]&quot;</strong> to post it as a draft role.</p>
                               <JdActions role={p.role || 'Untitled role'} jd={p.starter_jd} />
                             </div>
                           </details>
@@ -278,7 +278,7 @@ export default function CompanyRoadmap() {
                 <div className="grid sm:grid-cols-2 gap-2.5">
                   {roadmap.reskill_vs_hire!.map((r, i) => {
                     const isReskill = (r.recommendation || '').toLowerCase() === 'reskill'
-                    const rc = isReskill ? '#34D399' : '#6AA8F5'
+                    const rc = isReskill ? '#34D399' : '#9D8CFF'
                     const label = isReskill ? 'Reskill' : 'Hire'
                     return (
                       <div
@@ -354,7 +354,7 @@ export default function CompanyRoadmap() {
                     <li key={i} className="flex gap-3 items-start">
                       <span
                         className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black"
-                        style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}
+                        style={{ background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' }}
                       >
                         {i + 1}
                       </span>
@@ -377,9 +377,9 @@ export default function CompanyRoadmap() {
                 disabled={loading}
                 className="text-xs font-bold px-3 py-1.5 rounded-full disabled:opacity-40"
                 style={{
-                  background: 'rgba(106,168,245,0.12)',
-                  color: '#6AA8F5',
-                  border: '1px solid rgba(106,168,245,0.25)',
+                  background: 'rgba(157, 140, 255, 0.12)',
+                  color: '#9D8CFF',
+                  border: '1px solid rgba(157, 140, 255, 0.25)',
                 }}
               >
                 {loading ? 'Regenerating…' : 'Regenerate'}
@@ -388,7 +388,7 @@ export default function CompanyRoadmap() {
             <p className="text-[#7E7E8E] text-[10px] leading-relaxed">
               Sources: <span className="text-[#A6A6B4]">Mercer · Glassdoor public ratings · Anthropic/OpenAI published API pricing · BLS/government labour statistics · Shapi platform data</span>
             </p>
-            {err && <p className="text-[#F58E9A] text-xs">{err}</p>}
+            {err && <p className="text-[#FB7185] text-xs">{err}</p>}
           </div>
         )}
       </div>
