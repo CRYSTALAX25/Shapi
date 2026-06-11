@@ -3,26 +3,33 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
-// v5 PRICING — LOCKED 2026-06-10 (STRATEGY §2). Supersedes the v4 3-tier scheme.
+// v5.1 PRICING — LOCKED 2026-06-11 (STRATEGY §2). Supersedes v5 (2026-06-10).
 // FOUR tiers + a Bespoke teaser. ANY change here must mirror
 // /api/stripe/company-checkout (Stripe amounts) + STRATEGY.md §2.
 //
 // Free        — generous through launch (metering parked ~60-90 days post-
 //               launch; FeatureGate stays OFF). CTA: signed-in → /company/spine,
 //               signed-out → /signup?type=company.
-// Pro $499/mo — 14-day card-required trial. company-checkout tier='pro'.
-// Growth $1,500/mo 🆕 — 14-day card-required trial. tier='growth'. Full
-//               diagnostic suite + Active Hiring + candidate pool. HR-OS /
-//               Company Brain / Skill Density / audit trail stay Enterprise-only.
-// Enterprise  — sales-led, "Custom" on the card. $2,500-5,000/mo band lives in
-//               the sales conversation, NOT here. NO self-serve trial. CTA =
+// Pro $499/mo or $4,990/yr (2 months free) — 14-day card-required trial.
+//               company-checkout { tier:'pro', billing:'monthly'|'yearly' }.
+// Growth $1,500/mo or $15,000/yr (2 months free) — 14-day card-required trial.
+//               tier='growth'. Full diagnostic suite + Active Hiring +
+//               candidate pool. HR-OS / Company Brain / Skill Density / audit
+//               trail stay Enterprise-only.
+// Enterprise  — sales-led, "from $2,500/mo" on the card (v5.1). Full band
+//               $2,500–12,000/mo scaled to workforce size lives in the sales
+//               conversation. NO self-serve trial. CTA =
 //               /book-call?intent=enterprise. POC $3-5k creditable to year 1.
 // Bespoke Transformation $15-25k one-off — greyed teaser card.
+//
+// Founding Partner coupon (50% off 6mo repeating) applies to MONTHLY billing
+// only — on an annual invoice it would discount the whole year. Banner says so.
 
 export default function CompanyPricing() {
   const [loading, setLoading] = useState<string | null>(null)
   const [checkoutError, setCheckoutError] = useState('')
   const [authed, setAuthed] = useState<boolean | null>(null)
+  const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly')
 
   // We need to know whether the user is signed in to send the Free-tier CTA
   // to the right place: spine if already in the door, signup otherwise.
@@ -45,7 +52,8 @@ export default function CompanyPricing() {
       const res = await fetch('/api/stripe/company-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tier }),
+        // billing: 'monthly' | 'yearly' — yearly = 2 months free
+        body: JSON.stringify({ tier, billing }),
       })
       const { url, error } = await res.json()
       if (error) {
@@ -92,11 +100,35 @@ export default function CompanyPricing() {
           </p>
         </div>
 
-        {/* Founding Partner banner — REAL cohort cap of 15 enforced at checkout. */}
-        <div className="max-w-3xl mx-auto mb-10 rounded-xl px-5 py-3 text-center" style={{ background: 'rgba(240,140,174,0.08)', border: '1px solid rgba(240,140,174,0.25)' }}>
+        {/* Founding Partner banner — REAL cohort cap of 15 enforced at checkout.
+            v5.1: coupon attaches to MONTHLY billing only (yearly already gets 2 months free). */}
+        <div className="max-w-3xl mx-auto mb-8 rounded-xl px-5 py-3 text-center" style={{ background: 'rgba(240,140,174,0.08)', border: '1px solid rgba(240,140,174,0.25)' }}>
           <p className="text-sm font-bold" style={{ color: '#F08CAE' }}>
             ★ Founding Partners — the first 15 companies get 50% off their first paid tier for 6 months, then it reverts. Grandfathered for life.
           </p>
+          <p className="text-[11px] mt-1" style={{ color: 'rgba(240,140,174,0.75)' }}>
+            Founding discount applies to monthly billing — annual plans already include 2 months free.
+          </p>
+        </div>
+
+        {/* Monthly / Yearly toggle — v5.1 annual billing (2 months free). */}
+        <div className="flex items-center justify-center gap-1 mb-10">
+          <div className="inline-flex rounded-full p-1" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.10)' }}>
+            {(['monthly', 'yearly'] as const).map(b => (
+              <button
+                key={b}
+                onClick={() => setBilling(b)}
+                className="px-5 py-2 rounded-full text-xs font-black transition-all"
+                style={billing === b
+                  ? { background: 'linear-gradient(135deg, #6AA8F5, #4F8FE8)', color: '#fff' }
+                  : { color: '#7E7E8E' }}
+              >
+                {b === 'monthly' ? 'Monthly' : (
+                  <span>Yearly <span style={{ color: billing === b ? 'rgba(255,255,255,0.85)' : '#34D399' }}>· 2 months free</span></span>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
 
         {checkoutError && (
@@ -147,8 +179,13 @@ export default function CompanyPricing() {
             </div>
             <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#6AA8F5' }}>Pro</p>
             <div className="flex items-end gap-1 mb-1">
-              <span className="text-4xl font-black text-white">$499</span>
-              <span className="text-white/50 mb-1">/month</span>
+              <span className="text-4xl font-black text-white">{billing === 'yearly' ? '$4,990' : '$499'}</span>
+              <span className="text-white/50 mb-1">{billing === 'yearly' ? '/year' : '/month'}</span>
+              {billing === 'yearly' && (
+                <span className="mb-1.5 ml-1 text-[10px] font-black px-2 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#34D399', border: '1px solid rgba(52,211,153,0.35)' }}>
+                  2 months free
+                </span>
+              )}
             </div>
             <p className="text-xs text-white/60 mb-6">14-day free trial · card required · cancel anytime</p>
 
@@ -183,8 +220,13 @@ export default function CompanyPricing() {
           <div className="bg-[#16161F] rounded-2xl p-7 flex flex-col" style={{ border: '1px solid rgba(52,211,153,0.30)', boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)' }}>
             <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#34D399' }}>Growth</p>
             <div className="flex items-end gap-1 mb-1">
-              <span className="text-4xl font-black text-[#F4F4F7]">$1,500</span>
-              <span className="text-[#7E7E8E] mb-1">/month</span>
+              <span className="text-4xl font-black text-[#F4F4F7]">{billing === 'yearly' ? '$15,000' : '$1,500'}</span>
+              <span className="text-[#7E7E8E] mb-1">{billing === 'yearly' ? '/year' : '/month'}</span>
+              {billing === 'yearly' && (
+                <span className="mb-1.5 ml-1 text-[10px] font-black px-2 py-0.5 rounded-full" style={{ background: 'rgba(52,211,153,0.15)', color: '#34D399', border: '1px solid rgba(52,211,153,0.35)' }}>
+                  2 months free
+                </span>
+              )}
             </div>
             <p className="text-xs text-[#7E7E8E] mb-6">14-day free trial · card required · cancel anytime</p>
 
@@ -222,11 +264,13 @@ export default function CompanyPricing() {
           {/* ── ENTERPRISE ───────────────────────────────────────────── */}
           <div className="bg-[#16161F] rounded-2xl p-7 flex flex-col" style={{ border: '1px solid rgba(240,140,174,0.30)', boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)' }}>
             <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#F08CAE' }}>Enterprise</p>
+            {/* v5.1: anchored "from $2,500/mo" replaces "Custom". Full band
+                ($2,500–12,000/mo, scaled to workforce size) is sales-led. */}
             <div className="flex items-end gap-1 mb-1">
-              <span className="text-4xl font-black text-[#F4F4F7]">Custom</span>
-              <span className="text-[#7E7E8E] mb-1">pricing</span>
+              <span className="text-4xl font-black text-[#F4F4F7]">from $2,500</span>
+              <span className="text-[#7E7E8E] mb-1">/month</span>
             </div>
-            <p className="text-xs text-[#7E7E8E] mb-6">Built for HRBPs and Chief People Officers</p>
+            <p className="text-xs text-[#7E7E8E] mb-6">Scaled to workforce size · built for HRBPs and Chief People Officers</p>
 
             <div className="space-y-2.5 mb-5 flex-1">
               {[

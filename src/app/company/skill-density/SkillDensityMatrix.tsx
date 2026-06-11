@@ -224,7 +224,7 @@ export default function SkillDensityMatrix({ planTier, companyName }: Props) {
       {showTeaser && (
         <div className="rounded-xl p-4 text-xs" style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)', color: '#FBBF24' }}>
           <strong>Enterprise feature.</strong> The Capability Matrix + internal redeployment engine is part of
-          the Enterprise plan ($2,500–5,000/mo). You&apos;re on{' '}
+          the Enterprise plan ($2,500–12,000/mo, scaled to workforce size). You&apos;re on{' '}
           <span style={{ textTransform: 'capitalize' }}>{planTier}</span> —{' '}
           <a href="/company/pricing" className="font-black underline">see plans</a>.{' '}
           <span style={{ opacity: 0.8 }}>(Rendered below for testing.)</span>

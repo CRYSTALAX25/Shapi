@@ -28,6 +28,11 @@ export default async function SpinePage({
   if (!profile || profile.type !== 'company') redirect('/dashboard')
   if (!profile.onboarding_complete) redirect('/company/onboarding')
 
+  // NOTE: roles_seats uses select('*') on purpose — once the founder runs
+  // supabase/verified_org.sql, the verification_status / verified_at /
+  // verified_via columns flow straight into OrgCanvas, which probes for the
+  // field on the loaded rows and shows the VERIFIED ORG badges + counter.
+  // Before the migration the key is simply absent and the canvas hides it all.
   let [locResult, teamsResult, personsResult, seatsResult] = await Promise.all([
     supabase.from('locations').select('*').eq('company_id', user.id).order('is_primary', { ascending: false }).order('name'),
     supabase.from('teams').select('*').eq('company_id', user.id).order('name'),
@@ -99,7 +104,8 @@ export default async function SpinePage({
           <p className="text-sm leading-relaxed" style={BODY_STYLE}>
             The single source of truth for who works where. Locations hold teams, teams hold seats,
             seats are filled by people. Everything else in Shapi — workforce planning, talent matching,
-            HR portal — reads from here.
+            HR portal — reads from here. Every seat carries a trust tier: self-reported, Shapi-assessed,
+            or verified by the employee themselves.
           </p>
         </header>
 

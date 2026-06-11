@@ -55,7 +55,22 @@ export async function GET() {
     return NextResponse.json({ error: 'Company account required' }, { status: 403 })
   }
 
-  const [locResult, teamResult, seatResult] = await Promise.all([
+  // VERIFIED ORG: ask for verification_status too. GRACEFUL DEGRADE — before
+  // the founder runs supabase/verified_org.sql, the column doesn't exist
+  // (Postgres 42703), so we retry without it and omit verification stats from
+  // the response entirely.
+  type SeatRow = {
+    id: string
+    title: string
+    team_id: string
+    status: string
+    person_id: string | null
+    seniority: string | null
+    verification_status?: string | null
+  }
+  const seatColumns = 'id, title, team_id, status, person_id, seniority'
+  let verificationAvailable = true
+  const [locResult, teamResult, firstSeatResult] = await Promise.all([
     supabase
       .from('locations')
       .select('id, country, name, is_primary')
@@ -67,13 +82,23 @@ export async function GET() {
       .eq('company_id', user.id),
     supabase
       .from('roles_seats')
-      .select('id, title, team_id, status, person_id, seniority')
+      .select(`${seatColumns}, verification_status`)
       .eq('company_id', user.id),
   ])
 
+  let seatData: SeatRow[] | null = firstSeatResult.data as SeatRow[] | null
+  if (firstSeatResult.error) {
+    verificationAvailable = false
+    const retry = await supabase
+      .from('roles_seats')
+      .select(seatColumns)
+      .eq('company_id', user.id)
+    seatData = retry.data as SeatRow[] | null
+  }
+
   const locations = locResult.data || []
   const teams = teamResult.data || []
-  const seats = seatResult.data || []
+  const seats = seatData || []
   const teamById = Object.fromEntries(teams.map(t => [t.id, t]))
 
   // Active = filled + non-frozen; 'planned'/'vacant' don't count toward size.
@@ -123,6 +148,24 @@ export async function GET() {
 
   const hasSpine = locations.length > 0 || seats.length > 0
 
+  // VERIFIED ORG stats — lets the Workforce Snapshot cite "based on N%
+  // verified org data". Occupied = any seat with a person; verified = the
+  // employee confirmed their own seat via magic link. Omitted entirely when
+  // the migration hasn't run (verificationAvailable=false).
+  const occupiedSeats = seats.filter(s => s.person_id)
+  const verifiedSeats = verificationAvailable
+    ? occupiedSeats.filter(s => (s as { verification_status?: string }).verification_status === 'verified')
+    : []
+  const verification = verificationAvailable
+    ? {
+        verified_seats: verifiedSeats.length,
+        occupied_seats: occupiedSeats.length,
+        verified_pct: occupiedSeats.length > 0
+          ? Math.round((verifiedSeats.length / occupiedSeats.length) * 100)
+          : 0,
+      }
+    : undefined
+
   // Per-team seat counts — consumed by /company/cognitive-load to pre-fill
   // the team rows. Each entry mirrors the row shape the Cognitive Load
   // form expects so its handleApplySpine() just maps + sets state.
@@ -145,6 +188,7 @@ export async function GET() {
     roles,
     openSeats,
     teams: teamsBreakdown,
+    ...(verification ? { verification } : {}),
     counts: {
       locations: locations.length,
       teams: teams.length,

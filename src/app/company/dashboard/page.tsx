@@ -29,6 +29,77 @@ type Candidate = {
   match_reasons?: string[]
 }
 
+// ── Sidebar nav (grouped) ────────────────────────────────────────────────
+// Fable product review 2026-06: the old flat 20-pill list buried the demo
+// path. Now grouped — Your org → Hire → Intelligence (Enterprise) — with the
+// long tail collapsed under "More tools". Pill visuals unchanged.
+type NavItem = { href: string; label: string; icon: string; active?: boolean; enterprise?: boolean }
+
+const NAV_GROUPS: Array<{ label: string; badge?: string; items: NavItem[] }> = [
+  {
+    label: 'Your org',
+    items: [
+      { href: '/company/spine', label: 'Org Spine', icon: '🌳' },
+      { href: '/company/people', label: 'People (HR Portal)', icon: '🗂️', enterprise: true },
+      { href: '/company/workforce-snapshot', label: 'Workforce Snapshot', icon: '✦' },
+    ],
+  },
+  {
+    label: 'Hire',
+    items: [
+      { href: '/company/roles', label: 'Roles', icon: '💼' },
+      { href: '/company/pipeline', label: 'Pipeline', icon: '📋' },
+      { href: '/candidates', label: 'Candidates', icon: '👥' },
+      { href: '/company/roles/new', label: 'Post a role', icon: '➕' },
+    ],
+  },
+  {
+    label: 'Intelligence',
+    badge: 'Enterprise',
+    items: [
+      { href: '/company/skill-density', label: 'Skill Density', icon: '🔬' },
+      { href: '/company/brain', label: 'Company Brain', icon: '🧬' },
+      { href: '/company/delegation', label: 'Workload Delegation', icon: '⚖️' },
+      { href: '/company/os', label: 'Workforce OS', icon: '📡' },
+    ],
+  },
+]
+
+// Collapsed by default — every route stays reachable, just out of the way.
+const MORE_TOOLS: NavItem[] = [
+  { href: '/company/salary-benchmark', label: 'Salary benchmark', icon: '💸' },
+  { href: '/company/roadmap', label: 'Hiring Roadmap', icon: '🗺️' },
+  { href: '/company/hiring-plan', label: 'Hiring Plan', icon: '🚀' },
+  { href: '/company/org-design', label: 'Org design', icon: '🏛️' },
+  { href: '/company/staffing', label: 'Staffing recs', icon: '🤖' },
+  { href: '/company/cognitive-load', label: 'Cognitive load', icon: '🧠' },
+  { href: '/company/strategic-plan', label: 'Strategic Workforce Plan', icon: '📋' },
+  { href: '/role/ai-proof', label: 'AI-Proof a role', icon: '🛡️' },
+  { href: '/company/profile', label: 'Company profile', icon: '👤' },
+]
+
+function NavPill({ item }: { item: NavItem }) {
+  return (
+    <Link
+      href={item.href}
+      className={`flex items-center gap-2.5 flex-shrink-0 rounded-xl px-3 py-2 text-sm font-bold transition-colors whitespace-nowrap ${
+        item.active ? 'text-[#FB7185]' : 'text-[#C7C7D1] hover:text-[#FB7185]'
+      }`}
+      style={item.active
+        ? { background: 'rgba(106,168,245,0.12)', border: '1px solid rgba(106,168,245,0.28)' }
+        : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+    >
+      <span className="text-base leading-none">{item.icon}</span>
+      <span>{item.label}</span>
+      {item.enterprise && (
+        <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.14)', color: '#FBBF24' }}>
+          Enterprise
+        </span>
+      )}
+    </Link>
+  )
+}
+
 type Role = {
   id: string
   title: string
@@ -252,52 +323,40 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
 
         <div className="grid lg:grid-cols-[220px_1fr] gap-6">
 
-          {/* ── Sidebar nav (vertical on lg, horizontal pill row on mobile) ──
-              Same pattern as the candidate dashboard. Active item = blue
-              "you are here" pill + coral text. Hover on others = coral. */}
+          {/* ── Sidebar nav (grouped) — demo path leads: Your org → Hire →
+              Intelligence (Enterprise). Long tail collapsed under "More tools".
+              Vertical on lg; groups stack + pills wrap on mobile. Active item =
+              blue "you are here" pill + coral text. Hover on others = coral. */}
           <aside className="lg:sticky lg:top-6 self-start">
-            <nav className="flex flex-row overflow-x-auto lg:flex-col gap-1.5 pb-1 lg:pb-0 -mx-1 px-1 lg:mx-0 lg:px-0">
-              {([
-                { href: '#', label: 'Overview', icon: '🏠', active: true },
-                { href: '/company/spine', label: 'Org Spine', icon: '🌳' },
-                { href: '/company/workforce-snapshot', label: 'Workforce Snapshot', icon: '✦' },
-                { href: '/company/salary-benchmark', label: 'Salary benchmark', icon: '💸' },
-                { href: '/company/roadmap', label: 'Hiring Roadmap', icon: '🗺️' },
-                { href: '/company/hiring-plan', label: 'Hiring Plan', icon: '🚀' },
-                { href: '/company/org-design', label: 'Org design', icon: '🏛️' },
-                { href: '/company/staffing', label: 'Staffing recs', icon: '🤖' },
-                { href: '/company/cognitive-load', label: 'Cognitive load', icon: '🧠' },
-                { href: '/company/strategic-plan', label: 'Strategic Workforce Plan', icon: '📋' },
-                { href: '/company/os', label: 'Workforce OS', icon: '📡' },
-                { href: '/company/people', label: 'People (HR Portal)', icon: '🗂️', enterprise: true },
-                { href: '/company/brain', label: 'Company Brain', icon: '🧬', enterprise: true },
-                { href: '/company/delegation', label: 'Workload Delegation', icon: '⚖️', enterprise: true },
-                { href: '/company/skill-density', label: 'Skill Density', icon: '🔬', enterprise: true },
-                { href: '/role/ai-proof', label: 'AI-Proof a role', icon: '🛡️' },
-                { href: '/company/roles', label: 'Roles', icon: '💼' },
-                { href: '/company/pipeline', label: 'Pipeline', icon: '📋' },
-                { href: '/candidates', label: 'Candidates', icon: '👥' },
-                { href: '/company/profile', label: 'Company profile', icon: '👤' },
-              ] as Array<{ href: string; label: string; icon: string; active?: boolean; enterprise?: boolean }>).map(item => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className={`flex items-center gap-2.5 flex-shrink-0 rounded-xl px-3 py-2 text-sm font-bold transition-colors whitespace-nowrap ${
-                    item.active ? 'text-[#FB7185]' : 'text-[#C7C7D1] hover:text-[#FB7185]'
-                  }`}
-                  style={item.active
-                    ? { background: 'rgba(106,168,245,0.12)', border: '1px solid rgba(106,168,245,0.28)' }
-                    : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
-                >
-                  <span className="text-base leading-none">{item.icon}</span>
-                  <span>{item.label}</span>
-                  {item.enterprise && (
-                    <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.14)', color: '#FBBF24' }}>
-                      Enterprise
-                    </span>
-                  )}
-                </Link>
+            <nav className="flex flex-col gap-4">
+              <NavPill item={{ href: '#', label: 'Overview', icon: '🏠', active: true }} />
+
+              {NAV_GROUPS.map(group => (
+                <div key={group.label}>
+                  <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1.5 px-1">
+                    <span>{group.label}</span>
+                    {group.badge && (
+                      <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(251,191,36,0.14)', color: '#FBBF24' }}>
+                        {group.badge}
+                      </span>
+                    )}
+                  </p>
+                  <div className="flex flex-row flex-wrap lg:flex-col gap-1.5">
+                    {group.items.map(item => <NavPill key={item.label} item={item} />)}
+                  </div>
+                </div>
               ))}
+
+              {/* Long tail — collapsed by default (mobile + desktop) */}
+              <details>
+                <summary className="cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] hover:text-[#C7C7D1] transition-colors px-1">
+                  <span>More tools</span>
+                  <span aria-hidden="true">▾</span>
+                </summary>
+                <div className="flex flex-row flex-wrap lg:flex-col gap-1.5 mt-1.5">
+                  {MORE_TOOLS.map(item => <NavPill key={item.label} item={item} />)}
+                </div>
+              </details>
             </nav>
           </aside>
 

@@ -4,9 +4,12 @@ import { NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe'
 import Stripe from 'stripe'
 
-// v5 PRICING LOCKED 2026-06-10 (STRATEGY §2). Self-serve company tiers:
-//   - 'pro'    → $499/mo, 14-day card-required trial
-//   - 'growth' → $1,500/mo, 14-day card-required trial (NEW v5 tier)
+// v5.1 PRICING LOCKED 2026-06-11 (STRATEGY §2). Self-serve company tiers:
+//   - 'pro'    → $499/mo or $4,990/yr (2 months free), 14-day card-required trial
+//   - 'growth' → $1,500/mo or $15,000/yr (2 months free), 14-day card-required trial
+// Body shape: { tier: 'pro'|'growth', billing?: 'monthly'|'yearly' } —
+// billing defaults to 'monthly'. metadata.tier stays the plain tier name so
+// the webhook's plan_tier mapping ('growth' → growth rung) is untouched.
 // Enterprise is SALES-LED — no self-serve trial. It routes to
 // /book-call?intent=enterprise from the pricing page, never here.
 // Free tier requires NO checkout — just a signed-in profile.
@@ -14,16 +17,18 @@ import Stripe from 'stripe'
 // NOTE: these descriptions land on Stripe receipts + invoices. Keep them
 // accurate to what the tier actually includes — the Strategic Workforce Plan
 // is a separate $15-25k engagement (Product 2) and must NOT appear here.
-const PLANS: Record<string, { name: string; description: string; amountCents: number }> = {
+const PLANS: Record<string, { name: string; description: string; amountCents: number; yearlyAmountCents: number }> = {
   pro: {
     name: 'Shapi Pro',
     description: 'Multi-location org chart · Talent Match Pipeline · Active Hiring (AI shortlists + drafted outreach) · Salary Benchmark · Hiring Roadmap',
-    amountCents: 49900, // $499/mo
+    amountCents: 49900,        // $499/mo
+    yearlyAmountCents: 499000, // $4,990/yr — 2 months free vs 12 × $499
   },
   growth: {
     name: 'Shapi Growth',
     description: 'Everything in Pro · Full diagnostic suite · Every verified candidate in your market · Dual budget bands · Priority support',
-    amountCents: 150000, // $1,500/mo
+    amountCents: 150000,         // $1,500/mo
+    yearlyAmountCents: 1500000,  // $15,000/yr — 2 months free vs 12 × $1,500
   },
 }
 
@@ -98,11 +103,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { tier } = await request.json()
+  const { tier, billing } = await request.json()
   const plan = PLANS[tier]
   if (!plan) {
     return NextResponse.json({ error: `Invalid plan: ${tier}. Self-serve tiers are 'pro' and 'growth'. Enterprise is sales-led — see /book-call?intent=enterprise.` }, { status: 400 })
   }
+  // v5.1 annual billing — "2 months free". Anything that isn't exactly
+  // 'yearly' bills monthly, so old callers (no billing field) are unaffected.
+  const yearly = billing === 'yearly'
 
   const site = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
@@ -138,14 +146,22 @@ export async function POST(request: Request) {
   // ── Decide whether this checkout qualifies for the Founding Partner offer ──
   // Only the first 15 redemptions get it. We re-check the live count on every
   // checkout so the window closes the moment the 15th company converts.
+  //
+  // v5.1: founding applies to MONTHLY billing only. The coupon is
+  // duration='repeating' over 6 monthly invoices — on an annual invoice it
+  // would lop 50% off the whole year (12 months of discount, double the
+  // intended giveaway). Yearly buyers already get "2 months free"; the
+  // pricing-page banner says monthly-only.
   let foundingApplied = false
   let discounts: { coupon: string }[] | undefined
-  const redeemed = await foundingRedeemedCount()
-  if (redeemed < FOUNDING_CAP) {
-    const couponId = await getFoundingCoupon(stripe)
-    if (couponId) {
-      discounts = [{ coupon: couponId }]
-      foundingApplied = true
+  if (!yearly) {
+    const redeemed = await foundingRedeemedCount()
+    if (redeemed < FOUNDING_CAP) {
+      const couponId = await getFoundingCoupon(stripe)
+      if (couponId) {
+        discounts = [{ coupon: couponId }]
+        foundingApplied = true
+      }
     }
   }
 
@@ -165,17 +181,18 @@ export async function POST(request: Request) {
         price_data: {
           currency: 'usd',
           product_data: {
-            name: plan.name,
+            name: yearly ? `${plan.name} (annual)` : plan.name,
             description: plan.description,
           },
-          unit_amount: plan.amountCents,
-          recurring: { interval: 'month' },
+          unit_amount: yearly ? plan.yearlyAmountCents : plan.amountCents,
+          recurring: { interval: yearly ? 'year' : 'month' },
         },
         quantity: 1,
       },
     ],
     subscription_data: {
       // (c) Trial only for first-timers — see hasTrialedBefore above.
+      // Applies to yearly too (same 14 days, same anti-cycling guards).
       ...(trialApplied ? { trial_period_days: TRIAL_DAYS } : {}),
       // Breadcrumb for the webhook's invoice.payment_succeeded handler:
       // Stripe snapshots subscription metadata onto every invoice, so the
@@ -185,6 +202,7 @@ export async function POST(request: Request) {
       metadata: {
         user_id: user.id,
         tier,
+        billing: yearly ? 'yearly' : 'monthly',
         founding: foundingApplied ? 'true' : 'false',
       },
     },
@@ -195,7 +213,8 @@ export async function POST(request: Request) {
     cancel_url: `${site}/company/pricing`,
     metadata: {
       user_id: user.id,
-      tier,
+      tier, // plain tier name — the webhook maps this to plan_tier; do NOT suffix _yearly
+      billing: yearly ? 'yearly' : 'monthly',
       // Kept for observability; the authoritative founding stamp now happens
       // on the first paid invoice via subscription_data.metadata above.
       founding: foundingApplied ? 'true' : 'false',

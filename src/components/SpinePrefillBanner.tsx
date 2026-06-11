@@ -41,6 +41,16 @@ export type SpinePrefillData = {
     total_seats: number
     vacant: number
   }[]
+  /**
+   * VERIFIED ORG stats (supabase/verified_org.sql). Omitted by the API until
+   * the founder runs the migration — render nothing when absent. When present,
+   * the Snapshot cites "based on {verified_pct}% verified org data".
+   */
+  verification?: {
+    verified_seats: number
+    occupied_seats: number
+    verified_pct: number
+  }
   counts: {
     locations: number
     teams: number
@@ -96,6 +106,21 @@ export default function SpinePrefillBanner({ spine, applied, onApply, fieldsLabe
             {spine.counts.activeSeats} filled / {spine.counts.vacantSeats} vacant seats.
             {applied ? ' Edit anything below.' : ` ${fieldsLabel} will pre-fill.`}
           </p>
+          {/* VERIFIED ORG citation — only when the API returns stats (i.e. the
+              migration has run). The data-loop trust line. */}
+          {spine.verification && (
+            spine.verification.verified_pct > 0 ? (
+              <p className="text-xs mt-1 font-bold" style={{ color: '#22D3EE' }}>
+                ✓ Based on {spine.verification.verified_pct}% verified org data
+                ({spine.verification.verified_seats} of {spine.verification.occupied_seats} seats
+                confirmed by employees).
+              </p>
+            ) : (
+              <p className="text-xs mt-1" style={{ color: '#FBBF24' }}>
+                0% verified — send seat confirmations from your org spine to raise confidence.
+              </p>
+            )
+          )}
         </div>
         {!applied && (
           <button

@@ -23,9 +23,10 @@ COMPETITORS.md). Sell trust, not chat.
   **company trust score** (keeps the "paid on time" promise without us holding wages).
 - **[LOCKED] Subscription-first**, monthly/yearly, billed upfront — so we operate on dependable
   recurring revenue and never "chase" placement money (Ana's Essential Staff scar).
-- **[LOCKED — v5, 2026-06-10] Company pricing (4 tiers + Bespoke).** Supersedes the
-  Starter/Growth $299/$799 and the v4 3-tier scheme. Decided with the Commercial Director
-  after the $499→$2,500 cliff analysis:
+- **[LOCKED v5.1 (2026-06-11)] Company pricing (4 tiers + Bespoke).** Supersedes the
+  Starter/Growth $299/$799, the v4 3-tier scheme, and the v5 (2026-06-10) lock. Decided with
+  the Commercial Director after the $499→$2,500 cliff analysis; v5.1 adds annual billing,
+  the raised Enterprise band, the Active unbundle and the $9 blue-collar Kit:
   - **Free** — generous *through launch* (the free Workforce Readiness Score is the top-of-funnel
     magnet, never gated), then **metered ~60–90 days post-launch** to 1 Snapshot + score with
     everything downstream teased. Protects the "intelligence has value" narrative.
@@ -34,9 +35,15 @@ COMPETITORS.md). Sell trust, not chat.
     candidate pool. Captures the 200–600-person UAE family-business / PIF-survivor reorg buyer
     who is too big for $499 but not ready for sales-led Enterprise. (Competitor stacks already
     cost them $3–6k/mo.)
-  - **Enterprise $2,500–5,000/mo** — sales-led, banded by workforce envelope (NOT per-seat;
-    per-seat revenue mechanically shrinks in a restructuring market). Unlocks the moat: HR-OS,
-    Company Brain, Skill Density, immutable audit trail.
+  - **Annual billing (v5.1)** — Pro **$4,990/yr**, Growth **$15,000/yr** — "2 months free"
+    framing. Same 14-day card-required trial + anti-cycling guards as monthly. Founding
+    Partner coupon applies to **monthly billing only** (the 6-mo repeating coupon would
+    discount a whole annual invoice; yearly already carries the 2-months-free saving).
+  - **Enterprise from $2,500/mo, banded $2,500–12,000/mo by workforce envelope (v5.1 raise,
+    was $2,500–5,000)** — sales-led, scaled to workforce size (NOT per-seat; per-seat revenue
+    mechanically shrinks in a restructuring market). Pricing card anchors "from $2,500/mo"
+    instead of "Custom". Unlocks the moat: HR-OS, Company Brain, Skill Density, immutable
+    audit trail.
   - **Bespoke Transformation $15–25k** one-off — door-opener that converts into a recurring
     Enterprise subscription.
   - **Enterprise POC $3–5k, fully creditable to year 1** — paid diagnostic Snapshot wedge;

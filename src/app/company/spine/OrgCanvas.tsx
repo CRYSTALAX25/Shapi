@@ -44,6 +44,12 @@ type Seat = {
   absorbed_capacity_pct?: number | null
   ai_exposure_score?: number | null
   flight_risk_score?: number | null
+  // VERIFIED ORG trust tier (supabase/verified_org.sql). Optional on purpose —
+  // before the founder runs the migration the column doesn't exist, the key is
+  // absent from the loaded rows, and all verification UI hides itself.
+  verification_status?: 'self_reported' | 'shapi_assessed' | 'verified' | null
+  verified_at?: string | null
+  verified_via?: string | null
 }
 
 type Props = {
@@ -146,6 +152,37 @@ const CAL_LEGEND: { bucket: Exclude<CalBucket, 'neutral'>; label: string }[] = [
   { bucket: 'crimson', label: 'High AI-exposure, no timeline' },
 ]
 
+// ── VERIFIED ORG ──────────────────────────────────────────────────────
+// Every seat carries a trust tier like a candidate claim:
+//   grey  self_reported  — company typed it in (default)
+//   amber shapi_assessed — signal received but contested
+//   cyan  verified       — the employee confirmed their own seat via magic link
+// The badge is a small corner dot so it never collides with the calibration
+// glow ring (which lives on the card border/box-shadow).
+const VERIFY_COLORS: Record<string, string> = {
+  self_reported: 'rgba(255,255,255,0.28)',
+  shapi_assessed: '#FBBF24',
+  verified: '#22D3EE',
+}
+const VERIFY_LABEL: Record<string, string> = {
+  self_reported: 'Self-reported — not yet confirmed by the employee',
+  shapi_assessed: 'Shapi-assessed — response received, details contested',
+  verified: 'Verified — confirmed by the employee via magic link',
+}
+
+// Per-person send result returned by POST /api/company/spine/verify. The
+// copyable link is ALWAYS present so the founder can paste it manually while
+// Twilio is trial-capped.
+type VerifyResult = {
+  seat_id: string
+  seat_title: string
+  person_id: string
+  person_name: string
+  link: string
+  sent_via: string[]
+  errors?: string[]
+}
+
 // ── SUGGESTION BAR ────────────────────────────────────────────────────
 // Advisory layout proposals. CRITICAL: these NEVER mutate the layout. Acting
 // on one only PREVIEWS (highlights the affected teams) — any real change still
@@ -171,6 +208,11 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
   // Previewing only HIGHLIGHTS the affected teams — it never moves anything.
   const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<string>>(new Set())
   const [previewSuggestionId, setPreviewSuggestionId] = useState<string | null>(null)
+  // VERIFIED ORG — send-confirmations panel state.
+  const [verifyBusy, setVerifyBusy] = useState(false)
+  const [verifyResults, setVerifyResults] = useState<VerifyResult[] | null>(null)
+  const [verifyError, setVerifyError] = useState<string | null>(null)
+  const [copiedSeatId, setCopiedSeatId] = useState<string | null>(null)
 
   const personById = useMemo(() => Object.fromEntries(persons.map(p => [p.id, p])), [persons])
   const teamById = useMemo(() => Object.fromEntries(teams.map(t => [t.id, t])), [teams])
@@ -181,6 +223,57 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
     () => seats.filter(s => STATE_FILTER[state].has(s.status)),
     [seats, state]
   )
+
+  // ── Verified Org availability + counter ─────────────────────────────
+  // GRACEFUL DEGRADE: before supabase/verified_org.sql runs, roles_seats has
+  // no verification_status column → the key is absent on every loaded seat
+  // (page.tsx selects '*') → all verification UI hides itself.
+  const verificationEnabled = useMemo(
+    () => seats.length > 0 && seats.some(s => s.verification_status !== undefined),
+    [seats]
+  )
+  const occupiedSeats = useMemo(() => seats.filter(s => s.person_id), [seats])
+  const verifiedCount = occupiedSeats.filter(s => s.verification_status === 'verified').length
+  const verifiedPct = occupiedSeats.length > 0
+    ? Math.round((verifiedCount / occupiedSeats.length) * 100)
+    : 0
+
+  // "Verify org →" — mints magic links for every occupied seat, tries
+  // WhatsApp + email per person, and always returns copyable links (Twilio
+  // trial fallback). Then shows the per-person panel.
+  async function verifyOrg() {
+    setVerifyBusy(true)
+    setVerifyError(null)
+    try {
+      const res = await fetch('/api/company/spine/verify', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({}),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setVerifyError(
+          res.status === 409
+            ? 'Verification needs a one-time database update — run supabase/verified_org.sql in the Supabase SQL editor first.'
+            : data.error || 'Sending confirmations failed. Try again.'
+        )
+        return
+      }
+      setVerifyResults(data.results || [])
+    } catch {
+      setVerifyError('Network error — try again.')
+    } finally {
+      setVerifyBusy(false)
+    }
+  }
+
+  async function copyLink(seatId: string, link: string) {
+    try {
+      await navigator.clipboard.writeText(link)
+      setCopiedSeatId(seatId)
+      setTimeout(() => setCopiedSeatId(prev => (prev === seatId ? null : prev)), 1500)
+    } catch { /* clipboard blocked — the link is visible to select manually */ }
+  }
 
   // ── Suggestions (advisory only) ──────────────────────────────────────
   // Computed client-side from the loaded spine. Each is a heuristic the HRBP
@@ -371,21 +464,40 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
       ? `\nCalibration: ${bucket === 'gold' ? 'top performer + overloaded (retention risk)' : bucket === 'slate' ? 'optimized / healthy' : 'high AI-exposure, no timeline'}`
       : ''
 
+    // Verification badge — corner dot, only when the migration has run AND
+    // the seat is occupied (a vacant seat has nobody to confirm it). Lives in
+    // the card corner so it never collides with the calibration glow ring on
+    // the border.
+    const vStatus = verificationEnabled && seat.person_id
+      ? (seat.verification_status || 'self_reported')
+      : null
+    const vTitle = vStatus ? `\n${VERIFY_LABEL[vStatus] || vStatus}` : ''
+
     return (
       <div
         draggable
         onDragStart={() => setDraggingSeatId(seat.id)}
         onDragEnd={() => setDraggingSeatId(null)}
-        className="rounded-lg p-2.5 cursor-grab active:cursor-grabbing transition-opacity"
+        className="relative rounded-lg p-2.5 cursor-grab active:cursor-grabbing transition-opacity"
         style={{
           background: isDragging ? 'rgba(124,147,245,0.18)' : '#0c0e11',
           border: `1px solid ${borderColor}`,
           boxShadow,
           opacity: isDragging ? 0.6 : 1,
         }}
-        title={`${seat.title} · ${team?.name || ''}\nDrag to reassign team${calTitle}`}
+        title={`${seat.title} · ${team?.name || ''}\nDrag to reassign team${calTitle}${vTitle}`}
       >
-        <p className="text-xs font-bold leading-tight" style={HEADING_STYLE}>{seat.title}</p>
+        {vStatus && (
+          <span
+            className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
+            style={{
+              background: VERIFY_COLORS[vStatus],
+              boxShadow: vStatus === 'verified' ? `0 0 5px ${VERIFY_COLORS.verified}` : undefined,
+            }}
+            title={VERIFY_LABEL[vStatus]}
+          />
+        )}
+        <p className="text-xs font-bold leading-tight pr-3" style={HEADING_STYLE}>{seat.title}</p>
         <div className="flex items-center gap-1.5 mt-1">
           <span
             className="w-1.5 h-1.5 rounded-full flex-shrink-0"
@@ -654,8 +766,125 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
           >
             {calibration ? '◉ Calibration' : '○ Calibration'}
           </button>
+
+          {/* VERIFIED ORG — counter + send button. Hidden entirely until the
+              founder runs supabase/verified_org.sql (column probe above). */}
+          {verificationEnabled && (
+            <>
+              <span className="mx-1 h-4 w-px" style={{ background: 'rgba(255,255,255,0.1)' }} />
+              <span
+                className="text-xs font-bold px-3 py-1.5 rounded-full"
+                style={{
+                  background: 'rgba(34,211,238,0.10)',
+                  color: '#22D3EE',
+                  border: '1px solid rgba(34,211,238,0.35)',
+                }}
+                title={`${verifiedCount} of ${occupiedSeats.length} occupied seats confirmed by the employee themselves`}
+              >
+                Org verified: {verifiedPct}%
+              </span>
+              <button
+                onClick={verifyOrg}
+                disabled={verifyBusy || occupiedSeats.length === 0}
+                className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors disabled:opacity-40"
+                style={{ background: '#22D3EE', color: '#06141a', border: '1px solid #22D3EE' }}
+                title="Send each employee a magic link to confirm their own seat — WhatsApp first, email + copyable link fallback"
+              >
+                {verifyBusy ? 'Sending…' : 'Verify org →'}
+              </button>
+            </>
+          )}
         </div>
       </div>
+
+      {verifyError && (
+        <p
+          className="text-xs mb-4 px-3 py-2 rounded-lg"
+          style={{ color: '#FB7185', background: 'rgba(251,113,133,0.08)', border: '1px solid rgba(251,113,133,0.25)' }}
+        >
+          {verifyError}
+        </p>
+      )}
+
+      {/* Verify panel — per-person send status + copyable links. The link is
+          ALWAYS shown: Twilio is trial-capped, so the founder can paste links
+          into WhatsApp manually when the automated send fails. */}
+      {verifyResults && (
+        <div
+          className="mb-4 rounded-xl p-3"
+          style={{ background: 'rgba(34,211,238,0.05)', border: '1px solid rgba(34,211,238,0.30)' }}
+        >
+          <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+            <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#22D3EE' }}>
+              Seat confirmations sent · {verifyResults.length} {verifyResults.length === 1 ? 'person' : 'people'}
+            </span>
+            <button
+              onClick={() => setVerifyResults(null)}
+              className="text-[10px] font-bold"
+              style={{ color: 'rgba(255,255,255,0.4)' }}
+            >
+              Close ✕
+            </button>
+          </div>
+          <ul className="space-y-1.5">
+            {verifyResults.map(r => (
+              <li
+                key={r.seat_id}
+                className="rounded-lg px-3 py-2"
+                style={{ background: '#0c0e11', border: '1px solid rgba(255,255,255,0.06)' }}
+              >
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold" style={HEADING_STYLE}>
+                      {r.person_name} <span className="font-normal" style={BODY_STYLE}>· {r.seat_title}</span>
+                    </p>
+                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                      {r.sent_via.length > 0 ? r.sent_via.map(ch => (
+                        <span
+                          key={ch}
+                          className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                          style={{ background: 'rgba(52,211,153,0.12)', color: '#34D399', border: '1px solid rgba(52,211,153,0.30)' }}
+                        >
+                          ✓ {ch}
+                        </span>
+                      )) : (
+                        <span
+                          className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                          style={{ background: 'rgba(251,191,36,0.10)', color: '#FBBF24', border: '1px solid rgba(251,191,36,0.30)' }}
+                        >
+                          link only — copy &amp; send manually
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {r.link && (
+                    <button
+                      onClick={() => copyLink(r.seat_id, r.link)}
+                      className="text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap flex-shrink-0"
+                      style={copiedSeatId === r.seat_id
+                        ? { background: 'rgba(52,211,153,0.15)', color: '#34D399', border: '1px solid #34D399' }
+                        : { background: 'rgba(34,211,238,0.10)', color: '#22D3EE', border: '1px solid rgba(34,211,238,0.45)' }}
+                    >
+                      {copiedSeatId === r.seat_id ? '✓ Copied' : 'Copy link'}
+                    </button>
+                  )}
+                </div>
+                {r.link && (
+                  <p className="text-[10px] mt-1 break-all" style={{ color: 'rgba(255,255,255,0.35)' }}>{r.link}</p>
+                )}
+                {r.errors && r.errors.length > 0 && (
+                  <p className="text-[10px] mt-1" style={{ color: 'rgba(251,113,133,0.7)' }}>{r.errors.join(' · ')}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+          <p className="text-[10px] mt-2" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            Each link is valid 14 days. Seats turn <span style={{ color: '#22D3EE' }}>cyan</span> when the employee
+            confirms, <span style={{ color: '#FBBF24' }}>amber</span> if they flag something off. Re-sending replaces
+            the previous link.
+          </p>
+        </div>
+      )}
 
       {/* Calibration legend — only while the overlay is on. */}
       {calibration && (

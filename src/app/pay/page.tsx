@@ -14,8 +14,9 @@ type Preview = {
 }
 
 // The two one-time CV products. MUST mirror /api/stripe/cv-checkout PRODUCTS
-// (kit $25 / pro $59) — that route is the source of truth for what's charged;
-// this object only controls what's displayed.
+// (kit $25 — or $9 blue-collar self-selected — / pro $59) — that route is the
+// source of truth for what's charged; this object only controls what's
+// displayed. The $9 blue-collar override lives in component state, not here.
 const TIERS = {
   kit: {
     title: 'CV Kit — one-time',
@@ -65,6 +66,14 @@ function PayInner() {
   const tier: TierKey = searchParams.get('tier') === 'pro' ? 'pro' : 'kit'
   const t = TIERS[tier]
 
+  // v5.1 blue-collar Kit price — $9 self-selected, Kit only (never Pro).
+  // Honest self-selection: toggling switches the displayed price and sends
+  // blue_collar:true to cv-checkout, which charges 900 cents.
+  const [blueCollar, setBlueCollar] = useState(false)
+  const isBlueCollarKit = tier === 'kit' && blueCollar
+  const displayPrice = isBlueCollarKit ? '$9' : t.price
+  const displayCta = isBlueCollarKit ? 'Unlock my enhanced CV — $9 →' : t.cta
+
   const [loading, setLoading] = useState(false)
   const [payError, setPayError] = useState('')
   const [preview, setPreview] = useState<Preview | null>(null)
@@ -95,11 +104,12 @@ function PayInner() {
     if (!user) { router.push('/login'); return }
     try {
       // Pass the chosen tier through so cv-checkout charges the right
-      // product ($25 kit vs $59 pro) — it reads body.tier.
+      // product ($25 kit / $9 blue-collar kit / $59 pro) — it reads body.tier
+      // and body.blue_collar.
       const res = await fetch('/api/stripe/cv-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tier }),
+        body: JSON.stringify(isBlueCollarKit ? { tier, blue_collar: true } : { tier }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok || !data.url) {
@@ -240,10 +250,44 @@ function PayInner() {
               <p className="text-[#7E7E8E] text-sm mt-1">{t.subtitle}</p>
             </div>
             <div className="text-right">
-              <p className="text-3xl font-black text-[#F4F4F7]">{t.price}</p>
+              <p className="text-3xl font-black text-[#F4F4F7]">{displayPrice}</p>
               <p className="text-[#7E7E8E] text-xs">one-time · no subscription</p>
             </div>
           </div>
+
+          {/* v5.1 blue-collar self-select — Kit only. No proof asked, ever. */}
+          {tier === 'kit' && (
+            <button
+              type="button"
+              onClick={() => setBlueCollar(v => !v)}
+              className="w-full mb-5 rounded-xl px-4 py-3 text-left text-xs transition-colors"
+              style={{
+                background: blueCollar ? 'rgba(52,211,153,0.10)' : 'rgba(255,255,255,0.04)',
+                border: blueCollar ? '1px solid rgba(52,211,153,0.40)' : '1px solid rgba(255,255,255,0.10)',
+              }}
+            >
+              <span className="flex items-start gap-2.5">
+                <span
+                  className="mt-0.5 w-4 h-4 rounded flex-shrink-0 flex items-center justify-center text-[10px] font-black"
+                  style={{
+                    background: blueCollar ? '#34D399' : 'transparent',
+                    border: blueCollar ? '1px solid #34D399' : '1px solid rgba(255,255,255,0.25)',
+                    color: '#0E0E13',
+                  }}
+                >
+                  {blueCollar ? '✓' : ''}
+                </span>
+                <span>
+                  <span className="block font-bold text-[#F4F4F7]">Hourly, trade or service worker? The Kit is $9 for you.</span>
+                  <span className="block text-[#7E7E8E] mt-0.5">
+                    {blueCollar
+                      ? 'Blue-collar price applied — you pay $9, same full Kit.'
+                      : 'Tap to apply the $9 blue-collar price. We trust you — no proof needed.'}
+                  </span>
+                </span>
+              </span>
+            </button>
+          )}
 
           <div className="space-y-3 mb-6">
             {t.features.map((item, i) => (
@@ -269,7 +313,7 @@ function PayInner() {
             className="w-full py-4 rounded-full font-black text-sm transition-opacity disabled:opacity-40"
             style={{ background: 'linear-gradient(135deg, #6AA8F5, #F08CAE)', color: '#fff' }}
           >
-            {loading ? 'Redirecting to payment…' : t.cta}
+            {loading ? 'Redirecting to payment…' : displayCta}
           </button>
 
           {/* Tier switch — keep both prices one tap away */}
