@@ -26,13 +26,23 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 /* Tier model — Product 1 cumulative ladder (subscription)                  */
 /* ──────────────────────────────────────────────────────────────────────── */
 
-export const PLAN_TIERS = ['free', 'starter', 'active_hiring'] as const
+// v5 PRICING (2026-06-10): company ladder is Free → Pro → Growth → Enterprise.
+// The legacy 'starter'/'active_hiring' rungs are kept as ALIASES so existing
+// FEATURE_GATES entries keep resolving without a rewrite:
+//   - 'starter'       maps to the v5 Pro tier (entry paid)
+//   - 'active_hiring' maps to the v5 Growth tier (full diagnostic + candidate pool)
+//   - 'enterprise'    is the moat tier (HR-OS / Company Brain / Skill Density)
+// Metering is PARKED: GATES_ENFORCE defaults OFF (see gatesEnforced()), so the
+// Growth rung being known here is inert today — flipping the env var on launch
+// (or ~60-90 days post-launch) activates it with no further code change.
+export const PLAN_TIERS = ['free', 'starter', 'active_hiring', 'enterprise'] as const
 export type PlanTier = (typeof PLAN_TIERS)[number]
 
 const TIER_INDEX: Record<PlanTier, number> = {
   free: 0,
-  starter: 1,
-  active_hiring: 2,
+  starter: 1,        // v5: Pro $499
+  active_hiring: 2,  // v5: Growth $1,500
+  enterprise: 3,     // v5: Enterprise (Custom)
 }
 
 /** True if the user's tier is at-or-above the required tier (cumulative). */
@@ -126,6 +136,10 @@ export const FEATURE_LABELS: Record<string, string> = {
 export type EntitlementProfile = {
   subscription_product?: string[] | null
   paid?: boolean | null
+  // Company-side tier set by the Stripe webhook on a completed company checkout.
+  // v5 values: 'free' | 'pro' | 'growth' | 'enterprise'.
+  plan_tier?: string | null
+  subscription_tier?: string | null
   // Product-flag carriers — will be added by the schema migration
   // (Blueprint Prompt 04). For now derived from the existing fields.
   strategic_plan_purchased_at?: string | null
@@ -139,10 +153,18 @@ export type EntitlementProfile = {
  */
 export function currentTier(profile: EntitlementProfile | null | undefined): PlanTier {
   if (!profile) return 'free'
+
+  // v5 company tier (set by the Stripe webhook). Map the public tier names onto
+  // the internal cumulative ladder. This is the path that matters once metering
+  // is enforced — flipping GATES_ENFORCE is then a one-env-var change.
+  const companyTier = (profile.plan_tier || profile.subscription_tier || '').toLowerCase()
+  if (companyTier === 'enterprise') return 'enterprise'
+  if (companyTier === 'growth') return 'active_hiring' // v5 Growth → diagnostic-suite rung
+  if (companyTier === 'pro') return 'starter'          // v5 Pro → entry-paid rung
+
+  // Legacy candidate subscription_product[] derivation (unchanged).
   const subs = new Set(profile.subscription_product || [])
   if (subs.has('active_hiring_monthly') || subs.has('active_hiring_yearly')) return 'active_hiring'
-  // Starter equivalents — anything currently in our existing tier system
-  // that includes the basic "browse + post" tier. Re-tune at pricing-lock.
   if (subs.has('roles_board_monthly') || subs.has('roles_board_yearly')) return 'starter'
   if (subs.has('bundle_monthly') || subs.has('bundle_yearly')) return 'starter'
   return 'free'
@@ -192,7 +214,7 @@ export async function hasEntitlementServer(
 ): Promise<{ allowed: boolean; requirement: Requirement | null }> {
   const { data: profile } = await supabase
     .from('profiles')
-    .select('subscription_product, paid, strategic_plan_purchased_at, brain_hr_os_active')
+    .select('subscription_product, paid, plan_tier, subscription_tier, strategic_plan_purchased_at, brain_hr_os_active')
     .eq('id', userId)
     .single()
   return hasEntitlement(profile as EntitlementProfile, feature)
@@ -228,8 +250,10 @@ export function upgradeHrefFor(requirement: Requirement | null): string {
 export function upgradeLabelFor(requirement: Requirement | null): string {
   if (!requirement) return 'Upgrade'
   if (requirement.kind === 'tier') {
-    const tier = requirement.tier === 'starter' ? 'Starter'
-      : requirement.tier === 'active_hiring' ? 'Active Hiring' : 'Free'
+    // v5 public tier names: starter→Pro, active_hiring→Growth.
+    const tier = requirement.tier === 'enterprise' ? 'Enterprise'
+      : requirement.tier === 'active_hiring' ? 'Growth'
+      : requirement.tier === 'starter' ? 'Pro' : 'Free'
     return `Upgrade to ${tier}`
   }
   if (requirement.product === 'product_2_strategic_workforce_plan') return 'Book a Strategic Workforce Plan engagement'

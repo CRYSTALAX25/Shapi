@@ -206,7 +206,7 @@ export default function Pay() {
 
         <p className="text-center text-xs text-[#5C5C6A]">
           Are you a company?{' '}
-          <a href="/signup" className="text-[#6AA8F5] hover:underline">Start your 60-day free trial →</a>
+          <a href="/signup" className="text-[#6AA8F5] hover:underline">Start your 14-day free trial →</a>
         </p>
       </div>
     </div>

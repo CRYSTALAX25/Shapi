@@ -16,6 +16,7 @@ type Profile = {
   profile_live: boolean
   cv_kit_purchased: boolean
   paid: boolean
+  subscription_tier: string | null
   whatsapp_number: string | null
   industry: string | null
   ai_tier: string | null
@@ -35,7 +36,7 @@ export default async function AdminPanel() {
   // Fetch all profiles
   const { data: profiles } = await admin
     .from('profiles')
-    .select('id, full_name, type, completion_pct, cv_parsed, profile_live, cv_kit_purchased, paid, whatsapp_number, industry, ai_tier, company_name, created_at, whatsapp_chat')
+    .select('id, full_name, type, completion_pct, cv_parsed, profile_live, cv_kit_purchased, paid, subscription_tier, whatsapp_number, industry, ai_tier, company_name, created_at, whatsapp_chat')
     .order('created_at', { ascending: false })
 
   // Fetch auth users for emails
@@ -197,7 +198,9 @@ export default async function AdminPanel() {
             { label: 'Companies', value: companies.length, colour: '#6AA8F5' },
             { label: 'Paid companies', value: paidCompanies.length, colour: '#6AA8F5' },
             { label: 'Total users', value: all.length, colour: '#F08CAE' },
-            { label: 'Est. MRR', value: `$${paidCompanies.length * 299}`, colour: '#FCD34D' },
+            // v5: entry paid company tier is Pro $499/mo. Coarse MRR estimate —
+            // assumes Pro; Growth ($1,500) / Enterprise lift this in reality.
+            { label: 'Est. MRR (≥Pro)', value: `$${paidCompanies.length * 499}`, colour: '#FCD34D' },
           ].map((s, i) => (
             <div key={i} className="gradient-border-card rounded-xl p-4">
               <div className="text-2xl font-black mb-1" style={{ color: s.colour }}>{s.value}</div>
@@ -511,7 +514,7 @@ export default async function AdminPanel() {
                     <td className="text-[#A6A6B4]">{c.email}</td>
                     <td>
                       <span className={`dot ${c.paid ? 'dot-green' : 'dot-red'}`} />
-                      {c.paid && <span className="text-emerald-400 text-xs ml-2 font-bold">$299/mo</span>}
+                      {c.paid && <span className="text-emerald-400 text-xs ml-2 font-bold">{c.subscription_tier === 'enterprise' ? 'Enterprise' : c.subscription_tier === 'growth' ? 'Growth · $1,500/mo' : 'Pro · $499/mo'}</span>}
                     </td>
                     <td><span className={`dot dot-yellow`} /></td>
                     <td className="text-[#7E7E8E] text-xs">{new Date(c.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</td>

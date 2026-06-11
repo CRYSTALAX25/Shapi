@@ -393,7 +393,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
         {/* Company intelligence card moved to /company/profile (its proper home).
             Dashboard is now action-oriented only. */}
 
-        {/* Snapshot-just-completed celebration + Growth $799 trial CTA.
+        {/* Snapshot-just-completed celebration + Growth $1,500 trial CTA.
             Surfaced when the user lands here from the first-run Snapshot
             flow (/company/workforce-snapshot?first=true → ?snapshot=done).
             Strike at the peak-intent moment — they just saw their AI-risk
@@ -405,7 +405,7 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
               <div className="flex-1 min-w-0">
                 <p className="text-[#F4F4F7] font-black text-base mb-1">Snapshot complete — your wedge into Shapi.</p>
                 <p className="text-[#A6A6B4] text-xs mb-3 leading-relaxed">
-                  Turn the diagnosis into action: <strong className="text-[#F4F4F7]">Growth ($799/mo)</strong> unlocks the full Hiring Roadmap, AI-shortlisted candidates per role, and salary benchmarks per role flagged at risk. <strong className="text-[#F4F4F7]">14-day free trial</strong> — card on file via Stripe, no charge for 14 days, cancel anytime.
+                  Turn the diagnosis into action: <strong className="text-[#F4F4F7]">Growth ($1,500/mo)</strong> unlocks the full diagnostic suite, the Hiring Roadmap, AI-shortlisted candidates per role, and salary benchmarks per role flagged at risk. <strong className="text-[#F4F4F7]">14-day free trial</strong> — card on file via Stripe, no charge for 14 days, cancel anytime.
                 </p>
                 <div className="flex flex-wrap gap-3 items-center">
                   <Link href="/company/pricing?plan=growth&trial=14" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-black text-white" style={{ background: 'linear-gradient(135deg,#6AA8F5,#34D399)' }}>

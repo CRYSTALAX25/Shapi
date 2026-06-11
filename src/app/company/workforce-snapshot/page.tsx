@@ -683,7 +683,7 @@ function WorkforceSnapshotInner() {
                 <div className="flex-1">
                   <p className="text-[#F4F4F7] font-black text-base mb-1">Turn this report into a hiring plan</p>
                   <p className="text-[#A6A6B4] text-sm mb-3 leading-relaxed">
-                    You&apos;ve seen the gaps. <strong className="text-[#F4F4F7]">Growth ($799/mo)</strong> unlocks the full Hiring Roadmap, AI-shortlisted candidates per role, and salary benchmarks for every at-risk role above.
+                    You&apos;ve seen the gaps. <strong className="text-[#F4F4F7]">Growth ($1,500/mo)</strong> unlocks the full diagnostic suite, the Hiring Roadmap, AI-shortlisted candidates per role, and salary benchmarks for every at-risk role above.
                   </p>
                   <div className="flex flex-wrap gap-3 items-center">
                     {/* target=_blank so the user keeps the Snapshot visible

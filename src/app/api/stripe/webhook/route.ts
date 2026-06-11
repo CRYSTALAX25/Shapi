@@ -136,17 +136,32 @@ export async function POST(request: Request) {
         // plan_tier='pro' at minimum — Enterprise uses the separate
         // /api/company/enterprise-trial endpoint.
         const planTier = tier === 'enterprise' ? 'enterprise' : 'pro'
-        await supabase
+        const companyUpdates: Record<string, unknown> = {
+          paid: true,
+          stripe_customer_id: session.customer as string,
+          subscription_tier: tier,
+          subscription_status: subStatus,
+          stripe_subscription_id: session.subscription as string,
+          plan_tier: planTier,
+        }
+        // Founding Partner (STRATEGY §2 LOCKED v5): stamp the flag so the
+        // company is grandfathered AND counts toward the real cohort cap of 15
+        // enforced in /api/stripe/company-checkout. Degrades quietly if the
+        // founding_partner column hasn't been migrated yet.
+        if (session.metadata?.founding === 'true') {
+          companyUpdates.founding_partner = true
+        }
+        const { error: companyUpdateErr } = await supabase
           .from('profiles')
-          .update({
-            paid: true,
-            stripe_customer_id: session.customer as string,
-            subscription_tier: tier,
-            subscription_status: subStatus,
-            stripe_subscription_id: session.subscription as string,
-            plan_tier: planTier,
-          })
+          .update(companyUpdates)
           .eq('id', userId)
+        if (companyUpdateErr && session.metadata?.founding === 'true') {
+          // Retry without the founding flag if that column is missing, so the
+          // core subscription state still lands.
+          console.warn('[stripe/webhook] founding stamp failed, retrying without it:', companyUpdateErr.message)
+          delete companyUpdates.founding_partner
+          await supabase.from('profiles').update(companyUpdates).eq('id', userId)
+        }
 
         // ── Brand welcome email — Stripe sends the receipt + invoice
         // automatically; this is the "you're in, here's the loop" email

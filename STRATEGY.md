@@ -23,20 +23,37 @@ COMPETITORS.md). Sell trust, not chat.
   **company trust score** (keeps the "paid on time" promise without us holding wages).
 - **[LOCKED] Subscription-first**, monthly/yearly, billed upfront — so we operate on dependable
   recurring revenue and never "chase" placement money (Ana's Essential Staff scar).
-- **[LOCKED] Launch pricing (companies)** — live on site + Stripe (2026-05-21):
-  - 30-day **free trial** (`trial_period_days: 30`), then **Starter $299/mo · Growth $799/mo ·
-    Enterprise Custom**.
-  - **Founding Partner offer:** **50% off for 3 months** ($149 / $399 for 3mo), shown with
-    standard price struck through (anchoring). Implemented as a Stripe coupon `founding50_3mo`
-    (percent_off 50, repeating 3mo) applied on the standard price, so it auto-reverts. (Was
-    12mo; shortened to 3mo on 2026-05-21 — base price is already very low.)
-  - **No placement fee at launch** ("no placement fees, no per-hire costs").
-  - ⚠️ The "first 25 companies" cap is currently **marketing framing only** — the coupon is
-    applied to ALL company checkouts during the founding period. Add a real cap (count check)
-    or retire the coupon when we want to stop offering it.
-- **[RECOMMENDED] Candidates:** free to start; keep CV Kit $25 / CV Pro $59 one-time, but
-  **comp the Pro fee for the founding / friends-&-family cohort** to seed candidate supply
-  (subsidize the scarce side of the marketplace).
+- **[LOCKED — v5, 2026-06-10] Company pricing (4 tiers + Bespoke).** Supersedes the
+  Starter/Growth $299/$799 and the v4 3-tier scheme. Decided with the Commercial Director
+  after the $499→$2,500 cliff analysis:
+  - **Free** — generous *through launch* (the free Workforce Readiness Score is the top-of-funnel
+    magnet, never gated), then **metered ~60–90 days post-launch** to 1 Snapshot + score with
+    everything downstream teased. Protects the "intelligence has value" narrative.
+  - **Pro $499/mo** — self-serve, 14-day card-required trial.
+  - **Growth $1,500/mo** 🆕 — bridges the 5× cliff. Full diagnostic suite + Active Hiring +
+    candidate pool. Captures the 200–600-person UAE family-business / PIF-survivor reorg buyer
+    who is too big for $499 but not ready for sales-led Enterprise. (Competitor stacks already
+    cost them $3–6k/mo.)
+  - **Enterprise $2,500–5,000/mo** — sales-led, banded by workforce envelope (NOT per-seat;
+    per-seat revenue mechanically shrinks in a restructuring market). Unlocks the moat: HR-OS,
+    Company Brain, Skill Density, immutable audit trail.
+  - **Bespoke Transformation $15–25k** one-off — door-opener that converts into a recurring
+    Enterprise subscription.
+  - **Enterprise POC $3–5k, fully creditable to year 1** — paid diagnostic Snapshot wedge;
+    qualifies the buyer, funds delivery, anchors the annual figure.
+- **[LOCKED — v5] Value metric = workforce decisions defended, not seats managed.** Charge
+  against coarse workforce bands at Enterprise; flat tiers below. Revenue rises when a customer
+  restructures — exactly when legacy per-seat HR tools' revenue falls.
+- **[LOCKED — v5] Founding Partner offer.** First **15 companies**, **50% off their first paid
+  tier (Pro or Growth) for 6 months**, then auto-reverts; early believers grandfathered against
+  future price rises. Status-led (Founding Partner badge + founder access + roadmap input).
+  ⚠️ MUST make the cohort cap a **real count check** before 2 June launch — today's "first 25"
+  is marketing framing only (coupon applies to all checkouts and never stops).
+- **[LOCKED — v5] Candidates** — free to start; verification ALWAYS free (it's the scarce-side
+  asset). Collapse the 8-SKU sprawl to: **Free → CV Kit $25 → CV Pro $59 → Active $29/mo →
+  Concierge $89/mo + Profile Boost $29**. Bundle ($39) killed; Roles Board ($19) merged into
+  Active. Fix the live bug where Concierge charges $79 instead of $89. **Comp the CV Pro fee for
+  the founding / friends-&-family cohort** to seed verified supply.
 - **[RECOMMENDED] Placement fee = Phase 2.** Once there are real placements + proof, add a
   **small ($500) placement fee for NEW company cohorts only.** Never raise price on early
   believers — grandfather them. Framing: "we win when you win."

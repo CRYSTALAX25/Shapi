@@ -520,8 +520,6 @@ export default async function Dashboard() {
                   <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.18)', color: '#6AA8F5' }}>Active Concierge</span>
                 ) : isActive ? (
                   <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.15)', color: '#6AA8F5' }}>Shapi Active</span>
-                ) : isRolesBoard ? (
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.12)', color: '#6AA8F5' }}>Open Roles Board</span>
                 ) : profile?.cv_tier === 'pro' ? (
                   <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(106,168,245,0.18)', color: '#6AA8F5' }}>CV Pro</span>
                 ) : cvKitPurchased ? (
@@ -532,23 +530,14 @@ export default async function Dashboard() {
               </div>
 
               {/* Subscribed product(s) + what they unlock */}
-              {(isRolesBoard || isActive || isConcierge) && (
+              {(isActive || isConcierge) && (
                 <div className="space-y-2 mb-3">
-                  {isRolesBoard && (
-                    <div className="flex items-start gap-2.5 rounded-xl p-3" style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.20)' }}>
-                      <span className="text-emerald-400 text-sm font-black mt-0.5">✓</span>
-                      <div>
-                        <p className="text-[#F4F4F7] text-sm font-bold">Open Roles Board</p>
-                        <p className="text-[#A6A6B4] text-xs">Browse verified roles ranked by match score · companies can shortlist you.</p>
-                      </div>
-                    </div>
-                  )}
                   {isActive && (
                     <div className="flex items-start gap-2.5 rounded-xl p-3" style={{ background: 'rgba(106,168,245,0.08)', border: '1px solid rgba(106,168,245,0.20)' }}>
                       <span className="text-emerald-400 text-sm font-black mt-0.5">✓</span>
                       <div>
                         <p className="text-[#F4F4F7] text-sm font-bold">Shapi Active</p>
-                        <p className="text-[#A6A6B4] text-xs">Job scanner, email drafter, application tracker, interview prep.</p>
+                        <p className="text-[#A6A6B4] text-xs">See every open role · job scanner · email drafter · application tracker · interview prep.</p>
                       </div>
                     </div>
                   )}
@@ -565,22 +554,13 @@ export default async function Dashboard() {
               )}
 
               {/* Upsells for products NOT subscribed */}
-              {(!isRolesBoard || !isActive || !isConcierge) && (
+              {(!isActive || !isConcierge) && (
                 <div className="space-y-2">
-                  {!isRolesBoard && (
-                    <SubscribeButton product="roles_board_monthly" className="w-full flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors text-left" >
-                      <div>
-                        <p className="text-[#F4F4F7] text-sm font-bold">Open Roles Board <span className="text-[#6AA8F5] font-black">$19/mo</span></p>
-                        <p className="text-[#7E7E8E] text-xs">Browse verified roles + get shortlisted by companies.</p>
-                      </div>
-                      <span className="text-[#6AA8F5] text-xs font-black flex-shrink-0">Subscribe →</span>
-                    </SubscribeButton>
-                  )}
                   {!isActive && (
                     <SubscribeButton product="active_monthly" className="w-full flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors text-left">
                       <div>
                         <p className="text-[#F4F4F7] text-sm font-bold">Shapi Active <span className="text-[#6AA8F5] font-black">$29/mo</span></p>
-                        <p className="text-[#7E7E8E] text-xs">Everything in Roles Board, plus: scan jobs, draft outreach, track applications, prep interviews.</p>
+                        <p className="text-[#7E7E8E] text-xs">See every open role + get shortlisted by companies, scan jobs, draft outreach, track applications, prep interviews.</p>
                       </div>
                       <span className="text-[#6AA8F5] text-xs font-black flex-shrink-0">Subscribe →</span>
                     </SubscribeButton>
@@ -1099,7 +1079,7 @@ export default async function Dashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-[#7E7E8E] text-xs font-bold uppercase tracking-wider mb-1">Subscription</p>
-                      <h3 className="font-bold text-[#F4F4F7]">{profile.subscription_tier === 'growth' ? 'Growth' : 'Starter'} plan active</h3>
+                      <h3 className="font-bold text-[#F4F4F7]">{profile.subscription_tier === 'enterprise' ? 'Enterprise' : profile.subscription_tier === 'growth' ? 'Growth' : 'Pro'} plan active</h3>
                       <p className="text-[#7E7E8E] text-xs mt-1">Full access to candidate profiles and outreach.</p>
                     </div>
                     <div className="w-11 h-11 rounded-xl bg-emerald-500/15 flex items-center justify-center">
@@ -1118,7 +1098,7 @@ export default async function Dashboard() {
                     <div>
                       <p className="text-white/60 text-xs font-bold uppercase tracking-wider mb-1">Unlock full profiles</p>
                       <h3 className="font-bold text-white text-lg mb-1">Subscribe to start hiring →</h3>
-                      <p className="text-white/50 text-sm">From $299/mo · Cancel anytime · Every candidate independently verified</p>
+                      <p className="text-white/50 text-sm">From $499/mo · 14-day free trial · Every candidate independently verified</p>
                     </div>
                     <svg className="w-7 h-7 text-white/40 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />

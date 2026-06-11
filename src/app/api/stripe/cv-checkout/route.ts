@@ -1,15 +1,15 @@
 // Stripe checkout for Shapi candidate products.
 //
-// Supports:
+// v5 PRICING (2026-06-10, STRATEGY §2). Candidate ladder collapsed to:
 //   - 'kit'                 → CV Kit, $25 one-time
 //   - 'pro'                 → CV Pro, $59 one-time (includes Kit access)
-//   - 'roles_board_monthly' → Open Roles Board, $19/month (subscription)
-//   - 'roles_board_yearly'  → Open Roles Board, $149/year (subscription)
-//   - 'active_monthly'      → Shapi Active, $29/month (subscription)
-//   - 'active_yearly'       → Shapi Active, $249/year (subscription)
-//   - 'concierge_monthly'   → Active Concierge, $89/month (subscription)
-//   - 'bundle_monthly'      → Roles Board + Active bundle, $39/month
-//   - 'bundle_yearly'       → Roles Board + Active bundle, $349/year
+//   - 'active_monthly'      → Shapi Active, $29/month (now INCLUDES all open roles)
+//   - 'active_yearly'       → Shapi Active, $249/year
+//   - 'concierge_monthly'   → Active Concierge, $89/month  (was buggy $79 — fixed)
+//
+// KILLED in v5: the standalone Roles Board ($19) is merged into Active, and the
+// Career Bundle ($39) is removed entirely. Their checkout paths no longer exist
+// here, so no new subscription of those types can be created.
 //
 // The Stripe webhook reads session.metadata.product to know which subscription
 // to flip on (or which one-time purchase to credit).
@@ -20,10 +20,8 @@ import { getStripe, stripeMode } from '@/lib/stripe'
 
 type ProductKey =
   | 'kit' | 'pro'
-  | 'roles_board_monthly' | 'roles_board_yearly'
   | 'active_monthly' | 'active_yearly'
   | 'concierge_monthly'
-  | 'bundle_monthly' | 'bundle_yearly'
 
 type ProductConfig = {
   amount: number              // in cents
@@ -46,40 +44,23 @@ const PRODUCTS: Record<ProductKey, ProductConfig> = {
     description: 'CV Kit + WhatsApp deep-dive interviews + verification chain + AI cross-check + Career Roadmap.',
     product: 'cv_pro', mode: 'payment', requires: 'cv_parsed',
   },
-  roles_board_monthly: {
-    amount: 1900, name: 'Open Roles Board (monthly)',
-    description: 'Visible to hiring companies · Get shortlisted · Inbound match notifications.',
-    product: 'roles_board_monthly', mode: 'subscription', interval: 'month', requires: 'pro',
-  },
-  roles_board_yearly: {
-    amount: 14900, name: 'Open Roles Board (yearly)',
-    description: 'Visible to hiring companies · Get shortlisted · Inbound match notifications. Best price.',
-    product: 'roles_board_yearly', mode: 'subscription', interval: 'year', requires: 'pro',
-  },
+  // v5: Active now INCLUDES the old Open Roles Board — candidates see every
+  // open role plus the job tools.
   active_monthly: {
     amount: 2900, name: 'Shapi Active (monthly)',
-    description: 'Job scanner · AI cover letters · Applications tracker · Interview prep briefs.',
+    description: 'See every open role · Job scanner · AI cover letters · Applications tracker · Interview prep briefs.',
     product: 'active_monthly', mode: 'subscription', interval: 'month', requires: 'pro',
   },
   active_yearly: {
     amount: 24900, name: 'Shapi Active (yearly)',
-    description: 'Job scanner · AI cover letters · Applications tracker · Interview prep briefs. Best price.',
+    description: 'See every open role · Job scanner · AI cover letters · Applications tracker · Interview prep briefs. Best price.',
     product: 'active_yearly', mode: 'subscription', interval: 'year', requires: 'pro',
   },
+  // Concierge — LOCKED at $89/mo. (Live bug fix: previously charged $79/7900.)
   concierge_monthly: {
-    amount: 7900, name: 'Active Concierge (monthly)',
+    amount: 8900, name: 'Active Concierge (monthly)',
     description: 'Daily AI-shortlisted matches · One-tap personalised outreach · Auto-send opt-in.',
     product: 'concierge_monthly', mode: 'subscription', interval: 'month', requires: 'pro',
-  },
-  bundle_monthly: {
-    amount: 3900, name: 'Career bundle (monthly)',
-    description: 'Open Roles Board + Shapi Active. Save vs buying separately.',
-    product: 'bundle_monthly', mode: 'subscription', interval: 'month', requires: 'pro',
-  },
-  bundle_yearly: {
-    amount: 34900, name: 'Career bundle (yearly)',
-    description: 'Open Roles Board + Shapi Active. Save vs buying separately. Best price.',
-    product: 'bundle_yearly', mode: 'subscription', interval: 'year', requires: 'pro',
   },
 }
 

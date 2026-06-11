@@ -9,13 +9,11 @@ import { getStripe } from '@/lib/stripe'
 import { PRODUCT_PRICES, PRODUCT_LABELS, type SubscriptionProduct } from '@/lib/subscriptions'
 
 const DESCRIPTIONS: Record<SubscriptionProduct, string> = {
-  roles_board_monthly: 'Browse verified roles ranked by match + get shortlisted by companies.',
-  roles_board_yearly: 'Browse verified roles ranked by match + get shortlisted by companies.',
-  active_monthly: 'Scan jobs, draft outreach, track applications and prep for interviews.',
-  active_yearly: 'Scan jobs, draft outreach, track applications and prep for interviews.',
+  // v5: Active now includes seeing every open role (the old standalone Roles
+  // Board is merged in). Bundle is killed.
+  active_monthly: 'See every open role, scan jobs, draft outreach, track applications and prep for interviews.',
+  active_yearly: 'See every open role, scan jobs, draft outreach, track applications and prep for interviews.',
   concierge_monthly: 'AI drafts personalised intros daily — you just approve and send.',
-  bundle_monthly: 'Open Roles Board + Shapi Active together.',
-  bundle_yearly: 'Open Roles Board + Shapi Active together.',
   active_hiring_monthly: 'Daily AI-shortlisted verified candidates per open role, with drafted outreach awaiting your one-tap approval.',
   active_hiring_yearly: 'Daily AI-shortlisted verified candidates per open role, with drafted outreach awaiting your one-tap approval. Annual save.',
 }
