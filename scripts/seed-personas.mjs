@@ -380,6 +380,12 @@ async function main() {
     await upsert('persons', { id, company_id: C1, full_name: name, email, status }, 'id')
   }
 
+  // Sara Al-Mutairi (p:eng3) logs HR notes via WhatsApp — give her a number so
+  // the WhatsApp logging tile renders her phone-first activity.
+  await upsert('persons', {
+    id: persons['p:eng3'], company_id: C1, whatsapp_number: '+971501234599',
+  }, 'id')
+
   // --- Roles/Seats (~12), mixed status + Calibration Lens metrics ---
   // Calibration Lens colour drivers (gold/slate/crimson) come from
   // okr_completion_pct + absorbed_capacity_pct. We spread the range so all
@@ -527,19 +533,26 @@ async function main() {
     }, 'company_id,person_id')
   }
 
-  // Attendance ledger rows incl. one consented sick_leave.
+  // Attendance ledger rows incl. one consented sick_leave + Sara's WhatsApp logs.
   if (await tableExists('employee_attendance_ledger')) {
+    // [label, person, type, start, end, days, medical_consent, logged_via, note]
     const attDefs = [
-      ['att:1', 'p:eng2', 'annual_leave', '2026-05-04', '2026-05-08', 5, false, 'dashboard'],
-      ['att:2', 'p:ops3', 'sick_leave', '2026-05-19', '2026-05-20', 2, true, 'whatsapp'],
-      ['att:3', 'p:sales2', 'annual_leave', '2026-04-14', '2026-04-18', 5, false, 'dashboard'],
-      ['att:4', 'p:ops2', 'parental_leave', '2026-05-01', '2026-06-30', 43, false, 'dashboard'],
+      ['att:1', 'p:eng2', 'annual_leave', '2026-05-04', '2026-05-08', 5, false, 'dashboard', null],
+      ['att:2', 'p:ops3', 'sick_leave', '2026-05-19', '2026-05-20', 2, true, 'whatsapp', null],
+      ['att:3', 'p:sales2', 'annual_leave', '2026-04-14', '2026-04-18', 5, false, 'dashboard', null],
+      ['att:4', 'p:ops2', 'parental_leave', '2026-05-01', '2026-06-30', 43, false, 'dashboard', null],
+      // Sara Al-Mutairi (p:eng3) — HR notes logged via WhatsApp. The sick_leave
+      // carries medical consent (note is PDPL-gated in the UI); the personal
+      // entry is a casual note that surfaces in the ledger.
+      ['att:5', 'p:eng3', 'sick_leave', '2026-05-12', '2026-05-12', 1, true, 'whatsapp', 'Reported feeling unwell, resting today.'],
+      ['att:6', 'p:eng3', 'personal', '2026-05-26', '2026-05-26', 1, false, 'whatsapp', 'WhatsApp: "Need a couple of hours Tue morning for a family appointment."'],
     ]
-    for (const [label, pl, type, sd, ed, days, consent, via] of attDefs) {
+    for (const [label, pl, type, sd, ed, days, consent, via, note] of attDefs) {
       await upsert('employee_attendance_ledger', {
         id: stableId(label), company_id: C1, person_id: persons[pl], entry_type: type,
         start_date: sd, end_date: ed, days, medical_consent_logged: consent,
-        logged_via: via, approved_at: new Date().toISOString(), approved_by: C1,
+        logged_via: via, notes: note || null,
+        approved_at: new Date().toISOString(), approved_by: C1,
       }, 'id')
     }
   }
@@ -576,9 +589,44 @@ async function main() {
         if (error) console.log('  organizational_decisions insert error ->', error.message)
       }
     }
+
+    // ONE populated SEPARATION program (in_progress) for James Carter (p:ops3,
+    // seat s:ops-an — crimson) so the founder can see a filled separation
+    // playbook end-to-end. Mirrors the PIP block above.
+    const sepPersonLabel = 'p:ops3'
+    await upsert('hr_lifecycle_programs', {
+      id: stableId('sep:1'), company_id: C1, person_id: persons[sepPersonLabel],
+      source_seat_id: seats['s:ops-an'], program_type: 'separation', status: 'in_progress',
+      start_date: '2026-05-10', target_end_date: '2026-08-10',
+      milestones_30d: JSON.stringify([{ goal: 'Initial separation discussion held; notice acknowledged', status: 'done' }]),
+      milestones_60d: JSON.stringify([{ goal: 'Handover plan agreed; knowledge transfer to Operations Manager', status: 'in_progress' }]),
+      milestones_90d: JSON.stringify([{ goal: 'Final settlement (end-of-service + accrued leave) processed; exit complete', status: 'pending' }]),
+      private_notes: 'Role redundant following ops automation; sustained sub-50% OKR with 130% absorbed capacity. Handled as a structured, respectful exit with full UAE end-of-service entitlements.',
+      legal_template_ref: 'UAE-MOHRE-SEP-v3',
+      assigned_hrbp_user_id: hrbp.id, reporting_manager_user_id: C1,
+    }, 'id')
+
+    // Matching immutable audit row (decision_type 'separate' — the DB CHECK does
+    // NOT allow 'separation_comms_sent'-style values, so the event lives in the
+    // snapshot). Guard against duplicates on rerun.
+    if (await tableExists('organizational_decisions')) {
+      const { count } = await db.from('organizational_decisions')
+        .select('*', { head: true, count: 'exact' })
+        .eq('company_id', C1).eq('impacted_person_id', persons[sepPersonLabel]).eq('decision_type', 'separate')
+      if (!count) {
+        const { error } = await db.from('organizational_decisions').insert({
+          company_id: C1, decision_type: 'separate',
+          justification: 'Opened a separation for the Ops Analyst after sustained sub-50% OKR completion and 130% absorbed capacity following ops automation; role redundancy confirmed. Structured, respectful exit with full UAE end-of-service entitlements and HRBP oversight.',
+          decided_by_user_id: hrbp.id, impacted_seat_id: seats['s:ops-an'],
+          impacted_person_id: persons[sepPersonLabel], impacted_team_id: teamOps,
+          state_snapshot: { okr_completion_pct: 49, absorbed_capacity_pct: 130, program: 'separation', event: 'separation_opened', legal_template_ref: 'UAE-MOHRE-SEP-v3' },
+        })
+        if (error) console.log('  organizational_decisions (separation) insert error ->', error.message)
+      }
+    }
   }
   report.push({ email: EMAILS.hrbp, role: 'HRBP (Enterprise)', id: hrbp.id,
-    rows: '5 hr_profiles · 4 attendance (1 consented sick) · 1 PIP (in_progress) · 1 decision audit' })
+    rows: '5 hr_profiles · 6 attendance (1 consented sick + Sara WhatsApp) · 1 PIP + 1 separation (in_progress) · 2 decision audits' })
 
   // =========================================================================
   // PERSONA 1 — Candidate A (white-collar, fully verified) + 6 refs

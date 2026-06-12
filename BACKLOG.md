@@ -32,6 +32,15 @@ Everything discussed but deliberately deferred until after the **2 June 2026** f
 - Verified-RTW and verified-aptitude as premium add-ons employers pay for.
 - Upskilling affiliate/revenue share.
 
+## Employee-facing access (Org Spine / HR portal) — decision 2026-06-12
+Decision (Ana, 2026-06-12): **no full employee login portal for launch.** Today employees are `persons` rows (not auth users) and touch Shapi only via (a) seat-confirm magic links and (b) WhatsApp leave logging. The `/company/people/[personId]` "HR portal" is a manager/HRBP view, not employee self-service.
+- 🆕 **Light employee "my page" (magic-link, read-only)** — extend the existing magic-link pattern so an employee can tap a no-password link and see their own profile, leave balance, OKRs and verification status. Phone-first, PDPL-friendly, low build. **Build next, post-launch.**
+- ⏸️ **Full employee self-service portal w/ login** (leave requests, OKR check-ins, profile edits) — deferred. Larger build; revisit once the light page proves demand.
+
+## PIP / Separation comms — decision 2026-06-12
+Decision (Ana, 2026-06-12): manager's life made easy via **pre-filled, EDITABLE template + one-tap actions** on the lifecycle program card: **Copy**, **Send via Shapi** (Resend, logged to the audit trail), **Add to calendar** (.ics / Google Calendar link — no OAuth). Legal wording stays static/vetted (never AI-drafted).
+- ⏸️ **Deep calendar integration** (Google/Outlook OAuth two-way scheduling) — deferred; the .ics/Calendar link covers launch.
+
 ---
 
 # Career-pivot ecosystem — build roadmap (from the 25 May 2026 brand/feature brainstorm)

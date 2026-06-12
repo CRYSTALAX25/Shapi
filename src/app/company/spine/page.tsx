@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { LocationsSection, TeamsSection, PersonsSection, SeatsSection } from './SpineForms'
-import CsvImportSection from './CsvImportSection'
 import OrgCanvas from './OrgCanvas'
+import SpineManager from './SpineManager'
+import DashboardNav from '../dashboard/DashboardNav'
 import { parseHQ } from '@/lib/parseHQ'
 
 export const metadata = { title: 'Org Spine · Shapi' }
@@ -82,94 +82,116 @@ export default async function SpinePage({
   const seats = seatsResult.data || []
 
   const planTier = (profile as { plan_tier?: string | null }).plan_tier || 'free'
+  const companyWebsite = (profile as { company_website?: string | null }).company_website || null
+  const planLabel = planTier === 'enterprise' ? 'Enterprise' : (planTier === 'pro' || planTier === 'growth') ? 'Pro' : 'Free'
+  const showUpgrade = planTier !== 'enterprise'
 
   const ACCENT = '#9D8CFF'
   const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
   const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
 
   return (
-    <main className="min-h-screen px-4 py-10 sm:py-14" style={{ background: '#060609' }}>
-      {/* Wider shell than the rest of the company surface — the org map needs
-          horizontal room. The CSV + CRUD sections below stay at reading width. */}
-      <div className="max-w-6xl mx-auto">
-        <Link href="/company/dashboard" className="text-xs font-bold mb-4 inline-block" style={{ color: ACCENT }}>
-          ← Dashboard
-        </Link>
+    <div className="min-h-screen" style={{ background: '#060609' }}>
+      {/* Dot-grid overlay — Violet Mint spec, matches the dashboard shell. */}
+      <div className="fixed inset-0 pointer-events-none" style={{
+        backgroundImage: 'radial-gradient(circle, rgba(157,140,255,0.07) 1px, transparent 1px)',
+        backgroundSize: '44px 44px',
+      }} />
 
-        <header className="mb-6">
-          <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: ACCENT }}>
-            Org Spine · {planTier === 'free' ? 'Free' : planTier === 'pro' ? 'Pro' : 'Enterprise'}
-          </p>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-2" style={HEADING_STYLE}>
-            {profile.company_name || 'Your org'}
-          </h1>
-          <p className="text-sm leading-relaxed" style={BODY_STYLE}>
-            The single source of truth for who works where. Locations hold teams, teams hold seats,
-            seats are filled by people. Everything else in Shapi — workforce planning, talent matching,
-            HR portal — reads from here. Every seat carries a trust tier: self-reported, Shapi-assessed,
-            or verified by the employee themselves.
-          </p>
-        </header>
-
-        {isWelcome && (
-          <div
-            className="mb-6 p-5 rounded-2xl"
-            style={{
-              background: 'linear-gradient(135deg, rgba(157,140,255,0.10), rgba(52,211,153,0.08))',
-              border: `1px solid ${ACCENT}55`,
-            }}
+      {/* Top bar — same wordmark + sign out as every company surface. */}
+      <nav className="relative z-10 px-6 py-4 border-b border-white/[0.06]">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link
+            href="/"
+            className="font-black text-xl"
+            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '-0.02em' }}
           >
-            <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: ACCENT }}>
-              Welcome to your org spine
-            </p>
-            <h2 className="text-xl font-black mb-2" style={HEADING_STYLE}>
-              {profile.company_name || 'Your HQ'} is in. Now build out the rest.
-            </h2>
-            <p className="text-sm leading-relaxed mb-4" style={BODY_STYLE}>
-              Add a couple of teams and seats. Once that&apos;s done, every other tool in Shapi —
-              Workforce Snapshot, Salary Benchmark, Hiring Roadmap, Strategic Plan — pre-fills from
-              here instead of asking you to retype the same data.
-            </p>
-            <Link
-              href="/company/workforce-snapshot?first=true"
-              className="inline-block text-xs font-bold underline"
-              style={{ color: ACCENT }}
-            >
-              Skip — run Workforce Snapshot manually →
-            </Link>
-          </div>
-        )}
-
-        {planTier === 'free' && (
-          <div
-            className="mb-6 p-4 rounded-xl text-xs"
-            style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)', color: '#FBBF24' }}
-          >
-            <strong>Free tier:</strong> one location, one upload-and-map. Upgrade to Pro ($499/mo) for
-            multi-location org charts + Talent Match Pipeline.{' '}
-            <Link href="/company/pricing" className="font-black underline">See plans</Link>
-          </div>
-        )}
-
-        <div className="space-y-5">
-          {/* Visual org map FIRST — it's the spine's primary surface.
-              Node-and-line chart with location tabs, compare mode,
-              Current/Target state + justification-gated drag-drop. */}
-          <OrgCanvas locations={locations} teams={teams} persons={persons} seats={seats} />
-
-          {/* CSV upload — primary intake for new companies. Manual CRUD
-              below is for tweaks and corrections. Reading width. */}
-          <div className="max-w-3xl mx-auto w-full space-y-5">
-            <CsvImportSection planTier={planTier} />
-
-            <LocationsSection locations={locations} companyWebsite={(profile as { company_website?: string | null }).company_website || null} planTier={planTier} />
-            <TeamsSection teams={teams} locations={locations} />
-            <PersonsSection persons={persons} />
-            <SeatsSection seats={seats} teams={teams} persons={persons} />
-          </div>
+            shapi
+          </Link>
+          <form action="/api/auth/signout" method="post">
+            <button className="text-white/40 text-sm hover:text-white/70 transition-colors">Sign out</button>
+          </form>
         </div>
+      </nav>
 
+      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-8 pb-20">
+        <div className="lg:grid lg:grid-cols-[230px_minmax(0,1fr)] lg:gap-10">
+
+          {/* Same sticky sidebar as the dashboard — navigation is identical
+              across the whole company product. */}
+          <DashboardNav planLabel={planLabel} showUpgrade={showUpgrade} activeHref="/company/spine" />
+
+          <main className="min-w-0">
+            {/* Header: company name + the org-data action bar (Locations /
+                Teams / People / Seats) pinned top-right, like the candidate
+                profile bar. The chart below is the hero. */}
+            <header className="mb-6">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] mb-1.5" style={{ color: ACCENT }}>
+                Org Spine · {planLabel}
+              </p>
+              <div className="flex items-start justify-between gap-4 flex-wrap">
+                <h1 className="text-3xl font-black tracking-tight min-w-0 truncate" style={HEADING_STYLE}>
+                  {profile.company_name || 'Your org'}
+                </h1>
+                <SpineManager
+                  locations={locations}
+                  teams={teams}
+                  persons={persons}
+                  seats={seats}
+                  companyWebsite={companyWebsite}
+                  planTier={planTier}
+                />
+              </div>
+              <p className="text-sm leading-relaxed mt-2 max-w-2xl" style={BODY_STYLE}>
+                Your live org in 2D — locations, teams, seats and the people in them. Drag a seat to
+                reassign (justified + logged); everything else in Shapi reads from here.
+              </p>
+            </header>
+
+            {isWelcome && (
+              <div
+                className="mb-6 p-5 rounded-2xl"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(157,140,255,0.10), rgba(52,211,153,0.08))',
+                  border: `1px solid ${ACCENT}55`,
+                }}
+              >
+                <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: ACCENT }}>
+                  Welcome to your org spine
+                </p>
+                <h2 className="text-xl font-black mb-2" style={HEADING_STYLE}>
+                  {profile.company_name || 'Your HQ'} is in. Now build out the rest.
+                </h2>
+                <p className="text-sm leading-relaxed mb-4" style={BODY_STYLE}>
+                  Use the <strong style={{ color: ACCENT }}>Locations</strong> button above to add a site and upload its roster,
+                  then add teams and seats. Every other tool — Workforce Snapshot, Salary Benchmark, Hiring Roadmap — pre-fills from here.
+                </p>
+                <Link
+                  href="/company/workforce-snapshot?first=true"
+                  className="inline-block text-xs font-bold underline"
+                  style={{ color: ACCENT }}
+                >
+                  Skip — run Workforce Snapshot manually →
+                </Link>
+              </div>
+            )}
+
+            {planTier === 'free' && (
+              <div
+                className="mb-6 p-4 rounded-xl text-xs"
+                style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)', color: '#FBBF24' }}
+              >
+                <strong>Free tier:</strong> one location + one roster upload. Upgrade to Pro ($499/mo) for
+                multi-location org charts + Talent Match Pipeline.{' '}
+                <Link href="/company/pricing" className="font-black underline">See plans</Link>
+              </div>
+            )}
+
+            {/* The hero — the 2D node-and-line org map. */}
+            <OrgCanvas locations={locations} teams={teams} persons={persons} seats={seats} />
+          </main>
+        </div>
       </div>
-    </main>
+    </div>
   )
 }

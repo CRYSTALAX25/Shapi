@@ -88,6 +88,37 @@ export default async function PersonLifecyclePage({
   if (!personData) notFound()
   const person = personData as Person
 
+  // Resolve the person's current seat title so the header can show the role
+  // under the name — matching the HR portal detail page. Prefer the seat the HR
+  // profile points at; fall back to whichever seat references this person.
+  let seatTitle: string | null = null
+  const { data: hrSeatRef } = await supabase
+    .from('employee_hr_profiles')
+    .select('current_seat_id')
+    .eq('company_id', user.id)
+    .eq('person_id', personId)
+    .maybeSingle()
+  const currentSeatId = (hrSeatRef as { current_seat_id?: string | null } | null)?.current_seat_id || null
+  if (currentSeatId) {
+    const { data: seatData } = await supabase
+      .from('roles_seats')
+      .select('title')
+      .eq('company_id', user.id)
+      .eq('id', currentSeatId)
+      .maybeSingle()
+    seatTitle = (seatData as { title?: string } | null)?.title || null
+  }
+  if (!seatTitle) {
+    const { data: seatData } = await supabase
+      .from('roles_seats')
+      .select('title')
+      .eq('company_id', user.id)
+      .eq('person_id', personId)
+      .limit(1)
+      .maybeSingle()
+    seatTitle = (seatData as { title?: string } | null)?.title || null
+  }
+
   // Load programs + decision audit for this person in parallel. RLS gates both.
   const [programsResult, decisionsResult] = await Promise.all([
     supabase
@@ -139,6 +170,10 @@ export default async function PersonLifecyclePage({
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-1" style={HEADING_STYLE}>
             {displayName}
           </h1>
+          <p className="text-sm font-bold mb-2" style={{ color: ACCENT }}>
+            {seatTitle || 'No current seat on the spine'}
+            {person.email ? <span style={BODY_STYLE}> · {person.email}</span> : null}
+          </p>
           <p className="text-sm leading-relaxed" style={BODY_STYLE}>
             Start and run a Performance Improvement Plan or Separation — country-correct vetted legal
             template, 30 / 60 / 90 milestones, and an immutable decision audit trail.
@@ -159,6 +194,8 @@ export default async function PersonLifecyclePage({
         <LifecycleClient
           personId={personId}
           displayName={displayName}
+          personEmail={person.email}
+          roleTitle={seatTitle}
           programs={programs}
           decisions={decisions}
           templates={LEGAL_TEMPLATES}

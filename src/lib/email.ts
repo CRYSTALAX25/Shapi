@@ -531,6 +531,43 @@ export async function sendCompanyWelcomeEmail(opts: {
   })
 }
 
+// ── 12. HR Lifecycle: PIP / Separation communication to the employee ───────
+// Fired from the lifecycle playbook "Send via Shapi" action. The body is the
+// MANAGER-EDITED plain-text draft (newlines) seeded from a static, vetted
+// parameterized template — NEVER AI-drafted legal wording. We wrap it in the
+// branded shell and set reply-to so the employee can respond to the manager.
+export async function sendLifecycleCommsEmail(opts: {
+  to: string
+  subject: string
+  body: string
+  programLabel: string
+  replyTo?: string
+}) {
+  const { to, subject, body, programLabel, replyTo } = opts
+  const safeBody = String(body || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\r\n|\r|\n/g, '<br>')
+
+  const html = emailShell(`
+    <div style="background:rgba(157, 140, 255, 0.06);border:1px solid rgba(157, 140, 255, 0.18);border-radius:10px;padding:14px 18px;margin:0 0 20px">
+      <p style="color:rgba(157, 140, 255, 0.85);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin:0">${programLabel}</p>
+    </div>
+    <p style="color:rgba(255,255,255,0.7);font-size:15px;line-height:1.7;margin:0 0 16px">${safeBody}</p>
+    ${divider()}
+    ${p(`<span style="font-size:13px;color:rgba(255,255,255,0.3)">Sent through Shapi by your employer. Please reply to this email if you have any questions.</span>`)}
+  `)
+
+  await getResend().emails.send({
+    from: FROM,
+    to,
+    subject: subject || programLabel,
+    html,
+    ...(replyTo ? { replyTo } : {}),
+  })
+}
+
 export async function sendCVLinksEmail(opts: {
   to: string
   name: string

@@ -136,8 +136,9 @@ function PlanChip({ planLabel, showUpgrade, compact = false }: { planLabel: stri
   )
 }
 
-export default function DashboardNav({ planLabel, showUpgrade }: { planLabel: string; showUpgrade: boolean }) {
-  const overview: NavItem = { href: '/company/dashboard', label: 'Overview', icon: '🏠', active: true }
+export default function DashboardNav({ planLabel, showUpgrade, activeHref = '/company/dashboard' }: { planLabel: string; showUpgrade: boolean; activeHref?: string }) {
+  const overview: NavItem = { href: '/company/dashboard', label: 'Overview', icon: '🏠', active: activeHref === '/company/dashboard' }
+  const mark = (item: NavItem): NavItem => ({ ...item, active: item.href === activeHref })
 
   return (
     <>
@@ -150,7 +151,7 @@ export default function DashboardNav({ planLabel, showUpgrade }: { planLabel: st
             <div key={group.label}>
               <GroupLabel label={group.label} badge={group.badge} />
               <div className="flex flex-col gap-0.5">
-                {group.items.map(item => <Pill key={item.label} item={item} />)}
+                {group.items.map(item => <Pill key={item.label} item={mark(item)} />)}
               </div>
             </div>
           ))}
@@ -161,7 +162,7 @@ export default function DashboardNav({ planLabel, showUpgrade }: { planLabel: st
               <span aria-hidden="true">▾</span>
             </summary>
             <div className="flex flex-col gap-0.5 mt-1.5">
-              {MORE_TOOLS.map(item => <Pill key={item.label} item={item} />)}
+              {MORE_TOOLS.map(item => <Pill key={item.label} item={mark(item)} />)}
             </div>
           </details>
         </nav>
@@ -179,11 +180,11 @@ export default function DashboardNav({ planLabel, showUpgrade }: { planLabel: st
           {NAV_GROUPS.map(group => (
             <Fragment key={group.label}>
               <span aria-hidden="true" className="flex-shrink-0 w-px h-5 bg-white/10" />
-              {group.items.map(item => <Pill key={item.label} item={item} compact />)}
+              {group.items.map(item => <Pill key={item.label} item={mark(item)} compact />)}
             </Fragment>
           ))}
           <span aria-hidden="true" className="flex-shrink-0 w-px h-5 bg-white/10" />
-          {MORE_TOOLS.map(item => <Pill key={item.label} item={item} compact />)}
+          {MORE_TOOLS.map(item => <Pill key={item.label} item={mark(item)} compact />)}
           <span aria-hidden="true" className="flex-shrink-0 w-px h-5 bg-white/10" />
           <PlanChip planLabel={planLabel} showUpgrade={showUpgrade} compact />
         </div>

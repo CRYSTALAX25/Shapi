@@ -185,7 +185,7 @@ function BookCallInner() {
                   ? '30 minutes with Ana, included with your engagement. Tell us what you want to pressure-test and we’ll come prepared. We reply with two or three slots — or pick one straight from the calendar after submit.'
                   : topic === 'enterprise-sales'
                   ? 'Enterprise is sales-led — $2,500–12,000/mo, scaled to workforce size, with optional Bespoke Transformation ($15-25k) for custom severance modelling, taxonomy overrides, and a leadership workshop. Tell us roughly what you need and we’ll come with a scoped proposal.'
-                  : '30 minutes with our team. We’ll walk through where you are, what you’re trying to solve, and how Shapi (or honestly, not Shapi) fits.'}
+                  : '30 minutes with our team. We’ll walk through where you are, what you’re trying to solve, and whether Shapi is the right fit — and we’ll tell you plainly if it isn’t.'}
               </p>
             </div>
 

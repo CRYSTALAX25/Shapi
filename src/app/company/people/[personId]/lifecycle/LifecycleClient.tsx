@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Accordion from '@/components/Accordion'
 import type {
   LegalTemplate,
   TemplateCountry,
@@ -121,9 +122,108 @@ function toLines(m: unknown): string[] {
   return []
 }
 
+// ── Communications drafts ────────────────────────────────────────────────────
+// STATIC, parameterized templates — NEVER AI-generated. Neutral, vetted wording
+// that invites the employee to a discussion. The manager edits before sending.
+function buildCommsSubject(programType: string): string {
+  if (programType === 'separation') return 'Invitation to a meeting regarding your role'
+  return 'Invitation to a performance discussion'
+}
+
+function buildCommsDraft(programType: string, name: string, roleTitle: string | null): string {
+  const role = roleTitle ? ` as ${roleTitle}` : ''
+  if (programType === 'separation') {
+    return [
+      `Dear ${name},`,
+      ``,
+      `I would like to arrange a meeting with you to discuss your employment and the next steps regarding your role${role}.`,
+      ``,
+      `We want this conversation to be handled respectfully and clearly. We will walk through the relevant process, the timelines involved, and any entitlements that apply, and you are welcome to ask questions and bring someone with you if you wish.`,
+      ``,
+      `Please let me know your availability over the coming days so we can confirm a suitable time.`,
+      ``,
+      `Kind regards,`,
+      `HR`,
+    ].join('\n')
+  }
+  return [
+    `Dear ${name},`,
+    ``,
+    `I would like to invite you to a meeting to discuss your current performance and to talk through a Performance Improvement Plan (PIP) designed to support you in your role${role}.`,
+    ``,
+    `This is intended to be a constructive, two-way conversation. We will review specific objectives, the support available to you, and the review milestones over the coming weeks. You are very welcome to ask questions and share your perspective.`,
+    ``,
+    `Please let me know your availability over the next few days so we can confirm a suitable time.`,
+    ``,
+    `Kind regards,`,
+    `HR`,
+  ].join('\n')
+}
+
+// Default meeting slot: 10:00–10:45 local time, three days from now.
+function defaultMeetingTimes(): { start: Date; end: Date } {
+  const start = new Date()
+  start.setDate(start.getDate() + 3)
+  start.setHours(10, 0, 0, 0)
+  const end = new Date(start)
+  end.setMinutes(end.getMinutes() + 45)
+  return { start, end }
+}
+
+// Compact UTC stamp for ICS / Google Calendar: YYYYMMDDTHHMMSSZ.
+function toCalStamp(d: Date): string {
+  return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '')
+}
+
+function meetingTitle(programType: string, name: string): string {
+  return programType === 'separation'
+    ? `Meeting regarding role — ${name}`
+    : `Performance (PIP) discussion — ${name}`
+}
+
+function meetingDetails(programType: string): string {
+  return programType === 'separation'
+    ? 'Confidential meeting to discuss employment and next steps. Booked via Shapi.'
+    : 'Confidential meeting to discuss performance and the Performance Improvement Plan. Booked via Shapi.'
+}
+
+function buildICS(programType: string, name: string): string {
+  const { start, end } = defaultMeetingTimes()
+  const uid = `${Date.now()}-${Math.random().toString(36).slice(2)}@shapi.io`
+  return [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Shapi//Lifecycle//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:${uid}`,
+    `DTSTAMP:${toCalStamp(new Date())}`,
+    `DTSTART:${toCalStamp(start)}`,
+    `DTEND:${toCalStamp(end)}`,
+    `SUMMARY:${meetingTitle(programType, name)}`,
+    `DESCRIPTION:${meetingDetails(programType)}`,
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].join('\r\n')
+}
+
+function googleCalendarUrl(programType: string, name: string): string {
+  const { start, end } = defaultMeetingTimes()
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: meetingTitle(programType, name),
+    details: meetingDetails(programType),
+    dates: `${toCalStamp(start)}/${toCalStamp(end)}`,
+  })
+  return `https://calendar.google.com/calendar/render?${params.toString()}`
+}
+
 export default function LifecycleClient({
   personId,
   displayName,
+  personEmail,
+  roleTitle,
   programs,
   decisions,
   templates,
@@ -132,6 +232,8 @@ export default function LifecycleClient({
 }: {
   personId: string
   displayName: string
+  personEmail: string | null
+  roleTitle: string | null
   programs: Program[]
   decisions: DecisionRow[]
   templates: LegalTemplate[]
@@ -261,6 +363,88 @@ export default function LifecycleClient({
       setAdvanceErr('Network error — try again.')
       setAdvanceSubmitting(false)
     }
+  }
+
+  // ── PIP / Separation communications ─────────────────────────────────────────
+  const [commsOpenId, setCommsOpenId] = useState<string | null>(null)
+  const [commsSubject, setCommsSubject] = useState<Record<string, string>>({})
+  const [commsBody, setCommsBody] = useState<Record<string, string>>({})
+  const [commsStatus, setCommsStatus] = useState<Record<string, 'idle' | 'sending' | 'sent' | 'error'>>({})
+  const [commsFeedback, setCommsFeedback] = useState<Record<string, string>>({})
+
+  function toggleComms(p: Program) {
+    if (commsOpenId === p.id) {
+      setCommsOpenId(null)
+      return
+    }
+    // Seed the editable draft from the static parameterized template the first
+    // time this program's comms area is opened.
+    setCommsSubject((prev) =>
+      prev[p.id] !== undefined ? prev : { ...prev, [p.id]: buildCommsSubject(p.program_type) }
+    )
+    setCommsBody((prev) =>
+      prev[p.id] !== undefined ? prev : { ...prev, [p.id]: buildCommsDraft(p.program_type, displayName, roleTitle) }
+    )
+    setCommsOpenId(p.id)
+  }
+
+  async function handleCopyComms(p: Program) {
+    const text = commsBody[p.id] ?? buildCommsDraft(p.program_type, displayName, roleTitle)
+    try {
+      await navigator.clipboard.writeText(text)
+      setCommsFeedback((prev) => ({ ...prev, [p.id]: 'Copied to clipboard.' }))
+    } catch {
+      setCommsFeedback((prev) => ({ ...prev, [p.id]: 'Copy failed — select and copy manually.' }))
+    }
+  }
+
+  async function handleSendComms(p: Program) {
+    setCommsFeedback((prev) => ({ ...prev, [p.id]: '' }))
+    if (!personEmail) {
+      setCommsStatus((prev) => ({ ...prev, [p.id]: 'error' }))
+      setCommsFeedback((prev) => ({ ...prev, [p.id]: 'This employee has no email on file.' }))
+      return
+    }
+    const subject = (commsSubject[p.id] ?? buildCommsSubject(p.program_type)).trim()
+    const body = (commsBody[p.id] ?? buildCommsDraft(p.program_type, displayName, roleTitle)).trim()
+    if (body.length < 20) {
+      setCommsStatus((prev) => ({ ...prev, [p.id]: 'error' }))
+      setCommsFeedback((prev) => ({ ...prev, [p.id]: 'The message is too short to send.' }))
+      return
+    }
+    setCommsStatus((prev) => ({ ...prev, [p.id]: 'sending' }))
+    try {
+      const res = await fetch('/api/company/lifecycle/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ program_id: p.id, subject, body }),
+      })
+      const json = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setCommsStatus((prev) => ({ ...prev, [p.id]: 'error' }))
+        setCommsFeedback((prev) => ({ ...prev, [p.id]: json.message || json.error || 'Could not send.' }))
+        return
+      }
+      setCommsStatus((prev) => ({ ...prev, [p.id]: 'sent' }))
+      setCommsFeedback((prev) => ({ ...prev, [p.id]: `Sent to ${personEmail} · audit row recorded.` }))
+      router.refresh()
+    } catch {
+      setCommsStatus((prev) => ({ ...prev, [p.id]: 'error' }))
+      setCommsFeedback((prev) => ({ ...prev, [p.id]: 'Network error — try again.' }))
+    }
+  }
+
+  function handleDownloadIcs(p: Program) {
+    const ics = buildICS(p.program_type, displayName)
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${p.program_type === 'separation' ? 'separation' : 'pip'}-discussion-${displayName.replace(/\s+/g, '-').toLowerCase()}.ics`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
   }
 
   return (
@@ -461,8 +645,7 @@ export default function LifecycleClient({
       )}
 
       {/* ── Active / past programs ─────────────────────────────────────────── */}
-      <section className="rounded-2xl p-5" style={{ background: CARD, border: HAIRLINE }}>
-        <h2 className="text-sm font-black mb-3" style={HEADING_STYLE}>Programs</h2>
+      <Accordion title={`Programs (${programs.length})`} defaultOpen>
         {programs.length === 0 ? (
           <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.10)' }}>
             <p className="text-xs leading-relaxed" style={BODY_STYLE}>
@@ -585,21 +768,118 @@ export default function LifecycleClient({
                       </div>
                     </div>
                   )}
+
+                  {/* Communications — PIP / Separation only */}
+                  {(p.program_type === 'pip' || p.program_type === 'separation') && (
+                    <div className="mt-3 pt-3" style={{ borderTop: HAIRLINE }}>
+                      <button
+                        onClick={() => toggleComms(p)}
+                        className="text-[11px] font-bold inline-flex items-center gap-1.5"
+                        style={{ color: ACCENT }}
+                      >
+                        ✉️ Communications
+                        <span style={{ color: 'rgba(255,255,255,0.4)' }}>{commsOpenId === p.id ? '▴' : '▾'}</span>
+                      </button>
+
+                      {commsOpenId === p.id && (
+                        <div className="mt-2 rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.03)', border: HAIRLINE }}>
+                          <p className="text-[10px] leading-relaxed mb-3" style={BODY_STYLE}>
+                            Vetted, neutral draft you can edit before sending. Shapi never AI-drafts
+                            legal wording — this is a parameterized invitation to a{' '}
+                            {p.program_type === 'separation' ? 'separation meeting' : 'PIP discussion'}.
+                          </p>
+
+                          <p className="text-[10px] mb-2" style={BODY_STYLE}>
+                            To:{' '}
+                            {personEmail ? (
+                              <span style={{ color: 'rgba(255,255,255,0.7)' }}>{personEmail}</span>
+                            ) : (
+                              <span style={{ color: CORAL }}>no email on file</span>
+                            )}
+                          </p>
+
+                          <label className="block text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: ACCENT }}>
+                            Subject
+                          </label>
+                          <input
+                            value={commsSubject[p.id] ?? buildCommsSubject(p.program_type)}
+                            onChange={(e) => setCommsSubject((prev) => ({ ...prev, [p.id]: e.target.value }))}
+                            className="w-full rounded-lg px-3 py-2 text-xs mb-3 outline-none"
+                            style={INPUT_STYLE}
+                          />
+
+                          <label className="block text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: ACCENT }}>
+                            Message (editable)
+                          </label>
+                          <textarea
+                            value={commsBody[p.id] ?? buildCommsDraft(p.program_type, displayName, roleTitle)}
+                            onChange={(e) => setCommsBody((prev) => ({ ...prev, [p.id]: e.target.value }))}
+                            rows={10}
+                            className="w-full rounded-lg px-3 py-2 text-xs mb-2 outline-none resize-y"
+                            style={INPUT_STYLE}
+                          />
+
+                          {commsFeedback[p.id] && (
+                            <p
+                              className="text-[11px] mb-2 font-bold"
+                              style={{ color: commsStatus[p.id] === 'error' ? CORAL : SUCCESS }}
+                            >
+                              {commsFeedback[p.id]}
+                            </p>
+                          )}
+
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              onClick={() => handleCopyComms(p)}
+                              className="px-3 py-1.5 rounded-lg text-[11px] font-bold"
+                              style={{ background: 'rgba(157, 140, 255, 0.14)', color: PURPLE, border: `1px solid ${PURPLE}33` }}
+                            >
+                              Copy
+                            </button>
+                            <button
+                              onClick={() => handleSendComms(p)}
+                              disabled={commsStatus[p.id] === 'sending' || !personEmail}
+                              className="px-3 py-1.5 rounded-lg text-[11px] font-bold disabled:opacity-50"
+                              style={{ background: '#eef1f6', color: '#060609' }}
+                            >
+                              {commsStatus[p.id] === 'sending' ? 'Sending…' : 'Send via Shapi'}
+                            </button>
+                            <button
+                              onClick={() => handleDownloadIcs(p)}
+                              className="px-3 py-1.5 rounded-lg text-[11px] font-bold"
+                              style={{ background: 'rgba(52,211,153,0.10)', color: SUCCESS, border: '1px solid rgba(52,211,153,0.28)' }}
+                            >
+                              Add to calendar (.ics)
+                            </button>
+                            <a
+                              href={googleCalendarUrl(p.program_type, displayName)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-1.5 rounded-lg text-[11px] font-bold"
+                              style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.7)', border: HAIRLINE }}
+                            >
+                              Google Calendar →
+                            </a>
+                          </div>
+                          <p className="text-[10px] mt-2" style={BODY_STYLE}>
+                            Sending emails the employee via Shapi and records an immutable audit row.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </li>
               )
             })}
           </ul>
         )}
-      </section>
+      </Accordion>
 
       {/* ── Immutable decision audit trail ─────────────────────────────────── */}
-      <section className="rounded-2xl p-5" style={{ background: CARD, border: HAIRLINE }}>
-        <div className="flex items-center gap-2 mb-1 flex-wrap">
-          <h2 className="text-sm font-black" style={HEADING_STYLE}>Decision audit trail</h2>
-          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: 'rgba(251,191,36,0.12)', color: AMBER }}>
-            Immutable
-          </span>
-        </div>
+      <Accordion
+        title={`Decision audit trail (${decisions.length})`}
+        badge={{ label: 'Immutable', color: AMBER, bg: 'rgba(251,191,36,0.12)' }}
+      >
         <p className="text-[11px] mb-3" style={BODY_STYLE}>
           Every lifecycle transition for {displayName} is recorded here permanently and cannot be
           edited or deleted — the legally defensible trail for disputes, filings and due diligence.
@@ -638,7 +918,7 @@ export default function LifecycleClient({
             })}
           </ul>
         )}
-      </section>
+      </Accordion>
     </div>
   )
 }

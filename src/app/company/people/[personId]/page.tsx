@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
+import Accordion from '@/components/Accordion'
+import AttendanceLedger from './AttendanceLedger'
 
 export const metadata = { title: 'HR Portal · Shapi' }
 
@@ -23,7 +25,6 @@ export const metadata = { title: 'HR Portal · Shapi' }
 const ACCENT = '#9D8CFF'
 const PURPLE = '#9D8CFF'
 const BG = '#060609'
-const CARD = '#0D0C14'
 const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
 const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
 const HAIRLINE = '1px solid rgba(255,255,255,0.06)'
@@ -84,37 +85,24 @@ type LifecycleProgram = {
 }
 
 // ── Small presentational helpers ────────────────────────────────────────────
+// Tile delegates to the shared Accordion so each HR section is collapsible.
 function Tile({
   icon,
   title,
   badge,
+  defaultOpen = false,
   children,
 }: {
   icon: string
   title: string
   badge?: { label: string; color: string; bg: string }
+  defaultOpen?: boolean
   children: React.ReactNode
 }) {
   return (
-    <section className="rounded-2xl p-5" style={{ background: CARD, border: HAIRLINE }}>
-      <div className="flex items-center gap-2 mb-3 flex-wrap">
-        <span className="text-lg" aria-hidden>
-          {icon}
-        </span>
-        <h2 className="text-sm font-black" style={HEADING_STYLE}>
-          {title}
-        </h2>
-        {badge && (
-          <span
-            className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"
-            style={{ background: badge.bg, color: badge.color }}
-          >
-            {badge.label}
-          </span>
-        )}
-      </div>
+    <Accordion icon={icon} title={title} badge={badge} defaultOpen={defaultOpen}>
       {children}
-    </section>
+    </Accordion>
   )
 }
 
@@ -279,6 +267,21 @@ export default async function PersonHrPortalPage({
   // WhatsApp-logged entries (Tile 6) are a subset of the attendance ledger.
   const whatsappEntries = attendance.filter((a) => a.logged_via === 'whatsapp')
 
+  // PDPL: strip notes from medical-consent rows before they cross to the client
+  // editor — we never exposed them in the UI and must not ship them in the
+  // client payload either.
+  const attendanceForClient = attendance.map((a) => ({
+    id: a.id,
+    entry_type: a.entry_type,
+    start_date: a.start_date,
+    end_date: a.end_date,
+    days: a.days,
+    notes: a.medical_consent_logged ? null : a.notes,
+    medical_consent_logged: a.medical_consent_logged,
+    logged_via: a.logged_via,
+    approved_at: a.approved_at,
+  }))
+
   const displayName = person.preferred_name || person.full_name
   const planTier = (profile as { plan_tier?: string | null }).plan_tier || 'free'
 
@@ -315,7 +318,7 @@ export default async function PersonHrPortalPage({
 
         <div className="space-y-4">
           {/* ── Tile 1 · Lifecycle ───────────────────────────────────────── */}
-          <Tile icon="🛤️" title="Lifecycle">
+          <Tile icon="🛤️" title="Lifecycle" defaultOpen>
             <div className="mb-3">
               <Link
                 href={`/company/people/${personId}/lifecycle`}
@@ -446,68 +449,15 @@ export default async function PersonHrPortalPage({
               ))}
             </div>
 
-            <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: ACCENT }}>
-              Recent entries
-            </p>
-            {attendance.length === 0 ? (
-              <EmptyState>
-                No leave logged yet. Entries appear here as staff log time off — including via
-                WhatsApp (&quot;I&apos;m sick today&quot;), which stamps the entry and notifies the
-                manager.
-              </EmptyState>
-            ) : (
-              <ul className="space-y-1.5">
-                {attendance.map((a) => {
-                  const isMedical = a.medical_consent_logged
-                  return (
-                    <li
-                      key={a.id}
-                      className="flex items-center justify-between gap-2 rounded-lg px-3 py-2"
-                      style={{
-                        background: isMedical ? 'rgba(251, 113, 133, 0.06)' : 'rgba(255,255,255,0.02)',
-                        border: isMedical ? '1px solid rgba(251, 113, 133, 0.25)' : HAIRLINE,
-                      }}
-                    >
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold" style={HEADING_STYLE}>
-                          {ENTRY_TYPE_LABEL[a.entry_type] || a.entry_type}
-                          <span className="font-normal" style={BODY_STYLE}>
-                            {' '}· {a.days} day{a.days === 1 ? '' : 's'}
-                          </span>
-                        </p>
-                        <p className="text-[10px]" style={BODY_STYLE}>
-                          {fmtDate(a.start_date)} → {fmtDate(a.end_date)}
-                          {a.logged_via === 'whatsapp' ? ' · via WhatsApp' : ''}
-                        </p>
-                        {/* PDPL gate: for consent-logged medical rows we deliberately
-                            do NOT render notes/clinical detail — only the masked label. */}
-                        {isMedical ? (
-                          <p className="text-[10px] mt-0.5 font-bold" style={{ color: '#FB7185' }}>
-                            🔒 Medical — consent-logged, HRBP-visible only
-                          </p>
-                        ) : (
-                          a.notes && (
-                            <p className="text-[10px] mt-0.5 truncate" style={BODY_STYLE}>
-                              {a.notes}
-                            </p>
-                          )
-                        )}
-                      </div>
-                      <span
-                        className="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full"
-                        style={
-                          a.approved_at
-                            ? { background: 'rgba(52,211,153,0.12)', color: '#34D399' }
-                            : { background: 'rgba(251,191,36,0.12)', color: '#FBBF24' }
-                        }
-                      >
-                        {a.approved_at ? 'Approved' : 'Pending'}
-                      </span>
-                    </li>
-                  )
-                })}
-              </ul>
-            )}
+            <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+              <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: ACCENT }}>
+                Recent entries
+              </p>
+              <span className="text-[10px]" style={BODY_STYLE}>
+                Edit to correct a date or remove an entry logged in error.
+              </span>
+            </div>
+            <AttendanceLedger entries={attendanceForClient} personId={personId} />
           </Tile>
 
           {/* ── Tile 4 · Performance (Calibration metrics from roles_seats) ── */}

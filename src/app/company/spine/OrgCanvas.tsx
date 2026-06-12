@@ -432,6 +432,16 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
   } | null>(null)
   const [pendingMove, setPendingMove] = useState<ReassignContext | null>(null)
   const [busy, setBusy] = useState(false)
+  // Post-commit Undo: after a move is logged, keep the last move around so the
+  // founder can reverse it (moves the seat back + logs a reversing audit row).
+  // Cleared on a timer or once reversed. This is the real "Undo" — distinct
+  // from discarding a not-yet-confirmed staged move.
+  const [lastMove, setLastMove] = useState<{
+    seatId: string; seatTitle: string; personName: string | null
+    fromTeamId: string; fromTeamName: string; toTeamId: string; toTeamName: string
+    personId: string | null
+  } | null>(null)
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   /* — slide-over + touch move mode — */
   const [selectedSeatId, setSelectedSeatId] = useState<string | null>(null)
@@ -686,10 +696,12 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
       for (const { node: n, d } of nearestPerTeam.values()) {
         if (d < bestD) { bestD = d; best = n }
       }
-      // Accept the drop target if it's within a generous radius, OR if the card
-      // has clearly been pulled closer to another team than to its own home
-      // (threshold-free fallback so long drags always land somewhere sensible).
-      const next = best && (bestD < 440 || bestD < homeD)
+      // Accept the drop target only when the card is genuinely near another
+      // team's cluster (DROP_RADIUS), OR has been pulled CLEARLY closer to it
+      // than to its own home (so a deliberate long drag still lands) — but not
+      // so loose that a small nudge snaps onto an adjacent team by mistake.
+      const DROP_RADIUS = 230
+      const next = best && (bestD < DROP_RADIUS || bestD < homeD * 0.7)
         ? { nodeId: best.id, teamId: best.teamId as string }
         : null
       setDropCandidate(next)
@@ -763,6 +775,61 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
       // the refreshed `seats` prop reflects the move — a reconciliation effect
       // clears `staged` once the real data catches up (no flash-back).
       setPendingMove(null)
+      // Offer a real Undo for ~10s after the move lands.
+      const personName = ctx.personId
+        ? (personById[ctx.personId]?.preferred_name || personById[ctx.personId]?.full_name || null)
+        : null
+      setLastMove({
+        seatId: ctx.seatId, seatTitle: ctx.seatTitle, personName,
+        fromTeamId: ctx.fromTeamId, fromTeamName: ctx.fromTeamName,
+        toTeamId: ctx.toTeamId, toTeamName: ctx.toTeamName, personId: ctx.personId,
+      })
+      if (undoTimerRef.current) clearTimeout(undoTimerRef.current)
+      undoTimerRef.current = setTimeout(() => setLastMove(null), 10000)
+      router.refresh()
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // Real post-commit Undo — moves the seat back to where it came from and logs
+  // an immutable reversing entry to the audit trail (no silent rollback).
+  async function undoLastMove() {
+    if (!lastMove || busy) return
+    setBusy(true)
+    try {
+      const moveRes = await fetch('/api/company/spine/seat', {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id: lastMove.seatId, team_id: lastMove.fromTeamId }),
+      })
+      if (!moveRes.ok) {
+        const d = await moveRes.json().catch(() => ({}))
+        throw new Error(d.error || d.message || 'Undo failed.')
+      }
+      await fetch('/api/company/spine/decision', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          decision_type: 'restructure',
+          justification: `Reverted reassignment: moved ${lastMove.seatTitle} back from ${lastMove.toTeamName} to ${lastMove.fromTeamName}.`,
+          impacted_seat_id: lastMove.seatId,
+          impacted_person_id: lastMove.personId,
+          impacted_team_id: lastMove.fromTeamId,
+          state_snapshot: {
+            seat_title: lastMove.seatTitle,
+            reverted_from_team_id: lastMove.toTeamId,
+            reverted_from_team_name: lastMove.toTeamName,
+            restored_to_team_id: lastMove.fromTeamId,
+            restored_to_team_name: lastMove.fromTeamName,
+            person_id: lastMove.personId,
+            reversal: true,
+          },
+        }),
+      })
+      setStaged(null)
+      setLastMove(null)
+      if (undoTimerRef.current) clearTimeout(undoTimerRef.current)
       router.refresh()
     } finally {
       setBusy(false)
@@ -1065,6 +1132,18 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
         .spine-node.move-source {
           box-shadow: 0 0 0 2px var(--accent2), 0 16px 38px rgba(0,0,0,0.42), 0 0 28px color-mix(in srgb, var(--accent2) 40%, transparent) !important;
         }
+        /* Planned ("target") seats — the roles you're hiring for. Dashed violet
+           halo + animated pulse so the target roles catch the eye immediately. */
+        .spine-node.seat-planned {
+          background: linear-gradient(var(--bg), var(--bg)) padding-box,
+            linear-gradient(135deg, var(--accent), var(--accent2)) border-box;
+          border-style: dashed;
+          animation: spine-planned-pulse 2.6s ease-in-out infinite;
+        }
+        @keyframes spine-planned-pulse {
+          0%, 100% { box-shadow: 0 2px 4px rgba(0,0,0,0.5), 0 16px 38px rgba(0,0,0,0.42), 0 0 0 0 color-mix(in srgb, var(--accent) 30%, transparent); }
+          50% { box-shadow: 0 2px 4px rgba(0,0,0,0.5), 0 16px 38px rgba(0,0,0,0.42), 0 0 24px 2px color-mix(in srgb, var(--accent) 45%, transparent); }
+        }
         .spine-edge { stroke: var(--edge); stroke-width: 2; fill: none; transition: stroke .25s; }
         .spine-edge.hot {
           stroke: var(--accent); stroke-width: 2.5;
@@ -1083,7 +1162,7 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
       {/* ── Toolbar ─────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-[10px] font-bold uppercase tracking-wider mr-1" style={{ color: 'var(--text-muted)' }}>State</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider mr-1" style={{ color: 'var(--text-muted)' }}>View</p>
           {(['current', 'target'] as State[]).map(s => (
             <button
               key={s}
@@ -1096,8 +1175,11 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
                     border: `1px solid ${s === 'current' ? 'var(--verified)' : 'var(--accent)'}`,
                   }
                 : { background: 'var(--bg)', color: 'var(--text-muted)', border: '1px solid color-mix(in srgb, var(--text) 8%, transparent)' }}
+              title={s === 'current'
+                ? 'Current — the org as it stands today (filled + departing seats)'
+                : 'Planned — the org you\u2019re building toward, including roles you\u2019re hiring for'}
             >
-              {s === 'current' ? '● Current' : '○ Target'}
+              {s === 'current' ? '● Current' : '○ Planned'}
             </button>
           ))}
 
@@ -1645,6 +1727,10 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
               : null
             const bucket = calibration ? calibrationBucket(seat) : 'neutral'
             const calClass = bucket !== 'neutral' ? ` cal-${bucket}` : ''
+            // Planned/vacant = a "target" role you're hiring for. Highlight it
+            // (unless calibration owns the body colour).
+            const isOpenRole = seat.status === 'planned' || seat.status === 'vacant'
+            const plannedClass = !calClass && isOpenRole ? ' seat-planned' : ''
             // Calibration colour wins the card body; verification falls back to
             // the 3px left edge bar (rendered below) when calibrated.
             const vClass = !calClass && vStatus === 'verified' ? ' v-verified'
@@ -1654,7 +1740,7 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
               <div
                 key={n.id}
                 data-node-id={n.id}
-                className={`spine-node${vClass}${calClass}${isDragging ? ' dragging' : ''}${isDropHot ? ' drop-hot' : ''}${isSuggested ? ' suggest-hot' : ''}${isMoveSource || isStagedSeat ? ' move-source' : ''}`}
+                className={`spine-node${vClass}${calClass}${plannedClass}${isDragging ? ' dragging' : ''}${isDropHot ? ' drop-hot' : ''}${isSuggested ? ' suggest-hot' : ''}${isMoveSource || isStagedSeat ? ' move-source' : ''}`}
                 style={{ left: pos.x, top: pos.y, width: n.w, minHeight: n.h, ...(isDragging ? { transition: 'none' } : null) }}
                 title={`${seat.title}${team ? ` · ${team.name}` : ''}\nClick for details · drag onto another branch to reassign${vStatus ? `\n${VERIFY_LABEL[vStatus]}` : ''}`}
               >
@@ -1670,6 +1756,11 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
                   </p>
                 </div>
                 <div className="flex items-center gap-1 mt-1.5 flex-wrap">
+                  {isOpenRole && (
+                    <span className="spine-chip" style={{ background: 'color-mix(in srgb, var(--accent) 18%, transparent)', color: 'var(--accent)' }}>
+                      {seat.status === 'planned' ? '✦ Hiring' : '○ Open'}
+                    </span>
+                  )}
                   {team && (
                     <span className="spine-chip" style={{ background: 'color-mix(in srgb, var(--accent2) 13%, transparent)', color: 'var(--accent2)' }}>
                       {team.name}
@@ -1741,6 +1832,11 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
               border: '1.5px solid transparent',
               boxShadow: '0 24px 70px rgba(0,0,0,0.7)',
             }}
+            // The banner lives INSIDE the pannable map, which captures pointer
+            // events on pointerdown. Without this stop, pressing Confirm/Undo
+            // started a pan gesture and the click never registered — the
+            // founder-reported "audit trail + Undo buttons don't work" bug.
+            onPointerDown={e => e.stopPropagation()}
           >
             <p className="text-[11px] font-extrabold uppercase tracking-wider" style={{ color: 'var(--warn)' }}>
               {shapeChanged ? '⚠ Structure change detected' : 'Confirm move'}
@@ -1785,6 +1881,40 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
           </div>
         )}
 
+        {/* ── Post-commit Undo toast ──────────────────────────────────────── */}
+        {lastMove && !staged && !pendingMove && (
+          <div
+            className="absolute bottom-5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3 rounded-full pl-4 pr-2 py-2"
+            style={{
+              background: 'color-mix(in srgb, var(--surface) 96%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--accent) 35%, transparent)',
+              boxShadow: '0 16px 50px rgba(0,0,0,0.6)',
+            }}
+            onPointerDown={e => e.stopPropagation()}
+          >
+            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+              Moved <strong style={{ color: 'var(--text)' }}>{lastMove.personName || lastMove.seatTitle}</strong> to{' '}
+              <strong style={{ color: 'var(--accent)' }}>{lastMove.toTeamName}</strong> · logged
+            </span>
+            <button
+              onClick={undoLastMove}
+              disabled={busy}
+              className="text-xs font-bold px-3 py-1.5 rounded-full disabled:opacity-40"
+              style={{ background: 'color-mix(in srgb, var(--accent) 14%, transparent)', color: 'var(--accent)', border: '1px solid color-mix(in srgb, var(--accent) 45%, transparent)' }}
+            >
+              {busy ? 'Undoing…' : '↶ Undo'}
+            </button>
+            <button
+              onClick={() => { setLastMove(null); if (undoTimerRef.current) clearTimeout(undoTimerRef.current) }}
+              className="text-xs font-bold w-6 h-6 rounded-full"
+              style={{ color: 'var(--text-muted)' }}
+              title="Dismiss"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* ── Slide-over: person / seat detail (the hub) ──────────────────── */}
         {selectedSeat && (() => {
           const person = selectedSeat.person_id ? personById[selectedSeat.person_id] : null
@@ -1794,6 +1924,7 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
             ? (selectedSeat.verification_status || 'self_reported')
             : null
           const hasSkills = (selectedSeat.primary_activities || []).length > 0
+          const seatBucket = calibrationBucket(selectedSeat)
           return (
             <div
               className="absolute top-0 right-0 bottom-0 z-30 w-[300px] max-w-[85%] p-4 overflow-y-auto"
@@ -1843,8 +1974,50 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
                 )}
               </div>
 
+              {/* Calibration read-out — explains the crimson/gold flag in plain
+                  language and points to the next action (the founder asked what
+                  "High AI-exposure, no timeline" means + what to do about it). */}
+              {seatBucket === 'crimson' && (
+                <div className="mt-3 rounded-xl p-3" style={{ background: 'color-mix(in srgb, var(--punch) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--punch) 30%, transparent)' }}>
+                  <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--punch)' }}>
+                    ⚠ High AI-exposure · no transition plan
+                  </p>
+                  <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                    This role is highly automatable {typeof selectedSeat.ai_exposure_score === 'number' ? `(${selectedSeat.ai_exposure_score}% exposure)` : ''} and there&rsquo;s no active reskill or redeployment plan for the person in it. Act early: start a reskill/redeploy playbook, or AI-proof the role so the person grows into higher-value work.
+                  </p>
+                </div>
+              )}
+              {seatBucket === 'gold' && (
+                <div className="mt-3 rounded-xl p-3" style={{ background: 'color-mix(in srgb, var(--warn) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--warn) 30%, transparent)' }}>
+                  <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--warn)' }}>
+                    ★ Top performer · overloaded
+                  </p>
+                  <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                    Strong output but absorbing more than full capacity — a retention risk. Redistribute load before they burn out.
+                  </p>
+                </div>
+              )}
+
               {/* The hub — everything connects from here. */}
               <div className="mt-4 space-y-1.5">
+                {seatBucket === 'crimson' && person && (
+                  <Link
+                    href={`/company/people/${person.id}/lifecycle`}
+                    className="block text-xs font-bold px-3 py-2 rounded-lg"
+                    style={{ background: 'color-mix(in srgb, var(--punch) 12%, transparent)', color: 'var(--punch)', border: '1px solid color-mix(in srgb, var(--punch) 35%, transparent)' }}
+                  >
+                    Start a reskill / redeploy plan →
+                  </Link>
+                )}
+                {seatBucket === 'crimson' && (
+                  <Link
+                    href="/role/ai-proof"
+                    className="block text-xs font-bold px-3 py-2 rounded-lg"
+                    style={{ background: 'color-mix(in srgb, var(--accent) 12%, transparent)', color: 'var(--accent)', border: '1px solid color-mix(in srgb, var(--accent) 35%, transparent)' }}
+                  >
+                    AI-proof this role →
+                  </Link>
+                )}
                 {person && (
                   <>
                     <Link
