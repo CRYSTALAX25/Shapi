@@ -41,6 +41,12 @@ export type ReassignContext = {
   fromTeamName: string
   toTeamId: string
   toTeamName: string
+  // Reporting-line move (person-to-person). When changeKind is 'reports_to'
+  // the team is unchanged and the modal shows the new manager instead.
+  changeKind?: 'team' | 'reports_to'
+  fromReportsTo?: string | null
+  toManagerSeatId?: string | null
+  managerName?: string | null
 }
 
 type Props = {
@@ -133,9 +139,18 @@ export default function ReassignModal({ ctx, onCancel, onConfirm, defaultDecisio
           Move &ldquo;{ctx.seatTitle}&rdquo;
         </h2>
         <p className="text-xs mb-4" style={{ color: 'rgba(255,255,255,0.6)' }}>
-          <span style={{ color: 'rgba(255,255,255,0.5)' }}>{ctx.fromTeamName}</span>
-          <span style={{ color: ACCENT }}> &rarr; </span>
-          <span style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 700 }}>{ctx.toTeamName}</span>
+          {ctx.changeKind === 'reports_to' && ctx.managerName ? (
+            <>
+              now reports to{' '}
+              <span style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 700 }}>{ctx.managerName}</span>
+            </>
+          ) : (
+            <>
+              <span style={{ color: 'rgba(255,255,255,0.5)' }}>{ctx.fromTeamName}</span>
+              <span style={{ color: ACCENT }}> &rarr; </span>
+              <span style={{ color: 'rgba(255,255,255,0.9)', fontWeight: 700 }}>{ctx.toTeamName}</span>
+            </>
+          )}
         </p>
 
         {/* Decision type */}

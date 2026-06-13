@@ -80,6 +80,11 @@ type Seat = {
   seniority: string | null
   person_id: string | null
   status: string
+  // Explicit person-to-person reporting edge (supabase/org_restructure.sql).
+  // When set, the reporting line points at this seat instead of the team head.
+  // Absent/null → falls back to the team-anchor model. Probed safely so the
+  // chart still renders before the migration runs.
+  reports_to?: string | null
   // Calibration Lens inputs (nullable — overlay degrades to neutral).
   okr_completion_pct?: number | null
   absorbed_capacity_pct?: number | null
@@ -289,6 +294,7 @@ function buildGraph(
   teams: Team[],
   visibleSeats: Seat[],
   effTeamId: (s: Seat) => string,
+  effReportsTo: (s: Seat) => string | null,
   withDividers: boolean
 ): Graph {
   const nodes: GNode[] = []
@@ -354,6 +360,29 @@ function buildGraph(
     // Top-level teams: no parent, or parent outside this location's team set.
     const topTeams = locTeams.filter(t => !t.parent_team_id || !locTeamIds.has(t.parent_team_id))
     root.children = topTeams.map(t => buildTeam(t, root))
+
+    // reports_to override — re-parent a seat under an explicit manager seat
+    // (person-to-person reporting) within this location. The team-anchor model
+    // stays the fallback when reports_to is null. Cycle-guarded; cross-location
+    // edges are ignored (manager must render in the same location subtree).
+    for (const n of nodes) {
+      if (n.kind !== 'seat' || n.locationId !== loc.id || !n.seat) continue
+      const mgrId = effReportsTo(n.seat)
+      if (!mgrId) continue
+      const mgr = byId[`seat:${mgrId}`]
+      if (!mgr || mgr === n || mgr.locationId !== loc.id) continue
+      // Skip if mgr is a descendant of n (would create a cycle).
+      let p: GNode | null = mgr
+      let cyclic = false
+      while (p) { if (p === n) { cyclic = true; break } p = p.parentId ? byId[p.parentId] || null : null }
+      if (cyclic) continue
+      if (n.parentId) {
+        const op = byId[n.parentId]
+        if (op) op.children = op.children.filter(c => c !== n)
+      }
+      n.parentId = mgr.id
+      mgr.children.push(n)
+    }
 
     // Tidy-tree: subtree widths bottom-up, children centered under parents.
     function shift(n: GNode, dx: number) {
@@ -424,10 +453,14 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
   const pinchRef = useRef<{ d0: number; scale0: number; mid0: { x: number; y: number }; pan0: { x: number; y: number } } | null>(null)
   const [draggingSeatId, setDraggingSeatId] = useState<string | null>(null)
   const [dragPos, setDragPos] = useState<{ nodeId: string; x: number; y: number } | null>(null)
-  const [dropCandidate, setDropCandidate] = useState<{ nodeId: string; teamId: string } | null>(null)
+  const [dropCandidate, setDropCandidate] = useState<{ nodeId: string; teamId: string; managerSeatId: string | null } | null>(null)
   const dropCandidateRef = useRef<typeof dropCandidate>(null)
   const [staged, setStaged] = useState<{
     seat: Seat; fromTeam: Team; toTeam: Team
+    // changeKind 'reports_to' = the seat now reports to a specific person (team
+    // unchanged); 'team' = the seat joins another team (reports to its head).
+    changeKind: 'team' | 'reports_to'
+    toManagerSeatId: string | null; managerName: string | null
     shapeBefore: OrgShape; shapeAfter: OrgShape; crossLocation: boolean
   } | null>(null)
   const [pendingMove, setPendingMove] = useState<ReassignContext | null>(null)
@@ -439,6 +472,8 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
   const [lastMove, setLastMove] = useState<{
     seatId: string; seatTitle: string; personName: string | null
     fromTeamId: string; fromTeamName: string; toTeamId: string; toTeamName: string
+    fromReportsTo: string | null; toManagerSeatId: string | null
+    changeKind: 'team' | 'reports_to'; managerName: string | null
     personId: string | null
   } | null>(null)
   const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -484,6 +519,15 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
   /* — org shape (structure pill) — */
   const orgShape = useMemo(() => classifyOrgShape(teams, seats), [teams, seats])
 
+  // Is the reports_to column live? page.tsx uses select('*'), so the key is
+  // present on every row only after supabase/org_restructure.sql runs.
+  // Pre-migration we disable person-to-person reporting so team moves keep
+  // working exactly as before (and we never PATCH a column that doesn't exist).
+  const reportsToEnabled = useMemo(
+    () => seats.length > 0 && Object.prototype.hasOwnProperty.call(seats[0] as object, 'reports_to'),
+    [seats]
+  )
+
   /* — which locations the canvas renders — */
   const renderedLocations = useMemo(() => {
     if (compare) {
@@ -500,9 +544,16 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
     (s: Seat) => (staged && staged.seat.id === s.id ? staged.toTeam.id : s.team_id),
     [staged]
   )
+  // Staged-aware reporting edge: while a move is staged, preview the new
+  // reports_to; otherwise read the seat's stored reports_to (undefined before
+  // the migration → null → team-anchor fallback).
+  const effReportsTo = useCallback(
+    (s: Seat): string | null => (staged && staged.seat.id === s.id ? staged.toManagerSeatId : (s.reports_to ?? null)),
+    [staged]
+  )
   const graph = useMemo(
-    () => buildGraph(renderedLocations, teams, visibleSeats, effTeamId, compare),
-    [renderedLocations, teams, visibleSeats, effTeamId, compare]
+    () => buildGraph(renderedLocations, teams, visibleSeats, effTeamId, effReportsTo, compare),
+    [renderedLocations, teams, visibleSeats, effTeamId, effReportsTo, compare]
   )
   const graphRef = useRef(graph)
   graphRef.current = graph
@@ -557,15 +608,39 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
   }, [])
 
   /* ── stage a move (drag-drop OR tap-select → tap-destination) ─────────── */
-  function stageMove(seat: Seat, toTeamId: string) {
+  // target.managerSeatId set → person-to-person "reports to" move (team kept).
+  // Otherwise a team move (reports to the new team head; clears reports_to).
+  function stageMove(seat: Seat, target: { teamId: string; managerSeatId: string | null }) {
     if (staged || busy) return
     const fromTeam = teamById[seat.team_id]
-    const toTeam = teamById[toTeamId]
-    if (!fromTeam || !toTeam || fromTeam.id === toTeam.id) return
+    if (!fromTeam) return
     const before = classifyOrgShape(teams, seats)
-    const after = classifyOrgShape(teams, seats.map(s => (s.id === seat.id ? { ...s, team_id: toTeamId } : s)))
+
+    if (target.managerSeatId) {
+      if (target.managerSeatId === seat.id) return
+      if ((seat.reports_to ?? null) === target.managerSeatId) return
+      const mgrSeat = seats.find(s => s.id === target.managerSeatId)
+      if (!mgrSeat) return
+      const managerName = mgrSeat.person_id
+        ? (personById[mgrSeat.person_id]?.preferred_name || personById[mgrSeat.person_id]?.full_name || mgrSeat.title)
+        : mgrSeat.title
+      setStaged({
+        seat, fromTeam, toTeam: fromTeam,
+        changeKind: 'reports_to',
+        toManagerSeatId: target.managerSeatId, managerName,
+        shapeBefore: before, shapeAfter: before, crossLocation: false,
+      })
+      setSelectedSeatId(null)
+      return
+    }
+
+    const toTeam = teamById[target.teamId]
+    if (!toTeam || fromTeam.id === toTeam.id) return
+    const after = classifyOrgShape(teams, seats.map(s => (s.id === seat.id ? { ...s, team_id: target.teamId } : s)))
     setStaged({
       seat, fromTeam, toTeam,
+      changeKind: 'team',
+      toManagerSeatId: null, managerName: null,
       shapeBefore: before, shapeAfter: after,
       crossLocation: fromTeam.location_id !== toTeam.location_id,
     })
@@ -578,8 +653,12 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
     if (moveModeSeatId) {
       const seat = seats.find(s => s.id === moveModeSeatId)
       if (node.seat?.id === moveModeSeatId) { setMoveModeSeatId(null); return } // tap self = cancel
-      if (seat && node.teamId && node.teamId !== seat.team_id) {
-        stageMove(seat, node.teamId)
+      if (reportsToEnabled && seat && node.seat && node.seat.id !== seat.id) {
+        // Tap a person = report to that person.
+        stageMove(seat, { teamId: node.teamId as string, managerSeatId: node.seat.id })
+        setMoveModeSeatId(null)
+      } else if (seat && node.teamId && node.teamId !== seat.team_id) {
+        stageMove(seat, { teamId: node.teamId, managerSeatId: null })
         setMoveModeSeatId(null)
       }
       return
@@ -701,8 +780,14 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
       // than to its own home (so a deliberate long drag still lands) — but not
       // so loose that a small nudge snaps onto an adjacent team by mistake.
       const DROP_RADIUS = 230
+      // If the nearest target is a seat (a person), this becomes a "reports to
+      // that person" move; if it's a team placeholder, it's a team join.
       const next = best && (bestD < DROP_RADIUS || bestD < homeD * 0.7)
-        ? { nodeId: best.id, teamId: best.teamId as string }
+        ? {
+            nodeId: best.id,
+            teamId: best.teamId as string,
+            managerSeatId: reportsToEnabled && best.kind === 'seat' && best.seat && best.seat.id !== node.seat.id ? best.seat.id : null,
+          }
         : null
       setDropCandidate(next)
       dropCandidateRef.current = next
@@ -723,7 +808,7 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
     setDragPos(null)         // card animates back / into the new branch
     setDropCandidate(null)
     dropCandidateRef.current = null
-    if (node?.seat && cand) stageMove(node.seat, cand.teamId)
+    if (node?.seat && cand) stageMove(node.seat, { teamId: cand.teamId, managerSeatId: cand.managerSeatId })
   }
 
   /* ── commit (justification modal → PATCH seat + POST decision) ────────── */
@@ -736,7 +821,12 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
       const moveRes = await fetch('/api/company/spine/seat', {
         method: 'PATCH',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ id: ctx.seatId, team_id: ctx.toTeamId }),
+        // team_id is unchanged on a reports_to move; reports_to is cleared on a
+        // team move so the seat reports to its new team head. reports_to is only
+        // sent once the migration is live (else the column doesn't exist).
+        body: JSON.stringify(reportsToEnabled
+          ? { id: ctx.seatId, team_id: ctx.toTeamId, reports_to: ctx.toManagerSeatId ?? null }
+          : { id: ctx.seatId, team_id: ctx.toTeamId }),
       })
       if (!moveRes.ok) {
         const d = await moveRes.json().catch(() => ({}))
@@ -753,10 +843,14 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
           impacted_team_id: ctx.toTeamId,
           state_snapshot: {
             seat_title: ctx.seatTitle,
+            change_kind: ctx.changeKind || 'team',
             from_team_id: ctx.fromTeamId,
             from_team_name: ctx.fromTeamName,
             to_team_id: ctx.toTeamId,
             to_team_name: ctx.toTeamName,
+            from_reports_to: ctx.fromReportsTo ?? null,
+            to_reports_to: ctx.toManagerSeatId ?? null,
+            reports_to_name: ctx.managerName ?? null,
             person_id: ctx.personId,
             org_shape_before: staged?.shapeBefore,
             org_shape_after: staged?.shapeAfter,
@@ -783,6 +877,8 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
         seatId: ctx.seatId, seatTitle: ctx.seatTitle, personName,
         fromTeamId: ctx.fromTeamId, fromTeamName: ctx.fromTeamName,
         toTeamId: ctx.toTeamId, toTeamName: ctx.toTeamName, personId: ctx.personId,
+        fromReportsTo: ctx.fromReportsTo ?? null, toManagerSeatId: ctx.toManagerSeatId ?? null,
+        changeKind: ctx.changeKind || 'team', managerName: ctx.managerName ?? null,
       })
       if (undoTimerRef.current) clearTimeout(undoTimerRef.current)
       undoTimerRef.current = setTimeout(() => setLastMove(null), 10000)
@@ -801,18 +897,23 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
       const moveRes = await fetch('/api/company/spine/seat', {
         method: 'PATCH',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ id: lastMove.seatId, team_id: lastMove.fromTeamId }),
+        body: JSON.stringify(reportsToEnabled
+          ? { id: lastMove.seatId, team_id: lastMove.fromTeamId, reports_to: lastMove.fromReportsTo }
+          : { id: lastMove.seatId, team_id: lastMove.fromTeamId }),
       })
       if (!moveRes.ok) {
         const d = await moveRes.json().catch(() => ({}))
         throw new Error(d.error || d.message || 'Undo failed.')
       }
+      const undoReason = lastMove.changeKind === 'reports_to'
+        ? `Reverted reporting change for ${lastMove.seatTitle}${lastMove.managerName ? ` (no longer reports to ${lastMove.managerName})` : ''}.`
+        : `Reverted reassignment: moved ${lastMove.seatTitle} back from ${lastMove.toTeamName} to ${lastMove.fromTeamName}.`
       await fetch('/api/company/spine/decision', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           decision_type: 'restructure',
-          justification: `Reverted reassignment: moved ${lastMove.seatTitle} back from ${lastMove.toTeamName} to ${lastMove.fromTeamName}.`,
+          justification: undoReason,
           impacted_seat_id: lastMove.seatId,
           impacted_person_id: lastMove.personId,
           impacted_team_id: lastMove.fromTeamId,
@@ -841,7 +942,7 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
   useEffect(() => {
     if (!staged || busy) return
     const real = seats.find(s => s.id === staged.seat.id)
-    if (real && real.team_id === staged.toTeam.id) setStaged(null)
+    if (real && real.team_id === staged.toTeam.id && (real.reports_to ?? null) === (staged.toManagerSeatId ?? null)) setStaged(null)
   }, [seats, staged, busy])
 
   /* ── verify panel actions ─────────────────────────────────────────────── */
@@ -1030,6 +1131,10 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
   /* — effective parent node (live re-route while dragging) — */
   function effectiveParent(n: GNode): GNode | null {
     if (dragPos && dragPos.nodeId === n.id && dropCandidate) {
+      if (dropCandidate.managerSeatId) {
+        const mgr = graph.byId[`seat:${dropCandidate.managerSeatId}`]
+        if (mgr && mgr.id !== n.id) return mgr
+      }
       const anchorId = graph.anchorByTeam[dropCandidate.teamId]
       const anchor = anchorId ? graph.byId[anchorId] : null
       if (anchor && anchor.id !== n.id) return anchor
@@ -1159,151 +1264,168 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
         }
       `}</style>
 
-      {/* ── Toolbar ─────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="text-[10px] font-bold uppercase tracking-wider mr-1" style={{ color: 'var(--text-muted)' }}>View</p>
-          {(['current', 'target'] as State[]).map(s => (
-            <button
-              key={s}
-              onClick={() => setState(s)}
-              className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors capitalize"
-              style={state === s
-                ? {
-                    background: s === 'current' ? 'color-mix(in srgb, var(--verified) 20%, transparent)' : 'color-mix(in srgb, var(--accent) 20%, transparent)',
-                    color: s === 'current' ? 'var(--verified)' : 'var(--accent)',
-                    border: `1px solid ${s === 'current' ? 'var(--verified)' : 'var(--accent)'}`,
-                  }
-                : { background: 'var(--bg)', color: 'var(--text-muted)', border: '1px solid color-mix(in srgb, var(--text) 8%, transparent)' }}
-              title={s === 'current'
-                ? 'Current — the org as it stands today (filled + departing seats)'
-                : 'Planned — the org you\u2019re building toward, including roles you\u2019re hiring for'}
-            >
-              {s === 'current' ? '● Current' : '○ Planned'}
-            </button>
-          ))}
+      {/* ── Toolbar (single cohesive control bar) ───────────────────────── */}
+      <div
+        className="mb-3 rounded-2xl overflow-hidden"
+        style={{ background: 'var(--bg)', border: '1px solid color-mix(in srgb, var(--text) 9%, transparent)' }}
+      >
+        {/* Row 1 — view modes (left) · org status + actions (right) */}
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-3 py-2.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>View</span>
 
-          <span className="mx-1 h-4 w-px" style={{ background: 'color-mix(in srgb, var(--text) 10%, transparent)' }} />
-          <button
-            onClick={() => setCalibration(v => !v)}
-            className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
-            style={calibration
-              ? { background: 'color-mix(in srgb, var(--warn) 18%, transparent)', color: 'var(--warn)', border: '1px solid var(--warn)' }
-              : { background: 'var(--bg)', color: 'var(--text-muted)', border: '1px solid color-mix(in srgb, var(--text) 8%, transparent)' }}
-            title="Overlay OKR + capacity + AI-exposure heatmap on seat cards"
-          >
-            {calibration ? '◉ Calibration' : '○ Calibration'}
-          </button>
+            {/* Segmented control — Current vs Planned (mutually exclusive state) */}
+            <div className="inline-flex items-center rounded-full p-0.5" style={{ background: 'var(--surface)', border: '1px solid color-mix(in srgb, var(--text) 8%, transparent)' }}>
+              {(['current', 'target'] as State[]).map(s => {
+                const on = state === s
+                const isCurrent = s === 'current'
+                const tint = isCurrent ? 'var(--verified)' : 'var(--accent)'
+                return (
+                  <button
+                    key={s}
+                    onClick={() => setState(s)}
+                    className="text-xs font-bold px-3 py-1 rounded-full transition-colors"
+                    style={on
+                      ? { background: `color-mix(in srgb, ${tint} 20%, transparent)`, color: tint }
+                      : { background: 'transparent', color: 'var(--text-muted)' }}
+                    title={isCurrent
+                      ? 'Current — the org as it stands today (filled + departing seats)'
+                      : 'Planned — the org you\u2019re building toward, including roles you\u2019re hiring for'}
+                  >
+                    {isCurrent ? 'Current' : 'Planned'}
+                  </button>
+                )
+              })}
+            </div>
 
-          {locations.length >= 2 && (
-            <button
-              onClick={() => { setCompare(v => !v); setTab('all') }}
-              className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
-              style={compare
-                ? { background: 'color-mix(in srgb, var(--accent2) 20%, transparent)', color: 'var(--accent2)', border: '1px solid var(--accent2)' }
-                : { background: 'var(--bg)', color: 'var(--text-muted)', border: '1px solid color-mix(in srgb, var(--text) 8%, transparent)' }}
-              title="Compare two locations side by side — drag people between them to plan relocations"
+            {/* Overlay + mode toggles — flat chips, fill only when active */}
+            <div className="inline-flex items-center gap-1">
+              <button
+                onClick={() => setCalibration(v => !v)}
+                className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
+                style={calibration
+                  ? { background: 'color-mix(in srgb, var(--warn) 18%, transparent)', color: 'var(--warn)' }
+                  : { background: 'transparent', color: 'var(--text-muted)' }}
+                title="Overlay OKR + capacity + AI-exposure heatmap on seat cards"
+              >
+                {calibration ? '◉' : '○'} Calibration
+              </button>
+              {locations.length >= 2 && (
+                <button
+                  onClick={() => { setCompare(v => !v); setTab('all') }}
+                  className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
+                  style={compare
+                    ? { background: 'color-mix(in srgb, var(--accent2) 20%, transparent)', color: 'var(--accent2)' }
+                    : { background: 'transparent', color: 'var(--text-muted)' }}
+                  title="Compare two locations side by side — drag people between them to plan relocations"
+                >
+                  ⇄ Compare
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Structure chip — live shape classification + staged transition. */}
+            <span
+              className="text-[11px] font-bold px-3 py-1.5 rounded-full"
+              style={shapeChanged
+                ? { background: 'color-mix(in srgb, var(--warn) 12%, transparent)', color: 'var(--warn)' }
+                : { background: 'color-mix(in srgb, var(--accent) 10%, transparent)', color: 'var(--accent)' }}
+              title="Detected from your occupied team cells (function × location). Drag-drop moves re-detect live."
             >
-              {compare ? '◉ Compare' : '⇄ Compare'}
-            </button>
-          )}
+              {staged && shapeChanged
+                ? `Structure: ${staged.shapeBefore} → ${staged.shapeAfter}?`
+                : `Structure: ${orgShape}`}
+            </span>
+
+            {verificationEnabled && (
+              <div
+                className="inline-flex items-center rounded-full p-0.5"
+                style={{ background: 'color-mix(in srgb, var(--verified) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--verified) 28%, transparent)' }}
+              >
+                <button
+                  onClick={openVerifyPanel}
+                  className="text-xs font-bold px-3 py-1 rounded-full transition-colors"
+                  style={{ background: 'transparent', color: 'var(--verified)' }}
+                  title={`${verifiedCount} of ${occupiedSeats.length} occupied seats confirmed by the employee themselves — click for the full status panel`}
+                >
+                  Verified {verifiedPct}% ▾
+                </button>
+                <button
+                  onClick={() => { setVerifyPanelOpen(true); sendVerify() }}
+                  disabled={verifyBusy || occupiedSeats.length === 0}
+                  className="text-xs font-bold px-3 py-1 rounded-full transition-colors disabled:opacity-40"
+                  style={{ background: 'var(--verified)', color: 'var(--bg)' }}
+                  title="Send confirmations to everyone who needs one — seats already verified or already holding a live link are skipped automatically"
+                >
+                  {verifyBusy ? 'Sending…' : 'Verify org →'}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Structure pill — live shape classification + staged transition. */}
-          <span
-            className="text-[11px] font-bold px-3 py-1.5 rounded-full"
-            style={shapeChanged
-              ? { background: 'color-mix(in srgb, var(--warn) 12%, transparent)', color: 'var(--warn)', border: '1px solid color-mix(in srgb, var(--warn) 40%, transparent)' }
-              : { background: 'color-mix(in srgb, var(--accent) 10%, transparent)', color: 'var(--accent)', border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)' }}
-            title="Detected from your occupied team cells (function × location). Drag-drop moves re-detect live."
-          >
-            {staged && shapeChanged
-              ? `Structure: ${staged.shapeBefore} → ${staged.shapeAfter}?`
-              : `Structure: ${orgShape}`}
-          </span>
-
-          {verificationEnabled && (
+        {/* Row 2 — location filter / compare pickers */}
+        <div
+          className="flex flex-wrap items-center gap-1.5 px-3 py-2"
+          style={{ borderTop: '1px solid color-mix(in srgb, var(--text) 7%, transparent)' }}
+        >
+          {!compare ? (
             <>
+              <span className="text-[10px] font-bold uppercase tracking-wider mr-0.5" style={{ color: 'var(--text-muted)' }}>Location</span>
               <button
-                onClick={openVerifyPanel}
-                className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
-                style={{
-                  background: 'color-mix(in srgb, var(--verified) 10%, transparent)',
-                  color: 'var(--verified)',
-                  border: '1px solid color-mix(in srgb, var(--verified) 35%, transparent)',
-                }}
-                title={`${verifiedCount} of ${occupiedSeats.length} occupied seats confirmed by the employee themselves — click for the full status panel`}
+                onClick={() => setTab('all')}
+                className="text-xs font-bold px-3 py-1 rounded-full transition-colors"
+                style={tab === 'all'
+                  ? { background: 'color-mix(in srgb, var(--accent) 22%, transparent)', color: 'var(--accent)' }
+                  : { background: 'transparent', color: 'var(--text-muted)' }}
               >
-                Org verified: {verifiedPct}% ▾
+                All locations
               </button>
-              <button
-                onClick={() => { setVerifyPanelOpen(true); sendVerify() }}
-                disabled={verifyBusy || occupiedSeats.length === 0}
-                className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors disabled:opacity-40"
-                style={{ background: 'var(--verified)', color: 'var(--bg)', border: '1px solid var(--verified)' }}
-                title="Send confirmations to everyone who needs one — seats already verified or already holding a live link are skipped automatically"
-              >
-                {verifyBusy ? 'Sending…' : 'Verify org →'}
-              </button>
+              {locations.map(loc => (
+                <button
+                  key={loc.id}
+                  onClick={() => setTab(loc.id)}
+                  className="text-xs font-bold px-3 py-1 rounded-full transition-colors"
+                  style={tab === loc.id
+                    ? { background: 'color-mix(in srgb, var(--accent) 22%, transparent)', color: 'var(--accent)' }
+                    : { background: 'transparent', color: 'var(--text-muted)' }}
+                >
+                  {countryFlag(loc.country)} {loc.city || loc.name}
+                </button>
+              ))}
+            </>
+          ) : (
+            <>
+              <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--accent2)' }}>Comparing</span>
+              {[
+                { val: compareA, set: setCompareA },
+                { val: compareB, set: setCompareB },
+              ].map((side, i) => (
+                <span key={i} className="flex items-center gap-1.5">
+                  {i === 1 && <span className="text-xs" style={{ color: 'var(--text-muted)' }}>vs</span>}
+                  <select
+                    value={side.val || ''}
+                    onChange={e => side.set(e.target.value || null)}
+                    className="text-xs font-bold px-2 py-1.5 rounded-lg outline-none"
+                    style={{ background: 'var(--surface)', color: 'var(--text)', border: '1px solid color-mix(in srgb, var(--accent2) 40%, transparent)' }}
+                  >
+                    {locations.map(l => (
+                      <option key={l.id} value={l.id} style={{ background: 'var(--bg)' }}>
+                        {countryFlag(l.country)} {l.city || l.name}
+                      </option>
+                    ))}
+                  </select>
+                </span>
+              ))}
+              <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                Drag a person across the divider to plan a relocation — same justification + audit trail.
+              </span>
             </>
           )}
         </div>
       </div>
-
-      {/* ── Location tabs / compare pickers ─────────────────────────────── */}
-      {!compare ? (
-        <div className="flex flex-wrap items-center gap-1.5 mb-3">
-          <button
-            onClick={() => setTab('all')}
-            className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
-            style={tab === 'all'
-              ? { background: 'color-mix(in srgb, var(--accent) 25%, transparent)', color: 'var(--accent)', border: '1px solid var(--accent)' }
-              : { background: 'var(--bg)', color: 'var(--text-muted)', border: '1px solid color-mix(in srgb, var(--text) 8%, transparent)' }}
-          >
-            All locations
-          </button>
-          {locations.map(loc => (
-            <button
-              key={loc.id}
-              onClick={() => setTab(loc.id)}
-              className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
-              style={tab === loc.id
-                ? { background: 'color-mix(in srgb, var(--accent) 25%, transparent)', color: 'var(--accent)', border: '1px solid var(--accent)' }
-                : { background: 'var(--bg)', color: 'var(--text-muted)', border: '1px solid color-mix(in srgb, var(--text) 8%, transparent)' }}
-            >
-              {countryFlag(loc.country)} {loc.city || loc.name}
-            </button>
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-wrap items-center gap-2 mb-3">
-          <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--accent2)' }}>Comparing</p>
-          {[
-            { val: compareA, set: setCompareA },
-            { val: compareB, set: setCompareB },
-          ].map((side, i) => (
-            <span key={i} className="flex items-center gap-1.5">
-              {i === 1 && <span className="text-xs" style={{ color: 'var(--text-muted)' }}>vs</span>}
-              <select
-                value={side.val || ''}
-                onChange={e => side.set(e.target.value || null)}
-                className="text-xs font-bold px-2 py-1.5 rounded-lg outline-none"
-                style={{ background: 'var(--bg)', color: 'var(--text)', border: '1px solid color-mix(in srgb, var(--accent2) 40%, transparent)' }}
-              >
-                {locations.map(l => (
-                  <option key={l.id} value={l.id} style={{ background: 'var(--bg)' }}>
-                    {countryFlag(l.country)} {l.city || l.name}
-                  </option>
-                ))}
-              </select>
-            </span>
-          ))}
-          <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
-            Drag a person across the divider to plan a relocation — same justification + audit trail.
-          </span>
-        </div>
-      )}
 
       {/* ── Verify status panel — ONE honest panel ──────────────────────── */}
       {verifyPanelOpen && (
@@ -1672,7 +1794,8 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
             const pos = renderPos(n)
             const isDragging = n.id === draggingNodeId
             const isDropHot = dropCandidate?.nodeId === n.id ||
-              (dropCandidate && graph.anchorByTeam[dropCandidate.teamId] === n.id)
+              (dropCandidate?.managerSeatId ? `seat:${dropCandidate.managerSeatId}` === n.id : false) ||
+              (dropCandidate && !dropCandidate.managerSeatId && graph.anchorByTeam[dropCandidate.teamId] === n.id)
             const isSuggested = !!n.teamId && highlightedTeamIds.has(n.teamId)
             const isMoveSource = !!n.seat && n.seat.id === moveModeSeatId
             const isStagedSeat = n.id === stagedNodeId
@@ -1845,10 +1968,16 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
               <strong style={{ color: 'var(--accent)' }}>
                 {staged.seat.person_id ? (personById[staged.seat.person_id]?.preferred_name || personById[staged.seat.person_id]?.full_name || staged.seat.title) : staged.seat.title}
               </strong>{' '}
-              moves to <strong style={{ color: 'var(--accent)' }}>{staged.toTeam.name}</strong> (was {staged.fromTeam.name})
-              {staged.crossLocation && (
-                <> — a relocation to <strong style={{ color: 'var(--accent2)' }}>{locById[staged.toTeam.location_id]?.name || 'another location'}</strong></>
-              )}.
+              {staged.changeKind === 'reports_to' ? (
+                <>now reports to <strong style={{ color: 'var(--accent)' }}>{staged.managerName}</strong>.</>
+              ) : (
+                <>
+                  moves to <strong style={{ color: 'var(--accent)' }}>{staged.toTeam.name}</strong> (was {staged.fromTeam.name})
+                  {staged.crossLocation && (
+                    <> — a relocation to <strong style={{ color: 'var(--accent2)' }}>{locById[staged.toTeam.location_id]?.name || 'another location'}</strong></>
+                  )}.
+                </>
+              )}
               {shapeChanged && (
                 <><br />This shifts your org from <strong style={{ color: 'var(--warn)' }}>{staged.shapeBefore}</strong> toward{' '}
                 <strong style={{ color: 'var(--warn)' }}>{staged.shapeAfter}</strong> — confirm?</>
@@ -1864,6 +1993,10 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
                   fromTeamName: staged.fromTeam.name,
                   toTeamId: staged.toTeam.id,
                   toTeamName: staged.toTeam.name,
+                  changeKind: staged.changeKind,
+                  fromReportsTo: staged.seat.reports_to ?? null,
+                  toManagerSeatId: staged.toManagerSeatId,
+                  managerName: staged.managerName,
                 })}
                 className="text-xs font-bold px-4 py-2 rounded-full"
                 style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent2))', color: 'var(--bg)', border: 'none' }}

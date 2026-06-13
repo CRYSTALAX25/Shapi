@@ -651,31 +651,29 @@ export function SeatsSection({ seats, teams, persons }: { seats: Seat[]; teams: 
             const p = s.person_id ? personById[s.person_id] : null
             return (
               <li key={s.id} className="p-3 rounded-lg" style={{ background: '#060609' }}>
-                <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <div className="min-w-0">
-                    <div className="text-sm font-bold flex items-center gap-2 flex-wrap" style={HEADING_STYLE}>
-                      {s.title}
-                      <span className="text-[10px] px-2 py-0.5 rounded-full capitalize" style={{ background: `${ACCENT}22`, color: ACCENT }}>{s.status}</span>
-                      {s.seniority && <span className="text-[10px] px-2 py-0.5 rounded-full capitalize" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' }}>{s.seniority}</span>}
-                    </div>
-                    <div className="text-xs mt-0.5" style={BODY_STYLE}>
-                      {t?.name || '—'}{p ? ` · 👤 ${p.preferred_name || p.full_name}` : ' · vacant'}
-                    </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-bold flex items-center gap-2 flex-wrap" style={HEADING_STYLE}>
+                    {s.title}
+                    <span className="text-[10px] px-2 py-0.5 rounded-full capitalize" style={{ background: `${ACCENT}22`, color: ACCENT }}>{s.status}</span>
+                    {s.seniority && <span className="text-[10px] px-2 py-0.5 rounded-full capitalize" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' }}>{s.seniority}</span>}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <select
-                      value={s.person_id || ''}
-                      onChange={e => assignPerson(s.id, e.target.value || null)}
-                      className="text-xs px-2 py-1 rounded"
-                      style={INPUT_STYLE}
-                    >
-                      <option value="">(vacant)</option>
-                      {persons.filter(person => person.status === 'active').map(person => (
-                        <option key={person.id} value={person.id}>{person.preferred_name || person.full_name}</option>
-                      ))}
-                    </select>
-                    <button onClick={() => remove(s.id)} className="text-xs font-bold" style={{ color: '#FB7185' }}>Delete</button>
+                  <div className="text-xs mt-0.5" style={BODY_STYLE}>
+                    {t?.name || '—'}{p ? ` · 👤 ${p.preferred_name || p.full_name}` : ' · vacant'}
                   </div>
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <select
+                    value={s.person_id || ''}
+                    onChange={e => assignPerson(s.id, e.target.value || null)}
+                    className="text-xs px-2 py-1 rounded flex-1 min-w-0"
+                    style={INPUT_STYLE}
+                  >
+                    <option value="">(vacant)</option>
+                    {persons.filter(person => person.status === 'active').map(person => (
+                      <option key={person.id} value={person.id}>{person.preferred_name || person.full_name}</option>
+                    ))}
+                  </select>
+                  <button onClick={() => remove(s.id)} className="text-xs font-bold flex-shrink-0" style={{ color: '#FB7185' }}>Delete</button>
                 </div>
               </li>
             )
