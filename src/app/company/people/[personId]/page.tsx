@@ -3,6 +3,8 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import Accordion from '@/components/Accordion'
 import AttendanceLedger from './AttendanceLedger'
+import OkrEditor from './OkrEditor'
+import { normalizeOkrs } from '@/lib/okrTemplates'
 
 export const metadata = { title: 'HR Portal · Shapi' }
 
@@ -43,9 +45,11 @@ type Seat = {
   id: string
   title: string
   team_id: string
+  function: string | null
   okr_completion_pct: number | null
   absorbed_capacity_pct: number | null
   ai_exposure_score: number | null
+  current_okrs: unknown
 }
 
 type HrProfile = {
@@ -247,7 +251,7 @@ export default async function PersonHrPortalPage({
   if (hrProfile?.current_seat_id) {
     const { data: seatData } = await supabase
       .from('roles_seats')
-      .select('id, title, team_id, okr_completion_pct, absorbed_capacity_pct, ai_exposure_score')
+      .select('id, title, team_id, function, okr_completion_pct, absorbed_capacity_pct, ai_exposure_score, current_okrs')
       .eq('company_id', user.id)
       .eq('id', hrProfile.current_seat_id)
       .maybeSingle()
@@ -256,7 +260,7 @@ export default async function PersonHrPortalPage({
   if (!seat) {
     const { data: seatData } = await supabase
       .from('roles_seats')
-      .select('id, title, team_id, okr_completion_pct, absorbed_capacity_pct, ai_exposure_score')
+      .select('id, title, team_id, function, okr_completion_pct, absorbed_capacity_pct, ai_exposure_score, current_okrs')
       .eq('company_id', user.id)
       .eq('person_id', personId)
       .limit(1)
@@ -458,6 +462,19 @@ export default async function PersonHrPortalPage({
               </span>
             </div>
             <AttendanceLedger entries={attendanceForClient} personId={personId} />
+          </Tile>
+
+          {/* ── Tile · Objectives (OKRs) ─────────────────────────────────── */}
+          <Tile icon="🎯" title="Objectives (OKRs)" defaultOpen>
+            <p className="text-xs leading-relaxed mb-3" style={BODY_STYLE}>
+              Adopt a role-based template, paste your existing OKRs, or build from scratch. Key-result
+              progress rolls up to the seat&apos;s OKR-completion signal on the org chart&apos;s Calibration Lens.
+            </p>
+            <OkrEditor
+              seatId={seat?.id ?? null}
+              seatFunction={seat?.function ?? null}
+              initialOkrs={normalizeOkrs(seat?.current_okrs)}
+            />
           </Tile>
 
           {/* ── Tile 4 · Performance (Calibration metrics from roles_seats) ── */}
