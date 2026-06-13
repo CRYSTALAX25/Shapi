@@ -108,6 +108,22 @@ type Props = {
 
 type State = 'current' | 'target'
 
+// A single pending change in Draft mode. `from*` always captures the ORIGINAL
+// live value so Discard returns cleanly and Implement targets correctly.
+type DraftMove = {
+  seatId: string
+  seatTitle: string
+  personName: string | null
+  changeKind: 'team' | 'reports_to'
+  fromTeamId: string
+  fromTeamName: string
+  fromReportsTo: string | null
+  toTeamId: string
+  toTeamName: string
+  toManagerSeatId: string | null
+  managerName: string | null
+}
+
 const FUNCTION_LABEL: Record<string, string> = {
   engineering: 'Engineering',
   sales: 'Sales',
@@ -440,6 +456,14 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
   const [compareA, setCompareA] = useState<string | null>(null)
   const [compareB, setCompareB] = useState<string | null>(null)
 
+  /* — Draft mode (write-free sandbox) — rearrange freely, nothing touches the
+     live org or the audit trail until "Implement". Discard writes nothing. — */
+  const [draftMode, setDraftMode] = useState(false)
+  const [draftMoves, setDraftMoves] = useState<DraftMove[]>([])
+  const [draftImplementing, setDraftImplementing] = useState(false)
+  const [draftJustification, setDraftJustification] = useState('')
+  const [draftError, setDraftError] = useState<string | null>(null)
+
   /* — viewport (pan / zoom) — */
   const vpRef = useRef<HTMLDivElement>(null)
   const [view, setView] = useState({ scale: 0.9, x: 40, y: 28 })
@@ -539,17 +563,31 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
     return locations
   }, [compare, compareA, compareB, tab, locations, locById])
 
-  /* — staged team override + graph — */
-  const effTeamId = useCallback(
-    (s: Seat) => (staged && staged.seat.id === s.id ? staged.toTeam.id : s.team_id),
-    [staged]
+  /* — staged + draft team override + graph — */
+  const draftById = useMemo(
+    () => Object.fromEntries(draftMoves.map(m => [m.seatId, m])) as Record<string, DraftMove>,
+    [draftMoves]
   )
-  // Staged-aware reporting edge: while a move is staged, preview the new
-  // reports_to; otherwise read the seat's stored reports_to (undefined before
-  // the migration → null → team-anchor fallback).
+  const effTeamId = useCallback(
+    (s: Seat) => {
+      if (staged && staged.seat.id === s.id) return staged.toTeam.id
+      const d = draftById[s.id]
+      if (d) return d.toTeamId
+      return s.team_id
+    },
+    [staged, draftById]
+  )
+  // Staged/draft-aware reporting edge: preview the new reports_to while a move
+  // is staged or held in the draft; otherwise read the seat's stored reports_to
+  // (undefined before the migration → null → team-anchor fallback).
   const effReportsTo = useCallback(
-    (s: Seat): string | null => (staged && staged.seat.id === s.id ? staged.toManagerSeatId : (s.reports_to ?? null)),
-    [staged]
+    (s: Seat): string | null => {
+      if (staged && staged.seat.id === s.id) return staged.toManagerSeatId
+      const d = draftById[s.id]
+      if (d) return d.toManagerSeatId
+      return s.reports_to ?? null
+    },
+    [staged, draftById]
   )
   const graph = useMemo(
     () => buildGraph(renderedLocations, teams, visibleSeats, effTeamId, effReportsTo, compare),
@@ -647,18 +685,192 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
     setSelectedSeatId(null)
   }
 
+  /* ── Draft mode: write-free edits accumulated until Implement ──────────── */
+  // Add / update / clear a draft change. No modal, no DB write. `from*` keeps
+  // the ORIGINAL live value; dropping a seat back where it started removes its
+  // draft entry.
+  function addDraftMove(seat: Seat, target: { teamId: string; managerSeatId: string | null }) {
+    const fromTeam = teamById[seat.team_id]
+    if (!fromTeam) return
+    const personName = seat.person_id
+      ? (personById[seat.person_id]?.preferred_name || personById[seat.person_id]?.full_name || null)
+      : null
+    let entry: DraftMove | null = null
+
+    if (target.managerSeatId && target.managerSeatId !== seat.id) {
+      const mgrSeat = seats.find(s => s.id === target.managerSeatId)
+      if (mgrSeat && (seat.reports_to ?? null) !== target.managerSeatId) {
+        const managerName = mgrSeat.person_id
+          ? (personById[mgrSeat.person_id]?.preferred_name || personById[mgrSeat.person_id]?.full_name || mgrSeat.title)
+          : mgrSeat.title
+        entry = {
+          seatId: seat.id, seatTitle: seat.title, personName, changeKind: 'reports_to',
+          fromTeamId: fromTeam.id, fromTeamName: fromTeam.name, fromReportsTo: seat.reports_to ?? null,
+          toTeamId: fromTeam.id, toTeamName: fromTeam.name,
+          toManagerSeatId: target.managerSeatId, managerName,
+        }
+      }
+    } else if (!target.managerSeatId) {
+      const toTeam = teamById[target.teamId]
+      if (toTeam && toTeam.id !== seat.team_id) {
+        entry = {
+          seatId: seat.id, seatTitle: seat.title, personName, changeKind: 'team',
+          fromTeamId: fromTeam.id, fromTeamName: fromTeam.name, fromReportsTo: seat.reports_to ?? null,
+          toTeamId: toTeam.id, toTeamName: toTeam.name,
+          toManagerSeatId: null, managerName: null,
+        }
+      }
+    }
+
+    setDraftMoves(prev => {
+      const rest = prev.filter(m => m.seatId !== seat.id)
+      return entry ? [...rest, entry] : rest
+    })
+    setSelectedSeatId(null)
+  }
+
+  function removeDraftMove(seatId: string) {
+    setDraftMoves(prev => prev.filter(m => m.seatId !== seatId))
+  }
+
+  function discardDraft() {
+    setDraftMoves([])
+    setDraftImplementing(false)
+    setDraftJustification('')
+    setDraftError(null)
+    setDraftMode(false)
+  }
+
+  function toggleDraft() {
+    if (draftMode) {
+      if (draftMoves.length > 0 && !confirm('Discard your draft changes? Nothing has been saved to your live org.')) return
+      discardDraft()
+    } else {
+      setStaged(null)
+      setSelectedSeatId(null)
+      setMoveModeSeatId(null)
+      setDraftMode(true)
+    }
+  }
+
+  // Implement the whole draft: one PATCH + one audit decision per change, all
+  // sharing the typed justification. This is the ONLY point a draft writes.
+  async function implementDraft() {
+    if (draftMoves.length === 0 || busy) return
+    const justification = draftJustification.trim()
+    if (justification.length < 20) { setDraftError('Add a short reason (20+ characters) for this restructure.'); return }
+    setBusy(true); setDraftError(null)
+    try {
+      for (const m of draftMoves) {
+        const moveRes = await fetch('/api/company/spine/seat', {
+          method: 'PATCH',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(reportsToEnabled
+            ? { id: m.seatId, team_id: m.toTeamId, reports_to: m.toManagerSeatId ?? null }
+            : { id: m.seatId, team_id: m.toTeamId }),
+        })
+        if (!moveRes.ok) {
+          const d = await moveRes.json().catch(() => ({}))
+          throw new Error(d.error || d.message || `Failed to move ${m.seatTitle}. Some changes may not have applied.`)
+        }
+        await fetch('/api/company/spine/decision', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            decision_type: 'restructure',
+            justification,
+            impacted_seat_id: m.seatId,
+            impacted_person_id: seats.find(s => s.id === m.seatId)?.person_id ?? null,
+            impacted_team_id: m.toTeamId,
+            state_snapshot: {
+              batch: true, change_kind: m.changeKind, seat_title: m.seatTitle,
+              from_team_id: m.fromTeamId, from_team_name: m.fromTeamName,
+              to_team_id: m.toTeamId, to_team_name: m.toTeamName,
+              from_reports_to: m.fromReportsTo, to_reports_to: m.toManagerSeatId,
+              reports_to_name: m.managerName,
+            },
+          }),
+        })
+      }
+      setDraftMoves([])
+      setDraftImplementing(false)
+      setDraftJustification('')
+      setDraftMode(false)
+      router.refresh()
+    } catch (e) {
+      setDraftError(e instanceof Error ? e.message : 'Implement failed. Please retry.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // Build a reports_to draft entry (team kept). Returns null for no-ops.
+  function buildReportsToDraftMove(seat: Seat, managerSeatId: string): DraftMove | null {
+    const fromTeam = teamById[seat.team_id]
+    if (!fromTeam || managerSeatId === seat.id) return null
+    if ((seat.reports_to ?? null) === managerSeatId) return null
+    const mgrSeat = seats.find(s => s.id === managerSeatId)
+    if (!mgrSeat) return null
+    const personName = seat.person_id
+      ? (personById[seat.person_id]?.preferred_name || personById[seat.person_id]?.full_name || null)
+      : null
+    const managerName = mgrSeat.person_id
+      ? (personById[mgrSeat.person_id]?.preferred_name || personById[mgrSeat.person_id]?.full_name || mgrSeat.title)
+      : mgrSeat.title
+    return {
+      seatId: seat.id, seatTitle: seat.title, personName, changeKind: 'reports_to',
+      fromTeamId: fromTeam.id, fromTeamName: fromTeam.name, fromReportsTo: seat.reports_to ?? null,
+      toTeamId: fromTeam.id, toTeamName: fromTeam.name,
+      toManagerSeatId: managerSeatId, managerName,
+    }
+  }
+
+  // Reshape the draft into a template by rewriting reporting lines (teams kept).
+  // Operates per visible location (each renders as its own tree). 'current'
+  // clears the draft back to the live org.
+  function applyTemplate(kind: 'current' | 'flat' | 'functional') {
+    if (kind === 'current') { setDraftMoves([]); return }
+    const moves: DraftMove[] = []
+    for (const loc of renderedLocations) {
+      const locTeamIds = new Set(teams.filter(t => t.location_id === loc.id).map(t => t.id))
+      const locSeats = seats.filter(s => locTeamIds.has(s.team_id))
+      if (locSeats.length < 2) continue
+      const sorted = [...locSeats].sort((a, b) => rank(b) - rank(a))
+      const top = sorted[0]
+      const fnOf = (s: Seat) => (s.function || teamById[s.team_id]?.function || 'other')
+      const headOfFn = new Map<string, Seat>()
+      if (kind === 'functional') {
+        for (const s of sorted) { const f = fnOf(s); if (!headOfFn.has(f)) headOfFn.set(f, s) }
+      }
+      for (const s of locSeats) {
+        if (s.id === top.id) continue
+        let mgrId: string
+        if (kind === 'flat') {
+          mgrId = top.id
+        } else {
+          const head = headOfFn.get(fnOf(s))
+          mgrId = !head || head.id === s.id ? top.id : head.id
+        }
+        const mv = buildReportsToDraftMove(s, mgrId)
+        if (mv) moves.push(mv)
+      }
+    }
+    setDraftMoves(moves)
+  }
+
   /* — node tap: open slide-over / complete a touch move / switch tab — */
   function handleNodeTap(node: GNode | undefined) {
     if (!node) return
     if (moveModeSeatId) {
       const seat = seats.find(s => s.id === moveModeSeatId)
       if (node.seat?.id === moveModeSeatId) { setMoveModeSeatId(null); return } // tap self = cancel
+      const applyMove = draftMode ? addDraftMove : stageMove
       if (reportsToEnabled && seat && node.seat && node.seat.id !== seat.id) {
         // Tap a person = report to that person.
-        stageMove(seat, { teamId: node.teamId as string, managerSeatId: node.seat.id })
+        applyMove(seat, { teamId: node.teamId as string, managerSeatId: node.seat.id })
         setMoveModeSeatId(null)
       } else if (seat && node.teamId && node.teamId !== seat.team_id) {
-        stageMove(seat, { teamId: node.teamId, managerSeatId: null })
+        applyMove(seat, { teamId: node.teamId, managerSeatId: null })
         setMoveModeSeatId(null)
       }
       return
@@ -808,7 +1020,10 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
     setDragPos(null)         // card animates back / into the new branch
     setDropCandidate(null)
     dropCandidateRef.current = null
-    if (node?.seat && cand) stageMove(node.seat, { teamId: cand.teamId, managerSeatId: cand.managerSeatId })
+    if (node?.seat && cand) {
+      if (draftMode) addDraftMove(node.seat, { teamId: cand.teamId, managerSeatId: cand.managerSeatId })
+      else stageMove(node.seat, { teamId: cand.teamId, managerSeatId: cand.managerSeatId })
+    }
   }
 
   /* ── commit (justification modal → PATCH seat + POST decision) ────────── */
@@ -1322,6 +1537,16 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
                   ⇄ Compare
                 </button>
               )}
+              <button
+                onClick={toggleDraft}
+                className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
+                style={draftMode
+                  ? { background: 'color-mix(in srgb, var(--accent) 22%, transparent)', color: 'var(--accent)' }
+                  : { background: 'transparent', color: 'var(--text-muted)' }}
+                title="Draft mode — rearrange the org freely with no prompts. Nothing is saved or logged until you Implement."
+              >
+                {draftMode ? '✎ Draft on' : '✎ Draft'}
+              </button>
             </div>
           </div>
 
@@ -1946,8 +2171,110 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
           </div>
         )}
 
+        {/* ── Draft mode footer (write-free sandbox) ──────────────────────── */}
+        {draftMode && (
+          <div
+            className="absolute bottom-5 left-1/2 -translate-x-1/2 z-30 w-[540px] max-w-[94%] rounded-2xl p-4"
+            style={{
+              background: `linear-gradient(var(--surface), var(--surface)) padding-box, linear-gradient(135deg, var(--accent), var(--accent2)) border-box`,
+              border: '1.5px solid transparent',
+              boxShadow: '0 24px 70px rgba(0,0,0,0.7)',
+            }}
+            onPointerDown={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <p className="text-[11px] font-extrabold uppercase tracking-wider" style={{ color: 'var(--accent)' }}>
+                ✎ Draft restructure · {draftMoves.length} change{draftMoves.length === 1 ? '' : 's'}
+              </p>
+              <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Nothing is saved or logged until you implement</span>
+            </div>
+
+            {!draftImplementing && (
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <select
+                  onChange={e => { const v = e.target.value; if (v) applyTemplate(v as 'current' | 'flat' | 'functional'); e.currentTarget.value = '' }}
+                  defaultValue=""
+                  className="text-xs font-bold px-2.5 py-1.5 rounded-lg outline-none"
+                  style={{ background: 'var(--bg)', border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)', color: 'var(--text)' }}
+                  title="Reshape the whole org into a template, then fine-tune by hand. Teams stay; reporting lines change."
+                >
+                  <option value="">✦ Apply a template…</option>
+                  <option value="current">Current org (reset draft)</option>
+                  <option value="flat">Flat — everyone under the top</option>
+                  <option value="functional">Functional — function heads, then teams</option>
+                  <option value="divisional" disabled>Divisional (multi-site) — coming</option>
+                  <option value="matrix" disabled>Matrix / dotted lines — coming</option>
+                  <option value="pod" disabled>Pods (cross-functional) — coming</option>
+                </select>
+                <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>then drag to fine-tune</span>
+              </div>
+            )}
+
+            {draftMoves.length === 0 ? (
+              <p className="text-[12px] leading-relaxed" style={{ color: 'color-mix(in srgb, var(--text) 80%, transparent)' }}>
+                Drag people around freely — onto a person to set who they report to, or onto a team to move them.
+                No prompts, no audit writes. Implement when you&rsquo;re happy, or discard and walk away.
+              </p>
+            ) : (
+              <ul className="space-y-1 mb-1 max-h-[150px] overflow-y-auto pr-1">
+                {draftMoves.map(m => (
+                  <li key={m.seatId} className="flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-[11px]" style={{ background: 'var(--bg)' }}>
+                    <span style={{ color: 'var(--text)' }}>
+                      <strong>{m.personName || m.seatTitle}</strong>{' '}
+                      {m.changeKind === 'reports_to'
+                        ? <>now reports to <strong style={{ color: 'var(--accent)' }}>{m.managerName}</strong></>
+                        : <>→ <strong style={{ color: 'var(--accent)' }}>{m.toTeamName}</strong> <span style={{ color: 'var(--text-muted)' }}>(was {m.fromTeamName})</span></>}
+                    </span>
+                    <button onClick={() => removeDraftMove(m.seatId)} className="text-[10px] font-bold flex-shrink-0" style={{ color: 'var(--text-muted)' }} title="Drop this change">✕</button>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {draftError && (
+              <p className="text-[11px] mt-2 px-3 py-2 rounded-lg" style={{ color: 'var(--punch)', background: 'color-mix(in srgb, var(--punch) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--punch) 25%, transparent)' }}>
+                {draftError}
+              </p>
+            )}
+
+            {draftImplementing ? (
+              <div className="mt-2">
+                <textarea
+                  value={draftJustification}
+                  onChange={e => setDraftJustification(e.target.value)}
+                  rows={2}
+                  placeholder="Why this restructure? Logged immutably to your decisions audit trail (min 20 chars)."
+                  className="w-full px-3 py-2 rounded-lg text-xs outline-none resize-none"
+                  style={{ background: 'var(--bg)', border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)', color: 'var(--text)' }}
+                />
+                <div className="flex gap-2 mt-2">
+                  <button onClick={implementDraft} disabled={busy} className="text-xs font-black px-4 py-2 rounded-full disabled:opacity-40" style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent2))', color: 'var(--bg)' }}>
+                    {busy ? 'Implementing…' : `Implement ${draftMoves.length} change${draftMoves.length === 1 ? '' : 's'}`}
+                  </button>
+                  <button onClick={() => { setDraftImplementing(false); setDraftError(null) }} disabled={busy} className="text-xs font-bold px-4 py-2 rounded-full" style={{ background: 'color-mix(in srgb, var(--text) 8%, transparent)', color: 'color-mix(in srgb, var(--text) 80%, transparent)' }}>
+                    Back
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={() => { if (draftMoves.length === 0) { setDraftError('Make at least one change first.'); return } setDraftError(null); setDraftImplementing(true) }}
+                  className="text-xs font-bold px-4 py-2 rounded-full"
+                  style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent2))', color: 'var(--bg)', border: 'none', opacity: draftMoves.length === 0 ? 0.5 : 1 }}
+                >
+                  Implement as live org →
+                </button>
+                <button onClick={discardDraft} className="text-xs font-bold px-4 py-2 rounded-full" style={{ background: 'color-mix(in srgb, var(--text) 8%, transparent)', color: 'color-mix(in srgb, var(--text) 80%, transparent)', border: 'none' }}>
+                  {draftMoves.length > 0 ? 'Discard all' : 'Exit draft'}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ── Staged-move banner (structure-change detection) ─────────────── */}
-        {staged && !pendingMove && (
+        {staged && !pendingMove && !draftMode && (
           <div
             className="absolute bottom-5 left-1/2 -translate-x-1/2 z-30 w-[460px] max-w-[92%] rounded-2xl p-4"
             style={{
@@ -2000,17 +2327,25 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
                 })}
                 className="text-xs font-bold px-4 py-2 rounded-full"
                 style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent2))', color: 'var(--bg)', border: 'none' }}
+                title="Applies this change to your live org and logs the reason. Dragging without confirming saves nothing."
               >
-                Confirm — log to audit trail
+                Confirm move
               </button>
               <button
                 onClick={() => setStaged(null)}
                 className="text-xs font-bold px-4 py-2 rounded-full"
                 style={{ background: 'color-mix(in srgb, var(--text) 8%, transparent)', color: 'color-mix(in srgb, var(--text) 80%, transparent)', border: 'none' }}
               >
-                Undo
+                Discard
               </button>
             </div>
+            <p className="text-[10px] mt-2" style={{ color: 'var(--text-muted)' }}>
+              Discarding saves nothing. Just exploring?{' '}
+              <button onClick={() => { setStaged(null); setDraftMode(true) }} className="font-bold underline" style={{ color: 'var(--accent)' }}>
+                Switch to Draft mode
+              </button>{' '}
+              to rearrange freely with no prompts.
+            </p>
           </div>
         )}
 
