@@ -202,7 +202,11 @@ function rot(p: { x: number; y: number; z: number }, ay: number, ax: number) {
   return { x, y, z }
 }
 
-// ---- Variant 1: constellation globe ----
+// ---- Variant 1: constellation globe with firing NEURAL-LINK connections ----
+// A rotating sphere of nodes. Signals travel along the links node-to-node like
+// synapses firing — conveying intelligence + total interconnection (one unified
+// network where every link matters). Each edge fires intermittently; when a
+// signal lands on a node it flashes, so activity ripples across the whole globe.
 function makeGlobe(): Renderer {
   const N = 150, R = 1
   const pts: { x: number; y: number; z: number; mint: boolean }[] = []
@@ -213,12 +217,24 @@ function makeGlobe(): Renderer {
     const th = golden * i
     pts.push({ x: Math.cos(th) * rad * R, y: y * R, z: Math.sin(th) * rad * R, mint: i % 5 === 0 })
   }
-  const edges: [number, number][] = []
+  // edges + per-edge firing params (deterministic, stable look)
+  const edges: { i: number; j: number; off: number; period: number; mint: boolean }[] = []
   for (let i = 0; i < N; i++)
     for (let j = i + 1; j < N; j++) {
       const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y, dz = pts[i].z - pts[j].z
-      if (dx * dx + dy * dy + dz * dz < 0.16) edges.push([i, j])
+      if (dx * dx + dy * dy + dz * dz < 0.16) {
+        const k = edges.length
+        edges.push({
+          i, j,
+          off: ((k * 0.61803) % 1),          // golden-ratio stagger → organic firing
+          period: 150 + (k % 7) * 42,         // frames per fire cycle, varied
+          mint: pts[i].mint || pts[j].mint,   // links touching a verified node fire mint
+        })
+      }
     }
+  const FIRE = 0.34 // fraction of the cycle the pulse is travelling (rest = idle)
+  const act = new Float32Array(N) // per-node activation (flash on signal arrival)
+
   return (ctx, W, H, t, mx, my) => {
     const cx = W / 2, cy = H / 2, scale = Math.min(W, H) * 0.42, focal = 3
     const ay = t * 0.0016 + mx, ax = -my * 0.8
@@ -227,19 +243,49 @@ function makeGlobe(): Renderer {
       const persp = focal / (focal + r.z)
       return { sx: cx + r.x * scale * persp, sy: cy + r.y * scale * persp, depth: (r.z + R) / (2 * R), persp, mint: p.mint }
     })
-    for (const [i, j] of edges) {
-      const a = proj[i], b = proj[j], d = (a.depth + b.depth) / 2
-      ctx.strokeStyle = `rgba(56,189,248,${0.04 + d * 0.13})`
+
+    for (let n = 0; n < N; n++) act[n] *= 0.90 // decay flashes
+
+    // base links + travelling signal pulses
+    for (const e of edges) {
+      const a = proj[e.i], b = proj[e.j]
+      const d = (a.depth + b.depth) / 2
+      // faint base link
+      ctx.strokeStyle = `rgba(56,189,248,${0.03 + d * 0.10})`
       ctx.lineWidth = 0.6 * ((a.persp + b.persp) / 2)
       ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke()
+
+      const phase = ((t / e.period) + e.off) % 1
+      if (phase >= FIRE) continue
+      const u = phase / FIRE                  // 0→1 along the link
+      const col = e.mint ? '52,211,153' : '56,189,248'
+      // bright comet trail from (u-0.22)→u
+      const u0 = Math.max(0, u - 0.22)
+      const x0 = a.sx + (b.sx - a.sx) * u0, y0 = a.sy + (b.sy - a.sy) * u0
+      const xu = a.sx + (b.sx - a.sx) * u, yu = a.sy + (b.sy - a.sy) * u
+      const g = ctx.createLinearGradient(x0, y0, xu, yu)
+      g.addColorStop(0, `rgba(${col},0)`)
+      g.addColorStop(1, `rgba(${col},${0.55 + d * 0.4})`)
+      ctx.strokeStyle = g
+      ctx.lineWidth = 1.3 * ((a.persp + b.persp) / 2)
+      ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(xu, yu); ctx.stroke()
+      // signal head
+      ctx.beginPath(); ctx.arc(xu, yu, 1.6 * ((a.persp + b.persp) / 2), 0, Math.PI * 2)
+      ctx.fillStyle = `rgba(${col},${0.7 + d * 0.3})`
+      ctx.fill()
+      if (u > 0.96) act[e.j] = 1 // signal lands → flash the target node
     }
+
+    // nodes (far→near) with arrival-flash glow
     const order = proj.map((_, i) => i).sort((i, j) => proj[i].depth - proj[j].depth)
     for (const i of order) {
-      const p = proj[i], rad = (1.1 + p.depth * 2.4) * p.persp, alpha = 0.25 + p.depth * 0.7
+      const p = proj[i], a = act[i]
+      const rad = (1.1 + p.depth * 2.4) * p.persp + a * 1.6
+      const alpha = Math.min(1, 0.22 + p.depth * 0.7 + a * 0.5)
       ctx.beginPath(); ctx.arc(p.sx, p.sy, rad, 0, Math.PI * 2)
       ctx.fillStyle = p.mint ? `rgba(52,211,153,${alpha})` : `rgba(56,189,248,${alpha})`
-      ctx.shadowBlur = p.depth > 0.8 ? 8 * p.persp : 0
-      ctx.shadowColor = p.mint ? 'rgba(52,211,153,0.6)' : 'rgba(56,189,248,0.6)'
+      ctx.shadowBlur = (p.depth > 0.8 ? 8 : 0) * p.persp + a * 12
+      ctx.shadowColor = p.mint ? 'rgba(52,211,153,0.7)' : 'rgba(56,189,248,0.7)'
       ctx.fill()
     }
     ctx.shadowBlur = 0
