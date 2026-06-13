@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import Link from 'next/link'
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import ShapiLogo from '@/components/ShapiLogo'
+import NeuralGlobe from '@/components/NeuralGlobe'
 import { useTranslation } from '@/lib/i18n/LocaleContext'
 
 // WOW hero — a calm, premium, 2026-AI-era treatment wrapping the dual-audience
@@ -51,7 +52,14 @@ export default function WowHero() {
   return (
     <section className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-12 overflow-visible">
       <AuroraMesh reduce={!!reduce} />
-      <Constellation reduce={!!reduce} />
+      {/* Approved 3D neural-link globe backdrop + vignette for text legibility */}
+      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+        <NeuralGlobe opacity={0.55} />
+        <div
+          className="absolute inset-0"
+          style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 42%, rgba(6,6,9,0.82) 0%, rgba(6,6,9,0.35) 55%, transparent 100%)' }}
+        />
+      </div>
 
       <motion.div
         className="relative text-center max-w-5xl mx-auto"
