@@ -113,14 +113,14 @@ function HomeInner() {
       <section className="relative z-10 py-12 my-4" style={{ background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="max-w-4xl mx-auto px-6 grid grid-cols-3 gap-8 text-center">
           {[
-            { n: t('home.stats.stat1Number'), label: t('home.stats.stat1Label'), grad: true },
-            { n: t('home.stats.stat2Number'), label: t('home.stats.stat2Label'), color: 'var(--verified)' },
-            { n: t('home.stats.stat3Number'), label: t('home.stats.stat3Label'), color: 'var(--accent)' },
+            { n: t('home.stats.stat1Number'), label: t('home.stats.stat1Label'), color: '#38BDF8' },
+            { n: t('home.stats.stat2Number'), label: t('home.stats.stat2Label'), color: '#34D399' },
+            { n: t('home.stats.stat3Number'), label: t('home.stats.stat3Label'), color: '#FB7185' },
           ].map((s, i) => (
             <div key={i}>
               <p
-                className={`text-4xl md:text-5xl font-black mb-1.5 ${s.grad ? 'grad-text' : ''}`}
-                style={s.grad ? undefined : { color: s.color }}
+                className="text-4xl md:text-5xl font-black mb-1.5"
+                style={{ color: s.color }}
               >{s.n}</p>
               <p className="text-[#A6A6B4] text-sm">{s.label}</p>
             </div>
@@ -141,9 +141,9 @@ function HomeInner() {
 
         <div className="relative grid md:grid-cols-3 gap-5">
           {[
-            { step: t('home.how.step1Number'), title: t('home.how.step1Title'), desc: t('home.how.step1Desc'), color: '#9D8CFF',
+            { step: t('home.how.step1Number'), title: t('home.how.step1Title'), desc: t('home.how.step1Desc'), color: '#38BDF8',
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /> },
-            { step: t('home.how.step2Number'), title: t('home.how.step2Title'), desc: t('home.how.step2Desc'), color: '#9D8CFF',
+            { step: t('home.how.step2Number'), title: t('home.how.step2Title'), desc: t('home.how.step2Desc'), color: '#FB7185',
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /> },
             { step: t('home.how.step3Number'), title: t('home.how.step3Title'), desc: t('home.how.step3Desc'), color: '#34D399',
               icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /> },

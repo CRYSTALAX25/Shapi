@@ -70,7 +70,7 @@ export default function WowHero() {
           </motion.div>
         </motion.div>
 
-        {/* Status badge — coral appears ONLY as the 6px live pulse dot */}
+        {/* Status badge — "Early access open" only (UAE launch line removed per founder) */}
         <motion.div
           className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full mb-5"
           style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
@@ -79,20 +79,18 @@ export default function WowHero() {
           <span className="relative flex h-1.5 w-1.5">
             <span
               className="absolute inline-flex h-full w-full rounded-full opacity-60"
-              style={{ background: '#FB7185', animation: reduce ? undefined : 'wowPing 2s cubic-bezier(0,0,0.2,1) infinite' }}
+              style={{ background: '#34D399', animation: reduce ? undefined : 'wowPing 2s cubic-bezier(0,0,0.2,1) infinite' }}
             />
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: '#FB7185' }} />
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: '#34D399' }} />
           </span>
-          <span className="text-[#A6A6B4] text-xs font-medium">{t('home.hero.badgeDate')}</span>
-          <span className="text-white/15">·</span>
           <span className="text-xs font-bold" style={{ color: 'var(--accent)' }}>{t('home.hero.badgeAccess')}</span>
         </motion.div>
 
-        {/* Audience chooser — preserved routing + intent */}
+        {/* Audience chooser — BOTH are clickable links to their dedicated pages */}
         <motion.div className="flex flex-wrap justify-center gap-2 mb-8 text-xs font-bold" variants={item}>
-          <span className="px-3 py-1.5 rounded-full" style={{ background: 'rgba(157,140,255,0.15)', color: 'var(--accent)', border: '1px solid rgba(157,140,255,0.30)' }}>
+          <Link href="/for-candidates" className="px-3 py-1.5 rounded-full transition-colors hover:brightness-110" style={{ background: 'rgba(157,140,255,0.15)', color: 'var(--accent)', border: '1px solid rgba(157,140,255,0.30)' }}>
             {t('home.chooser.candidate')}
-          </span>
+          </Link>
           <Link href="/for-companies" className="px-3 py-1.5 rounded-full hover:bg-white/[0.06] transition-colors" style={{ color: '#A6A6B4', border: '1px solid rgba(255,255,255,0.10)' }}>
             {t('home.chooser.company')}
           </Link>
