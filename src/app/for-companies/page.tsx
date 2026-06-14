@@ -93,7 +93,7 @@ function ForCompaniesInner() {
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
         <div className="mb-10 text-center">
           <span className="inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-widest" style={{ background: `${MINT}1f`, color: MINT }}>Two products, one platform</span>
-          <h2 className="mt-5 text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">Hire what&apos;s proven.<br /><span className="c-grad">Reshape</span> what you have.</h2>
+          <h2 className="mt-5 text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">Hire what&apos;s <span className="c-grad">proven.</span><br /><span className="c-grad">Reshape</span> what you have.</h2>
         </div>
         <div className="grid gap-5 md:grid-cols-2">
           <ProductCard
