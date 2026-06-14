@@ -50,7 +50,7 @@ export default function ShapiLogo({
     >
       <defs>
         <linearGradient id={gradId} x1="18" y1="8" x2="82" y2="92" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#9D8CFF" />
+          <stop offset="0%" stopColor="#38BDF8" />
           <stop offset="100%" stopColor="#34D399" />
         </linearGradient>
         {/* Facet highlight — a soft light catching the lit half of the north ray */}
@@ -102,7 +102,7 @@ export default function ShapiLogo({
           letterSpacing: '-0.02em',
           fontSize: size * 0.62,
           lineHeight: 1,
-          background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+          background: 'linear-gradient(135deg, #38BDF8, #34D399)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',

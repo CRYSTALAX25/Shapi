@@ -78,14 +78,14 @@ export default function Home() {
                 I&apos;m hiring / restructuring →
               </Link>
             </div>
-            <p className="mt-5 text-xs text-[#7E7E8E]">Free to start · UAE-first · built for blue & white collar</p>
+            <p className="mt-5 text-xs text-[#7E7E8E]">Free to start · UAE-first · built for every kind of work</p>
           </div>
         </section>
 
         {/* ───────── The gap ───────── */}
         <section className="relative z-10 mx-auto max-w-6xl px-6 py-20">
           <Eyebrow color={CORAL}>The gap</Eyebrow>
-          <SectionTitle>Work is changing faster<br />than anyone can verify.</SectionTitle>
+          <SectionTitle>Work is changing faster<br />than anyone can <span className="h-grad">verify.</span></SectionTitle>
           <p className="mx-auto mt-4 max-w-2xl text-center text-base text-[#E6E6EC]">
             The cost of getting people decisions wrong has never been higher — and the
             tools everyone uses were built for a world that no longer exists.
@@ -100,7 +100,7 @@ export default function Home() {
         {/* ───────── What we do ───────── */}
         <section className="relative z-10 mx-auto max-w-5xl px-6 py-20">
           <Eyebrow color={OCEAN}>What we do</Eyebrow>
-          <SectionTitle>One platform for the people<br />and the companies navigating the change.</SectionTitle>
+          <SectionTitle>One platform for the people<br />and companies navigating the <span className="h-grad">change.</span></SectionTitle>
           <p className="mx-auto mt-4 max-w-2xl text-center text-base text-[#E6E6EC]">
             Shapi replaces the scattered, costly, slow process of proving and finding
             talent with a single source of truth — and supports both sides through
@@ -108,13 +108,13 @@ export default function Home() {
           </p>
           <div className="mt-12 grid gap-4 md:grid-cols-2">
             {[
-              { c: MINT, t: 'We verify, not assume', d: 'References sourced independently, skills proven with evidence, work history cross-checked. Every claim is labelled Verified, Shapi-assessed, or self-reported — never blurred.' },
-              { c: OCEAN, t: 'We give companies intelligence', d: 'See your real skills map, redeploy before you hire, restructure with a defensible audit trail, and carry a trust score that holds you accountable too.' },
-              { c: AMBER, t: 'We support the transition', d: 'AI-exposure checks, reskilling, native-language and voice-first onboarding, and career-pivot tools — for the people whose roles are being rewritten.' },
-              { c: CORAL, t: 'We cut the cost & the time', d: 'One platform instead of five. Faster, fairer decisions for blue and white collar alike — from a verified profile to a confident hire to a humane restructure.' },
+              { c: MINT, t: 'We verify, not assume', icon: 'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z', d: 'References sourced independently, skills proven with evidence, work history cross-checked. Every claim is labelled Verified, Shapi-assessed, or self-reported — never blurred.' },
+              { c: OCEAN, t: 'We give companies intelligence', icon: 'M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z', d: 'See your real skills map, redeploy before you hire, restructure with a defensible audit trail, and carry a trust score that holds you accountable too.' },
+              { c: AMBER, t: 'We support the transition', icon: 'M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99', d: 'AI-exposure checks, reskilling, native-language and voice-first onboarding, and career-pivot tools — for the people whose roles are being rewritten.' },
+              { c: CORAL, t: 'We cut the cost & the time', icon: 'M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z', d: 'One platform instead of five. Faster, fairer decisions across every kind of work — from a verified profile to a confident hire to a humane restructure.' },
             ].map((x, i) => (
               <div key={i} className="h-card rounded-2xl p-7">
-                <div className="mb-4 h-9 w-9 rounded-xl" style={{ background: `${x.c}22`, border: `1px solid ${x.c}55` }} />
+                <svg className="mb-4 h-7 w-7" style={{ color: x.c }} fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d={x.icon} /></svg>
                 <h3 className="mb-2 text-lg font-black" style={{ color: x.c }}>{x.t}</h3>
                 <p className="text-sm leading-relaxed text-[#C7C7D1]">{x.d}</p>
               </div>
@@ -125,7 +125,7 @@ export default function Home() {
         {/* ───────── Two paths ───────── */}
         <section className="relative z-10 mx-auto max-w-6xl px-6 py-20">
           <Eyebrow color={MINT}>Both sides, one source of truth</Eyebrow>
-          <SectionTitle>Wherever you are in the change,<br />there&apos;s a way through.</SectionTitle>
+          <SectionTitle>Wherever you are in the change,<br />there&apos;s a way <span className="h-grad">through.</span></SectionTitle>
           <div className="mt-12 grid gap-5 md:grid-cols-2">
             <PathCard
               href="/for-candidates"
@@ -194,9 +194,10 @@ function Eyebrow({ children, color, left = false }: { children: React.ReactNode;
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  // Section titles always ocean (founder rule, 2026-06-14). Hero + closing
-  // titles keep the white + one-highlighted-word treatment ("next." / "proven.").
-  return <h2 className="mt-5 text-center text-4xl font-black leading-[1.02] tracking-tighter md:text-5xl" style={{ color: '#38BDF8' }}>{children}</h2>
+  // Founder rule (2026-06-14): titles are WHITE with ONE word in the emerald
+  // gradient (the "next." treatment) — toned down from fully-coloured. Coloured
+  // eyebrows above carry the per-section accent.
+  return <h2 className="mt-5 text-center text-4xl font-black leading-[1.02] tracking-tighter text-[#F4F4F7] md:text-5xl">{children}</h2>
 }
 
 function GapCard({ color, stat, label }: { color: string; stat: string; label: string }) {
