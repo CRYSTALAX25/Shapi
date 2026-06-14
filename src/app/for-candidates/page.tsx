@@ -214,33 +214,38 @@ function ForCandidatesInner() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-4">
-          {uspGroups.map((g, i) => (
-            <details
-              key={i}
-              className="group card rounded-2xl p-6"
-              open={openGroups.has(i)}
-              onToggle={(e) => setOpenGroups((prev) => {
-                const next = new Set(prev)
-                if ((e.currentTarget as HTMLDetailsElement).open) next.add(i); else next.delete(i)
-                return next
-              })}
-            >
-              <summary className="flex items-center gap-3 cursor-pointer list-none select-none [&::-webkit-details-marker]:hidden">
-                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: g.color }} />
-                <h3 className="font-black text-lg" style={{ color: g.color }}>{g.title}</h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${g.color}1f`, color: g.color }}>{g.items.length}</span>
-                <span className="ml-auto text-sm transition-transform duration-200 group-open:rotate-180" style={{ color: 'rgba(255,255,255,0.4)' }}>▾</span>
-              </summary>
-              <div className="mt-5 space-y-4">
-                {g.items.map((it, j) => (
-                  <div key={j} className="border-t border-white/[0.06] pt-3 first:border-0 first:pt-0">
-                    <p className="font-bold text-sm text-[#F4F4F7]">{it.title}</p>
-                    <p className="text-sm leading-relaxed text-[#A6A6B4] mt-1">{it.body}</p>
+          {uspGroups.map((g, i) => {
+            const isOpen = openGroups.has(i)
+            return (
+              <div key={i} className="card rounded-2xl p-6">
+                <button
+                  type="button"
+                  aria-expanded={isOpen}
+                  onClick={() => setOpenGroups((prev) => {
+                    const next = new Set(prev)
+                    if (next.has(i)) next.delete(i); else next.add(i)
+                    return next
+                  })}
+                  className="flex w-full items-center gap-3 text-left cursor-pointer"
+                >
+                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: g.color }} />
+                  <h3 className="font-black text-lg" style={{ color: g.color }}>{g.title}</h3>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${g.color}1f`, color: g.color }}>{g.items.length}</span>
+                  <span className={`ml-auto text-sm transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} style={{ color: 'rgba(255,255,255,0.4)' }}>▾</span>
+                </button>
+                {isOpen && (
+                  <div className="mt-5 space-y-4">
+                    {g.items.map((it, j) => (
+                      <div key={j} className="border-t border-white/[0.06] pt-3 first:border-0 first:pt-0">
+                        <p className="font-bold text-sm text-[#F4F4F7]">{it.title}</p>
+                        <p className="text-sm leading-relaxed text-[#A6A6B4] mt-1">{it.body}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
-            </details>
-          ))}
+            )
+          })}
         </div>
       </section>
 

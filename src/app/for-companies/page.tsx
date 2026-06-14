@@ -297,25 +297,32 @@ function UspGroup({ color, title, sub, items, open = false }: { color: string; t
   // <details> toggle and React stay in sync (avoids the content-desync bug).
   const [isOpen, setIsOpen] = useState(open)
   return (
-    <details className="group c-card rounded-2xl p-6" open={isOpen} onToggle={(e) => setIsOpen((e.currentTarget as HTMLDetailsElement).open)}>
-      <summary className="flex cursor-pointer list-none select-none items-center gap-3 [&::-webkit-details-marker]:hidden">
+    <div className="c-card rounded-2xl p-6">
+      <button
+        type="button"
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen((v) => !v)}
+        className="flex w-full cursor-pointer items-center gap-3 text-left"
+      >
         <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ background: color }} />
         <span>
           <span className="block text-lg font-black leading-tight" style={{ color }}>{title}</span>
           <span className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E]">{sub}</span>
         </span>
         <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: `${color}1f`, color }}>{items.length}</span>
-        <span className="ml-auto text-sm transition-transform duration-200 group-open:rotate-180" style={{ color: 'rgba(255,255,255,0.4)' }}>▾</span>
-      </summary>
-      <div className="mt-5 space-y-4">
-        {items.map((it, j) => (
-          <div key={j} className="border-t border-white/[0.06] pt-3 first:border-0 first:pt-0">
-            <p className="text-sm font-bold text-[#F4F4F7]">{it.title}</p>
-            <p className="mt-1 text-sm leading-relaxed text-[#A6A6B4]">{it.body}</p>
-          </div>
-        ))}
-      </div>
-    </details>
+        <span className={`ml-auto text-sm transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} style={{ color: 'rgba(255,255,255,0.4)' }}>▾</span>
+      </button>
+      {isOpen && (
+        <div className="mt-5 space-y-4">
+          {items.map((it, j) => (
+            <div key={j} className="border-t border-white/[0.06] pt-3 first:border-0 first:pt-0">
+              <p className="text-sm font-bold text-[#F4F4F7]">{it.title}</p>
+              <p className="mt-1 text-sm leading-relaxed text-[#A6A6B4]">{it.body}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
