@@ -54,7 +54,7 @@ export default function Home() {
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full px-4 py-2" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
               <span className="h-1.5 w-1.5 rounded-full" style={{ background: MINT }} />
-              <span className="text-xs font-bold" style={{ color: OCEAN }}>The verification layer for the AI era of work</span>
+              <span className="text-xs font-bold" style={{ color: '#F4F4F7' }}>The verification layer for the AI era of work</span>
             </div>
 
             <h1 className="text-5xl font-black leading-[0.95] tracking-tighter md:text-[78px]">

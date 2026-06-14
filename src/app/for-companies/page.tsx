@@ -71,18 +71,18 @@ function ForCompaniesInner() {
       <section className="relative z-10 mx-auto max-w-6xl px-6 pb-20 pt-16">
         <div className="pointer-events-none absolute left-1/4 top-0 h-[480px] w-[480px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(56,189,248,0.16) 0%, transparent 70%)' }} />
         <div className="pointer-events-none absolute right-1/4 top-10 h-[400px] w-[400px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(52,211,153,0.12) 0%, transparent 70%)' }} />
-        <div className="relative max-w-3xl">
+        <div className="relative mx-auto max-w-3xl text-center">
           <span className="mb-7 inline-block rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.25em]" style={{ background: 'rgba(56,189,248,0.12)', color: OCEAN }}>
             {t('forCompanies.hero.badge')}
           </span>
           <h1 className="mb-7 text-5xl font-black leading-[0.95] tracking-tighter text-[#F4F4F7] md:text-7xl">
             {t('forCompanies.hero.headline')}
           </h1>
-          <p className="mb-10 max-w-3xl text-lg leading-relaxed text-[#E6E6EC] md:text-xl">
+          <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-[#E6E6EC] md:text-xl">
             {t('forCompanies.hero.subhead')}
             <span className="mt-3 block text-[#A6A6B4]">{t('forCompanies.hero.subheadExtra')}</span>
           </p>
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex flex-col justify-center gap-3 sm:flex-row">
             <Link href="/signup?type=company" className="c-btn rounded-full px-7 py-4 text-center text-sm font-black">{t('forCompanies.hero.ctaSnapshot')}</Link>
             <Link href="/book-call?topic=workforce-intelligence" className="c-outline rounded-full px-7 py-4 text-center text-sm font-bold">{t('forCompanies.hero.ctaTalk')}</Link>
           </div>
@@ -142,9 +142,9 @@ function ForCompaniesInner() {
 
       {/* USPs grouped under the two products (expandable) */}
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
-        <div className="mb-12">
+        <div className="mb-12 text-center">
           <span className="mb-5 inline-block rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.25em]" style={{ background: `${OCEAN}1f`, color: OCEAN }}>{t('forCompanies.usps.eyebrow')}</span>
-          <h2 className="max-w-3xl text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">{t('forCompanies.usps.title')}</h2>
+          <h2 className="mx-auto max-w-3xl text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">{t('forCompanies.usps.title')}</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <UspGroup color={OCEAN} title="In Shapi Hire" sub="Recruitment" items={hireKeys.map(usp)} open />
