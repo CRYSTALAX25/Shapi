@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import SiteNav from '@/components/SiteNav'
 import SiteFooter from '@/components/SiteFooter'
@@ -43,6 +44,10 @@ export default function ForCandidatesPage() {
 
 function ForCandidatesInner() {
   const { t } = useTranslation()
+  // Controlled accordion state — first group open. Without this, React's
+  // controlled `open` prop fights the native <details> toggle (cards wouldn't
+  // close + content desynced).
+  const [openGroups, setOpenGroups] = useState<Set<number>>(() => new Set([0]))
 
   // The 15 benefits grouped into 4 themes — one colour each, shown as
   // click-to-expand cards (founder: tone down colour + don't dump 15 at once,
@@ -210,7 +215,16 @@ function ForCandidatesInner() {
 
         <div className="grid md:grid-cols-2 gap-4">
           {uspGroups.map((g, i) => (
-            <details key={i} className="group card rounded-2xl p-6" open={i === 0}>
+            <details
+              key={i}
+              className="group card rounded-2xl p-6"
+              open={openGroups.has(i)}
+              onToggle={(e) => setOpenGroups((prev) => {
+                const next = new Set(prev)
+                if ((e.currentTarget as HTMLDetailsElement).open) next.add(i); else next.delete(i)
+                return next
+              })}
+            >
               <summary className="flex items-center gap-3 cursor-pointer list-none select-none [&::-webkit-details-marker]:hidden">
                 <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: g.color }} />
                 <h3 className="font-black text-lg" style={{ color: g.color }}>{g.title}</h3>

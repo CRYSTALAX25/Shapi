@@ -1,8 +1,26 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import LocalePicker from '@/components/LocalePicker'
+import SiteNav from '@/components/SiteNav'
+import SiteFooter from '@/components/SiteFooter'
 import { LocaleProvider, useTranslation } from '@/lib/i18n/LocaleContext'
+
+// ============================================================================
+// /for-companies — TWO PRODUCTS, clearly divided (Ana, 2026-06-14):
+//   • Shapi Hire — Recruitment (find & hire what's proven)
+//   • Shapi Workforce — HR & Restructuring (understand & reshape who you have)
+// Shared SiteNav/SiteFooter (North-Star logo), ocean-emerald palette, title
+// rule (white titles + coloured eyebrows), USPs grouped under the two products
+// as expandable cards, softened (de-named) comparison.
+// ============================================================================
+
+const OCEAN = '#38BDF8'
+const MINT = '#34D399'
+const CORAL = '#FB7185'
+const AMBER = '#FBBF24'
+
+type Mark = '✓' | '~' | '✗'
 
 export default function ForCompaniesPage() {
   return (
@@ -14,547 +32,289 @@ export default function ForCompaniesPage() {
 
 function ForCompaniesInner() {
   const { t } = useTranslation()
+
+  // 14 USPs split across the two products.
+  const hireKeys = ['u4', 'u5', 'u6', 'u9', 'u10', 'u11', 'u12', 'u13']
+  const workforceKeys = ['u1', 'u2', 'u3', 'u7', 'u8', 'u14']
+  const usp = (k: string) => ({ title: t(`forCompanies.usps.${k}Title`), body: t(`forCompanies.usps.${k}Desc`) })
+
+  // Softened comparison: Shapi vs a single "traditional HR & hiring tools"
+  // column (no named vendors). others = best any incumbent manages per row.
+  const compRows: Array<{ label: string; others: Mark }> = [
+    { label: t('forCompanies.comparison.row1'), others: '~' },
+    { label: t('forCompanies.comparison.row2'), others: '~' },
+    { label: t('forCompanies.comparison.row3'), others: '~' },
+    { label: t('forCompanies.comparison.row4'), others: '✓' },
+    { label: t('forCompanies.comparison.row5'), others: '~' },
+    { label: t('forCompanies.comparison.row6'), others: '✓' },
+    { label: t('forCompanies.comparison.row7'), others: '~' },
+    { label: t('forCompanies.comparison.row8'), others: '~' },
+  ]
+
   return (
-    <div className="min-h-screen bg-[#060609] text-[#F4F4F7] overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden bg-[#060609] text-[#F4F4F7]">
       <style>{`
-        .grad-text {
-          background: linear-gradient(135deg, #9D8CFF, #34D399);
-          background-size: 300% 300%;
-          -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-        }
-        .btn-primary {
-          background: linear-gradient(135deg, #9D8CFF, #34D399);
-          color: #fff;
-          box-shadow: 0 8px 24px rgba(157, 140, 255, 0.28);
-          transition: all 0.25s ease;
-        }
-        .btn-primary:hover { box-shadow: 0 12px 32px rgba(157, 140, 255, 0.42); transform: translateY(-1px); }
-        .btn-outline {
-          background: #0B0B0F; color: #F4F4F7;
-          border: 1px solid rgba(255,255,255,0.16);
-          transition: all .25s ease;
-        }
-        .btn-outline:hover {
-          border-color: rgba(157, 140, 255, 0.4);
-          box-shadow: 0 8px 24px rgba(157, 140, 255, 0.18);
-          transform: translateY(-1px);
-        }
-        .card {
-          background: #0D0C14;
-          border: 1px solid rgba(255,255,255,0.08);
-          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
-          transition: all 0.3s ease;
-        }
-        .card:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 20px 46px rgba(157, 140, 255, 0.14);
-          border-color: rgba(157, 140, 255, 0.28);
-        }
-        .nav-link { color:#A6A6B4; transition: color .2s ease; }
-        .nav-link:hover { color:#F4F4F7; }
+        .c-card { background:#0D0C14; border:1px solid rgba(255,255,255,0.08); box-shadow:0 1px 2px rgba(0,0,0,0.45),0 16px 40px rgba(0,0,0,0.35); transition:all .3s ease; }
+        .c-card:hover { transform:translateY(-3px); box-shadow:0 1px 2px rgba(0,0,0,0.45),0 20px 46px rgba(56,189,248,0.14); border-color:rgba(56,189,248,0.28); }
+        .c-grad { background:linear-gradient(135deg,#38BDF8,#34D399); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .c-btn { background:linear-gradient(135deg,#38BDF8,#34D399); color:#06121a; box-shadow:0 8px 24px rgba(56,189,248,0.28); transition:all .25s ease; }
+        .c-btn:hover { box-shadow:0 12px 32px rgba(56,189,248,0.44); transform:translateY(-1px); }
+        .c-outline { background:#0B0B0F; color:#F4F4F7; border:1px solid rgba(255,255,255,0.16); transition:all .25s ease; }
+        .c-outline:hover { border-color:rgba(56,189,248,0.4); transform:translateY(-1px); }
       `}</style>
 
-      {/* Dot grid background */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
-          backgroundSize: '44px 44px',
-        }}
-      />
+      <div className="pointer-events-none fixed inset-0" style={{ backgroundImage: 'radial-gradient(circle, rgba(56,189,248,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
 
-      {/* Top nav */}
-      <nav className="relative z-20 border-b border-white/[0.08]">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
-          <Link href="/" className="font-black text-xl tracking-tighter grad-text">
-            shapi
-          </Link>
-          <div className="flex items-center gap-4 md:gap-6 text-sm">
-            <Link href="/" className="nav-link hidden sm:block">
-              {t('forCompanies.nav.home')}
-            </Link>
-            <Link href="/for-candidates" className="nav-link hidden sm:block">
-              {t('forCompanies.nav.forCandidates')}
-            </Link>
-            <Link href="/login" className="nav-link">
-              {t('forCompanies.nav.signIn')}
-            </Link>
-            <LocalePicker />
-            <Link
-              href="/signup?type=company"
-              className="btn-outline rounded-full px-4 py-2 text-xs font-black"
-            >
-              {t('forCompanies.nav.getStarted')}
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <SiteNav active="companies" />
 
       {/* Hero */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 pt-20 pb-20">
-        <div className="absolute top-0 left-1/4 w-[520px] h-[520px] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(157, 140, 255, 0.16) 0%, transparent 70%)' }} />
-        <div className="absolute top-10 right-1/4 w-[420px] h-[420px] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(157, 140, 255, 0.14) 0%, transparent 70%)' }} />
-
-        <div className="relative">
-          <span className="inline-block text-[11px] font-black tracking-[0.25em] uppercase px-3 py-1.5 rounded-full mb-7"
-            style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>
+      <section className="relative z-10 mx-auto max-w-6xl px-6 pb-20 pt-16">
+        <div className="pointer-events-none absolute left-1/4 top-0 h-[480px] w-[480px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(56,189,248,0.16) 0%, transparent 70%)' }} />
+        <div className="pointer-events-none absolute right-1/4 top-10 h-[400px] w-[400px] rounded-full" style={{ background: 'radial-gradient(circle, rgba(52,211,153,0.12) 0%, transparent 70%)' }} />
+        <div className="relative max-w-3xl">
+          <span className="mb-7 inline-block rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.25em]" style={{ background: 'rgba(56,189,248,0.12)', color: OCEAN }}>
             {t('forCompanies.hero.badge')}
           </span>
-          <h1 className="text-5xl md:text-7xl font-black leading-[0.95] tracking-tighter mb-7"
-            style={{ color: '#FB7185' }}>
+          <h1 className="mb-7 text-5xl font-black leading-[0.95] tracking-tighter text-[#F4F4F7] md:text-7xl">
             {t('forCompanies.hero.headline')}
           </h1>
-          <p className="text-lg md:text-xl text-[#C7C7D1] max-w-3xl leading-relaxed mb-10">
+          <p className="mb-10 max-w-3xl text-lg leading-relaxed text-[#E6E6EC] md:text-xl">
             {t('forCompanies.hero.subhead')}
-            <span className="block mt-3 text-[#A6A6B4]">
-              {t('forCompanies.hero.subheadExtra')}
-            </span>
+            <span className="mt-3 block text-[#A6A6B4]">{t('forCompanies.hero.subheadExtra')}</span>
           </p>
-
-          <div className="flex flex-col sm:flex-row gap-3 mb-12">
-            <Link
-              href="/signup?type=company"
-              className="btn-primary rounded-full px-7 py-4 text-sm font-black text-center"
-            >
-              {t('forCompanies.hero.ctaSnapshot')}
-            </Link>
-            <Link
-              href="/book-call?topic=workforce-intelligence"
-              className="btn-outline rounded-full px-7 py-4 text-sm font-bold text-center"
-            >
-              {t('forCompanies.hero.ctaTalk')}
-            </Link>
-          </div>
-
-          {/* Trusted-by placeholder strip */}
-          <div className="pt-8 border-t border-white/[0.06]">
-            <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[#7E7E8E] mb-4">
-              {t('forCompanies.hero.trustedByLabel')}
-            </p>
-            <div className="flex flex-wrap items-center gap-x-10 gap-y-3 text-[#5C5C6A] text-sm font-bold">
-              <span>{t('forCompanies.hero.trusted1')}</span>
-              <span>{t('forCompanies.hero.trusted2')}</span>
-              <span>{t('forCompanies.hero.trusted3')}</span>
-              <span>{t('forCompanies.hero.trusted4')}</span>
-              <span>{t('forCompanies.hero.trusted5')}</span>
-            </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link href="/signup?type=company" className="c-btn rounded-full px-7 py-4 text-center text-sm font-black">{t('forCompanies.hero.ctaSnapshot')}</Link>
+            <Link href="/book-call?topic=workforce-intelligence" className="c-outline rounded-full px-7 py-4 text-center text-sm font-bold">{t('forCompanies.hero.ctaTalk')}</Link>
           </div>
         </div>
       </section>
 
-      {/* The pitch — 3 panels */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 py-20">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-3"
-            style={{ color: '#FB7185' }}>
-            {t('forCompanies.pitch.title')}
-          </h2>
-          <p className="text-[#A6A6B4] text-lg max-w-2xl mx-auto">
-            {t('forCompanies.pitch.subtitle')}
-          </p>
+      {/* ── TWO PRODUCTS ── */}
+      <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
+        <div className="mb-10 text-center">
+          <span className="inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-widest" style={{ background: `${MINT}1f`, color: MINT }}>Two products, one platform</span>
+          <h2 className="mt-5 text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">Hire what&apos;s proven.<br />Reshape what you <span className="c-grad">have.</span></h2>
         </div>
+        <div className="grid gap-5 md:grid-cols-2">
+          <ProductCard
+            color={OCEAN}
+            kicker="Shapi Hire"
+            label="Recruitment"
+            title="Find & hire what's proven"
+            body="Candidates arrive already verified — independent references, evidence-based skills, a real trust score on both sides. Add active hiring, a candidate pool, salary benchmarks and starter JDs."
+            points={['Verified candidates before they reach you', 'Active hiring + candidate pool', 'Salary benchmarks & starter JDs', 'Hiring-manager WhatsApp + mobile review']}
+            cta="See recruitment plans →"
+            href="#pricing"
+          />
+          <ProductCard
+            color={MINT}
+            kicker="Shapi Workforce"
+            label="HR & Restructuring"
+            title="Understand & reshape who you have"
+            body="A living view of the workforce you already employ — readiness score, skills map, AI-exposure per role, org design and a defensible, immutable audit trail for every restructuring decision."
+            points={['Workforce readiness + skills density map', 'AI-exposure scored per role', 'Org design & redeployment before you hire', 'Immutable restructuring audit + outplacement']}
+            cta="Talk to us →"
+            href="/book-call?intent=enterprise"
+          />
+        </div>
+      </section>
 
-        <div className="grid md:grid-cols-3 gap-5">
+      {/* Pitch — 3 panels */}
+      <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
+        <div className="mb-12 text-center">
+          <h2 className="text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">{t('forCompanies.pitch.title')}</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-lg text-[#E6E6EC]">{t('forCompanies.pitch.subtitle')}</p>
+        </div>
+        <div className="grid gap-5 md:grid-cols-3">
           {[
-            {
-              icon: '🛡️',
-              title: t('forCompanies.pitch.p1Title'),
-              color: '#9D8CFF',
-              desc: t('forCompanies.pitch.p1Desc'),
-            },
-            {
-              icon: '🧠',
-              title: t('forCompanies.pitch.p2Title'),
-              color: '#9D8CFF',
-              desc: t('forCompanies.pitch.p2Desc'),
-            },
-            {
-              icon: '⚡',
-              title: t('forCompanies.pitch.p3Title'),
-              color: '#FB7185',
-              desc: t('forCompanies.pitch.p3Desc'),
-            },
+            { c: MINT, title: t('forCompanies.pitch.p1Title'), desc: t('forCompanies.pitch.p1Desc') },
+            { c: OCEAN, title: t('forCompanies.pitch.p2Title'), desc: t('forCompanies.pitch.p2Desc') },
+            { c: CORAL, title: t('forCompanies.pitch.p3Title'), desc: t('forCompanies.pitch.p3Desc') },
           ].map((p) => (
-            <div key={p.title} className="card rounded-2xl p-6">
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl mb-4"
-                style={{ background: `${p.color}1f` }}
-              >
-                <span>{p.icon}</span>
-              </div>
-              <h3 className="font-black text-xl mb-2" style={{ color: p.color }}>
-                {p.title}
-              </h3>
-              <p className="text-[#C7C7D1] text-sm leading-relaxed">{p.desc}</p>
+            <div key={p.title} className="c-card rounded-2xl p-6">
+              <div className="mb-4 h-9 w-9 rounded-xl" style={{ background: `${p.c}22`, border: `1px solid ${p.c}55` }} />
+              <h3 className="mb-2 text-xl font-black" style={{ color: p.c }}>{p.title}</h3>
+              <p className="text-sm leading-relaxed text-[#C7C7D1]">{p.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Every USP mapped */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 py-20">
+      {/* USPs grouped under the two products (expandable) */}
+      <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
         <div className="mb-12">
-          <span className="inline-block text-[11px] font-black tracking-[0.25em] uppercase px-3 py-1.5 rounded-full mb-5"
-            style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>
-            {t('forCompanies.usps.eyebrow')}
-          </span>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter max-w-3xl"
-            style={{ color: '#FB7185' }}>
-            {t('forCompanies.usps.title')}
-          </h2>
-          <p className="text-[#A6A6B4] text-lg mt-4 max-w-2xl">
-            {t('forCompanies.usps.subtitle')}
-          </p>
+          <span className="mb-5 inline-block rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.25em]" style={{ background: `${OCEAN}1f`, color: OCEAN }}>{t('forCompanies.usps.eyebrow')}</span>
+          <h2 className="max-w-3xl text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">{t('forCompanies.usps.title')}</h2>
         </div>
-
-        <div className="grid md:grid-cols-2 gap-4">
-          {[
-            { icon: '📊', title: t('forCompanies.usps.u1Title'), desc: t('forCompanies.usps.u1Desc') },
-            { icon: '🎯', title: t('forCompanies.usps.u2Title'), desc: t('forCompanies.usps.u2Desc') },
-            { icon: '🛡️', title: t('forCompanies.usps.u3Title'), desc: t('forCompanies.usps.u3Desc') },
-            { icon: '🗺️', title: t('forCompanies.usps.u4Title'), desc: t('forCompanies.usps.u4Desc') },
-            { icon: '💸', title: t('forCompanies.usps.u5Title'), desc: t('forCompanies.usps.u5Desc') },
-            { icon: '📋', title: t('forCompanies.usps.u6Title'), desc: t('forCompanies.usps.u6Desc') },
-            { icon: '🏗️', title: t('forCompanies.usps.u7Title'), desc: t('forCompanies.usps.u7Desc') },
-            { icon: '🧭', title: t('forCompanies.usps.u8Title'), desc: t('forCompanies.usps.u8Desc') },
-            { icon: '🤖', title: t('forCompanies.usps.u9Title'), desc: t('forCompanies.usps.u9Desc') },
-            { icon: '📨', title: t('forCompanies.usps.u10Title'), desc: t('forCompanies.usps.u10Desc') },
-            { icon: '💬', title: t('forCompanies.usps.u11Title'), desc: t('forCompanies.usps.u11Desc') },
-            { icon: '🔗', title: t('forCompanies.usps.u12Title'), desc: t('forCompanies.usps.u12Desc') },
-            { icon: '🪞', title: t('forCompanies.usps.u13Title'), desc: t('forCompanies.usps.u13Desc') },
-            { icon: '🤝', title: t('forCompanies.usps.u14Title'), desc: t('forCompanies.usps.u14Desc') },
-          ].map((u) => (
-            <div key={u.title} className="card rounded-2xl p-5">
-              <div className="flex items-start gap-4">
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
-                  style={{ background: 'rgba(251,113,133,0.10)' }}
-                >
-                  <span>{u.icon}</span>
-                </div>
-                <div>
-                  <h3 className="font-black text-base mb-1.5" style={{ color: '#FB7185' }}>
-                    {u.title}
-                  </h3>
-                  <p className="text-[#C7C7D1] text-sm leading-relaxed">{u.desc}</p>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="grid gap-4 md:grid-cols-2">
+          <UspGroup color={OCEAN} title="In Shapi Hire" sub="Recruitment" items={hireKeys.map(usp)} open />
+          <UspGroup color={MINT} title="In Shapi Workforce" sub="HR & Restructuring" items={workforceKeys.map(usp)} />
         </div>
       </section>
 
-      {/* Comparison table */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 py-20">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-3"
-            style={{ color: '#FB7185' }}>
-            {t('forCompanies.comparison.title')}
-          </h2>
-          <p className="text-[#A6A6B4] text-lg max-w-2xl mx-auto">
-            {t('forCompanies.comparison.subtitle')}
-          </p>
+      {/* Comparison — softened, 2-col */}
+      <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
+        <div className="mb-12 text-center">
+          <h2 className="text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">{t('forCompanies.comparison.title')}</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-lg text-[#A6A6B4]">{t('forCompanies.comparison.subtitle')}</p>
         </div>
-
-        <div className="card rounded-3xl p-4 md:p-6 overflow-x-auto">
-          <table className="w-full min-w-[820px] border-collapse">
+        <div className="c-card mx-auto max-w-3xl overflow-x-auto rounded-3xl p-4 md:p-6">
+          <table className="w-full border-collapse">
             <thead>
               <tr>
-                <th className="text-start p-3 text-[#7E7E8E] font-bold text-sm">{t('forCompanies.comparison.colCapability')}</th>
-                <th className="p-3">
-                  <div
-                    className="inline-flex items-center justify-center rounded-full px-3 py-1"
-                    style={{ background: 'rgba(251,113,133,0.14)' }}
-                  >
-                    <span className="font-black text-base tracking-tighter" style={{ color: '#FB7185' }}>
-                      {t('forCompanies.comparison.colShapi')}
-                    </span>
-                  </div>
-                </th>
-                {[
-                  t('forCompanies.comparison.colWorkday'),
-                  t('forCompanies.comparison.colEightfold'),
-                  t('forCompanies.comparison.colLinkedinRecruiter'),
-                  t('forCompanies.comparison.colMercer'),
-                ].map((c) => (
-                  <th key={c} className="p-3 text-[#7E7E8E] font-bold text-sm whitespace-nowrap">
-                    {c}
-                  </th>
-                ))}
+                <th className="p-3 text-start text-sm font-bold text-[#7E7E8E]">{t('forCompanies.comparison.colCapability')}</th>
+                <th className="p-3 text-base font-black tracking-tighter" style={{ color: MINT }}>{t('forCompanies.comparison.colShapi')}</th>
+                <th className="p-3 text-sm font-bold text-[#7E7E8E]">Traditional HR & hiring tools</th>
               </tr>
             </thead>
             <tbody>
-              {[
-                [t('forCompanies.comparison.row1'), '✓', '✗', '~', '✗', '✗'],
-                [t('forCompanies.comparison.row2'), '✓', '✗', '~', '✗', '~'],
-                [t('forCompanies.comparison.row3'), '✓', '✗', '~', '✗', '~'],
-                [t('forCompanies.comparison.row4'), '✓', '~', '~', '✗', '✓'],
-                [t('forCompanies.comparison.row5'), '✓', '✗', '✗', '✗', '~'],
-                [t('forCompanies.comparison.row6'), '✓', '✗', '~', '✓', '✗'],
-                [t('forCompanies.comparison.row7'), '✓', '✗', '✗', '~', '✗'],
-                [t('forCompanies.comparison.row8'), '✓', '✗', '✗', '~', '✗'],
-              ].map((row, i) => (
+              {compRows.map((row, i) => (
                 <tr key={i} style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-                  <td className="p-3 text-sm text-[#C7C7D1] font-medium">{row[0]}</td>
-                  {[1, 2, 3, 4, 5].map((col) => {
-                    const v = row[col] as string
-                    const isShapi = col === 1
-                    let color = '#7E7E8E'
-                    if (v === '✓') color = isShapi ? '#FB7185' : '#34D399'
-                    if (v === '✗') color = '#FB7185'
-                    if (v === '~') color = '#FBBF24'
-                    return (
-                      <td
-                        key={col}
-                        className="p-3 text-center font-black text-base"
-                        style={{
-                          color,
-                          background: isShapi ? 'rgba(251,113,133,0.06)' : 'transparent',
-                        }}
-                      >
-                        {v}
-                      </td>
-                    )
-                  })}
+                  <td className="p-3 text-sm font-medium text-[#C7C7D1]">{row.label}</td>
+                  <td className="p-3 text-center text-base font-black" style={{ color: MINT, background: 'rgba(52,211,153,0.06)' }}>✓</td>
+                  <td className="p-3 text-center text-base font-black" style={{ color: row.others === '✓' ? MINT : row.others === '~' ? AMBER : CORAL }}>{row.others}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <p className="text-[11px] text-[#7E7E8E] mt-4 px-2">
-            <span className="font-bold" style={{ color: '#34D399' }}>✓</span> {t('forCompanies.comparison.legendIn')} ·{' '}
-            <span className="font-bold" style={{ color: '#FBBF24' }}>~</span> {t('forCompanies.comparison.legendPartial')} ·{' '}
-            <span className="font-bold" style={{ color: '#FB7185' }}>✗</span> {t('forCompanies.comparison.legendOut')}.
+          <p className="mt-4 px-2 text-[11px] text-[#7E7E8E]">
+            <span className="font-bold" style={{ color: MINT }}>✓</span> {t('forCompanies.comparison.legendIn')} · <span className="font-bold" style={{ color: AMBER }}>~</span> {t('forCompanies.comparison.legendPartial')} · <span className="font-bold" style={{ color: CORAL }}>✗</span> {t('forCompanies.comparison.legendOut')}.
           </p>
         </div>
       </section>
 
       {/* How it works */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 py-20">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-3"
-            style={{ color: '#FB7185' }}>
-            {t('forCompanies.how.title')}
-          </h2>
+      <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
+        <div className="mb-12 text-center">
+          <h2 className="text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">{t('forCompanies.how.title')}</h2>
         </div>
-
-        <div className="grid md:grid-cols-3 gap-5">
+        <div className="grid gap-5 md:grid-cols-3">
           {[
-            {
-              step: t('forCompanies.how.step1Number'),
-              color: '#9D8CFF',
-              title: t('forCompanies.how.step1Title'),
-              desc: t('forCompanies.how.step1Desc'),
-            },
-            {
-              step: t('forCompanies.how.step2Number'),
-              color: '#9D8CFF',
-              title: t('forCompanies.how.step2Title'),
-              desc: t('forCompanies.how.step2Desc'),
-            },
-            {
-              step: t('forCompanies.how.step3Number'),
-              color: '#FB7185',
-              title: t('forCompanies.how.step3Title'),
-              desc: t('forCompanies.how.step3Desc'),
-            },
+            { step: t('forCompanies.how.step1Number'), c: OCEAN, title: t('forCompanies.how.step1Title'), desc: t('forCompanies.how.step1Desc') },
+            { step: t('forCompanies.how.step2Number'), c: CORAL, title: t('forCompanies.how.step2Title'), desc: t('forCompanies.how.step2Desc') },
+            { step: t('forCompanies.how.step3Number'), c: MINT, title: t('forCompanies.how.step3Title'), desc: t('forCompanies.how.step3Desc') },
           ].map((s) => (
-            <div key={s.step} className="card rounded-2xl p-7">
-              <div className="flex items-center gap-4 mb-4">
-                <span className="text-5xl font-black" style={{ color: s.color }}>
-                  {s.step}
-                </span>
-              </div>
-              <h3 className="font-black text-xl mb-2">{s.title}</h3>
-              <p className="text-[#C7C7D1] text-sm leading-relaxed">{s.desc}</p>
+            <div key={s.step} className="c-card rounded-2xl p-7">
+              <span className="text-5xl font-black" style={{ color: s.c }}>{s.step}</span>
+              <h3 className="mb-2 mt-4 text-xl font-black">{s.title}</h3>
+              <p className="text-sm leading-relaxed text-[#C7C7D1]">{s.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Sourced confidence */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 py-12">
-        <div
-          className="rounded-2xl p-6 md:p-8"
-          style={{
-            background: 'rgba(157, 140, 255, 0.06)',
-            border: '1px solid rgba(157, 140, 255, 0.18)',
-          }}
-        >
-          <p className="text-[11px] font-black tracking-[0.25em] uppercase mb-3" style={{ color: '#9D8CFF' }}>
-            {t('forCompanies.sources.eyebrow')}
-          </p>
-          <p className="text-[#C7C7D1] text-base md:text-lg leading-relaxed">
-            {t('forCompanies.sources.body')}
-          </p>
+      {/* Sources */}
+      <section className="relative z-10 mx-auto max-w-6xl px-6 py-12">
+        <div className="rounded-2xl p-6 md:p-8" style={{ background: 'rgba(56,189,248,0.06)', border: '1px solid rgba(56,189,248,0.18)' }}>
+          <p className="mb-3 text-[11px] font-black uppercase tracking-[0.25em]" style={{ color: OCEAN }}>{t('forCompanies.sources.eyebrow')}</p>
+          <p className="text-base leading-relaxed text-[#C7C7D1] md:text-lg">{t('forCompanies.sources.body')}</p>
         </div>
       </section>
 
-      {/* Pricing tease */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 py-20">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-3"
-            style={{ color: '#FB7185' }}>
-            {t('forCompanies.pricing.title')}
-          </h2>
-          <p className="text-[#A6A6B4] text-lg max-w-2xl mx-auto">
-            {t('forCompanies.pricing.subtitle')}
-          </p>
+      {/* Pricing — divided by product */}
+      <section id="pricing" className="relative z-10 mx-auto max-w-6xl px-6 py-16 scroll-mt-20">
+        <div className="mb-12 text-center">
+          <h2 className="text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">{t('forCompanies.pricing.title')}</h2>
+          <p className="mx-auto mt-3 max-w-2xl text-lg text-[#A6A6B4]">{t('forCompanies.pricing.subtitle')}</p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <p className="mb-4 text-sm font-black uppercase tracking-widest" style={{ color: OCEAN }}>Recruitment · Shapi Hire</p>
+        <div className="mb-12 grid gap-5 md:grid-cols-3">
           {[
-            {
-              name: t('forCompanies.pricing.t1Name'),
-              price: t('forCompanies.pricing.t1Price'),
-              color: '#9D8CFF',
-              desc: t('forCompanies.pricing.t1Desc'),
-              cta: t('forCompanies.pricing.t1Cta'),
-              href: '/signup?type=company',
-              priceSuffix: '',
-              highlight: false,
-            },
-            {
-              name: t('forCompanies.pricing.t2Name'),
-              price: t('forCompanies.pricing.t2Price'),
-              priceSuffix: t('forCompanies.pricing.t2Suffix'),
-              color: '#9D8CFF',
-              desc: t('forCompanies.pricing.t2Desc'),
-              cta: t('forCompanies.pricing.t2Cta'),
-              href: '/signup?type=company',
-              highlight: true,
-            },
-            {
-              name: t('forCompanies.pricing.t3Name'),
-              price: t('forCompanies.pricing.t3Price'),
-              priceSuffix: t('forCompanies.pricing.t3Suffix'),
-              color: '#FB7185',
-              desc: t('forCompanies.pricing.t3Desc'),
-              cta: t('forCompanies.pricing.t3Cta'),
-              href: '/signup?type=company',
-              highlight: false,
-            },
-            {
-              name: t('forCompanies.pricing.t4Name'),
-              price: t('forCompanies.pricing.t4Price'),
-              priceSuffix: t('forCompanies.pricing.t4Suffix'),
-              color: '#FBBF24',
-              desc: t('forCompanies.pricing.t4Desc'),
-              cta: t('forCompanies.pricing.t4Cta'),
-              href: '/book-call?intent=enterprise',
-              highlight: false,
-            },
-          ].map((tier) => (
-            <div
-              key={tier.name}
-              className="card rounded-2xl p-7 flex flex-col"
-              style={
-                tier.highlight
-                  ? {
-                      background: 'linear-gradient(160deg, #131220, #0D0C14)',
-                      border: '1px solid rgba(157, 140, 255, 0.3)',
-                      boxShadow: '0 20px 50px rgba(157, 140, 255, 0.18)',
-                    }
-                  : undefined
-              }
-            >
-              <p
-                className="text-sm font-bold uppercase tracking-wider mb-2"
-                style={{ color: tier.color }}
-              >
-                {tier.name}
-              </p>
-              <p className="text-4xl font-black mb-1">{tier.price}</p>
-              {tier.priceSuffix && (
-                <p className="text-xs text-[#7E7E8E] mb-5">{tier.priceSuffix}</p>
-              )}
-              {!tier.priceSuffix && <div className="mb-5" />}
-              <p className="text-[#C7C7D1] text-sm leading-relaxed mb-7 flex-1">{tier.desc}</p>
-              <a
-                href={tier.href}
-                className={
-                  tier.highlight
-                    ? 'btn-primary rounded-full py-3 text-center text-sm font-black'
-                    : 'btn-outline rounded-full py-3 text-center text-sm font-black'
-                }
-              >
-                {tier.cta}
-              </a>
-            </div>
-          ))}
+            { name: t('forCompanies.pricing.t1Name'), price: t('forCompanies.pricing.t1Price'), suffix: '', desc: t('forCompanies.pricing.t1Desc'), cta: t('forCompanies.pricing.t1Cta'), href: '/signup?type=company', c: OCEAN, hot: false },
+            { name: t('forCompanies.pricing.t2Name'), price: t('forCompanies.pricing.t2Price'), suffix: t('forCompanies.pricing.t2Suffix'), desc: t('forCompanies.pricing.t2Desc'), cta: t('forCompanies.pricing.t2Cta'), href: '/signup?type=company', c: MINT, hot: true },
+            { name: t('forCompanies.pricing.t3Name'), price: t('forCompanies.pricing.t3Price'), suffix: t('forCompanies.pricing.t3Suffix'), desc: t('forCompanies.pricing.t3Desc'), cta: t('forCompanies.pricing.t3Cta'), href: '/signup?type=company', c: CORAL, hot: false },
+          ].map((tier) => <PriceCard key={tier.name} tier={tier} />)}
+        </div>
+
+        <p className="mb-4 text-sm font-black uppercase tracking-widest" style={{ color: MINT }}>HR &amp; Restructuring · Shapi Workforce</p>
+        <div className="grid gap-5 md:grid-cols-3">
+          <div className="md:col-span-3">
+            <PriceCard wide tier={{ name: t('forCompanies.pricing.t4Name'), price: t('forCompanies.pricing.t4Price'), suffix: t('forCompanies.pricing.t4Suffix'), desc: t('forCompanies.pricing.t4Desc'), cta: t('forCompanies.pricing.t4Cta'), href: '/book-call?intent=enterprise', c: AMBER, hot: false }} />
+          </div>
         </div>
       </section>
 
       {/* Final CTA */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 py-20">
-        <div
-          className="relative overflow-hidden rounded-3xl text-center py-16 md:py-20 px-8"
-          style={{
-            background: '#0D0C14',
-            border: '1px solid rgba(255,255,255,0.08)',
-          }}
-        >
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                'radial-gradient(circle at 50% 0%, rgba(251,113,133,0.16), transparent 60%)',
-            }}
-          />
+      <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
+        <div className="relative overflow-hidden rounded-3xl px-8 py-16 text-center md:py-20" style={{ background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(56,189,248,0.16), transparent 60%)' }} />
           <div className="relative">
-            <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-5"
-              style={{ color: '#FB7185' }}>
-              {t('forCompanies.finalCta.title')}
-            </h2>
-            <p className="text-[#A6A6B4] text-lg mb-10 max-w-2xl mx-auto">
-              {t('forCompanies.finalCta.subtitle')}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link
-                href="/signup?type=company"
-                className="btn-primary rounded-full px-8 py-4 font-black text-sm"
-              >
-                {t('forCompanies.finalCta.ctaSnapshot')}
-              </Link>
-              <Link
-                href="/book-call?topic=workforce-intelligence"
-                className="btn-outline rounded-full px-8 py-4 font-bold text-sm"
-              >
-                {t('forCompanies.finalCta.ctaTalk')}
-              </Link>
+            <h2 className="mb-5 text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-6xl">{t('forCompanies.finalCta.title')}</h2>
+            <p className="mx-auto mb-10 max-w-2xl text-lg text-[#A6A6B4]">{t('forCompanies.finalCta.subtitle')}</p>
+            <div className="flex flex-col justify-center gap-3 sm:flex-row">
+              <Link href="/signup?type=company" className="c-btn rounded-full px-8 py-4 text-sm font-black">{t('forCompanies.finalCta.ctaSnapshot')}</Link>
+              <Link href="/book-call?topic=workforce-intelligence" className="c-outline rounded-full px-8 py-4 text-sm font-bold">{t('forCompanies.finalCta.ctaTalk')}</Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-white/[0.08] py-10 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5">
-          <Link href="/" className="font-black text-xl tracking-tighter grad-text">
-            shapi
-          </Link>
-          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-[#7E7E8E]">
-            <Link href="/for-candidates" className="hover:text-[#F4F4F7] transition-colors">
-              {t('common.footer.forCandidates')}
-            </Link>
-            <Link href="/company/pricing" className="hover:text-[#F4F4F7] transition-colors">
-              {t('common.footer.companyPricing')}
-            </Link>
-            <Link href="/privacy" className="hover:text-[#F4F4F7] transition-colors">
-              {t('common.footer.privacy')}
-            </Link>
-            <Link href="/terms" className="hover:text-[#F4F4F7] transition-colors">
-              {t('common.footer.terms')}
-            </Link>
-            <a href="mailto:hello@shapi.io" className="hover:text-[#F4F4F7] transition-colors">
-              {t('common.footer.email')}
-            </a>
+      <SiteFooter />
+    </div>
+  )
+}
+
+function ProductCard({ color, kicker, label, title, body, points, cta, href }: { color: string; kicker: string; label: string; title: string; body: string; points: string[]; cta: string; href: string }) {
+  return (
+    <div className="c-card flex flex-col rounded-3xl p-8">
+      <div className="mb-4 flex items-center gap-2">
+        <span className="text-lg font-black" style={{ color }}>{kicker}</span>
+        <span className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ background: `${color}1f`, color }}>{label}</span>
+      </div>
+      <h3 className="mb-3 text-2xl font-black tracking-tight text-[#F4F4F7]">{title}</h3>
+      <p className="mb-5 text-sm leading-relaxed text-[#C7C7D1]">{body}</p>
+      <ul className="mb-6 space-y-2.5">
+        {points.map((p, i) => (
+          <li key={i} className="flex items-start gap-2.5 text-sm text-[#C7C7D1]">
+            <svg className="mt-0.5 h-4 w-4 flex-shrink-0" style={{ color }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+            {p}
+          </li>
+        ))}
+      </ul>
+      <Link href={href} className="mt-auto inline-block text-sm font-black" style={{ color }}>{cta}</Link>
+    </div>
+  )
+}
+
+function UspGroup({ color, title, sub, items, open = false }: { color: string; title: string; sub: string; items: { title: string; body: string }[]; open?: boolean }) {
+  // Self-managed open state — controlled `open` + onToggle so the native
+  // <details> toggle and React stay in sync (avoids the content-desync bug).
+  const [isOpen, setIsOpen] = useState(open)
+  return (
+    <details className="group c-card rounded-2xl p-6" open={isOpen} onToggle={(e) => setIsOpen((e.currentTarget as HTMLDetailsElement).open)}>
+      <summary className="flex cursor-pointer list-none select-none items-center gap-3 [&::-webkit-details-marker]:hidden">
+        <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ background: color }} />
+        <span>
+          <span className="block text-lg font-black leading-tight" style={{ color }}>{title}</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E]">{sub}</span>
+        </span>
+        <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: `${color}1f`, color }}>{items.length}</span>
+        <span className="ml-auto text-sm transition-transform duration-200 group-open:rotate-180" style={{ color: 'rgba(255,255,255,0.4)' }}>▾</span>
+      </summary>
+      <div className="mt-5 space-y-4">
+        {items.map((it, j) => (
+          <div key={j} className="border-t border-white/[0.06] pt-3 first:border-0 first:pt-0">
+            <p className="text-sm font-bold text-[#F4F4F7]">{it.title}</p>
+            <p className="mt-1 text-sm leading-relaxed text-[#A6A6B4]">{it.body}</p>
           </div>
-          <p className="text-[#5C5C6A] text-sm">{t('common.footer.tagline')}</p>
-        </div>
-      </footer>
+        ))}
+      </div>
+    </details>
+  )
+}
+
+function PriceCard({ tier, wide = false }: { tier: { name: string; price: string; suffix: string; desc: string; cta: string; href: string; c: string; hot: boolean }; wide?: boolean }) {
+  return (
+    <div className={`c-card flex rounded-2xl p-7 ${wide ? 'flex-col md:flex-row md:items-center md:gap-8' : 'flex-col'}`} style={tier.hot ? { border: '1px solid rgba(52,211,153,0.35)' } : undefined}>
+      <div className={wide ? 'md:flex-1' : ''}>
+        {tier.hot && <span className="mb-2 inline-block rounded-full px-2 py-0.5 text-[10px] font-black" style={{ background: 'rgba(52,211,153,0.15)', color: '#34D399' }}>MOST POPULAR</span>}
+        <p className="mb-2 text-sm font-bold uppercase tracking-wider" style={{ color: tier.c }}>{tier.name}</p>
+        <p className="text-4xl font-black">{tier.price}</p>
+        {tier.suffix && <p className="mb-5 mt-1 text-xs text-[#7E7E8E]">{tier.suffix}</p>}
+        <p className={`text-sm leading-relaxed text-[#C7C7D1] ${wide ? 'mt-2' : 'mb-7 flex-1'}`}>{tier.desc}</p>
+      </div>
+      <Link href={tier.href} className={`${tier.hot ? 'c-btn' : 'c-outline'} rounded-full py-3 text-center text-sm font-black ${wide ? 'mt-4 md:mt-0 md:w-56' : ''}`} style={!wide ? { display: 'block' } : undefined}>{tier.cta}</Link>
     </div>
   )
 }
