@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import LocalePicker from '@/components/LocalePicker'
+import SiteNav from '@/components/SiteNav'
+import SiteFooter from '@/components/SiteFooter'
 import { LocaleProvider, useTranslation } from '@/lib/i18n/LocaleContext'
 
 type Score = 1 | 0 | 0.5
@@ -78,7 +79,7 @@ function ForCandidatesInner() {
     <div className="min-h-screen bg-[#060609] text-[#F4F4F7] overflow-x-hidden">
       <style>{`
         .grad-text {
-          background: linear-gradient(135deg, #9D8CFF, #34D399);
+          background: linear-gradient(135deg, #38BDF8, #34D399);
           background-size: 300% 300%;
           -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
@@ -90,22 +91,22 @@ function ForCandidatesInner() {
         }
         .card:hover {
           transform: translateY(-4px);
-          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 20px 46px rgba(157, 140, 255, 0.14);
-          border-color: rgba(157, 140, 255, 0.28);
+          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 20px 46px rgba(56, 189, 248, 0.14);
+          border-color: rgba(56, 189, 248, 0.28);
         }
         .btn-primary {
-          background: linear-gradient(135deg, #9D8CFF, #34D399);
-          color: #fff;
-          box-shadow: 0 8px 24px rgba(157, 140, 255, 0.28);
+          background: linear-gradient(135deg, #38BDF8, #34D399);
+          color: #06121a;
+          box-shadow: 0 8px 24px rgba(56, 189, 248, 0.28);
           transition: all 0.25s ease;
         }
-        .btn-primary:hover { box-shadow: 0 12px 32px rgba(157, 140, 255, 0.42); transform: translateY(-1px); }
+        .btn-primary:hover { box-shadow: 0 12px 32px rgba(56, 189, 248, 0.42); transform: translateY(-1px); }
         .grad-border-cta {
-          background: linear-gradient(#0D0C14,#0D0C14) padding-box, linear-gradient(135deg, #9D8CFF, #34D399) border-box;
+          background: linear-gradient(#0D0C14,#0D0C14) padding-box, linear-gradient(135deg, #38BDF8, #34D399) border-box;
           border: 1.5px solid transparent; color: #F4F4F7;
           transition: all 0.25s ease;
         }
-        .grad-border-cta:hover { box-shadow: 0 8px 24px rgba(157, 140, 255, 0.22); transform: translateY(-1px); }
+        .grad-border-cta:hover { box-shadow: 0 8px 24px rgba(56, 189, 248, 0.22); transform: translateY(-1px); }
         .btn-outline {
           background: transparent; border: 1px solid rgba(255,255,255,0.16); color: #F4F4F7;
           transition: all .25s ease;
@@ -122,19 +123,8 @@ function ForCandidatesInner() {
         backgroundSize: '44px 44px',
       }} />
 
-      {/* Nav */}
-      <nav className="relative z-20 border-b border-white/[0.08]">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
-          <Link href="/" className="font-black text-xl tracking-tighter grad-text">shapi</Link>
-          <div className="flex items-center gap-5">
-            <Link href="/" className="nav-link text-sm hidden sm:block">{t('forCandidates.nav.home')}</Link>
-            <Link href="/for-companies" className="nav-link text-sm hidden sm:block">{t('forCandidates.nav.forCompanies')}</Link>
-            <Link href="/login" className="nav-link text-sm">{t('forCandidates.nav.signIn')}</Link>
-            <LocalePicker />
-            <Link href="/signup" className="grad-border-cta px-4 py-2 rounded-full text-sm font-black">{t('forCandidates.nav.getStarted')}</Link>
-          </div>
-        </div>
-      </nav>
+      {/* Shared top nav — North Star logo + locked IA */}
+      <SiteNav active="candidates" />
 
       {/* Hero */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 pt-20 pb-16">
@@ -144,8 +134,9 @@ function ForCandidatesInner() {
             <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: '#FB7185' }}>{t('forCandidates.hero.badge')}</span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-black leading-[0.95] tracking-tighter mb-6" style={{ color: '#FB7185' }}>
-            {t('forCandidates.hero.headlineLine1')}<br />{t('forCandidates.hero.headlineLine2')}
+          <h1 className="text-5xl md:text-7xl font-black leading-[0.95] tracking-tighter mb-6" style={{ color: '#fff' }}>
+            {t('forCandidates.hero.headlineLine1')}<br />
+            <span className="grad-text">{t('forCandidates.hero.headlineLine2')}</span>
           </h1>
 
           <p className="text-lg md:text-xl text-[#C7C7D1] max-w-2xl mx-auto leading-relaxed mb-3">
@@ -179,19 +170,19 @@ function ForCandidatesInner() {
           {[
             {
               tag: t('forCandidates.pitch.panel1Tag'),
-              color: '#FB7185',
+              color: '#38BDF8',
               title: t('forCandidates.pitch.panel1Title'),
               body: t('forCandidates.pitch.panel1Body'),
             },
             {
               tag: t('forCandidates.pitch.panel2Tag'),
-              color: '#9D8CFF',
+              color: '#34D399',
               title: t('forCandidates.pitch.panel2Title'),
               body: t('forCandidates.pitch.panel2Body'),
             },
             {
               tag: t('forCandidates.pitch.panel3Tag'),
-              color: '#9D8CFF',
+              color: '#FB7185',
               title: t('forCandidates.pitch.panel3Title'),
               body: t('forCandidates.pitch.panel3Body'),
             },
@@ -211,7 +202,7 @@ function ForCandidatesInner() {
           <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(251,113,133,0.10)', color: '#FB7185' }}>
             {t('forCandidates.usps.eyebrow')}
           </div>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#FB7185' }}>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#fff' }}>
             {t('forCandidates.usps.title')}
           </h2>
           <p className="text-[#A6A6B4] text-base mt-4 max-w-2xl mx-auto">
@@ -220,19 +211,22 @@ function ForCandidatesInner() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-4">
-          {usps.map((u, i) => (
-            <div key={i} className="card rounded-2xl p-5">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-base" style={{ background: 'rgba(251,113,133,0.12)', color: '#FB7185' }}>
-                  {u.icon}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-black text-base mb-1.5" style={{ color: '#FB7185' }}>{u.title}</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: '#C7C7D1' }}>{u.body}</p>
+          {usps.map((u, i) => {
+            const c = ['#38BDF8', '#34D399', '#FB7185', '#FBBF24'][i % 4]
+            return (
+              <div key={i} className="card rounded-2xl p-5">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-base" style={{ background: `${c}1f`, color: c }}>
+                    {u.icon}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-black text-base mb-1.5" style={{ color: c }}>{u.title}</h3>
+                    <p className="text-sm leading-relaxed" style={{ color: '#C7C7D1' }}>{u.body}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </section>
 
@@ -242,7 +236,7 @@ function ForCandidatesInner() {
           <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>
             {t('forCandidates.comparison.eyebrow')}
           </div>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#FB7185' }}>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#fff' }}>
             {t('forCandidates.comparison.title')}
           </h2>
         </div>
@@ -291,16 +285,16 @@ function ForCandidatesInner() {
       {/* How it works */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-20">
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#FB7185' }}>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#fff' }}>
             {t('forCandidates.how.title')}
           </h2>
         </div>
 
         <div className="grid md:grid-cols-3 gap-4">
           {[
-            { step: t('forCandidates.how.step1Number'), color: '#9D8CFF', title: t('forCandidates.how.step1Title'), body: t('forCandidates.how.step1Body') },
-            { step: t('forCandidates.how.step2Number'), color: '#9D8CFF', title: t('forCandidates.how.step2Title'), body: t('forCandidates.how.step2Body') },
-            { step: t('forCandidates.how.step3Number'), color: '#FB7185', title: t('forCandidates.how.step3Title'), body: t('forCandidates.how.step3Body') },
+            { step: t('forCandidates.how.step1Number'), color: '#38BDF8', title: t('forCandidates.how.step1Title'), body: t('forCandidates.how.step1Body') },
+            { step: t('forCandidates.how.step2Number'), color: '#FB7185', title: t('forCandidates.how.step2Title'), body: t('forCandidates.how.step2Body') },
+            { step: t('forCandidates.how.step3Number'), color: '#34D399', title: t('forCandidates.how.step3Title'), body: t('forCandidates.how.step3Body') },
           ].map((s, i) => (
             <div key={i} className="card rounded-2xl p-7">
               <div className="flex items-center gap-4 mb-4">
@@ -329,7 +323,7 @@ function ForCandidatesInner() {
       {/* Pricing tease */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-20">
         <div className="text-center mb-10">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#FB7185' }}>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#fff' }}>
             {t('forCandidates.pricing.title')}
           </h2>
           <p className="text-[#A6A6B4] text-base mt-3">{t('forCandidates.pricing.subtitle')}</p>
@@ -337,11 +331,11 @@ function ForCandidatesInner() {
 
         <div className="grid md:grid-cols-5 gap-3">
           {[
-            { name: t('forCandidates.pricing.t1Name'), price: t('forCandidates.pricing.t1Price'), body: t('forCandidates.pricing.t1Body'), color: '#9D8CFF' },
-            { name: t('forCandidates.pricing.t2Name'), price: t('forCandidates.pricing.t2Price'), body: t('forCandidates.pricing.t2Body'), color: '#9D8CFF' },
+            { name: t('forCandidates.pricing.t1Name'), price: t('forCandidates.pricing.t1Price'), body: t('forCandidates.pricing.t1Body'), color: '#38BDF8' },
+            { name: t('forCandidates.pricing.t2Name'), price: t('forCandidates.pricing.t2Price'), body: t('forCandidates.pricing.t2Body'), color: '#34D399' },
             { name: t('forCandidates.pricing.t3Name'), price: t('forCandidates.pricing.t3Price'), body: t('forCandidates.pricing.t3Body'), color: '#FB7185' },
-            { name: t('forCandidates.pricing.t4Name'), price: t('forCandidates.pricing.t4Price'), body: t('forCandidates.pricing.t4Body'), color: '#FB7185' },
-            { name: t('forCandidates.pricing.t5Name'), price: t('forCandidates.pricing.t5Price'), body: t('forCandidates.pricing.t5Body'), color: '#9D8CFF' },
+            { name: t('forCandidates.pricing.t4Name'), price: t('forCandidates.pricing.t4Price'), body: t('forCandidates.pricing.t4Body'), color: '#FBBF24' },
+            { name: t('forCandidates.pricing.t5Name'), price: t('forCandidates.pricing.t5Price'), body: t('forCandidates.pricing.t5Body'), color: '#38BDF8' },
           ].map((tier, i) => (
             <div key={i} className="card rounded-2xl p-5">
               <p className="text-xs font-black uppercase tracking-wider mb-2" style={{ color: tier.color }}>{tier.name}</p>
@@ -359,7 +353,7 @@ function ForCandidatesInner() {
         }}>
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(251,113,133,0.16), transparent 60%)' }} />
           <div className="relative">
-            <h2 className="text-4xl md:text-6xl font-black mb-5 tracking-tighter max-w-3xl mx-auto" style={{ color: '#FB7185' }}>
+            <h2 className="text-4xl md:text-6xl font-black mb-5 tracking-tighter max-w-3xl mx-auto" style={{ color: '#fff' }}>
               {t('forCandidates.finalCta.title')}
             </h2>
             <p className="text-[#A6A6B4] mb-9 text-base max-w-xl mx-auto">
@@ -377,19 +371,8 @@ function ForCandidatesInner() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-white/[0.08] py-10 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-5">
-          <Link href="/" className="font-black text-xl tracking-tighter grad-text">shapi</Link>
-          <div className="flex items-center gap-6 text-sm text-[#7E7E8E]">
-            <Link href="/for-companies" className="hover:text-[#F4F4F7] transition-colors">{t('common.footer.forCompanies')}</Link>
-            <Link href="/privacy" className="hover:text-[#F4F4F7] transition-colors">{t('common.footer.privacy')}</Link>
-            <Link href="/terms" className="hover:text-[#F4F4F7] transition-colors">{t('common.footer.terms')}</Link>
-            <a href="mailto:hello@shapi.io" className="hover:text-[#F4F4F7] transition-colors">{t('common.footer.email')}</a>
-          </div>
-          <p className="text-[#5C5C6A] text-sm">{t('common.footer.copyright')}</p>
-        </div>
-      </footer>
+      {/* Shared footer — North Star logo + full link set */}
+      <SiteFooter />
     </div>
   )
 }
