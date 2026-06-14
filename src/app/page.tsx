@@ -58,8 +58,8 @@ export default function Home() {
             </div>
 
             <h1 className="text-5xl font-black leading-[0.95] tracking-tighter md:text-[78px]">
-              <span className="block">Shape</span>
-              <span className="block">what&apos;s <span className="h-grad">next.</span></span>
+              <span className="block"><span className="h-grad">Shape</span></span>
+              <span className="block">what&apos;s next.</span>
             </h1>
 
             <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-[#F4F4F7] md:text-xl">
@@ -100,7 +100,7 @@ export default function Home() {
         {/* ───────── What we do ───────── */}
         <section className="relative z-10 mx-auto max-w-5xl px-6 py-20">
           <Eyebrow color={OCEAN}>What we do</Eyebrow>
-          <SectionTitle>One platform for the people<br />and companies navigating the <span className="h-grad">change.</span></SectionTitle>
+          <SectionTitle><span className="h-grad">One platform</span> for the people<br />and companies navigating the change.</SectionTitle>
           <p className="mx-auto mt-4 max-w-2xl text-center text-base text-[#E6E6EC]">
             Shapi replaces the scattered, costly, slow process of proving and finding
             talent with a single source of truth — and supports both sides through
@@ -125,7 +125,7 @@ export default function Home() {
         {/* ───────── Two paths ───────── */}
         <section className="relative z-10 mx-auto max-w-6xl px-6 py-20">
           <Eyebrow color={MINT}>Both sides, one source of truth</Eyebrow>
-          <SectionTitle>Wherever you are in the change,<br />there&apos;s a way <span className="h-grad">through.</span></SectionTitle>
+          <SectionTitle>Wherever you are in the change,<br />there&apos;s <span className="h-grad">a way</span> through.</SectionTitle>
           <div className="mt-12 grid gap-5 md:grid-cols-2">
             <PathCard
               href="/for-candidates"
