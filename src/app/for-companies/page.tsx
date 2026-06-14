@@ -76,7 +76,7 @@ function ForCompaniesInner() {
             {t('forCompanies.hero.badge')}
           </span>
           <h1 className="mb-7 text-5xl font-black leading-[0.95] tracking-tighter text-[#F4F4F7] md:text-7xl">
-            {t('forCompanies.hero.headline')}
+            <Hl text={t('forCompanies.hero.headline')} word="verified talent" />
           </h1>
           <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-[#E6E6EC] md:text-xl">
             {t('forCompanies.hero.subhead')}
@@ -93,7 +93,7 @@ function ForCompaniesInner() {
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
         <div className="mb-10 text-center">
           <span className="inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-widest" style={{ background: `${MINT}1f`, color: MINT }}>Two products, one platform</span>
-          <h2 className="mt-5 text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">Hire what&apos;s proven.<br />Reshape what you <span className="c-grad">have.</span></h2>
+          <h2 className="mt-5 text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">Hire what&apos;s <span style={{ color: OCEAN }}>proven.</span><br />Reshape what you <span style={{ color: MINT }}>have.</span></h2>
         </div>
         <div className="grid gap-5 md:grid-cols-2">
           <ProductCard
@@ -122,17 +122,17 @@ function ForCompaniesInner() {
       {/* Pitch — 3 panels */}
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
         <div className="mb-12 text-center">
-          <h2 className="text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">{t('forCompanies.pitch.title')}</h2>
+          <h2 className="text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl"><Hl text={t('forCompanies.pitch.title')} word="three layers" /></h2>
           <p className="mx-auto mt-3 max-w-2xl text-lg text-[#E6E6EC]">{t('forCompanies.pitch.subtitle')}</p>
         </div>
         <div className="grid gap-5 md:grid-cols-3">
           {[
-            { c: MINT, title: t('forCompanies.pitch.p1Title'), desc: t('forCompanies.pitch.p1Desc') },
-            { c: OCEAN, title: t('forCompanies.pitch.p2Title'), desc: t('forCompanies.pitch.p2Desc') },
-            { c: CORAL, title: t('forCompanies.pitch.p3Title'), desc: t('forCompanies.pitch.p3Desc') },
+            { c: MINT, icon: 'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z', title: t('forCompanies.pitch.p1Title'), desc: t('forCompanies.pitch.p1Desc') },
+            { c: OCEAN, icon: 'M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z', title: t('forCompanies.pitch.p2Title'), desc: t('forCompanies.pitch.p2Desc') },
+            { c: CORAL, icon: 'M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z', title: t('forCompanies.pitch.p3Title'), desc: t('forCompanies.pitch.p3Desc') },
           ].map((p) => (
             <div key={p.title} className="c-card rounded-2xl p-6">
-              <div className="mb-4 h-9 w-9 rounded-xl" style={{ background: `${p.c}22`, border: `1px solid ${p.c}55` }} />
+              <svg className="mb-4 h-7 w-7" style={{ color: p.c }} fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d={p.icon} /></svg>
               <h3 className="mb-2 text-xl font-black" style={{ color: p.c }}>{p.title}</h3>
               <p className="text-sm leading-relaxed text-[#C7C7D1]">{p.desc}</p>
             </div>
@@ -144,7 +144,7 @@ function ForCompaniesInner() {
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
         <div className="mb-12 text-center">
           <span className="mb-5 inline-block rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.25em]" style={{ background: `${OCEAN}1f`, color: OCEAN }}>{t('forCompanies.usps.eyebrow')}</span>
-          <h2 className="mx-auto max-w-3xl text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">{t('forCompanies.usps.title')}</h2>
+          <h2 className="mx-auto max-w-3xl text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl"><Hl text={t('forCompanies.usps.title')} word="plain terms" /></h2>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <UspGroup color={OCEAN} title="In Shapi Hire" sub="Recruitment" items={hireKeys.map(usp)} open />
@@ -214,7 +214,7 @@ function ForCompaniesInner() {
       {/* Pricing — divided by product */}
       <section id="pricing" className="relative z-10 mx-auto max-w-6xl px-6 py-16 scroll-mt-20">
         <div className="mb-12 text-center">
-          <h2 className="text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">{t('forCompanies.pricing.title')}</h2>
+          <h2 className="text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl"><Hl text={t('forCompanies.pricing.title')} word="clear pricing" /></h2>
           <p className="mx-auto mt-3 max-w-2xl text-lg text-[#A6A6B4]">{t('forCompanies.pricing.subtitle')}</p>
         </div>
 
@@ -240,7 +240,7 @@ function ForCompaniesInner() {
         <div className="relative overflow-hidden rounded-3xl px-8 py-16 text-center md:py-20" style={{ background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }}>
           <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(56,189,248,0.16), transparent 60%)' }} />
           <div className="relative">
-            <h2 className="mb-5 text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-6xl">{t('forCompanies.finalCta.title')}</h2>
+            <h2 className="mb-5 text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-6xl"><Hl text={t('forCompanies.finalCta.title')} word="stands" /></h2>
             <p className="mx-auto mb-10 max-w-2xl text-lg text-[#A6A6B4]">{t('forCompanies.finalCta.subtitle')}</p>
             <div className="flex flex-col justify-center gap-3 sm:flex-row">
               <Link href="/signup?type=company" className="c-btn rounded-full px-8 py-4 text-sm font-black">{t('forCompanies.finalCta.ctaSnapshot')}</Link>
@@ -252,6 +252,21 @@ function ForCompaniesInner() {
 
       <SiteFooter />
     </div>
+  )
+}
+
+// Highlights one English word/phrase inside a (possibly translated) title with
+// the brand gradient. If the word isn't present (non-English locale), renders
+// the title plain — i18n-safe.
+function Hl({ text, word }: { text: string; word: string }) {
+  const i = text.indexOf(word)
+  if (i < 0) return <>{text}</>
+  return (
+    <>
+      {text.slice(0, i)}
+      <span className="c-grad">{word}</span>
+      {text.slice(i + word.length)}
+    </>
   )
 }
 
