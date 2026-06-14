@@ -129,7 +129,7 @@ function PayInner() {
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                      linear-gradient(135deg, rgba(157, 140, 255, 0.15), rgba(157, 140, 255, 0.15)) border-box;
+                      linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.15)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
@@ -151,7 +151,7 @@ function PayInner() {
 
       <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-2xl mx-auto border-b border-[rgba(255,255,255,0.08)]">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+          background: 'linear-gradient(135deg, #38BDF8, #34D399)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <Link href="/dashboard" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1] transition-colors">← Dashboard</Link>
@@ -193,16 +193,16 @@ function PayInner() {
             </div>
 
             <div className="flex items-center flex-shrink-0 px-1">
-              <span style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontSize: 20, fontWeight: 900 }}>→</span>
+              <span style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontSize: 20, fontWeight: 900 }}>→</span>
             </div>
 
             {/* After — blurred until paid */}
             <div className="flex-1 relative rounded-xl overflow-hidden" style={{
-              background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.06), rgba(157, 140, 255, 0.06))',
-              border: '1px solid rgba(157, 140, 255, 0.2)',
+              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.06), rgba(56, 189, 248, 0.06))',
+              border: '1px solid rgba(56, 189, 248, 0.2)',
               padding: '16px',
             }}>
-              <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: '#9D8CFF', opacity: 0.7 }}>After — Shapi-enhanced</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: '#38BDF8', opacity: 0.7 }}>After — Shapi-enhanced</p>
               {loadingPreview ? (
                 <><div className="shimmer w-full" /><div className="shimmer w-11/12" /><div className="shimmer w-3/4" /></>
               ) : preview?.after ? (
@@ -242,7 +242,7 @@ function PayInner() {
               <p className="text-[#F4F4F7] font-black text-lg">
                 {t.title}
                 {tier === 'pro' && (
-                  <span className="ml-2 align-middle text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ color: '#9D8CFF', background: 'rgba(157, 140, 255, 0.12)', border: '1px solid rgba(157, 140, 255, 0.35)' }}>
+                  <span className="ml-2 align-middle text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ color: '#38BDF8', background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.35)' }}>
                     Most picked
                   </span>
                 )}
@@ -311,7 +311,7 @@ function PayInner() {
             onClick={handlePay}
             disabled={loading}
             className="w-full py-4 rounded-full font-black text-sm transition-opacity disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', color: '#fff' }}
+            style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', color: '#fff' }}
           >
             {loading ? 'Redirecting to payment…' : displayCta}
           </button>
@@ -320,10 +320,10 @@ function PayInner() {
           <p className="text-center text-xs text-[#7E7E8E] mt-3">
             {tier === 'kit' ? (
               <>Want the deep-dive + verification chain?{' '}
-                <Link href="/pay?tier=pro" className="text-[#9D8CFF] font-bold hover:underline">CV Pro — $59 →</Link></>
+                <Link href="/pay?tier=pro" className="text-[#38BDF8] font-bold hover:underline">CV Pro — $59 →</Link></>
             ) : (
               <>Just the enhanced CV?{' '}
-                <Link href="/pay?tier=kit" className="text-[#9D8CFF] font-bold hover:underline">CV Kit — $25 →</Link></>
+                <Link href="/pay?tier=kit" className="text-[#38BDF8] font-bold hover:underline">CV Kit — $25 →</Link></>
             )}
           </p>
 
@@ -334,7 +334,7 @@ function PayInner() {
 
         <p className="text-center text-xs text-[#5C5C6A]">
           Are you a company?{' '}
-          <a href="/signup" className="text-[#9D8CFF] hover:underline">Start your 14-day free trial →</a>
+          <a href="/signup" className="text-[#38BDF8] hover:underline">Start your 14-day free trial →</a>
         </p>
       </div>
     </div>

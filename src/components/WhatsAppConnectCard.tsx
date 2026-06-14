@@ -95,7 +95,7 @@ export default function WhatsAppConnectCard({
       <div
         className="rounded-2xl p-5"
         style={{
-          background: 'linear-gradient(135deg, rgba(251,191,36,0.10), rgba(157, 140, 255, 0.06))',
+          background: 'linear-gradient(135deg, rgba(251,191,36,0.10), rgba(56, 189, 248, 0.06))',
           border: '1px solid rgba(251,191,36,0.30)',
         }}
       >
@@ -135,7 +135,7 @@ export default function WhatsAppConnectCard({
     <div
       className="rounded-2xl p-5"
       style={{
-        background: 'linear-gradient(135deg, rgba(37,211,102,0.10), rgba(157, 140, 255, 0.06))',
+        background: 'linear-gradient(135deg, rgba(37,211,102,0.10), rgba(56, 189, 248, 0.06))',
         border: '1px solid rgba(37,211,102,0.30)',
       }}
     >

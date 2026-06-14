@@ -134,7 +134,7 @@ function ToolBar({ variant }: { variant: 'a' | 'b' | 'c' }) {
       <button onClick={() => setTimeout(() => window.print(), 100)}
         style={{
           padding: '8px 16px', borderRadius: 999, fontSize: 12, fontWeight: 800, border: 'none',
-          background: 'linear-gradient(135deg, #9D8CFF, #34D399)', color: '#060609', cursor: 'pointer',
+          background: 'linear-gradient(135deg, #38BDF8, #34D399)', color: '#060609', cursor: 'pointer',
         }}>
         ↓ Save as PDF
       </button>
@@ -171,13 +171,13 @@ function VariantA({ cv, profile }: { cv: CV; profile: Profile | null }) {
   const tier = profile?.verification_tier
   const sidebarQuotes = pickSidebarQuotes(cv.chatAnswers, 2)
   const tierMeta: Record<string, { label: string; color: string }> = {
-    basic: { label: 'Basic Verified', color: '#9D8CFF' },
+    basic: { label: 'Basic Verified', color: '#38BDF8' },
     strong: { label: 'Strongly Verified', color: '#34D399' },
     premium: { label: 'Premium Verified', color: '#FBBF24' },
   }
   const tierInfo = tier && tier !== 'unverified'
     ? tierMeta[tier]
-    : { label: 'Shapi Verified Profile', color: '#9D8CFF' }  // fallback for Kit users — generic "verified" badge
+    : { label: 'Shapi Verified Profile', color: '#38BDF8' }  // fallback for Kit users — generic "verified" badge
 
   return (
     <>
@@ -186,7 +186,7 @@ function VariantA({ cv, profile }: { cv: CV; profile: Profile | null }) {
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { background: #ECEFF4; color: #1a1a2e; font-family: 'Inter','Helvetica Neue',Arial,system-ui,sans-serif; }
         .page-a { width: 210mm; min-height: 297mm; margin: 24px auto; background: white; box-shadow: 0 6px 48px rgba(0,0,0,0.12); display: grid; grid-template-columns: 1fr 220px; }
-        .top-strip { grid-column: 1 / -1; height: 6px; background: linear-gradient(90deg,#9D8CFF, #34D399); }
+        .top-strip { grid-column: 1 / -1; height: 6px; background: linear-gradient(90deg,#38BDF8, #34D399); }
         .main-col { padding: 36px 32px 32px 40px; }
         .side-col { padding: 36px 24px 32px 24px; background: #F7F9FB; border-left: 1px solid #E5E9F0; }
         h1.name { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
@@ -207,8 +207,8 @@ function VariantA({ cv, profile }: { cv: CV; profile: Profile | null }) {
         .bar-fill { display: flex; align-items: center; gap: 2px; }
         .bar-seg { width: 8px; height: 6px; border-radius: 1px; }
         .side-chip { display: inline-block; font-size: 10px; padding: 3px 8px; border-radius: 999px; background: white; color: #374151; border: 1px solid #E5E7EB; margin: 2px 3px 2px 0; }
-        .side-quote { position: relative; font-size: 11px; line-height: 1.55; color: #374151; font-style: italic; padding: 4px 0 4px 12px; border-left: 2px solid #9D8CFF; margin-bottom: 10px; break-inside: avoid; }
-        .side-quote::before { content: '“'; position: absolute; left: 2px; top: -4px; font-size: 18px; color: #9D8CFF; font-family: Georgia, serif; line-height: 1; font-style: normal; }
+        .side-quote { position: relative; font-size: 11px; line-height: 1.55; color: #374151; font-style: italic; padding: 4px 0 4px 12px; border-left: 2px solid #38BDF8; margin-bottom: 10px; break-inside: avoid; }
+        .side-quote::before { content: '“'; position: absolute; left: 2px; top: -4px; font-size: 18px; color: #38BDF8; font-family: Georgia, serif; line-height: 1; font-style: normal; }
         .side-quote .attr { display: block; font-size: 9px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: rgba(255,255,255,0.5); font-style: normal; margin-top: 4px; }
         .footer-a { grid-column: 1 / -1; padding: 14px 32px 24px; font-size: 9.5px; color: rgba(255,255,255,0.5); border-top: 1px solid #E5E7EB; text-align: center; }
         @media print {
@@ -265,8 +265,8 @@ function VariantA({ cv, profile }: { cv: CV; profile: Profile | null }) {
               <p className="side-label">Skill Fingerprint</p>
               {([
                 { key: 'heart', label: 'Heart', val: Math.round(q.heart), color: '#FB7185' },
-                { key: 'spark', label: 'Spark', val: Math.round(q.spark), color: '#9D8CFF' },
-                { key: 'head', label: 'Head', val: Math.round(q.head), color: '#9D8CFF' },
+                { key: 'spark', label: 'Spark', val: Math.round(q.spark), color: '#38BDF8' },
+                { key: 'head', label: 'Head', val: Math.round(q.head), color: '#38BDF8' },
                 { key: 'hands', label: 'Hands', val: Math.round(q.hands), color: '#34D399' },
               ]).map(r => (
                 <div key={r.key} className="bar-row">
@@ -351,7 +351,7 @@ function VariantB({ cv, profile }: { cv: CV; profile: Profile | null }) {
         .job-b .d { font-size: 11px; color: #8A7C52; font-family: system-ui; }
         .job-b .c { font-size: 13px; color: #5C4A1E; font-style: italic; }
         .job-b .a { font-size: 12px; line-height: 1.65; color: #4A4337; margin-top: 4px; white-space: pre-line; }
-        .quote-b { border-left: 3px solid #9D8CFF; padding: 8px 0 8px 16px; margin: 14px 0; font-size: 12.5px; line-height: 1.6; color: #4A4337; font-style: italic; }
+        .quote-b { border-left: 3px solid #38BDF8; padding: 8px 0 8px 16px; margin: 14px 0; font-size: 12.5px; line-height: 1.6; color: #4A4337; font-style: italic; }
         .quote-b .attr { font-size: 9.5px; font-style: normal; color: #9C8C5C; margin-top: 6px; font-family: system-ui; letter-spacing: 0.5px; text-transform: uppercase; }
         .footer-b { margin-top: 32px; padding-top: 14px; border-top: 1px solid #E0D7C7; font-size: 10px; color: #8A7C52; text-align: center; font-family: system-ui; }
         .langs-row { display: flex; flex-wrap: wrap; gap: 14px; }
@@ -375,7 +375,7 @@ function VariantB({ cv, profile }: { cv: CV; profile: Profile | null }) {
           <span className="verified-b" style={{
             background: tier === 'premium' ? '#FEF3C7' : tier === 'strong' ? '#D1FAE5' : tier === 'basic' ? '#DBEAFE' : '#EDE9FE',
             color: tier === 'premium' ? '#92400E' : tier === 'strong' ? '#065F46' : tier === 'basic' ? '#1E40AF' : '#5B21B6',
-            border: `1px solid ${tier === 'premium' ? '#FBBF24' : tier === 'strong' ? '#34D399' : tier === 'basic' ? '#3B82F6' : '#9D8CFF'}`,
+            border: `1px solid ${tier === 'premium' ? '#FBBF24' : tier === 'strong' ? '#34D399' : tier === 'basic' ? '#3B82F6' : '#38BDF8'}`,
           }}>
             ✓ {tier === 'premium' ? 'Premium Verified' : tier === 'strong' ? 'Strongly Verified' : tier === 'basic' ? 'Basic Verified' : 'Shapi Verified'}
           </span>
@@ -472,7 +472,7 @@ function VariantC({ cv, profile }: { cv: CV; profile: Profile | null }) {
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { background: #F0F2F8; color: #14152A; font-family: 'Inter','Helvetica Neue',Arial,system-ui,sans-serif; }
         .page-c { max-width: 210mm; min-height: 297mm; margin: 24px auto; background: white; box-shadow: 0 6px 48px rgba(0,0,0,0.12); }
-        .top-strip-c { height: 8px; background: linear-gradient(90deg, #9D8CFF, #34D399); }
+        .top-strip-c { height: 8px; background: linear-gradient(90deg, #38BDF8, #34D399); }
         .header-c { padding: 32px 44px 24px; display: flex; justify-content: space-between; align-items: center; gap: 28px; border-bottom: 1px solid #E5E7EB; }
         .header-c .lhs h1 { font-size: 32px; font-weight: 900; letter-spacing: -0.8px; line-height: 1.1; }
         .header-c .lhs .h2-c { font-size: 14px; color: #4B5563; margin-top: 6px; font-weight: 500; }
@@ -481,7 +481,7 @@ function VariantC({ cv, profile }: { cv: CV; profile: Profile | null }) {
         .chip-c { display: inline-flex; align-items: center; gap: 4px; padding: 5px 11px; border-radius: 999px; font-size: 11px; font-weight: 700; }
         .body-c { padding: 28px 44px 28px; }
         .label-c { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #1a1a2e; margin: 22px 0 10px; display: flex; align-items: center; gap: 8px; }
-        .label-c::before { content: ''; width: 18px; height: 2px; background: linear-gradient(90deg,#9D8CFF, #34D399); display: inline-block; }
+        .label-c::before { content: ''; width: 18px; height: 2px; background: linear-gradient(90deg,#38BDF8, #34D399); display: inline-block; }
         .summary-c { font-size: 13px; line-height: 1.68; color: #374151; }
         .job-c { margin-bottom: 16px; break-inside: avoid; padding-bottom: 12px; border-bottom: 1px dashed #E5E7EB; }
         .job-c:last-child { border-bottom: none; }
@@ -515,15 +515,15 @@ function VariantC({ cv, profile }: { cv: CV; profile: Profile | null }) {
             <svg width={radarSize} height={radarSize} viewBox={`0 0 ${radarSize} ${radarSize}`} style={{ flexShrink: 0 }}>
               <defs>
                 <linearGradient id="radarFillC" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#9D8CFF" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="#9D8CFF" stopOpacity={0.35} />
+                  <stop offset="0%" stopColor="#38BDF8" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="#38BDF8" stopOpacity={0.35} />
                 </linearGradient>
               </defs>
               {[0.33, 0.66, 1].map(r => (
                 <path key={r} d={`M ${cx} ${cy - maxR * r} L ${cx + maxR * r} ${cy} L ${cx} ${cy + maxR * r} L ${cx - maxR * r} ${cy} Z`}
                   fill="none" stroke="#E5E7EB" strokeWidth={1} />
               ))}
-              <path d={path} fill="url(#radarFillC)" stroke="#9D8CFF" strokeWidth={1.5} strokeLinejoin="round" />
+              <path d={path} fill="url(#radarFillC)" stroke="#38BDF8" strokeWidth={1.5} strokeLinejoin="round" />
               <text x={cx} y={cy - maxR - 4} fontSize={8} fontWeight={700} textAnchor="middle" fill="#6B7280">HEAD</text>
               <text x={cx + maxR + 14} y={cy + 3} fontSize={8} fontWeight={700} textAnchor="middle" fill="#6B7280">SPARK</text>
               <text x={cx} y={cy + maxR + 10} fontSize={8} fontWeight={700} textAnchor="middle" fill="#6B7280">HEART</text>

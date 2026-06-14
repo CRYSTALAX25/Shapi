@@ -17,7 +17,7 @@ export default function Terms() {
 
       <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)] max-w-3xl mx-auto flex items-center justify-between">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+          background: 'linear-gradient(135deg, #38BDF8, #34D399)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <Link href="/privacy" className="text-[#A6A6B4] text-sm hover:text-[#C7C7D1] transition-colors">Privacy →</Link>
@@ -42,7 +42,7 @@ export default function Terms() {
           <Section title="2. Your account">
             You must be at least 18 and provide accurate information. You are responsible for keeping your
             password secure and for activity under your account. Tell us promptly at{' '}
-            <a href="mailto:hello@shapi.io" className="text-[#9D8CFF]">hello@shapi.io</a> if you suspect
+            <a href="mailto:hello@shapi.io" className="text-[#38BDF8]">hello@shapi.io</a> if you suspect
             unauthorised use.
           </Section>
 
@@ -107,12 +107,12 @@ export default function Terms() {
           </Section>
 
           <Section title="13. Contact">
-            <a href="mailto:hello@shapi.io" className="text-[#9D8CFF]">hello@shapi.io</a>
+            <a href="mailto:hello@shapi.io" className="text-[#38BDF8]">hello@shapi.io</a>
           </Section>
         </div>
 
         <div className="mt-12 pt-6 border-t border-[rgba(255,255,255,0.08)]">
-          <Link href="/signup" className="text-[#9D8CFF] text-sm font-bold hover:opacity-80">← Back to sign up</Link>
+          <Link href="/signup" className="text-[#38BDF8] text-sm font-bold hover:opacity-80">← Back to sign up</Link>
         </div>
       </div>
     </div>

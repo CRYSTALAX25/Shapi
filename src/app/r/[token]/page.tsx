@@ -64,13 +64,13 @@ export default async function RoleSharePage({ params }: { params: Promise<{ toke
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
 
       <nav className="relative z-10 px-5 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-2xl mx-auto">
-        <span className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</span>
+        <span className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</span>
         <span className="text-[#7E7E8E] text-xs">Secure link · {companyName}</span>
       </nav>
 
       <div className="relative z-10 max-w-2xl mx-auto px-5 pt-6 pb-20">
         <div className="mb-5">
-          <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#9D8CFF' }}>
+          <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#38BDF8' }}>
             {role.status === 'active' ? 'Published role' : 'Draft job description'}
           </p>
           <h1 className="text-2xl font-black tracking-tight mb-1" style={{ color: '#FB7185' }}>

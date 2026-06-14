@@ -60,10 +60,10 @@ export default function CompMenu({ userId, kind }: { userId: string; kind: 'cand
   return (
     <div className="relative inline-block">
       <button type="button" onClick={() => setOpen(o => !o)}
-        className="text-xs font-bold text-[#9D8CFF] hover:text-[#9D8CFF] px-2 py-1 rounded border border-[#9D8CFF]/30 hover:border-[#9D8CFF]/50">
+        className="text-xs font-bold text-[#38BDF8] hover:text-[#38BDF8] px-2 py-1 rounded border border-[#38BDF8]/30 hover:border-[#38BDF8]/50">
         Comp ▾
       </button>
-      {msg && <span className="ml-2 text-[10px] text-[#9D8CFF]">{msg}</span>}
+      {msg && <span className="ml-2 text-[10px] text-[#38BDF8]">{msg}</span>}
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />

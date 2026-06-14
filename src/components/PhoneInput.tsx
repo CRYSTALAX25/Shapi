@@ -186,7 +186,7 @@ export default function PhoneInput({
   const text = isDark ? '#F4F4F7' : '#060609'
   const muted = isDark ? '#A6A6B4' : '#6b7280'
   const dropdownBg = isDark ? '#0D0C14' : '#fff'
-  const hoverBg = isDark ? 'rgba(157, 140, 255, 0.08)' : 'rgba(157, 140, 255, 0.06)'
+  const hoverBg = isDark ? 'rgba(56, 189, 248, 0.08)' : 'rgba(56, 189, 248, 0.06)'
 
   return (
     <div className="relative" ref={containerRef}>

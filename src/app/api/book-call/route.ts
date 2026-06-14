@@ -120,12 +120,12 @@ export async function POST(request: Request) {
 
   const html = `
     <div style="font-family:-apple-system,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#060609;border-radius:16px;color:#F4F4F7">
-      <p style="font-size:22px;font-weight:900;letter-spacing:-0.5px;margin:0 0 22px;background:linear-gradient(135deg, #9D8CFF, #34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</p>
+      <p style="font-size:22px;font-weight:900;letter-spacing:-0.5px;margin:0 0 22px;background:linear-gradient(135deg, #38BDF8, #34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</p>
       <div style="background:#0D0C14;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:24px">
-        <p style="font-size:10px;font-weight:900;letter-spacing:0.08em;text-transform:uppercase;color:#9D8CFF;margin:0 0 6px">${topicLabel}</p>
+        <p style="font-size:10px;font-weight:900;letter-spacing:0.08em;text-transform:uppercase;color:#38BDF8;margin:0 0 6px">${topicLabel}</p>
         <h1 style="font-size:20px;font-weight:900;margin:0 0 18px">${escape(company)} — ${escape(name)}</h1>
         <table style="width:100%;border-collapse:collapse;font-size:13px;color:#C7C7D1">
-          <tr><td style="padding:6px 0;color:#7E7E8E;width:90px">Email</td><td><a href="mailto:${escape(email)}" style="color:#9D8CFF">${escape(email)}</a></td></tr>
+          <tr><td style="padding:6px 0;color:#7E7E8E;width:90px">Email</td><td><a href="mailto:${escape(email)}" style="color:#38BDF8">${escape(email)}</a></td></tr>
           ${role ? `<tr><td style="padding:6px 0;color:#7E7E8E">Role</td><td>${escape(role)}</td></tr>` : ''}
           ${companySize ? `<tr><td style="padding:6px 0;color:#7E7E8E">Size</td><td>${escape(companySize)}</td></tr>` : ''}
           ${timeline ? `<tr><td style="padding:6px 0;color:#7E7E8E">Timeline</td><td>${escape(timeline)}</td></tr>` : ''}
@@ -167,7 +167,7 @@ export async function POST(request: Request) {
     const calendlyBlockHtml = calendlyUrl
       ? `<div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);text-align:center">
            <p style="font-size:13px;color:#C7C7D1;margin:0 0 12px">Pick a time that suits you — your invite lands instantly:</p>
-           <a href="${escape(calendlyUrl)}" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg, #9D8CFF, #34D399);color:#fff;font-size:13px;font-weight:900;border-radius:100px;text-decoration:none">Book a time →</a>
+           <a href="${escape(calendlyUrl)}" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg, #38BDF8, #34D399);color:#fff;font-size:13px;font-weight:900;border-radius:100px;text-decoration:none">Book a time →</a>
          </div>`
       : ''
     const calendlyBlockText = calendlyUrl
@@ -182,7 +182,7 @@ export async function POST(request: Request) {
       text: `Hi ${firstName},\n\nThanks for reaching out about ${topicLabel}. We've got your request.${calendlyBlockText}\n\nIf you want to add anything else before the call, just reply to this email.\n\n— The Shapi team\nshapi.io`,
       html: `
         <div style="font-family:-apple-system,sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;background:#060609;border-radius:16px;color:#F4F4F7">
-          <p style="font-size:22px;font-weight:900;letter-spacing:-0.5px;margin:0 0 22px;background:linear-gradient(135deg, #9D8CFF, #34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</p>
+          <p style="font-size:22px;font-weight:900;letter-spacing:-0.5px;margin:0 0 22px;background:linear-gradient(135deg, #38BDF8, #34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</p>
           <div style="background:#0D0C14;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:24px">
             <h1 style="font-size:20px;font-weight:900;margin:0 0 12px">Got it — speak soon, ${escape(firstName)}.</h1>
             <p style="font-size:14px;line-height:1.6;color:#C7C7D1;margin:0 0 4px">

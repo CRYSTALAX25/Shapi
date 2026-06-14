@@ -28,7 +28,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     <div className="min-h-screen bg-[#060609] text-[#F4F4F7]">
       <nav className="px-6 py-5 max-w-3xl mx-auto flex items-center justify-between">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+          background: 'linear-gradient(135deg, #38BDF8, #34D399)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <Link href="/blog" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7] transition-colors">← All posts</Link>
@@ -52,7 +52,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           )}
         </div>
 
-        <div className="mt-14 rounded-2xl p-8 text-center text-white" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+        <div className="mt-14 rounded-2xl p-8 text-center text-white" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
           <h3 className="text-2xl font-black mb-2">Get a profile that proves it.</h3>
           <p className="text-white/80 text-sm mb-6">Independently verified. References sourced by us. Built in minutes.</p>
           <Link href="/signup" className="inline-block bg-white text-[#060609] px-7 py-3.5 rounded-full font-black text-sm hover:scale-[1.02] transition-transform">
@@ -64,7 +64,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <footer className="border-t border-[rgba(255,255,255,0.08)] py-8 px-6">
         <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
           <span className="font-black text-lg tracking-tighter" style={{
-            background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+            background: 'linear-gradient(135deg, #38BDF8, #34D399)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>shapi</span>
           <div className="flex items-center gap-5 text-[#7E7E8E]">

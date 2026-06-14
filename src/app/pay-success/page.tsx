@@ -80,7 +80,7 @@ function PaySuccessContent() {
         {stage === 'checking' && (
           <>
             <ShapiCharacter mood="thinking" size={100} className="mx-auto mb-6" />
-            <div style={{ display: 'inline-block', width: 36, height: 36, borderRadius: '50%', border: '3px solid rgba(157, 140, 255, 0.2)', borderTopColor: '#9D8CFF', animation: 'spin 0.9s linear infinite', marginBottom: 20 }} />
+            <div style={{ display: 'inline-block', width: 36, height: 36, borderRadius: '50%', border: '3px solid rgba(56, 189, 248, 0.2)', borderTopColor: '#38BDF8', animation: 'spin 0.9s linear infinite', marginBottom: 20 }} />
             <h1 className="text-3xl font-black text-white mb-2">Payment received ✓</h1>
             <p className="text-white/55 text-sm mb-2">Setting up your CV Kit…</p>
             <p className="text-white/30 text-xs">({seconds}s — usually under 10)</p>
@@ -92,7 +92,7 @@ function PaySuccessContent() {
           <>
             <div style={{
               width: 80, height: 80, borderRadius: '50%',
-              background: 'linear-gradient(135deg,#9D8CFF, #34D399)',
+              background: 'linear-gradient(135deg,#38BDF8, #34D399)',
               margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 40,
             }}>✓</div>
@@ -122,7 +122,7 @@ function PaySuccessContent() {
               </Link>
               <Link href="/cv-ready"
                 className="px-5 py-2.5 rounded-full font-black text-sm transition-opacity hover:opacity-90"
-                style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)', color: '#fff' }}>
+                style={{ background: 'linear-gradient(135deg,#38BDF8, #34D399)', color: '#fff' }}>
                 Open CV Kit →
               </Link>
             </div>

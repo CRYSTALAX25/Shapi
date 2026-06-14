@@ -72,7 +72,7 @@ export default function WowHero() {
           <motion.div
             animate={reduce ? undefined : { y: [0, -8, 0] }}
             transition={reduce ? undefined : { duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-            style={{ filter: 'drop-shadow(0 8px 30px rgba(157,140,255,0.45))' }}
+            style={{ filter: 'drop-shadow(0 8px 30px rgba(56, 189, 248,0.45))' }}
           >
             <ShapiLogo size={72} variant="mark" title="Shapi" />
           </motion.div>
@@ -96,7 +96,7 @@ export default function WowHero() {
 
         {/* Audience chooser — BOTH are clickable links to their dedicated pages */}
         <motion.div className="flex flex-wrap justify-center gap-2 mb-8 text-xs font-bold" variants={item}>
-          <Link href="/for-candidates" className="px-3 py-1.5 rounded-full transition-colors hover:brightness-110" style={{ background: 'rgba(157,140,255,0.15)', color: 'var(--accent)', border: '1px solid rgba(157,140,255,0.30)' }}>
+          <Link href="/for-candidates" className="px-3 py-1.5 rounded-full transition-colors hover:brightness-110" style={{ background: 'rgba(56, 189, 248,0.15)', color: 'var(--accent)', border: '1px solid rgba(56, 189, 248,0.30)' }}>
             {t('home.chooser.candidate')}
           </Link>
           <Link href="/for-companies" className="px-3 py-1.5 rounded-full hover:bg-white/[0.06] transition-colors" style={{ color: '#A6A6B4', border: '1px solid rgba(255,255,255,0.10)' }}>
@@ -111,7 +111,7 @@ export default function WowHero() {
             {line2Lead && <span>{line2Lead} </span>}
             <span
               style={{
-                background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+                background: 'linear-gradient(135deg, #38BDF8, #34D399)',
                 backgroundSize: '220% 220%',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -141,7 +141,7 @@ export default function WowHero() {
         {/* Floating verified-profile card — the real product */}
         <motion.div className="relative max-w-md mx-auto" variants={item}>
           <div className="hidden lg:block">
-            <FloatChip text={t('home.hero.chipRefs')} color="#9D8CFF" pos="-left-28 top-2" reduce={!!reduce} delay={0} />
+            <FloatChip text={t('home.hero.chipRefs')} color="#38BDF8" pos="-left-28 top-2" reduce={!!reduce} delay={0} />
             <FloatChip text={t('home.hero.chipCrossCheck')} color="#34D399" pos="-right-28 top-8" reduce={!!reduce} delay={1.2} />
           </div>
           <motion.div
@@ -222,9 +222,9 @@ function AuroraMesh({ reduce }: { reduce: boolean }) {
   // Brand-coloured radial blobs, GPU-friendly (transform/opacity only).
   // Violet leads; emerald is the proof-glow. No coral — green stays meaningful.
   const blobs = [
-    { c: 'rgba(157,140,255,0.20)', cls: 'top-[-6rem] left-1/4 w-[600px] h-[600px]', dur: 11 },
+    { c: 'rgba(56, 189, 248,0.20)', cls: 'top-[-6rem] left-1/4 w-[600px] h-[600px]', dur: 11 },
     { c: 'rgba(52,211,153,0.13)', cls: 'top-10 right-1/4 w-[520px] h-[520px]', dur: 13 },
-    { c: 'rgba(157,140,255,0.10)', cls: '-bottom-24 left-1/2 -translate-x-1/2 w-[460px] h-[460px]', dur: 15 },
+    { c: 'rgba(56, 189, 248,0.10)', cls: '-bottom-24 left-1/2 -translate-x-1/2 w-[460px] h-[460px]', dur: 15 },
   ]
   return (
     <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
@@ -257,7 +257,7 @@ function Constellation({ reduce }: { reduce: boolean }) {
     [0, 2], [2, 6], [6, 3], [3, 1], [4, 6], [4, 5], [4, 7],
   ]
   // Violet leads; emerald "verified" nodes are every third — no coral.
-  const colors = ['#9D8CFF', '#9D8CFF', '#34D399']
+  const colors = ['#38BDF8', '#38BDF8', '#34D399']
 
   return (
     <svg
@@ -294,7 +294,7 @@ function Constellation({ reduce }: { reduce: boolean }) {
       ))}
       <defs>
         <linearGradient id="wowEdge" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#9D8CFF" />
+          <stop offset="0%" stopColor="#38BDF8" />
           <stop offset="100%" stopColor="#34D399" />
         </linearGradient>
       </defs>
@@ -326,10 +326,10 @@ function MagneticCTA({
         className={`block px-8 py-4 rounded-full text-sm transition-colors ${className}`}
         style={{ background: '#0B0B0F', color: '#F4F4F7', border: '1px solid rgba(255,255,255,0.12)' }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'linear-gradient(135deg,#9D8CFF,#34D399)'
+          e.currentTarget.style.background = 'linear-gradient(135deg,#38BDF8,#34D399)'
           e.currentTarget.style.borderColor = 'transparent'
           e.currentTarget.style.color = '#fff'
-          e.currentTarget.style.boxShadow = '0 12px 32px rgba(157,140,255,0.34)'
+          e.currentTarget.style.boxShadow = '0 12px 32px rgba(56, 189, 248,0.34)'
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.background = '#0B0B0F'

@@ -144,7 +144,7 @@ export default async function AdminPanel() {
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                      linear-gradient(135deg, rgba(157, 140, 255, 0.12), rgba(157, 140, 255, 0.12)) border-box;
+                      linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(56, 189, 248, 0.12)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
@@ -153,7 +153,7 @@ export default async function AdminPanel() {
         td { padding: 10px 12px; font-size: 13px; color: rgba(244,244,247,0.7); border-bottom: 1px solid rgba(255,255,255,0.06); vertical-align: middle; }
         tr:hover td { background: rgba(255,255,255,0.02); }
         .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-        .dot-green { background: #9D8CFF; }
+        .dot-green { background: #38BDF8; }
         .dot-yellow { background: #FCD34D; }
         .dot-red { background: rgba(255,255,255,0.15); }
       `}</style>
@@ -167,7 +167,7 @@ export default async function AdminPanel() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/" className="font-black text-xl tracking-tighter" style={{
-              background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+              background: 'linear-gradient(135deg, #38BDF8, #34D399)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
             }}>shapi</Link>
             <span className="text-[#5C5C6A] text-xs font-bold uppercase tracking-wider px-2 py-1 bg-[#FB7185]/10 text-[#FB7185] rounded-full">Admin</span>
@@ -191,13 +191,13 @@ export default async function AdminPanel() {
         {/* Stats grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
           {[
-            { label: 'Total candidates', value: candidates.length, colour: '#9D8CFF' },
-            { label: 'Verified / live', value: `${verified.length} / ${candidates.length}`, colour: '#9D8CFF' },
-            { label: 'With WhatsApp', value: withWhatsApp.length, colour: '#9D8CFF' },
+            { label: 'Total candidates', value: candidates.length, colour: '#38BDF8' },
+            { label: 'Verified / live', value: `${verified.length} / ${candidates.length}`, colour: '#38BDF8' },
+            { label: 'With WhatsApp', value: withWhatsApp.length, colour: '#38BDF8' },
             { label: 'CV Kits sold', value: cvKitPurchased.length, colour: '#FB7185' },
-            { label: 'Companies', value: companies.length, colour: '#9D8CFF' },
-            { label: 'Paid companies', value: paidCompanies.length, colour: '#9D8CFF' },
-            { label: 'Total users', value: all.length, colour: '#9D8CFF' },
+            { label: 'Companies', value: companies.length, colour: '#38BDF8' },
+            { label: 'Paid companies', value: paidCompanies.length, colour: '#38BDF8' },
+            { label: 'Total users', value: all.length, colour: '#38BDF8' },
             // v5: entry paid company tier is Pro $499/mo. Coarse MRR estimate —
             // assumes Pro; Growth ($1,500) / Enterprise lift this in reality.
             { label: 'Est. MRR (≥Pro)', value: `$${paidCompanies.length * 499}`, colour: '#FCD34D' },
@@ -237,13 +237,13 @@ export default async function AdminPanel() {
                     <td className="text-[#A6A6B4]">{c.email}</td>
                     <td>{c.industry || '—'}</td>
                     <td>
-                      <span style={{ color: '#9D8CFF', fontWeight: 700 }}>{c.completion_pct}%</span>
+                      <span style={{ color: '#38BDF8', fontWeight: 700 }}>{c.completion_pct}%</span>
                     </td>
                     <td>{(c.whatsapp_chat as unknown[]).length}</td>
                     <td>
                       <div className="flex gap-2">
                         <Link href={`/p/${c.id.slice(0, 8)}`} target="_blank"
-                          className="text-xs text-[#9D8CFF] hover:opacity-80">View →</Link>
+                          className="text-xs text-[#38BDF8] hover:opacity-80">View →</Link>
                         <form action={`/api/admin/verify`} method="post" style={{ display: 'inline' }}>
                           <input type="hidden" name="id" value={c.id} />
                           <button type="submit"
@@ -302,7 +302,7 @@ export default async function AdminPanel() {
                         <td className="text-[#7E7E8E] text-xs" style={{ maxWidth: '320px' }}>{headline}</td>
                         <td>
                           {acct ? (
-                            <Link href={`/p/${acct.id.slice(0, 8)}`} target="_blank" className="text-[#9D8CFF] text-xs hover:text-[#9D8CFF]">
+                            <Link href={`/p/${acct.id.slice(0, 8)}`} target="_blank" className="text-[#38BDF8] text-xs hover:text-[#38BDF8]">
                               {acct.company_name || acct.email || acct.full_name || acct.id.slice(0, 6)}
                             </Link>
                           ) : (
@@ -327,7 +327,7 @@ export default async function AdminPanel() {
                 <p className="text-[#F4F4F7] font-bold">Book-a-call requests ({bookCallRequests.length})</p>
                 <p className="text-[#7E7E8E] text-xs">Enterprise / Strategic Workforce Plan enquiries from the /book-call form. Newest first. Reply directly — confirmation email already sent.</p>
               </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' }}>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8' }}>
                 {bookCallRequests.filter(b => b.status === 'new').length} new
               </span>
             </div>
@@ -358,12 +358,12 @@ export default async function AdminPanel() {
                           <span className="text-[#5C5C6A]">{new Date(b.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>
                         </td>
                         <td>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>{topicLabel}</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.12)', color: '#38BDF8' }}>{topicLabel}</span>
                         </td>
                         <td className="text-[#F4F4F7] font-semibold">{b.company}</td>
                         <td>
                           <p className="text-[#C7C7D1] text-xs">{b.name}{b.role ? ` · ${b.role}` : ''}</p>
-                          <a href={`mailto:${b.email}`} className="text-[#9D8CFF] text-[11px] hover:underline">{b.email}</a>
+                          <a href={`mailto:${b.email}`} className="text-[#38BDF8] text-[11px] hover:underline">{b.email}</a>
                         </td>
                         <td className="text-[#7E7E8E] text-xs">
                           {b.company_size || '—'}<br />
@@ -442,7 +442,7 @@ export default async function AdminPanel() {
                     <tr key={c.id}>
                       <td>
                         <Link href={`/p/${c.id.slice(0, 8)}`} target="_blank"
-                          className="text-[#F4F4F7] font-semibold hover:text-[#9D8CFF]">
+                          className="text-[#F4F4F7] font-semibold hover:text-[#38BDF8]">
                           {c.full_name || '—'}
                         </Link>
                       </td>
@@ -451,11 +451,11 @@ export default async function AdminPanel() {
                       <td>
                         {c.ai_tier ? (
                           <span className="text-xs font-bold capitalize" style={{
-                            color: c.ai_tier === 'builder' ? '#FB7185' : c.ai_tier === 'integrator' ? '#9D8CFF' : '#9D8CFF'
+                            color: c.ai_tier === 'builder' ? '#FB7185' : c.ai_tier === 'integrator' ? '#38BDF8' : '#38BDF8'
                           }}>{c.ai_tier}</span>
                         ) : '—'}
                       </td>
-                      <td style={{ color: c.completion_pct >= 60 ? '#9D8CFF' : c.completion_pct >= 30 ? '#FCD34D' : 'rgba(255,255,255,0.25)', fontWeight: 700 }}>
+                      <td style={{ color: c.completion_pct >= 60 ? '#38BDF8' : c.completion_pct >= 30 ? '#FCD34D' : 'rgba(255,255,255,0.25)', fontWeight: 700 }}>
                         {c.completion_pct}%
                       </td>
                       <td><span className={`dot ${c.cv_parsed ? 'dot-green' : 'dot-red'}`} title={c.cv_parsed ? 'CV parsed' : 'No CV'} /></td>
@@ -507,7 +507,7 @@ export default async function AdminPanel() {
                   <tr key={c.id}>
                     <td>
                       <Link href={`/company/dashboard`}
-                        className="text-[#F4F4F7] font-semibold hover:text-[#9D8CFF]">
+                        className="text-[#F4F4F7] font-semibold hover:text-[#38BDF8]">
                         {c.company_name || c.full_name || '—'}
                       </Link>
                     </td>

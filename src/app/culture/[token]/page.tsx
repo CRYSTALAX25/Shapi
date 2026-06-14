@@ -31,7 +31,7 @@ function Shell({ children }: { children: React.ReactNode }) {
           href="https://shapi.io"
           className="font-black text-xl tracking-tighter"
           style={{
-            background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+            background: 'linear-gradient(135deg, #38BDF8, #34D399)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -52,7 +52,7 @@ function Card({ children }: { children: React.ReactNode }) {
       <style>{`
         .culture-card {
           background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                      linear-gradient(135deg, rgba(251,113,133,0.28), rgba(157, 140, 255, 0.18)) border-box;
+                      linear-gradient(135deg, rgba(251,113,133,0.28), rgba(56, 189, 248, 0.18)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }

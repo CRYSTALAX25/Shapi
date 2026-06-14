@@ -106,7 +106,7 @@ export default function CVBuilder() {
       {/* Nav */}
       <nav className="px-6 py-4 flex items-center justify-between border-b border-[rgba(255,255,255,0.08)] bg-[#060609]/80 backdrop-blur sticky top-0 z-10">
         <span className="font-bold text-xl tracking-tight" style={{
-          background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+          background: 'linear-gradient(135deg, #38BDF8, #34D399)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</span>
         <div className="flex items-center gap-4">
@@ -120,7 +120,7 @@ export default function CVBuilder() {
           </button>
           <button
             onClick={() => router.push('/onboarding')}
-            className="text-xs text-[#9D8CFF] font-medium hover:underline"
+            className="text-xs text-[#38BDF8] font-medium hover:underline"
             title="Switch to the manual form — your conversation here is not saved"
           >
             Skip to manual form →
@@ -133,7 +133,7 @@ export default function CVBuilder() {
           to 100% the moment the AI emits [DONE] (drives `ready`). */}
       <div className="px-6 pt-3 pb-1 max-w-2xl mx-auto w-full">
         {restored && (
-          <div className="mb-2 rounded-lg px-3 py-1.5 text-[11px]" style={{ background: 'rgba(157, 140, 255, 0.10)', border: '1px solid rgba(157, 140, 255, 0.25)', color: '#9D8CFF' }}>
+          <div className="mb-2 rounded-lg px-3 py-1.5 text-[11px]" style={{ background: 'rgba(56, 189, 248, 0.10)', border: '1px solid rgba(56, 189, 248, 0.25)', color: '#38BDF8' }}>
             ✓ Picked up where you left off — your answers are saved as you go.
           </div>
         )}
@@ -148,7 +148,7 @@ export default function CVBuilder() {
               width: `${turnPct}%`,
               background: ready
                 ? '#34D399'
-                : 'linear-gradient(90deg, #9D8CFF, #34D399)',
+                : 'linear-gradient(90deg, #38BDF8, #34D399)',
             }}
           />
         </div>
@@ -164,7 +164,7 @@ export default function CVBuilder() {
                   ? 'text-white rounded-br-sm'
                   : 'bg-[#0D0C14] text-[#C7C7D1] border border-[rgba(255,255,255,0.08)] shadow-sm rounded-bl-sm'
               }`}
-              style={m.role === 'user' ? { background: 'linear-gradient(135deg, #9D8CFF, #34D399)' } : undefined}
+              style={m.role === 'user' ? { background: 'linear-gradient(135deg, #38BDF8, #34D399)' } : undefined}
             >
               {m.content.split('\n').map((line, j) => {
                 // Bold **text**
@@ -185,9 +185,9 @@ export default function CVBuilder() {
           <div className="flex justify-start">
             <div className="bg-[#0D0C14] border border-[rgba(255,255,255,0.08)] shadow-sm rounded-2xl rounded-bl-sm px-5 py-4">
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-[#9D8CFF]/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 bg-[#9D8CFF]/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 bg-[#9D8CFF]/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="w-2 h-2 bg-[#38BDF8]/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 bg-[#38BDF8]/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 bg-[#38BDF8]/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
           </div>
@@ -213,14 +213,14 @@ export default function CVBuilder() {
             onKeyDown={handleKey}
             placeholder="Type your answer... (Enter to send)"
             rows={1}
-            className="flex-1 bg-[#0D0C14] border border-[rgba(255,255,255,0.08)] rounded-2xl px-5 py-3.5 text-sm text-[#F4F4F7] placeholder-[#5C5C6A] focus:outline-none focus:border-[#9D8CFF] transition-colors resize-none"
+            className="flex-1 bg-[#0D0C14] border border-[rgba(255,255,255,0.08)] rounded-2xl px-5 py-3.5 text-sm text-[#F4F4F7] placeholder-[#5C5C6A] focus:outline-none focus:border-[#38BDF8] transition-colors resize-none"
             style={{ minHeight: '52px', maxHeight: '120px' }}
           />
           <button
             onClick={send}
             disabled={!input.trim() || loading}
             className="text-white px-5 py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
+            style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}
           >
             Send
           </button>
@@ -247,13 +247,13 @@ function CVPreviewGate({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(14,14,19,0.85)', backdropFilter: 'blur(8px)' }}>
       <div className="relative max-w-md w-full rounded-2xl p-6 text-center"
-        style={{ background: '#0D0C14', border: '1px solid rgba(157, 140, 255, 0.40)', boxShadow: '0 30px 80px rgba(0,0,0,0.65)' }}>
+        style={{ background: '#0D0C14', border: '1px solid rgba(56, 189, 248, 0.40)', boxShadow: '0 30px 80px rgba(0,0,0,0.65)' }}>
         {/* Mock blurred CV "preview" — pure CSS so we don't have to render a
             real PDF. The user gets the unmistakeable shape of a 1-page CV
             with all detail unreadable, plus the lock overlay. */}
         <div className="relative rounded-xl overflow-hidden mb-5" style={{ background: '#060609', border: '1px solid rgba(255,255,255,0.06)', aspectRatio: '210 / 297' }}>
           <div className="absolute inset-0 p-5 text-left" style={{ filter: 'blur(7px)', opacity: 0.7 }}>
-            <div className="h-3 w-32 rounded mb-2" style={{ background: 'linear-gradient(90deg,#9D8CFF, #34D399)' }} />
+            <div className="h-3 w-32 rounded mb-2" style={{ background: 'linear-gradient(90deg,#38BDF8, #34D399)' }} />
             <div className="h-2 w-44 rounded mb-4" style={{ background: 'rgba(255,255,255,0.15)' }} />
             {[...Array(11)].map((_, i) => (
               <div key={i} className="h-1.5 rounded mb-1.5" style={{ width: `${50 + ((i * 17) % 45)}%`, background: 'rgba(255,255,255,0.10)' }} />
@@ -265,7 +265,7 @@ function CVPreviewGate({ onClose }: { onClose: () => void }) {
           </div>
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
             <div className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
-              style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+              style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
               <span className="text-xl">🔒</span>
             </div>
             <p className="text-[#F4F4F7] font-black text-sm">Your CV is ready</p>
@@ -290,8 +290,8 @@ function CVPreviewGate({ onClose }: { onClose: () => void }) {
           <button
             onClick={() => router.push('/pay?tier=pro')}
             className="rounded-xl p-4 text-left transition-colors hover:opacity-95"
-            style={{ background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.14), rgba(157, 140, 255, 0.14))', border: '1px solid rgba(157, 140, 255, 0.45)' }}>
-            <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#9D8CFF' }}>CV Pro · most picked</p>
+            style={{ background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.14), rgba(56, 189, 248, 0.14))', border: '1px solid rgba(56, 189, 248, 0.45)' }}>
+            <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#38BDF8' }}>CV Pro · most picked</p>
             <p className="text-2xl font-black text-[#F4F4F7] mb-1">$59</p>
             <p className="text-[10px] text-[#A6A6B4] leading-relaxed">Kit + deep-dive industry interview + Pro CV</p>
           </button>

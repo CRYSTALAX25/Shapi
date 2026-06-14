@@ -84,7 +84,7 @@ export default function RoleEditClient({ token, role, companyName }: { token: st
   }
 
   const cardStyle = { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }
-  const inputCls = 'w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/40'
+  const inputCls = 'w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#38BDF8]/40'
   const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }
   const labelCls = 'block text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1.5'
 
@@ -128,7 +128,7 @@ export default function RoleEditClient({ token, role, companyName }: { token: st
           <input value={location} onChange={e => setLocation(e.target.value)} className={inputCls} style={inputStyle} placeholder="e.g. Dubai" />
         </div>
         <label className="col-span-2 flex items-center gap-2 mt-1 cursor-pointer select-none">
-          <input type="checkbox" checked={remote} onChange={e => setRemote(e.target.checked)} className="accent-[#9D8CFF]" />
+          <input type="checkbox" checked={remote} onChange={e => setRemote(e.target.checked)} className="accent-[#38BDF8]" />
           <span className="text-[#C7C7D1] text-sm">Remote OK</span>
         </label>
       </div>
@@ -149,7 +149,7 @@ export default function RoleEditClient({ token, role, companyName }: { token: st
         {status !== 'active' && (
           <button type="button" onClick={publish} disabled={saving || publishing}
             className="flex-1 py-3.5 rounded-full font-black text-sm text-white disabled:opacity-50"
-            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+            style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
             {publishing ? 'Publishing…' : 'Publish role'}
           </button>
         )}

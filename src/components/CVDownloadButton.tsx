@@ -20,7 +20,7 @@ export default function CVDownloadButton({ cvParsed, cvKitPurchased, cvTier }: {
 
   return (
     <div className="rounded-2xl p-5"
-      style={{ background: 'linear-gradient(#0D0C14, #0D0C14) padding-box, linear-gradient(135deg, rgba(157, 140, 255, 0.35), rgba(157, 140, 255, 0.25)) border-box', border: '1px solid transparent', boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)' }}>
+      style={{ background: 'linear-gradient(#0D0C14, #0D0C14) padding-box, linear-gradient(135deg, rgba(56, 189, 248, 0.35), rgba(56, 189, 248, 0.25)) border-box', border: '1px solid transparent', boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)' }}>
       <div className="flex items-center gap-2 mb-2">
         <span className="text-lg">📄</span>
         <p className="text-[#F4F4F7] font-bold text-sm">Your CV Kit{cvTier === 'pro' ? ' Pro' : ''}</p>
@@ -32,7 +32,7 @@ export default function CVDownloadButton({ cvParsed, cvKitPurchased, cvTier }: {
             English, native language, and industry-targeted versions — all ready.
           </p>
           <Link href="/cv-ready"
-            className="block text-center bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] text-white text-xs font-black py-2.5 rounded-xl hover:opacity-90 transition-opacity">
+            className="block text-center bg-gradient-to-r from-[#38BDF8] to-[#38BDF8] text-white text-xs font-black py-2.5 rounded-xl hover:opacity-90 transition-opacity">
             Open CV Kit →
           </Link>
         </>
@@ -49,7 +49,7 @@ export default function CVDownloadButton({ cvParsed, cvKitPurchased, cvTier }: {
             <button
               onClick={handleBuy}
               disabled={loading}
-              className="w-full bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] text-white text-xs font-black py-2.5 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50">
+              className="w-full bg-gradient-to-r from-[#38BDF8] to-[#38BDF8] text-white text-xs font-black py-2.5 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50">
               {loading ? 'Redirecting...' : 'Get CV Kit — $25 →'}
             </button>
           </div>

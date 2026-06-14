@@ -58,7 +58,7 @@ export default function RolesList({
           <span className="text-[#A6A6B4] text-sm">🌱 Pivot-friendly only</span>
           <div
             onClick={() => setPivotOnly(!pivotOnly)}
-            className={`w-10 h-6 rounded-full transition-colors relative ${pivotOnly ? 'bg-[#9D8CFF]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
+            className={`w-10 h-6 rounded-full transition-colors relative ${pivotOnly ? 'bg-[#38BDF8]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
             <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${pivotOnly ? 'left-5' : 'left-1'}`} />
           </div>
           {pivotCount > 0 && (
@@ -79,7 +79,7 @@ export default function RolesList({
           {visibleRoles.map(role => {
             const company = companyMap[role.company_id] || { name: 'Company' }
             const isInterested = interestedSet.has(role.id)
-            const matchColor = role.match_score >= 60 ? '#9D8CFF' : role.match_score >= 40 ? '#9D8CFF' : '#9D8CFF'
+            const matchColor = role.match_score >= 60 ? '#38BDF8' : role.match_score >= 40 ? '#38BDF8' : '#38BDF8'
             const matchLabel = role.match_score >= 60 ? 'Strong match' : role.match_score >= 40 ? 'Good match' : 'Possible'
 
             return (
@@ -96,7 +96,7 @@ export default function RolesList({
                         <span
                           title="This employer is open to career-changers and will train on the job."
                           className="text-xs font-bold px-2.5 py-1 rounded-full"
-                          style={{ background: 'rgba(157, 140, 255, 0.14)', color: '#9D8CFF' }}>
+                          style={{ background: 'rgba(56, 189, 248, 0.14)', color: '#38BDF8' }}>
                           🌱 Train-to-Hire
                         </span>
                       )}
@@ -105,7 +105,7 @@ export default function RolesList({
                       )}
                       {role.engagement_type && role.engagement_type !== 'permanent' && (
                         <span className="text-xs font-bold px-2.5 py-1 rounded-full capitalize"
-                          style={{ background: 'rgba(157, 140, 255, 0.14)', color: '#9D8CFF' }}>
+                          style={{ background: 'rgba(56, 189, 248, 0.14)', color: '#38BDF8' }}>
                           {role.engagement_type === 'temp' ? 'Temp / Shift' : 'Contract'}
                         </span>
                       )}
@@ -119,8 +119,8 @@ export default function RolesList({
                         if (!accolade) return null
                         const toneColors = {
                           gold:   { bg: 'rgba(251,191,36,0.13)', fg: '#D97706' },
-                          teal:   { bg: 'rgba(157, 140, 255, 0.12)', fg: '#9D8CFF' },
-                          purple: { bg: 'rgba(157, 140, 255, 0.13)', fg: '#9D8CFF' },
+                          teal:   { bg: 'rgba(56, 189, 248, 0.12)', fg: '#38BDF8' },
+                          purple: { bg: 'rgba(56, 189, 248, 0.13)', fg: '#38BDF8' },
                         }[accolade.tone]
                         return (
                           <span
@@ -143,12 +143,12 @@ export default function RolesList({
                         return score ? <span>⭐ {score} Glassdoor</span> : null
                       })()}
                       {company.trust && company.trust.count > 0 && (
-                        <span className="font-bold" style={{ color: '#9D8CFF' }}>✓ {company.trust.avg}/5 Shapi trust ({company.trust.count})</span>
+                        <span className="font-bold" style={{ color: '#38BDF8' }}>✓ {company.trust.avg}/5 Shapi trust ({company.trust.count})</span>
                       )}
                       <span>Posted {new Date(role.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
                     </div>
                     {role.salary_visible && role.salary_min && role.salary_max && (
-                      <p className="text-[#9D8CFF] text-sm font-bold mb-3">
+                      <p className="text-[#38BDF8] text-sm font-bold mb-3">
                         {role.salary_currency} {role.salary_min.toLocaleString()} – {role.salary_max.toLocaleString()}
                       </p>
                     )}
@@ -171,7 +171,7 @@ export default function RolesList({
                       <a
                         href="/pay?product=roles_board_monthly"
                         className="px-3 py-2 rounded-full text-[11px] font-black text-white whitespace-nowrap"
-                        style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)' }}
+                        style={{ background: 'linear-gradient(135deg,#38BDF8, #34D399)' }}
                       >
                         Unlock · $19/mo
                       </a>

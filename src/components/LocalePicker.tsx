@@ -93,7 +93,7 @@ export default function LocalePicker() {
                 onClick={() => handleSelect(l.code)}
                 className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm transition-colors"
                 style={{
-                  background: active ? 'rgba(157, 140, 255, 0.10)' : 'transparent',
+                  background: active ? 'rgba(56, 189, 248, 0.10)' : 'transparent',
                   color: active ? '#F4F4F7' : '#C7C7D1',
                 }}
                 onMouseEnter={e => {

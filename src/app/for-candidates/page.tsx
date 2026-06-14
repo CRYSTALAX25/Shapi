@@ -114,9 +114,9 @@ function ForCandidatesInner() {
           background: transparent; border: 1px solid rgba(255,255,255,0.16); color: #F4F4F7;
           transition: all .25s ease;
         }
-        .btn-outline:hover { border-color: rgba(157, 140, 255, 0.45); color: #fff; transform: translateY(-1px); }
+        .btn-outline:hover { border-color: rgba(56, 189, 248, 0.45); color: #fff; transform: translateY(-1px); }
         .nav-link { color:#A6A6B4; transition: color .2s ease; }
-        .nav-link:hover { background: linear-gradient(135deg, #9D8CFF, #34D399); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .nav-link:hover { background: linear-gradient(135deg, #38BDF8, #34D399); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
         .shapi-col { background: linear-gradient(180deg, rgba(251,113,133,0.10), rgba(251,113,133,0.02)); }
       `}</style>
 

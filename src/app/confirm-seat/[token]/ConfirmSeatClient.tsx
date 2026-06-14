@@ -1,7 +1,7 @@
 'use client'
 
 // Client half of /confirm-seat/[token] — the employee's 10-second confirm
-// flow. Candidate-side palette (#060609 bg, #9D8CFF→#9D8CFF gradient), same
+// flow. Candidate-side palette (#060609 bg, #38BDF8→#38BDF8 gradient), same
 // visual language as /reference/[token]. Mobile-first: one card, two big
 // buttons, optional corrections form.
 
@@ -33,7 +33,7 @@ function Shell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-[#060609]">
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle,rgba(255,255,255,0.05) 1px,transparent 1px)', backgroundSize: '44px 44px' }} />
       <nav className="relative z-10 px-6 py-5 border-b border-[rgba(255,255,255,0.08)]">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
       </nav>
       <div className="relative z-10 max-w-md mx-auto px-6 pt-10 pb-24">{children}</div>
     </div>
@@ -114,7 +114,7 @@ export default function ConfirmSeatClient({ token, initial }: Props) {
   // ── PENDING — the confirm card ──────────────────────────────────────
   return (
     <Shell>
-      <span className="text-[#9D8CFF] text-xs font-bold uppercase tracking-wider">Role confirmation</span>
+      <span className="text-[#38BDF8] text-xs font-bold uppercase tracking-wider">Role confirmation</span>
       <h1 className="text-2xl sm:text-3xl font-black text-[#F4F4F7] mt-2 mb-3">
         Hi {firstName} 👋
       </h1>
@@ -125,7 +125,7 @@ export default function ConfirmSeatClient({ token, initial }: Props) {
 
       {/* Seat card */}
       <div style={{
-        background: 'linear-gradient(#0D0C14,#0D0C14) padding-box,linear-gradient(135deg,rgba(157, 140, 255, 0.25),rgba(157, 140, 255, 0.25)) border-box',
+        background: 'linear-gradient(#0D0C14,#0D0C14) padding-box,linear-gradient(135deg,rgba(56, 189, 248, 0.25),rgba(56, 189, 248, 0.25)) border-box',
         border: '1px solid transparent', borderRadius: 16, padding: 24, marginBottom: 24,
       }}>
         <p className="text-[#7E7E8E] text-[11px] font-bold uppercase tracking-wider mb-2">We have you down as</p>
@@ -150,7 +150,7 @@ export default function ConfirmSeatClient({ token, initial }: Props) {
             onClick={() => respond('confirm')}
             disabled={submitting}
             className="w-full py-4 rounded-full font-black text-sm transition-opacity disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)', color: '#fff' }}
+            style={{ background: 'linear-gradient(135deg,#38BDF8, #34D399)', color: '#fff' }}
           >
             {submitting ? 'Confirming…' : "That's right ✓"}
           </button>
@@ -177,7 +177,7 @@ export default function ConfirmSeatClient({ token, initial }: Props) {
             onClick={() => respond('dispute')}
             disabled={submitting || !(correctTitle.trim() || correctTeam.trim() || correctManager.trim() || note.trim())}
             className="w-full py-4 rounded-full font-black text-sm transition-opacity disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)', color: '#fff' }}
+            style={{ background: 'linear-gradient(135deg,#38BDF8, #34D399)', color: '#fff' }}
           >
             {submitting ? 'Sending…' : 'Send corrections →'}
           </button>

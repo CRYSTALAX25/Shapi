@@ -92,13 +92,13 @@ export default function Evidence() {
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                      linear-gradient(135deg, rgba(157, 140, 255, 0.10), rgba(157, 140, 255, 0.10)) border-box;
+                      linear-gradient(135deg, rgba(56, 189, 248, 0.10), rgba(56, 189, 248, 0.10)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .drop-active {
           background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                      linear-gradient(135deg, rgba(157, 140, 255, 0.5), rgba(157, 140, 255, 0.5)) border-box !important;
+                      linear-gradient(135deg, rgba(56, 189, 248, 0.5), rgba(56, 189, 248, 0.5)) border-box !important;
         }
         .evidence-thumb:hover .evidence-overlay { opacity: 1; }
       `}</style>
@@ -110,7 +110,7 @@ export default function Evidence() {
 
       <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-[rgba(255,255,255,0.08)]">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+          background: 'linear-gradient(135deg, #38BDF8, #34D399)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <Link href="/profile?tab=verification" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1] transition-colors">← Profile</Link>
@@ -177,14 +177,14 @@ export default function Evidence() {
             {activeUploads.map((u, i) => (
               <div key={i} className="gradient-border-card rounded-xl px-5 py-4 flex items-center gap-4">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                  u.status === 'done' ? 'bg-[rgba(157, 140, 255, 0.15)]' :
+                  u.status === 'done' ? 'bg-[rgba(56, 189, 248, 0.15)]' :
                   u.status === 'error' ? 'bg-[rgba(251, 113, 133, 0.15)]' : 'bg-[rgba(255,255,255,0.05)]'
                 }`}>
                   {u.status === 'uploading' && (
                     <div className="w-3 h-3 rounded-full border-2 border-[rgba(255,255,255,0.15)] border-t-[rgba(255,255,255,0.6)] animate-spin" />
                   )}
                   {u.status === 'done' && (
-                    <svg className="w-4 h-4 text-[#9D8CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                     </svg>
                   )}
@@ -241,8 +241,8 @@ export default function Evidence() {
                     <div className="flex items-start justify-between gap-1">
                       <p className="text-white/80 text-xs font-medium leading-tight line-clamp-2 flex-1">{item.file_name}</p>
                       <span style={{
-                        background: item.status === 'verified' ? 'rgba(157, 140, 255, 0.15)' : 'rgba(157, 140, 255, 0.12)',
-                        color: item.status === 'verified' ? '#9D8CFF' : '#9D8CFF',
+                        background: item.status === 'verified' ? 'rgba(56, 189, 248, 0.15)' : 'rgba(56, 189, 248, 0.12)',
+                        color: item.status === 'verified' ? '#38BDF8' : '#38BDF8',
                         fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 100, flexShrink: 0,
                       }}>
                         {item.status === 'verified' ? '✓ Verified' : '✓ Saved'}
@@ -256,7 +256,7 @@ export default function Evidence() {
                             href={item.url}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-[#9D8CFF] text-xs font-bold hover:text-white transition-colors"
+                            className="text-[#38BDF8] text-xs font-bold hover:text-white transition-colors"
                             onClick={e => e.stopPropagation()}
                           >
                             Open →
@@ -285,7 +285,7 @@ export default function Evidence() {
         {allDone && (
           <Link href="/dashboard"
             className="block w-full text-center py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity"
-            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+            style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
             Done — back to dashboard →
           </Link>
         )}

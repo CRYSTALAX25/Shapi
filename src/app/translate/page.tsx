@@ -25,8 +25,8 @@ const PACE: Record<string, { label: string; hpw: number }> = {
 
 const TRACK: Record<string, { label: string; color: string; blurb: string }> = {
   pivot: { label: 'PIVOT', color: '#FB7185', blurb: 'Moving out of a higher-risk role into something more durable.' },
-  shield: { label: 'SHIELD', color: '#9D8CFF', blurb: 'Your trade is AI-resilient — this is about levelling up and earning more, not escaping.' },
-  'cross-collar': { label: 'CROSS-COLLAR', color: '#9D8CFF', blurb: 'Crossing white ↔ blue using the experience you already have.' },
+  shield: { label: 'SHIELD', color: '#38BDF8', blurb: 'Your trade is AI-resilient — this is about levelling up and earning more, not escaping.' },
+  'cross-collar': { label: 'CROSS-COLLAR', color: '#38BDF8', blurb: 'Crossing white ↔ blue using the experience you already have.' },
 }
 
 export default function CareerTranslator() {
@@ -75,7 +75,7 @@ export default function CareerTranslator() {
     <div className="min-h-screen bg-[#060609] text-[#F4F4F7]">
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
       <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-4xl mx-auto">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         <Link href="/dashboard" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7]">← Dashboard</Link>
       </nav>
 
@@ -89,21 +89,21 @@ export default function CareerTranslator() {
             <div>
               <label className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider">From</label>
               <input value={fromRole} onChange={e => setFromRole(e.target.value)} placeholder={booting ? 'Loading…' : 'Your current role'}
-                className="w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
+                className="w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#38BDF8]/50" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
             </div>
-            <div className="hidden sm:flex items-center justify-center pb-2.5 text-[#9D8CFF] text-xl">→</div>
+            <div className="hidden sm:flex items-center justify-center pb-2.5 text-[#38BDF8] text-xl">→</div>
             <div>
               <label className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider">To</label>
               <input value={toRole} onChange={e => setToRole(e.target.value)} onKeyDown={e => e.key === 'Enter' && run()} placeholder="Role you're curious about"
-                className="w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
+                className="w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#38BDF8]/50" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
             </div>
           </div>
           <div className="mt-3">
             <label className="text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider">Country (for accurate local pay)</label>
             <input value={country} onChange={e => setCountry(e.target.value)} onKeyDown={e => e.key === 'Enter' && run()} placeholder="e.g. UAE, Saudi Arabia, UK"
-              className="w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
+              className="w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#38BDF8]/50" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
           </div>
-          <button onClick={run} disabled={loading || !toRole.trim()} className="mt-4 w-full sm:w-auto px-6 py-3 rounded-full font-black text-sm text-white disabled:opacity-40" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+          <button onClick={run} disabled={loading || !toRole.trim()} className="mt-4 w-full sm:w-auto px-6 py-3 rounded-full font-black text-sm text-white disabled:opacity-40" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
             {loading ? 'Mapping your move…' : '🧭 Map my move'}
           </button>
           {err && <p className="text-[#FB7185] text-xs mt-3">{err}</p>}
@@ -136,11 +136,11 @@ export default function CareerTranslator() {
               )}
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div>
-                  <p className="text-3xl font-black" style={{ color: y1 < 0 ? '#FB7185' : '#9D8CFF' }}>{pct(y1)}</p>
+                  <p className="text-3xl font-black" style={{ color: y1 < 0 ? '#FB7185' : '#38BDF8' }}>{pct(y1)}</p>
                   <p className="text-[#7E7E8E] text-xs mt-0.5">Year 1{y1 < 0 ? ' (the dip)' : ''}</p>
                 </div>
                 <div>
-                  <p className="text-3xl font-black" style={{ color: '#9D8CFF' }}>{pct(y3)}</p>
+                  <p className="text-3xl font-black" style={{ color: '#38BDF8' }}>{pct(y3)}</p>
                   <p className="text-[#7E7E8E] text-xs mt-0.5">Year 3 forecast</p>
                 </div>
               </div>
@@ -148,7 +148,7 @@ export default function CareerTranslator() {
               {(typeof t.current_ai_risk === 'number' || typeof t.target_ai_resilience === 'number') && (
                 <div className="flex gap-4 mt-4 pt-4 border-t border-white/[0.08] text-xs">
                   <span className="text-[#7E7E8E]">Current AI risk: <strong style={{ color: '#FB7185' }}>{t.current_ai_risk}/10</strong></span>
-                  <span className="text-[#7E7E8E]">Target resilience: <strong style={{ color: '#9D8CFF' }}>{t.target_ai_resilience}/10</strong></span>
+                  <span className="text-[#7E7E8E]">Target resilience: <strong style={{ color: '#38BDF8' }}>{t.target_ai_resilience}/10</strong></span>
                 </div>
               )}
             </div>
@@ -159,7 +159,7 @@ export default function CareerTranslator() {
                 <p className="text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider mb-3">✓ What you already bring</p>
                 <div className="flex flex-wrap gap-2">
                   {t.transferable_skills.map((s, i) => (
-                    <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>{s}</span>
+                    <span key={i} className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.12)', color: '#38BDF8' }}>{s}</span>
                   ))}
                 </div>
               </div>
@@ -174,7 +174,7 @@ export default function CareerTranslator() {
                     {(Object.keys(PACE) as Array<keyof typeof PACE>).map(k => (
                       <button key={k} onClick={() => setPace(k as 'sprint' | 'steady' | 'bite')}
                         className="text-[10px] font-bold px-2 py-1 rounded-full transition-colors"
-                        style={pace === k ? { background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' } : { background: 'rgba(255,255,255,0.05)', color: '#7E7E8E' }}>
+                        style={pace === k ? { background: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8' } : { background: 'rgba(255,255,255,0.05)', color: '#7E7E8E' }}>
                         {PACE[k].label}
                       </button>
                     ))}
@@ -192,7 +192,7 @@ export default function CareerTranslator() {
                       {s.why && <p className="text-[#A6A6B4] text-xs mt-1">{s.why}</p>}
                       {s.course?.name && (
                         <a href={courseSearchUrl(s.course.platform, s.course.name)} target="_blank" rel="noopener noreferrer"
-                          className="inline-block mt-2 text-[#9D8CFF] text-xs font-bold hover:underline">⭐ {s.course.name}{s.course.platform ? ` · ${s.course.platform}` : ''} ↗</a>
+                          className="inline-block mt-2 text-[#38BDF8] text-xs font-bold hover:underline">⭐ {s.course.name}{s.course.platform ? ` · ${s.course.platform}` : ''} ↗</a>
                       )}
                     </div>
                   ))}
@@ -205,10 +205,10 @@ export default function CareerTranslator() {
 
             {/* Business */}
             {t.business?.note && (
-              <div className="rounded-2xl p-5" style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.2)' }}>
-                <p className="text-[#9D8CFF] text-[10px] font-bold uppercase tracking-wider mb-1">🏢 Could you run your own business?</p>
+              <div className="rounded-2xl p-5" style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                <p className="text-[#38BDF8] text-[10px] font-bold uppercase tracking-wider mb-1">🏢 Could you run your own business?</p>
                 <p className="text-[#C7C7D1] text-sm">{t.business.viable ? '✓ ' : ''}{t.business.note}</p>
-                <Link href={`/business?field=${encodeURIComponent(t.to_role || '')}`} className="inline-block mt-3 px-5 py-2.5 rounded-full font-black text-xs text-white" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+                <Link href={`/business?field=${encodeURIComponent(t.to_role || '')}`} className="inline-block mt-3 px-5 py-2.5 rounded-full font-black text-xs text-white" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
                   📐 Plan my own business — pricing, licensing & first clients →
                 </Link>
               </div>
@@ -216,7 +216,7 @@ export default function CareerTranslator() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-3">
-              <Link href="/roles" className="flex-1 text-center px-6 py-3 rounded-full font-black text-sm text-white" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>Find matching roles →</Link>
+              <Link href="/roles" className="flex-1 text-center px-6 py-3 rounded-full font-black text-sm text-white" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>Find matching roles →</Link>
               <Link href={t.roadmap?.[0]?.step ? `/course-wallet?skill=${encodeURIComponent(t.roadmap[0].step)}` : '/course-wallet'} className="flex-1 text-center px-6 py-3 rounded-full font-bold text-sm text-[#F4F4F7]" style={{ border: '1px solid rgba(255,255,255,0.14)' }}>More courses for this move →</Link>
             </div>
           </div>

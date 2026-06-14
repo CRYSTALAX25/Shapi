@@ -126,16 +126,16 @@ export default function WorthPage() {
 
       <nav className="relative z-10 px-6 py-5 max-w-3xl mx-auto flex items-center justify-between">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+          background: 'linear-gradient(135deg, #38BDF8, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         {signedIn
           ? <Link href="/dashboard" className="text-[#A6A6B4] text-sm hover:text-[#F4F4F7]">← Dashboard</Link>
-          : <Link href="/signup" className="text-white text-sm font-bold px-4 py-2 rounded-full" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>Get started →</Link>}
+          : <Link href="/signup" className="text-white text-sm font-bold px-4 py-2 rounded-full" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>Get started →</Link>}
       </nav>
 
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-8 pb-20">
         <div className="text-center mb-8">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#9D8CFF' }}>Free · 30 seconds</p>
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#38BDF8' }}>Free · 30 seconds</p>
           <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-3" style={{ color: '#FB7185' }}>What you&apos;re worth.</h1>
           <p className="text-[#C7C7D1] text-lg max-w-xl mx-auto">A fair salary band for your role — and, if you&apos;re pivoting, a realistic band for the new field too.</p>
         </div>
@@ -146,7 +146,7 @@ export default function WorthPage() {
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-[#7E7E8E] mb-2">Your role</label>
               <input value={role} onChange={e => setRole(e.target.value)} placeholder="e.g. Operations Director"
-                className="w-full px-4 py-3 rounded-xl text-sm bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[#F4F4F7] placeholder-[#5C5C6A] focus:outline-none focus:border-[#9D8CFF]/60" />
+                className="w-full px-4 py-3 rounded-xl text-sm bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[#F4F4F7] placeholder-[#5C5C6A] focus:outline-none focus:border-[#38BDF8]/60" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
@@ -159,7 +159,7 @@ export default function WorthPage() {
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#7E7E8E] mb-2">Location</label>
                 <input value={location} onChange={e => setLocation(e.target.value)} placeholder="Dubai, UAE"
-                  className="w-full px-4 py-3 rounded-xl text-sm bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[#F4F4F7] placeholder-[#5C5C6A] focus:outline-none focus:border-[#9D8CFF]/60" />
+                  className="w-full px-4 py-3 rounded-xl text-sm bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[#F4F4F7] placeholder-[#5C5C6A] focus:outline-none focus:border-[#38BDF8]/60" />
               </div>
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#7E7E8E] mb-2">Currency</label>
@@ -172,14 +172,14 @@ export default function WorthPage() {
 
             {/* Pivot toggle */}
             {!showPivot ? (
-              <button type="button" onClick={() => setShowPivot(true)} className="text-sm font-bold" style={{ color: '#9D8CFF' }}>
+              <button type="button" onClick={() => setShowPivot(true)} className="text-sm font-bold" style={{ color: '#38BDF8' }}>
                 + I&apos;m pivoting into a new field
               </button>
             ) : (
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#7E7E8E] mb-2">Pivoting into</label>
                 <input value={pivotField} onChange={e => setPivotField(e.target.value)} placeholder="e.g. UX Design"
-                  className="w-full px-4 py-3 rounded-xl text-sm bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[#F4F4F7] placeholder-[#5C5C6A] focus:outline-none focus:border-[#9D8CFF]/60" />
+                  className="w-full px-4 py-3 rounded-xl text-sm bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[#F4F4F7] placeholder-[#5C5C6A] focus:outline-none focus:border-[#38BDF8]/60" />
                 <p className="text-[#7E7E8E] text-xs mt-1.5">We&apos;ll price your transferable experience fairly — not your senior rate, not nothing.</p>
               </div>
             )}
@@ -187,7 +187,7 @@ export default function WorthPage() {
             {error && <p className="text-[#FB7185] text-sm bg-[#FB7185]/[0.08] border border-[#FB7185]/20 rounded-xl px-4 py-3">{error}</p>}
 
             <button onClick={run} disabled={loading}
-              className="w-full py-4 rounded-full font-black text-sm text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+              className="w-full py-4 rounded-full font-black text-sm text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
               {loading ? 'Estimating…' : 'Show me my worth →'}
             </button>
           </div>
@@ -197,14 +197,14 @@ export default function WorthPage() {
         {estimate && (
           <div className="bg-[#0D0C14] rounded-2xl p-7 mb-6" style={cardStyle}>
             <div className="flex items-center gap-2.5 mb-5">
-              <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#9D8CFF, #34D399)' }} />
+              <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#38BDF8, #34D399)' }} />
               <h2 className="text-xl font-black tracking-tight">Your estimate</h2>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>ESTIMATE</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.12)', color: '#38BDF8' }}>ESTIMATE</span>
             </div>
 
             {/* Primary band */}
-            <div className="rounded-xl p-5 mb-3" style={{ background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.10), rgba(157, 140, 255, 0.10))', border: '1px solid rgba(157, 140, 255, 0.25)' }}>
-              <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#9D8CFF' }}>{role || 'Your field'} · {experience}</p>
+            <div className="rounded-xl p-5 mb-3" style={{ background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.10), rgba(56, 189, 248, 0.10))', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+              <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#38BDF8' }}>{role || 'Your field'} · {experience}</p>
               <p className="text-3xl font-black">
                 {estimate.currency} {fmt(estimate.primary.min)}–{fmt(estimate.primary.max)}
                 <span className="text-base font-bold text-[#7E7E8E]"> /{estimate.period === 'year' ? 'yr' : 'mo'}</span>
@@ -214,8 +214,8 @@ export default function WorthPage() {
 
             {/* Pivot band */}
             {estimate.pivot && (
-              <div className="rounded-xl p-5 mb-3" style={{ background: 'rgba(157, 140, 255, 0.07)', border: '1px solid rgba(157, 140, 255, 0.2)' }}>
-                <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#9D8CFF' }}>Pivot · {estimate.pivot.field}</p>
+              <div className="rounded-xl p-5 mb-3" style={{ background: 'rgba(56, 189, 248, 0.07)', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#38BDF8' }}>Pivot · {estimate.pivot.field}</p>
                 <p className="text-2xl font-black">
                   {estimate.currency} {fmt(estimate.pivot.min)}–{fmt(estimate.pivot.max)}
                   <span className="text-sm font-bold text-[#7E7E8E]"> /{estimate.period === 'year' ? 'yr' : 'mo'}</span>
@@ -230,7 +230,7 @@ export default function WorthPage() {
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
               <button onClick={useAsExpectations} disabled={saveState === 'saving'}
-                className="flex-1 py-3.5 rounded-full font-black text-sm text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+                className="flex-1 py-3.5 rounded-full font-black text-sm text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
                 {saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? '✓ Saved to your profile' : 'Use these as my expectations →'}
               </button>
               <Link href={signedIn ? '/profile' : '/signup'} className="flex-1 py-3.5 rounded-full font-bold text-sm text-center text-[#F4F4F7]" style={{ border: '1px solid rgba(255,255,255,0.12)', background: '#0D0C14' }}>
@@ -242,7 +242,7 @@ export default function WorthPage() {
 
         {!signedIn && (
           <p className="text-center text-[#7E7E8E] text-xs">
-            Want a band employers actually trust? <Link href="/signup" className="font-bold" style={{ color: '#9D8CFF' }}>Get verified on Shapi</Link>.
+            Want a band employers actually trust? <Link href="/signup" className="font-bold" style={{ color: '#38BDF8' }}>Get verified on Shapi</Link>.
           </p>
         )}
       </div>

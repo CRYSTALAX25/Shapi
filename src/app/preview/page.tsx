@@ -99,8 +99,8 @@ export default function PreviewPage() {
       <Screen>
         <div className="text-center max-w-sm">
           <div className="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.18), rgba(157, 140, 255, 0.18))' }}>
-            <div className="w-7 h-7 rounded-full border-2 border-[#9D8CFF] border-t-transparent animate-spin" />
+            style={{ background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(56, 189, 248, 0.18))' }}>
+            <div className="w-7 h-7 rounded-full border-2 border-[#38BDF8] border-t-transparent animate-spin" />
           </div>
           <p className="text-[#F4F4F7] font-black text-xl mb-2">Polishing your profile…</p>
           <p className="text-[#7E7E8E] text-sm">{fileName}</p>
@@ -122,7 +122,7 @@ export default function PreviewPage() {
       <div className="max-w-md w-full">
         <div className="text-center mb-10">
           <Link href="/" className="font-black text-2xl tracking-tighter inline-block" style={{
-            background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+            background: 'linear-gradient(135deg, #38BDF8, #34D399)',
             backgroundSize: '200% 200%',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
             animation: 'gradientShift 5s ease infinite',
@@ -140,8 +140,8 @@ export default function PreviewPage() {
           onClick={() => fileRef.current?.click()}
           className={`gradient-border-card rounded-2xl p-12 text-center cursor-pointer mb-4 ${dragging ? 'drop-zone-active' : 'hover:bg-[rgba(255,255,255,0.03)]'}`}
         >
-          <div className="w-14 h-14 rounded-xl bg-[rgba(157, 140, 255, 0.10)] flex items-center justify-center mx-auto mb-5">
-            <svg className="w-7 h-7 text-[#9D8CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-14 h-14 rounded-xl bg-[rgba(56, 189, 248, 0.10)] flex items-center justify-center mx-auto mb-5">
+            <svg className="w-7 h-7 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
@@ -193,7 +193,7 @@ function PreviewResult({ profile, onUnlock }: { profile: Profile; onUnlock: () =
 
       <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-2xl mx-auto border-b border-[rgba(255,255,255,0.08)]">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+          background: 'linear-gradient(135deg, #38BDF8, #34D399)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <span className="text-[#7E7E8E] text-xs uppercase tracking-wider font-bold">Profile preview</span>
@@ -204,7 +204,7 @@ function PreviewResult({ profile, onUnlock }: { profile: Profile; onUnlock: () =
         {/* ── Visible top: name + headline (creates desire) ── */}
         <div className="text-center mb-6">
           <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center text-xl font-black text-white"
-            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+            style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
             {name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'S'}
           </div>
           <h1 className="text-2xl font-black text-[#F4F4F7]">{name}</h1>
@@ -213,7 +213,7 @@ function PreviewResult({ profile, onUnlock }: { profile: Profile; onUnlock: () =
 
           <div className="flex items-center justify-center gap-2 flex-wrap mt-4">
             <span className="text-[11px] font-bold px-3 py-1 rounded-full"
-              style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>
+              style={{ background: 'rgba(56, 189, 248, 0.12)', color: '#38BDF8' }}>
               Shapi-polished
             </span>
             {industries.slice(0, 2).map((ind, i) => (
@@ -301,7 +301,7 @@ function PreviewResult({ profile, onUnlock }: { profile: Profile; onUnlock: () =
             </div>
             <div className="flex items-center gap-3">
               <span className="text-[11px] font-bold px-3 py-1 rounded-full"
-                style={{ background: 'rgba(157, 140, 255, 0.13)', color: '#9D8CFF' }}>
+                style={{ background: 'rgba(56, 189, 248, 0.13)', color: '#38BDF8' }}>
                 {tier || 'AI Integrator'}
               </span>
               <span className="text-[11px] font-bold px-3 py-1 rounded-full"
@@ -346,13 +346,13 @@ function PreviewResult({ profile, onUnlock }: { profile: Profile; onUnlock: () =
           <button
             onClick={onUnlock}
             className="w-full py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity"
-            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
+            style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}
           >
             Unlock your polished profile — $25 →
           </button>
           <p className="text-center text-[11px] text-[#5C5C6A] mt-3">
             Already started?{' '}
-            <Link href="/login" className="text-[#9D8CFF] hover:underline">Log in</Link>
+            <Link href="/login" className="text-[#38BDF8] hover:underline">Log in</Link>
           </p>
         </div>
       </div>
@@ -374,7 +374,7 @@ function FadeOverlay() {
 function LockChip({ label }: { label: string }) {
   return (
     <span className="flex items-center gap-1.5 text-[11px] font-bold text-[#C7C7D1] bg-[#0D0C14]/90 border border-[rgba(255,255,255,0.1)] px-3 py-1.5 rounded-full">
-      <svg className="w-3 h-3 text-[#9D8CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg className="w-3 h-3 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
           d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
       </svg>
@@ -407,14 +407,14 @@ function CardStyles() {
       }
       .gradient-border-card {
         background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                    linear-gradient(135deg, rgba(157, 140, 255, 0.2), rgba(157, 140, 255, 0.2)) border-box;
+                    linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(56, 189, 248, 0.2)) border-box;
         border: 1px solid transparent;
         box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         transition: all 0.25s ease;
       }
       .drop-zone-active {
         background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                    linear-gradient(135deg, rgba(157, 140, 255, 0.6), rgba(157, 140, 255, 0.6)) border-box !important;
+                    linear-gradient(135deg, rgba(56, 189, 248, 0.6), rgba(56, 189, 248, 0.6)) border-box !important;
         transform: scale(1.01);
       }
     `}</style>

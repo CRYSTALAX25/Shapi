@@ -9,7 +9,7 @@ type Report = {
   at_risk_tasks?: string[]; human_strengths?: string[]; pivots?: Pivot[]
 }
 
-const riskColor = (n: number) => (n >= 7 ? '#FB7185' : n >= 4 ? '#9D8CFF' : '#9D8CFF')
+const riskColor = (n: number) => (n >= 7 ? '#FB7185' : n >= 4 ? '#38BDF8' : '#38BDF8')
 
 export default function AIProof() {
   const [role, setRole] = useState('')
@@ -39,14 +39,14 @@ export default function AIProof() {
     <div className="min-h-screen bg-[#060609] text-[#F4F4F7]">
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
       <nav className="relative z-10 px-6 py-4 flex items-center justify-between max-w-3xl mx-auto">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
-        <Link href="/signup" className="grad-border-cta px-4 py-2 rounded-full text-sm font-black" style={{ background: 'linear-gradient(#060609,#060609) padding-box, linear-gradient(135deg, #9D8CFF, #34D399) border-box', border: '1.5px solid transparent', color: '#F4F4F7' }}>Get started →</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/signup" className="grad-border-cta px-4 py-2 rounded-full text-sm font-black" style={{ background: 'linear-gradient(#060609,#060609) padding-box, linear-gradient(135deg, #38BDF8, #34D399) border-box', border: '1.5px solid transparent', color: '#F4F4F7' }}>Get started →</Link>
       </nav>
 
       <div className="relative z-10 max-w-2xl mx-auto px-6 pt-10 pb-20">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#9D8CFF] animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8] animate-pulse" />
             <span className="text-[#A6A6B4] text-xs font-medium">Free · 30 seconds · no signup</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-3" style={{ color: '#FB7185' }}>Is your job AI-proof?</h1>
@@ -55,10 +55,10 @@ export default function AIProof() {
 
         <div className="rounded-2xl p-5 mb-6" style={{ background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }}>
           <input value={role} onChange={e => setRole(e.target.value)} onKeyDown={e => e.key === 'Enter' && run()} placeholder="Your job title (e.g. Plumber, Data Entry Clerk, Marketing Manager)"
-            className="w-full rounded-lg px-3 py-3 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
+            className="w-full rounded-lg px-3 py-3 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#38BDF8]/50" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
           <input value={about} onChange={e => setAbout(e.target.value)} onKeyDown={e => e.key === 'Enter' && run()} placeholder="Optional: a line on what you actually do day-to-day"
-            className="w-full mt-2 rounded-lg px-3 py-3 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
-          <button onClick={run} disabled={loading || !role.trim()} className="mt-3 w-full py-3 rounded-full font-black text-sm text-white disabled:opacity-40" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+            className="w-full mt-2 rounded-lg px-3 py-3 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#38BDF8]/50" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
+          <button onClick={run} disabled={loading || !role.trim()} className="mt-3 w-full py-3 rounded-full font-black text-sm text-white disabled:opacity-40" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
             {loading ? 'Reading the market…' : 'Check my AI risk →'}
           </button>
           {err && <p className="text-[#FB7185] text-xs mt-3">{err}</p>}
@@ -83,7 +83,7 @@ export default function AIProof() {
               )}
               {report.human_strengths && report.human_strengths.length > 0 && (
                 <div className="rounded-2xl p-5" style={{ background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <p className="text-[#9D8CFF] text-[10px] font-bold uppercase tracking-wider mb-2">🛡️ AI can&apos;t replace</p>
+                  <p className="text-[#38BDF8] text-[10px] font-bold uppercase tracking-wider mb-2">🛡️ AI can&apos;t replace</p>
                   <ul className="space-y-1.5">{report.human_strengths.map((x, i) => <li key={i} className="text-[#C7C7D1] text-xs">• {x}</li>)}</ul>
                 </div>
               )}
@@ -104,10 +104,10 @@ export default function AIProof() {
             )}
 
             {/* Gated CTA */}
-            <div className="rounded-2xl p-6 text-center" style={{ background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.12), rgba(157, 140, 255, 0.10))', border: '1px solid rgba(157, 140, 255, 0.25)' }}>
+            <div className="rounded-2xl p-6 text-center" style={{ background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(56, 189, 248, 0.10))', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
               <p className="text-[#F4F4F7] font-black text-lg mb-1">Want the full plan?</p>
               <p className="text-[#A6A6B4] text-sm mb-4 max-w-md mx-auto">Build your free Shapi profile to unlock the salary forecast, exact courses with timelines, and live roles hiring for your pivot.</p>
-              <Link href="/signup" className="inline-block px-7 py-3 rounded-full font-black text-sm text-white" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+              <Link href="/signup" className="inline-block px-7 py-3 rounded-full font-black text-sm text-white" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
                 Get my full pivot plan — free →
               </Link>
             </div>

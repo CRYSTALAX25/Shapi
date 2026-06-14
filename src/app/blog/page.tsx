@@ -15,19 +15,19 @@ export default function BlogIndex() {
     <div className="min-h-screen bg-[#060609] text-[#F4F4F7]">
       <nav className="px-6 py-5 max-w-5xl mx-auto flex items-center justify-between">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+          background: 'linear-gradient(135deg, #38BDF8, #34D399)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <div className="flex items-center gap-6 text-sm">
           <Link href="/" className="text-[#A6A6B4] hover:text-[#F4F4F7] transition-colors">Home</Link>
           <Link href="/signup" className="font-bold text-white px-4 py-2 rounded-full"
-            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>Get started →</Link>
+            style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>Get started →</Link>
         </div>
       </nav>
 
       <div className="max-w-5xl mx-auto px-6 pt-10 pb-24">
         <div className="mb-12">
-          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#9D8CFF' }}>The Shapi blog</p>
+          <p className="text-xs font-black uppercase tracking-widest mb-3" style={{ color: '#38BDF8' }}>The Shapi blog</p>
           <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-3">Hiring, made honest.</h1>
           <p className="text-[#A6A6B4] text-lg max-w-2xl">Notes on verification, trust, and the future of work — from the team building the verification layer for hiring.</p>
         </div>
@@ -55,7 +55,7 @@ export default function BlogIndex() {
       <footer className="border-t border-[rgba(255,255,255,0.08)] py-8 px-6">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
           <span className="font-black text-lg tracking-tighter" style={{
-            background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+            background: 'linear-gradient(135deg, #38BDF8, #34D399)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>shapi</span>
           <div className="flex items-center gap-5 text-[#7E7E8E]">

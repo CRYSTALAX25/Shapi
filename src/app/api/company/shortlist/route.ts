@@ -103,15 +103,15 @@ export async function GET() {
 function matchEmail(selfFirst: string, otherName: string, roleTitle: string, ctaUrl: string) {
   return `
     <div style="font-family:-apple-system,sans-serif;max-width:520px;margin:0 auto;padding:32px 20px;background:#060609">
-      <p style="font-size:22px;font-weight:900;margin:0 0 24px;background:linear-gradient(135deg, #9D8CFF, #34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</p>
-      <div style="background:#0D0C14;border:1px solid rgba(157, 140, 255, 0.2);border-radius:16px;padding:28px">
+      <p style="font-size:22px;font-weight:900;margin:0 0 24px;background:linear-gradient(135deg, #38BDF8, #34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</p>
+      <div style="background:#0D0C14;border:1px solid rgba(56, 189, 248, 0.2);border-radius:16px;padding:28px">
         <div style="font-size:32px;margin-bottom:12px">🤝</div>
         <h1 style="color:#fff;font-size:20px;font-weight:900;margin:0 0 12px">It's a match, ${selfFirst}.</h1>
         <p style="color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;margin:0 0 24px">
           Both sides have signalled interest in the <strong style="color:rgba(255,255,255,0.8)">${roleTitle}</strong> role.
           <strong style="color:rgba(255,255,255,0.8)">${otherName}</strong> is ready to connect — reach out directly.
         </p>
-        <a href="${ctaUrl}" style="display:inline-block;padding:13px 26px;background:linear-gradient(135deg,#9D8CFF, #34D399);color:#060609;font-size:14px;font-weight:900;border-radius:100px;text-decoration:none">Connect now →</a>
+        <a href="${ctaUrl}" style="display:inline-block;padding:13px 26px;background:linear-gradient(135deg,#38BDF8, #34D399);color:#060609;font-size:14px;font-weight:900;border-radius:100px;text-decoration:none">Connect now →</a>
       </div>
     </div>`
 }

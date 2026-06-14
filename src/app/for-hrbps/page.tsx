@@ -17,25 +17,25 @@ function ForHrbpsInner() {
     <div className="min-h-screen bg-[#060609] text-[#F4F4F7] overflow-x-hidden">
       <style>{`
         .grad-text {
-          background: linear-gradient(135deg, #9D8CFF, #34D399);
+          background: linear-gradient(135deg, #38BDF8, #34D399);
           background-size: 300% 300%;
           -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
         .btn-primary {
-          background: linear-gradient(135deg, #9D8CFF, #34D399);
+          background: linear-gradient(135deg, #38BDF8, #34D399);
           color: #fff;
-          box-shadow: 0 8px 24px rgba(157, 140, 255, 0.28);
+          box-shadow: 0 8px 24px rgba(56, 189, 248, 0.28);
           transition: all 0.25s ease;
         }
-        .btn-primary:hover { box-shadow: 0 12px 32px rgba(157, 140, 255, 0.42); transform: translateY(-1px); }
+        .btn-primary:hover { box-shadow: 0 12px 32px rgba(56, 189, 248, 0.42); transform: translateY(-1px); }
         .btn-outline {
           background: #0B0B0F; color: #F4F4F7;
           border: 1px solid rgba(255,255,255,0.16);
           transition: all .25s ease;
         }
         .btn-outline:hover {
-          border-color: rgba(157, 140, 255, 0.4);
-          box-shadow: 0 8px 24px rgba(157, 140, 255, 0.18);
+          border-color: rgba(56, 189, 248, 0.4);
+          box-shadow: 0 8px 24px rgba(56, 189, 248, 0.18);
           transform: translateY(-1px);
         }
         .card {
@@ -46,8 +46,8 @@ function ForHrbpsInner() {
         }
         .card:hover {
           transform: translateY(-3px);
-          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 20px 46px rgba(157, 140, 255, 0.14);
-          border-color: rgba(157, 140, 255, 0.28);
+          box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 20px 46px rgba(56, 189, 248, 0.14);
+          border-color: rgba(56, 189, 248, 0.28);
         }
         .nav-link { color:#A6A6B4; transition: color .2s ease; }
         .nav-link:hover { color:#F4F4F7; }
@@ -106,13 +106,13 @@ function ForHrbpsInner() {
       {/* Hero */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 pt-20 pb-20">
         <div className="absolute top-0 left-1/4 w-[520px] h-[520px] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(157, 140, 255, 0.16) 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(circle, rgba(56, 189, 248, 0.16) 0%, transparent 70%)' }} />
         <div className="absolute top-10 right-1/4 w-[420px] h-[420px] rounded-full pointer-events-none"
-          style={{ background: 'radial-gradient(circle, rgba(157, 140, 255, 0.14) 0%, transparent 70%)' }} />
+          style={{ background: 'radial-gradient(circle, rgba(56, 189, 248, 0.14) 0%, transparent 70%)' }} />
 
         <div className="relative">
           <span className="inline-block text-[11px] font-black tracking-[0.25em] uppercase px-3 py-1.5 rounded-full mb-7"
-            style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>
+            style={{ background: 'rgba(56, 189, 248, 0.12)', color: '#38BDF8' }}>
             For HR Business Partners
           </span>
           <h1 className="text-5xl md:text-7xl font-black leading-[0.95] tracking-tighter mb-7"
@@ -158,7 +158,7 @@ function ForHrbpsInner() {
       <section className="relative z-10 max-w-6xl mx-auto px-6 py-20">
         <div className="text-center mb-12">
           <span className="inline-block text-[11px] font-black tracking-[0.25em] uppercase px-3 py-1.5 rounded-full mb-5"
-            style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>
+            style={{ background: 'rgba(56, 189, 248, 0.12)', color: '#38BDF8' }}>
             The six-tool problem
           </span>
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-3"
@@ -208,8 +208,8 @@ function ForHrbpsInner() {
             className="rounded-3xl p-7"
             style={{
               background: 'linear-gradient(160deg, #131220, #0D0C14)',
-              border: '1px solid rgba(157, 140, 255, 0.3)',
-              boxShadow: '0 20px 50px rgba(157, 140, 255, 0.18)',
+              border: '1px solid rgba(56, 189, 248, 0.3)',
+              boxShadow: '0 20px 50px rgba(56, 189, 248, 0.18)',
             }}
           >
             <p className="text-[11px] font-black tracking-[0.25em] uppercase mb-4" style={{ color: '#FB7185' }}>
@@ -237,7 +237,7 @@ function ForHrbpsInner() {
       <section className="relative z-10 max-w-6xl mx-auto px-6 py-20">
         <div className="mb-12">
           <span className="inline-block text-[11px] font-black tracking-[0.25em] uppercase px-3 py-1.5 rounded-full mb-5"
-            style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>
+            style={{ background: 'rgba(56, 189, 248, 0.12)', color: '#38BDF8' }}>
             Built for the HRBP
           </span>
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter max-w-3xl"
@@ -255,7 +255,7 @@ function ForHrbpsInner() {
               tag: 'Keystone',
               tagColor: '#FBBF24',
               icon: '🧭',
-              color: '#9D8CFF',
+              color: '#38BDF8',
               title: 'Skill Density',
               subtitle: 'The redeploy-not-rehire engine',
               desc:
@@ -265,7 +265,7 @@ function ForHrbpsInner() {
               tag: 'Retention',
               tagColor: '#FB7185',
               icon: '🔥',
-              color: '#9D8CFF',
+              color: '#38BDF8',
               title: 'Strategic Calibration Lens',
               subtitle: 'Your org chart as a heatmap',
               desc:
@@ -333,14 +333,14 @@ function ForHrbpsInner() {
           <div
             className="rounded-2xl p-7 md:p-8"
             style={{
-              background: 'rgba(157, 140, 255, 0.06)',
-              border: '1px solid rgba(157, 140, 255, 0.18)',
+              background: 'rgba(56, 189, 248, 0.06)',
+              border: '1px solid rgba(56, 189, 248, 0.18)',
             }}
           >
-            <p className="text-[11px] font-black tracking-[0.25em] uppercase mb-3" style={{ color: '#9D8CFF' }}>
+            <p className="text-[11px] font-black tracking-[0.25em] uppercase mb-3" style={{ color: '#38BDF8' }}>
               The MENA legal moat
             </p>
-            <p className="text-4xl font-black tracking-tighter mb-3" style={{ color: '#9D8CFF' }}>
+            <p className="text-4xl font-black tracking-tighter mb-3" style={{ color: '#38BDF8' }}>
               12–24 months severance
             </p>
             <p className="text-[#C7C7D1] text-base leading-relaxed">
@@ -369,7 +369,7 @@ function ForHrbpsInner() {
             }}
           />
           <div className="relative">
-            <p className="text-[11px] font-black tracking-[0.25em] uppercase mb-5" style={{ color: '#9D8CFF' }}>
+            <p className="text-[11px] font-black tracking-[0.25em] uppercase mb-5" style={{ color: '#38BDF8' }}>
               Built for HRBPs and Chief People Officers
             </p>
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-5"

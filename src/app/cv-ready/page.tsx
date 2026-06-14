@@ -494,7 +494,7 @@ export default function CVReady() {
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                      linear-gradient(135deg, rgba(157, 140, 255, 0.15), rgba(157, 140, 255, 0.15)) border-box;
+                      linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.15)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
@@ -506,8 +506,8 @@ export default function CVReady() {
           flex: 1;
         }
         .after-col {
-          background: linear-gradient(135deg, rgba(157, 140, 255, 0.06), rgba(157, 140, 255, 0.06));
-          border: 1px solid rgba(157, 140, 255, 0.2);
+          background: linear-gradient(135deg, rgba(56, 189, 248, 0.06), rgba(56, 189, 248, 0.06));
+          border: 1px solid rgba(56, 189, 248, 0.2);
           border-radius: 14px;
           padding: 18px;
           flex: 1;
@@ -518,7 +518,7 @@ export default function CVReady() {
           position: absolute;
           inset: 0;
           border-radius: 14px;
-          background: linear-gradient(135deg, rgba(157, 140, 255, 0.03), rgba(157, 140, 255, 0.03));
+          background: linear-gradient(135deg, rgba(56, 189, 248, 0.03), rgba(56, 189, 248, 0.03));
           pointer-events: none;
         }
         .shimmer {
@@ -542,7 +542,7 @@ export default function CVReady() {
       <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)]">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link href="/" className="font-black text-xl tracking-tighter" style={{
-            background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+            background: 'linear-gradient(135deg, #38BDF8, #34D399)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>shapi</Link>
           <div className="flex items-center gap-4">
@@ -557,7 +557,7 @@ export default function CVReady() {
         {/* Hero */}
         <div className="text-center mb-10">
           <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center"
-            style={{ background: 'radial-gradient(circle at 40% 35%, #9D8CFF, #9D8CFF, #FB7185)' }}>
+            style={{ background: 'radial-gradient(circle at 40% 35%, #38BDF8, #38BDF8, #FB7185)' }}>
             <span className="text-2xl">✨</span>
           </div>
           <h1 className="text-3xl font-black text-[#F4F4F7] mb-2">{firstName}, your CV Kit is ready.</h1>
@@ -605,7 +605,7 @@ export default function CVReady() {
               <div className="flex items-center flex-shrink-0 px-1">
                 <div style={{
                   color: 'transparent',
-                  background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+                  background: 'linear-gradient(135deg, #38BDF8, #34D399)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   fontSize: 20,
@@ -615,14 +615,14 @@ export default function CVReady() {
 
               {/* After */}
               <div className="after-col">
-                <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: '#9D8CFF', opacity: 0.7 }}>
+                <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: '#38BDF8', opacity: 0.7 }}>
                   After — Shapi-enhanced
                 </p>
                 {loadingPreview ? (
                   <>
-                    <div className="shimmer w-full" style={{ background: 'linear-gradient(90deg, rgba(157, 140, 255, 0.06) 25%, rgba(157, 140, 255, 0.12) 50%, rgba(157, 140, 255, 0.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
-                    <div className="shimmer w-11/12" style={{ background: 'linear-gradient(90deg, rgba(157, 140, 255, 0.06) 25%, rgba(157, 140, 255, 0.12) 50%, rgba(157, 140, 255, 0.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
-                    <div className="shimmer w-3/4" style={{ background: 'linear-gradient(90deg, rgba(157, 140, 255, 0.06) 25%, rgba(157, 140, 255, 0.12) 50%, rgba(157, 140, 255, 0.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+                    <div className="shimmer w-full" style={{ background: 'linear-gradient(90deg, rgba(56, 189, 248, 0.06) 25%, rgba(56, 189, 248, 0.12) 50%, rgba(56, 189, 248, 0.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+                    <div className="shimmer w-11/12" style={{ background: 'linear-gradient(90deg, rgba(56, 189, 248, 0.06) 25%, rgba(56, 189, 248, 0.12) 50%, rgba(56, 189, 248, 0.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+                    <div className="shimmer w-3/4" style={{ background: 'linear-gradient(90deg, rgba(56, 189, 248, 0.06) 25%, rgba(56, 189, 248, 0.12) 50%, rgba(56, 189, 248, 0.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
                   </>
                 ) : (
                   <p className="text-[#F4F4F7] text-xs leading-relaxed">
@@ -672,8 +672,8 @@ export default function CVReady() {
                 target="_blank"
                 className="flex items-center justify-between p-4 rounded-xl transition-colors group"
                 style={{
-                  background: isPrimary ? 'rgba(157, 140, 255, 0.06)' : 'rgba(255,255,255,0.05)',
-                  border: isPrimary ? '1px solid rgba(157, 140, 255, 0.15)' : '1px solid rgba(255,255,255,0.08)',
+                  background: isPrimary ? 'rgba(56, 189, 248, 0.06)' : 'rgba(255,255,255,0.05)',
+                  border: isPrimary ? '1px solid rgba(56, 189, 248, 0.15)' : '1px solid rgba(255,255,255,0.08)',
                   cursor: showSpinner ? 'default' : 'pointer',
                 }}
               >
@@ -682,8 +682,8 @@ export default function CVReady() {
                   <div>
                     <p className="text-[#F4F4F7] font-bold text-sm">{lang.language} CV</p>
                     {showSpinner ? (
-                      <p className="text-[#9D8CFF]/60 text-xs flex items-center gap-1">
-                        <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#9D8CFF', opacity: 0.7, animation: 'pulse 1.2s ease-in-out infinite' }} />
+                      <p className="text-[#38BDF8]/60 text-xs flex items-center gap-1">
+                        <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#38BDF8', opacity: 0.7, animation: 'pulse 1.2s ease-in-out infinite' }} />
                         Writing your CV… ready in ~20 seconds
                       </p>
                     ) : (
@@ -694,9 +694,9 @@ export default function CVReady() {
                   </div>
                 </div>
                 {showSpinner ? (
-                  <div style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(157, 140, 255, 0.2)', borderTopColor: '#9D8CFF', animation: 'spin 0.9s linear infinite' }} />
+                  <div style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(56, 189, 248, 0.2)', borderTopColor: '#38BDF8', animation: 'spin 0.9s linear infinite' }} />
                 ) : (
-                  <span className="text-[#9D8CFF] text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
+                  <span className="text-[#38BDF8] text-sm font-bold group-hover:translate-x-1 transition-transform">↓ PDF</span>
                 )}
               </a>
             )
@@ -708,7 +708,7 @@ export default function CVReady() {
           <div className="gradient-border-card rounded-2xl p-5 mb-6">
             <div className="flex items-start justify-between mb-1">
               <p className="text-[#7E7E8E] text-xs font-bold uppercase tracking-wider">Your industry CVs</p>
-              <span className="text-[10px] font-bold bg-[#9D8CFF]/10 text-[#9D8CFF] px-2 py-0.5 rounded-full flex-shrink-0">Included</span>
+              <span className="text-[10px] font-bold bg-[#38BDF8]/10 text-[#38BDF8] px-2 py-0.5 rounded-full flex-shrink-0">Included</span>
             </div>
             <p className="text-[#7E7E8E] text-xs mb-4">
               Based on your background, Shapi identified these industries. Each CV reframes your achievements for that sector.
@@ -719,17 +719,17 @@ export default function CVReady() {
                 return (
                   <a key={ind} href={`/profile/print?industry=${ind}`} target="_blank"
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105"
-                    style={{ background: 'rgba(157, 140, 255, 0.06)', border: '1px solid rgba(157, 140, 255, 0.15)', color: '#C7C7D1' }}>
+                    style={{ background: 'rgba(56, 189, 248, 0.06)', border: '1px solid rgba(56, 189, 248, 0.15)', color: '#C7C7D1' }}>
                     <span>{meta.emoji}</span>{meta.label}
-                    <span className="text-[#9D8CFF] ml-1">↓</span>
+                    <span className="text-[#38BDF8] ml-1">↓</span>
                   </a>
                 )
               })}
               <a href="/profile/print?lang=universal" target="_blank"
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all hover:scale-105"
-                style={{ background: 'rgba(157, 140, 255, 0.06)', border: '1px solid rgba(157, 140, 255, 0.15)', color: '#C7C7D1' }}>
+                style={{ background: 'rgba(56, 189, 248, 0.06)', border: '1px solid rgba(56, 189, 248, 0.15)', color: '#C7C7D1' }}>
                 <span>📋</span>Universal
-                <span className="text-[#9D8CFF] ml-1">↓</span>
+                <span className="text-[#38BDF8] ml-1">↓</span>
               </a>
             </div>
             <p className="text-[#5C5C6A] text-[10px]">Opens in a new tab — click &quot;Save as PDF&quot; to download</p>
@@ -738,10 +738,10 @@ export default function CVReady() {
 
         {/* Pro deep-dive — only if kit tier */}
         {!isPro && (
-          <div className="gradient-border-card rounded-2xl p-5 mb-6" style={{ borderColor: 'rgba(157, 140, 255, 0.3)' }}>
+          <div className="gradient-border-card rounded-2xl p-5 mb-6" style={{ borderColor: 'rgba(56, 189, 248, 0.3)' }}>
             <div className="flex items-start justify-between mb-2">
-              <p className="text-[#9D8CFF] text-xs font-bold uppercase tracking-wider">CV Pro — $59</p>
-              <span className="text-[10px] font-bold bg-[#9D8CFF]/10 text-[#9D8CFF] px-2 py-0.5 rounded-full flex-shrink-0">Upgrade</span>
+              <p className="text-[#38BDF8] text-xs font-bold uppercase tracking-wider">CV Pro — $59</p>
+              <span className="text-[10px] font-bold bg-[#38BDF8]/10 text-[#38BDF8] px-2 py-0.5 rounded-full flex-shrink-0">Upgrade</span>
             </div>
             <p className="text-[#C7C7D1] text-sm font-bold mb-1">Get the stories that win the role you actually want</p>
             <p className="text-[#7E7E8E] text-xs mb-4 leading-relaxed">
@@ -749,7 +749,7 @@ export default function CVReady() {
             </p>
             <button onClick={upgradeToPro}
               className="w-full py-3 rounded-xl font-black text-sm transition-all hover:opacity-90"
-              style={{ background: 'linear-gradient(135deg, #34D399, #9D8CFF)', color: '#fff' }}>
+              style={{ background: 'linear-gradient(135deg, #34D399, #38BDF8)', color: '#fff' }}>
               Upgrade to Pro — $59 →
             </button>
           </div>
@@ -757,10 +757,10 @@ export default function CVReady() {
 
         {/* Pro deep-dive UI — only for pro tier */}
         {isPro && matchedIndustries.length > 0 && (
-          <div className="gradient-border-card rounded-2xl p-5 mb-6" style={{ borderColor: 'rgba(157, 140, 255, 0.25)' }}>
+          <div className="gradient-border-card rounded-2xl p-5 mb-6" style={{ borderColor: 'rgba(56, 189, 248, 0.25)' }}>
             <div className="flex items-start justify-between mb-1">
-              <p className="text-[#9D8CFF] text-xs font-bold uppercase tracking-wider">Pro deep-dive — per industry</p>
-              <span className="text-[10px] font-bold bg-[#9D8CFF]/10 text-[#9D8CFF] px-2 py-0.5 rounded-full">Pro ✓</span>
+              <p className="text-[#38BDF8] text-xs font-bold uppercase tracking-wider">Pro deep-dive — per industry</p>
+              <span className="text-[10px] font-bold bg-[#38BDF8]/10 text-[#38BDF8] px-2 py-0.5 rounded-full">Pro ✓</span>
             </div>
             <p className="text-[#C7C7D1] text-sm font-bold mb-1">One conversational WhatsApp interview per target industry</p>
             <p className="text-[#7E7E8E] text-xs mb-4">Claude reads your CV against each industry&apos;s rubric, scores how much coverage you already have, and asks targeted follow-ups for the thin spots. 5-8 turns per industry, voice notes welcome.</p>
@@ -798,10 +798,10 @@ export default function CVReady() {
                   <div key={ind}
                     className="rounded-xl p-3.5"
                     style={{
-                      background: isComplete ? 'rgba(157, 140, 255, 0.06)'
-                        : isInProgress ? 'rgba(157, 140, 255, 0.06)'
+                      background: isComplete ? 'rgba(56, 189, 248, 0.06)'
+                        : isInProgress ? 'rgba(56, 189, 248, 0.06)'
                         : 'rgba(255,255,255,0.05)',
-                      border: `1px solid ${isComplete ? 'rgba(157, 140, 255, 0.18)' : isInProgress ? 'rgba(157, 140, 255, 0.18)' : 'rgba(255,255,255,0.08)'}`,
+                      border: `1px solid ${isComplete ? 'rgba(56, 189, 248, 0.18)' : isInProgress ? 'rgba(56, 189, 248, 0.18)' : 'rgba(255,255,255,0.08)'}`,
                     }}
                   >
                     <div className="flex items-start justify-between gap-3 mb-1">
@@ -815,7 +815,7 @@ export default function CVReady() {
                         </span>
                       )}
                       {isComplete && (
-                        <span className="text-[10px] font-bold text-[#9D8CFF] flex-shrink-0">
+                        <span className="text-[10px] font-bold text-[#38BDF8] flex-shrink-0">
                           {(ic?.answers?.length ?? 0)} answers captured
                         </span>
                       )}
@@ -825,7 +825,7 @@ export default function CVReady() {
                         for every industry, plus personalised gaps once started. */}
                     {!isComplete && (
                       <details className="mb-2 group">
-                        <summary className="text-[#9D8CFF] text-xs cursor-pointer list-none flex items-center gap-1 select-none">
+                        <summary className="text-[#38BDF8] text-xs cursor-pointer list-none flex items-center gap-1 select-none">
                           <span className="transition-transform group-open:rotate-90">▸</span>
                           What we&apos;ll explore
                         </summary>
@@ -850,10 +850,10 @@ export default function CVReady() {
                       disabled={isComplete || isThisStarting}
                       className="w-full py-2 rounded-lg font-black text-xs transition-all disabled:opacity-50"
                       style={{
-                        background: isComplete ? 'rgba(157, 140, 255, 0.12)'
-                          : isInProgress ? 'rgba(157, 140, 255, 0.12)'
-                          : 'linear-gradient(135deg, #34D399, #9D8CFF)',
-                        color: isComplete ? '#9D8CFF' : isInProgress ? '#9D8CFF' : '#fff',
+                        background: isComplete ? 'rgba(56, 189, 248, 0.12)'
+                          : isInProgress ? 'rgba(56, 189, 248, 0.12)'
+                          : 'linear-gradient(135deg, #34D399, #38BDF8)',
+                        color: isComplete ? '#38BDF8' : isInProgress ? '#38BDF8' : '#fff',
                       }}
                     >
                       {buttonLabel}
@@ -877,7 +877,7 @@ export default function CVReady() {
               onClick={() => openSendPicker('whatsapp')}
               disabled={sendWAState === 'sending' || sendWAState === 'sent'}
               className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all disabled:opacity-50"
-              style={{ background: sendWAState === 'sent' ? 'rgba(157, 140, 255, 0.12)' : 'rgba(37,211,102,0.1)', border: `1px solid ${sendWAState === 'sent' ? 'rgba(157, 140, 255, 0.4)' : 'rgba(37,211,102,0.25)'}`, color: sendWAState === 'sent' ? '#9D8CFF' : '#25D366' }}
+              style={{ background: sendWAState === 'sent' ? 'rgba(56, 189, 248, 0.12)' : 'rgba(37,211,102,0.1)', border: `1px solid ${sendWAState === 'sent' ? 'rgba(56, 189, 248, 0.4)' : 'rgba(37,211,102,0.25)'}`, color: sendWAState === 'sent' ? '#38BDF8' : '#25D366' }}
             >
               <span>{sendWAState === 'sent' ? '✓' : sendWAState === 'sending' ? '…' : '💬'}</span>
               {sendWAState === 'sent' ? 'Sent to WhatsApp' : sendWAState === 'sending' ? 'Sending…' : 'Send via WhatsApp'}
@@ -886,7 +886,7 @@ export default function CVReady() {
               onClick={() => openSendPicker('email')}
               disabled={sendEmailState === 'sending' || sendEmailState === 'sent'}
               className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all disabled:opacity-50"
-              style={{ background: sendEmailState === 'sent' ? 'rgba(157, 140, 255, 0.12)' : 'rgba(157, 140, 255, 0.08)', border: `1px solid ${sendEmailState === 'sent' ? 'rgba(157, 140, 255, 0.4)' : 'rgba(157, 140, 255, 0.2)'}`, color: sendEmailState === 'sent' ? '#9D8CFF' : '#9D8CFF' }}
+              style={{ background: sendEmailState === 'sent' ? 'rgba(56, 189, 248, 0.12)' : 'rgba(56, 189, 248, 0.08)', border: `1px solid ${sendEmailState === 'sent' ? 'rgba(56, 189, 248, 0.4)' : 'rgba(56, 189, 248, 0.2)'}`, color: sendEmailState === 'sent' ? '#38BDF8' : '#38BDF8' }}
             >
               <span>{sendEmailState === 'sent' ? '✓' : sendEmailState === 'sending' ? '…' : '✉️'}</span>
               {sendEmailState === 'sent' ? 'Sent to email' : sendEmailState === 'sending' ? 'Sending…' : 'Send via email'}
@@ -905,7 +905,7 @@ export default function CVReady() {
             Send this to hiring managers. They see your full verified profile — no login needed.
           </p>
           <div className="flex items-center gap-3 bg-[rgba(255,255,255,0.05)] rounded-xl px-4 py-3">
-            <code className="text-[#9D8CFF] text-sm font-bold flex-1 truncate">
+            <code className="text-[#38BDF8] text-sm font-bold flex-1 truncate">
               shapi.io/p/{profileId}
             </code>
             <a href={`/p/${profileId}`} target="_blank"
@@ -921,7 +921,7 @@ export default function CVReady() {
             View full profile →
           </Link>
           <Link href="/dashboard"
-            className="flex-1 text-center bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] py-3 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity">
+            className="flex-1 text-center bg-gradient-to-r from-[#38BDF8] to-[#38BDF8] py-3 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity">
             Dashboard →
           </Link>
         </div>
@@ -940,7 +940,7 @@ export default function CVReady() {
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              background: '#0D0C14', border: '1px solid rgba(157, 140, 255, 0.2)', borderRadius: 20,
+              background: '#0D0C14', border: '1px solid rgba(56, 189, 248, 0.2)', borderRadius: 20,
               padding: 24, maxWidth: 440, width: '100%', maxHeight: '85vh', overflow: 'auto',
             }}
           >
@@ -982,13 +982,13 @@ export default function CVReady() {
                               role="checkbox" aria-checked={checked} tabIndex={0}
                               className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors select-none"
                               style={{
-                                background: checked ? 'rgba(157, 140, 255, 0.08)' : 'rgba(255,255,255,0.05)',
-                                border: `1px solid ${checked ? 'rgba(157, 140, 255, 0.3)' : 'rgba(255,255,255,0.08)'}`,
+                                background: checked ? 'rgba(56, 189, 248, 0.08)' : 'rgba(255,255,255,0.05)',
+                                border: `1px solid ${checked ? 'rgba(56, 189, 248, 0.3)' : 'rgba(255,255,255,0.08)'}`,
                               }}>
                               <span className="flex items-center justify-center w-4 h-4 rounded flex-shrink-0"
                                 style={{
-                                  background: checked ? '#9D8CFF' : 'transparent',
-                                  border: `1.5px solid ${checked ? '#9D8CFF' : 'rgba(255,255,255,0.3)'}`,
+                                  background: checked ? '#38BDF8' : 'transparent',
+                                  border: `1.5px solid ${checked ? '#38BDF8' : 'rgba(255,255,255,0.3)'}`,
                                 }}>
                                 {checked && <span style={{ color: '#fff', fontSize: 11, fontWeight: 900, lineHeight: 1 }}>✓</span>}
                               </span>
@@ -1013,7 +1013,7 @@ export default function CVReady() {
               </button>
               <button onClick={sendSelectedCVs} disabled={pickerChosen.size === 0}
                 className="flex-1 py-3 rounded-xl font-black text-sm transition-opacity disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)', color: '#fff' }}>
+                style={{ background: 'linear-gradient(135deg,#38BDF8, #34D399)', color: '#fff' }}>
                 Send {pickerChosen.size} {pickerChosen.size === 1 ? 'CV' : 'CVs'} →
               </button>
             </div>

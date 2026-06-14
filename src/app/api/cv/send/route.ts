@@ -101,10 +101,10 @@ export async function POST(request: Request) {
           ? `Your ${renderedLabels[0]} CV — Shapi`
           : `Your Shapi CVs (${rendered.length} versions)`,
         html: `<!doctype html><html><body style="background:#060609;font-family:system-ui;margin:0;padding:40px 24px">
-          <div style="max-width:540px;margin:0 auto;background:#0D0C14;border:1px solid rgba(157, 140, 255, 0.15);border-radius:16px;padding:32px;color:white">
+          <div style="max-width:540px;margin:0 auto;background:#0D0C14;border:1px solid rgba(56, 189, 248, 0.15);border-radius:16px;padding:32px;color:white">
             <h1 style="font-size:22px;font-weight:900;margin:0 0 14px">Your CV is ready, ${firstName}.</h1>
             <p style="color:rgba(255,255,255,0.65);font-size:15px;line-height:1.6;margin:0 0 16px">${summary}</p>
-            <p style="color:rgba(255,255,255,0.45);font-size:13px;line-height:1.6;margin:0">Open the attachment to view + share with hiring managers. You can re-generate or download any other versions anytime at <a href="${SITE}/cv-ready" style="color:#9D8CFF">shapi.io/cv-ready</a>.</p>
+            <p style="color:rgba(255,255,255,0.45);font-size:13px;line-height:1.6;margin:0">Open the attachment to view + share with hiring managers. You can re-generate or download any other versions anytime at <a href="${SITE}/cv-ready" style="color:#38BDF8">shapi.io/cv-ready</a>.</p>
             ${missing.length > 0 ? `<p style="color:rgba(255,255,255,0.4);font-size:12px;margin-top:16px">Note: ${missing.length} version${missing.length > 1 ? 's were' : ' was'} skipped (not yet generated): ${missing.map(labelForSelection).join(', ')}. Visit cv-ready to generate them first.</p>` : ''}
           </div>
         </body></html>`,

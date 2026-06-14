@@ -19,7 +19,7 @@ export default function NotFound() {
           That page doesn&apos;t exist — or you might not have access to it yet.
         </p>
         <Link href="/dashboard"
-          className="inline-block bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] px-6 py-3 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity">
+          className="inline-block bg-gradient-to-r from-[#38BDF8] to-[#38BDF8] px-6 py-3 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity">
           Back to dashboard →
         </Link>
       </div>

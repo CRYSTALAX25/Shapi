@@ -44,7 +44,7 @@ export default async function CandidatesPage() {
     <div className="min-h-screen bg-[#060609]">
       <nav className="px-6 py-5 flex items-center justify-between max-w-6xl mx-auto border-b border-[rgba(255,255,255,0.08)]">
         <Link href="/" className="font-black text-2xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg,#9D8CFF, #34D399)',
+          background: 'linear-gradient(135deg,#38BDF8, #34D399)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <div className="flex items-center gap-4">
@@ -62,7 +62,7 @@ export default async function CandidatesPage() {
             <p className="text-[#A6A6B4]">{count} candidates with verified profiles</p>
           </div>
           {isPaid && (
-            <span className="text-xs font-bold px-3 py-1.5 rounded-full capitalize" style={{ background: 'rgba(157, 140, 255, 0.10)', color: '#9D8CFF' }}>
+            <span className="text-xs font-bold px-3 py-1.5 rounded-full capitalize" style={{ background: 'rgba(56, 189, 248, 0.10)', color: '#38BDF8' }}>
               {company.subscription_tier} plan
             </span>
           )}
@@ -70,7 +70,7 @@ export default async function CandidatesPage() {
 
         {/* Paywall banner */}
         {!isPaid && count > 0 && (
-          <div className="rounded-2xl p-7 mb-8 flex items-center justify-between gap-6 text-white" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+          <div className="rounded-2xl p-7 mb-8 flex items-center justify-between gap-6 text-white" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
             <div>
               <p className="font-black text-lg mb-1">
                 {count} verified candidate{count !== 1 ? 's' : ''} matched
@@ -105,7 +105,7 @@ export default async function CandidatesPage() {
                         {isPaid ? (c.full_name || 'Anonymous Candidate') : 'Verified Candidate'}
                       </h3>
                       {c.completion_pct >= 80 && (
-                        <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>
+                        <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.12)', color: '#38BDF8' }}>
                           Verified
                         </span>
                       )}
@@ -135,14 +135,14 @@ export default async function CandidatesPage() {
                     )}
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <div className="text-2xl font-black" style={{ color: '#9D8CFF' }}>{c.completion_pct}%</div>
+                    <div className="text-2xl font-black" style={{ color: '#38BDF8' }}>{c.completion_pct}%</div>
                     <div className="text-xs text-[#7E7E8E]">complete</div>
                   </div>
                 </div>
                 {!isPaid && (
                   <div className="mt-4 pt-4 border-t border-[rgba(255,255,255,0.06)] flex items-center justify-between">
                     <p className="text-xs text-[#7E7E8E]">Subscribe to view full profile, references &amp; contact</p>
-                    <Link href="/company/pricing" className="text-xs font-bold hover:underline" style={{ color: '#9D8CFF' }}>
+                    <Link href="/company/pricing" className="text-xs font-bold hover:underline" style={{ color: '#38BDF8' }}>
                       Unlock →
                     </Link>
                   </div>

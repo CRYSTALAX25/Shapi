@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  /* ─── VIOLET MINT — locked 2026-06-11 (see BRAND.md) ───
-     Violet is the workhorse accent; green is NEVER decorative —
-     every green pixel means verified/positive. */
+  /* ─── OCEAN EMERALD — updated 2026-06-14 (founder: drop purple) ───
+     Ocean is the workhorse accent; green is NEVER decorative —
+     every green pixel means verified/positive. (Was Violet Mint.) */
   --bg: #060609;                          /* deep space page background */
-  --surface: #0D0C14;                     /* violet-tinted card surface */
-  --accent: #9D8CFF;                      /* primary — violet */
+  --surface: #0D0C14;                     /* card surface */
+  --accent: #38BDF8;                      /* primary — ocean */
   --accent2: #34D399;                     /* secondary — emerald */
-  --grad: linear-gradient(135deg, #9D8CFF, #34D399); /* brand gradient */
+  --grad: linear-gradient(135deg, #38BDF8, #34D399); /* brand gradient */
   --verified: #34D399;                    /* verified / positive signal */
   --warn: #FBBF24;                        /* amber — premium / warning */
   --punch: #FB7185;                       /* coral — punch / urgent */
@@ -17,7 +17,7 @@
   --text-low: rgba(255, 255, 255, 0.4);   /* subtitles / labels */
   --text-hint: rgba(255, 255, 255, 0.25); /* disabled / hint */
   --line: rgba(255, 255, 255, 0.07);      /* hairline borders */
-  --dot: rgba(157, 140, 255, 0.07);       /* dot-grid overlay */
+  --dot: rgba(56, 189, 248, 0.07);        /* dot-grid overlay */
 
   /* Dark baseline so the first paint is dark (no white flash before
      page-level backgrounds load). */

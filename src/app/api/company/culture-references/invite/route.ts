@@ -38,7 +38,7 @@ function inviteEmailHtml(companyName: string, surveyUrl: string) {
   <div style="max-width:560px;margin:0 auto;padding:40px 24px">
     <div style="margin-bottom:32px">
       <span style="font-size:22px;font-weight:900;letter-spacing:-0.5px;
-                   background:linear-gradient(135deg, #9D8CFF, #34D399);
+                   background:linear-gradient(135deg, #38BDF8, #34D399);
                    -webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</span>
     </div>
     <div style="background:#0D0C14;border:1px solid rgba(251,113,133,0.18);border-radius:16px;padding:32px">
@@ -55,7 +55,7 @@ function inviteEmailHtml(companyName: string, surveyUrl: string) {
         </p>
       </div>
       <a href="${surveyUrl}" style="display:inline-block;margin-top:4px;padding:14px 28px;
-        background:linear-gradient(135deg,#FB7185, #9D8CFF);color:#060609;font-size:14px;
+        background:linear-gradient(135deg,#FB7185, #38BDF8);color:#060609;font-size:14px;
         font-weight:900;border-radius:100px;text-decoration:none">Share your perspective →</a>
       <hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:24px 0">
       <p style="color:rgba(255,255,255,0.35);font-size:13px;line-height:1.6;margin:0">

@@ -107,7 +107,7 @@ function LockedShell({
         {children}
       </div>
 
-      {/* Lock card overlay — Palette E tokens (#0D0C14 card / #9D8CFF accent
+      {/* Lock card overlay — Palette E tokens (#0D0C14 card / #38BDF8 accent
           / rgba(255,255,255,0.9) heading / rgba(255,255,255,0.5) body). When Palette E ships platform-
           wide, the rest of the UI matches. */}
       <div
@@ -116,15 +116,15 @@ function LockedShell({
       >
         <div
           className={compact ? 'max-w-sm w-full rounded-2xl p-5 text-center' : 'max-w-md w-full rounded-2xl p-6 text-center'}
-          style={{ background: '#0D0C14', border: '1px solid rgba(157, 140, 255, 0.30)', boxShadow: '0 24px 60px rgba(0,0,0,0.55)' }}
+          style={{ background: '#0D0C14', border: '1px solid rgba(56, 189, 248, 0.30)', boxShadow: '0 24px 60px rgba(0,0,0,0.55)' }}
         >
           <div
             className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center text-xl"
-            style={{ background: 'rgba(157, 140, 255, 0.14)', border: '1px solid rgba(157, 140, 255, 0.35)' }}
+            style={{ background: 'rgba(56, 189, 248, 0.14)', border: '1px solid rgba(56, 189, 248, 0.35)' }}
           >
             🔒
           </div>
-          <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#9D8CFF' }}>
+          <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#38BDF8' }}>
             {requirement?.kind === 'product' ? 'Engagement / retainer' : 'Premium tier'}
           </p>
           <h3 className={compact ? 'text-base font-black mb-1' : 'text-lg font-black mb-2'} style={{ color: 'rgba(255,255,255,0.9)' }}>

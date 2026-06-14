@@ -33,7 +33,7 @@ const FSI: React.CSSProperties = { ...FS, resize: undefined }
 function Card({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
-      background: 'linear-gradient(#0D0C14,#0D0C14) padding-box,linear-gradient(135deg,rgba(157, 140, 255, 0.12),rgba(157, 140, 255, 0.12)) border-box',
+      background: 'linear-gradient(#0D0C14,#0D0C14) padding-box,linear-gradient(135deg,rgba(56, 189, 248, 0.12),rgba(56, 189, 248, 0.12)) border-box',
       border: '1px solid transparent', borderRadius: 16, padding: 24,
       boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)',
     }}>{children}</div>
@@ -113,7 +113,7 @@ export default function ReferencePage() {
 
   if (loading) return (
     <div className="min-h-screen bg-[#060609] flex items-center justify-center">
-      <div className="flex gap-2">{[0,150,300].map(d => <div key={d} className="w-2 h-2 rounded-full bg-[#9D8CFF]/40 animate-bounce" style={{ animationDelay: `${d}ms` }} />)}</div>
+      <div className="flex gap-2">{[0,150,300].map(d => <div key={d} className="w-2 h-2 rounded-full bg-[#38BDF8]/40 animate-bounce" style={{ animationDelay: `${d}ms` }} />)}</div>
     </div>
   )
 
@@ -134,7 +134,7 @@ export default function ReferencePage() {
       <div className="min-h-screen bg-[#060609] flex items-center justify-center px-6">
         <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle,rgba(255,255,255,0.05) 1px,transparent 1px)', backgroundSize: '44px 44px' }} />
         <div className="relative z-10 text-center max-w-sm">
-          <div className="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center text-2xl" style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)' }}>✓</div>
+          <div className="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center text-2xl" style={{ background: 'linear-gradient(135deg,#38BDF8, #34D399)' }}>✓</div>
           <h1 className="text-2xl font-black text-[#F4F4F7] mb-3">Thank you, {first}.</h1>
           <p className="text-[#A6A6B4] text-sm leading-relaxed mb-4">
             Your reference for {ref?.candidate_name} is submitted. Your words appear exactly as written — {cf} cannot edit them.
@@ -157,14 +157,14 @@ export default function ReferencePage() {
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle,rgba(255,255,255,0.05) 1px,transparent 1px)', backgroundSize: '44px 44px' }} />
 
       <nav className="relative z-10 px-6 py-5 border-b border-[rgba(255,255,255,0.08)]">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
       </nav>
 
       <div className="relative z-10 max-w-2xl mx-auto px-6 pt-10 pb-24 space-y-4">
 
         {/* Header */}
         <div className="mb-2">
-          <span className="text-[#9D8CFF] text-xs font-bold uppercase tracking-wider">Reference request</span>
+          <span className="text-[#38BDF8] text-xs font-bold uppercase tracking-wider">Reference request</span>
           <h1 className="text-3xl font-black text-[#F4F4F7] mt-2 mb-3">
             {isManager ? `A reference for ${ref?.candidate_name}` : `A quick word about ${ref?.candidate_name}`}
           </h1>
@@ -182,8 +182,8 @@ export default function ReferencePage() {
                 <strong className="text-[#C7C7D1]">{ref?.nominator?.name}</strong>
                 {ref?.nominator?.company ? ` at ${ref.nominator.company}` : ''} suggested you worked with {ref?.candidate_name} and might share a perspective.
               </p>
-              <div style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.2)', borderRadius: 10, padding: '10px 16px', display: 'inline-block' }}>
-                <p className="text-sm font-bold" style={{ color: '#9D8CFF' }}>
+              <div style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.2)', borderRadius: 10, padding: '10px 16px', display: 'inline-block' }}>
+                <p className="text-sm font-bold" style={{ color: '#38BDF8' }}>
                   {first} doesn&apos;t know we&apos;ve reached out — you can be completely candid.
                 </p>
               </div>
@@ -202,7 +202,7 @@ export default function ReferencePage() {
           <div className="flex gap-1.5">
             {[quality, achievement, skills, wouldRehire].map((v, i) => (
               <div key={i} className="h-1 flex-1 rounded-full transition-all duration-300"
-                style={{ background: v ? 'linear-gradient(90deg,#9D8CFF, #34D399)' : 'rgba(255,255,255,0.07)' }} />
+                style={{ background: v ? 'linear-gradient(90deg,#38BDF8, #34D399)' : 'rgba(255,255,255,0.07)' }} />
             ))}
           </div>
         )}
@@ -237,11 +237,11 @@ export default function ReferencePage() {
                 <button key={opt.val} type="button" onClick={() => setWouldRehire(opt.val)}
                   className="w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all text-left"
                   style={{
-                    background: wouldRehire === opt.val ? 'rgba(157, 140, 255, 0.08)' : 'rgba(255,255,255,0.03)',
-                    border: wouldRehire === opt.val ? '1px solid rgba(157, 140, 255, 0.3)' : '1px solid rgba(255,255,255,0.08)',
+                    background: wouldRehire === opt.val ? 'rgba(56, 189, 248, 0.08)' : 'rgba(255,255,255,0.03)',
+                    border: wouldRehire === opt.val ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid rgba(255,255,255,0.08)',
                   }}>
                   <div className="w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center"
-                    style={{ borderColor: wouldRehire === opt.val ? '#9D8CFF' : 'rgba(255,255,255,0.2)', background: wouldRehire === opt.val ? '#9D8CFF' : 'transparent' }}>
+                    style={{ borderColor: wouldRehire === opt.val ? '#38BDF8' : 'rgba(255,255,255,0.2)', background: wouldRehire === opt.val ? '#38BDF8' : 'transparent' }}>
                     {wouldRehire === opt.val && <div className="w-2 h-2 rounded-full bg-white" />}
                   </div>
                   <span className="text-sm" style={{ color: wouldRehire === opt.val ? 'rgba(244,244,247,0.9)' : 'rgba(166,166,180,1)' }}>{opt.label}</span>
@@ -319,7 +319,7 @@ export default function ReferencePage() {
 
         <button onClick={submit} disabled={!canSubmit || submitting}
           className="w-full py-4 rounded-full font-black text-sm transition-opacity disabled:opacity-40"
-          style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)', color: '#fff' }}>
+          style={{ background: 'linear-gradient(135deg,#38BDF8, #34D399)', color: '#fff' }}>
           {submitting ? 'Submitting…' : 'Submit reference →'}
         </button>
 

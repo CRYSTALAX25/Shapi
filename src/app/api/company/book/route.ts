@@ -51,12 +51,12 @@ export async function POST(request: Request) {
     const resend = new Resend(process.env.RESEND_API_KEY)
     const emailHtml = (name: string, other: string, role: string) => `
       <div style="font-family:-apple-system,sans-serif;max-width:520px;margin:0 auto;padding:32px 20px;background:#060609">
-        <p style="font-size:22px;font-weight:900;margin:0 0 24px;background:linear-gradient(135deg, #9D8CFF, #34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</p>
-        <div style="background:#0D0C14;border:1px solid rgba(157, 140, 255, 0.2);border-radius:16px;padding:28px">
+        <p style="font-size:22px;font-weight:900;margin:0 0 24px;background:linear-gradient(135deg, #38BDF8, #34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</p>
+        <div style="background:#0D0C14;border:1px solid rgba(56, 189, 248, 0.2);border-radius:16px;padding:28px">
           <div style="font-size:28px;margin-bottom:12px">📅</div>
           <h1 style="color:#fff;font-size:20px;font-weight:900;margin:0 0 8px">Interview confirmed</h1>
           <p style="color:rgba(255,255,255,0.5);font-size:15px;margin:0 0 20px">
-            <strong style="color:#9D8CFF">${role}</strong> with <strong style="color:rgba(255,255,255,0.8)">${other}</strong>
+            <strong style="color:#38BDF8">${role}</strong> with <strong style="color:rgba(255,255,255,0.8)">${other}</strong>
           </p>
           <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:16px;margin-bottom:20px">
             <p style="color:rgba(255,255,255,0.35);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 4px">Date & time (Dubai)</p>

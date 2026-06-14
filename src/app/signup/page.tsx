@@ -134,7 +134,7 @@ function SignUpForm() {
           backgroundSize: '44px 44px',
         }} />
         <div className="relative z-10 max-w-md w-full text-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#9D8CFF] to-[#9D8CFF] flex items-center justify-center mx-auto mb-6">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#38BDF8] to-[#38BDF8] flex items-center justify-center mx-auto mb-6">
             <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
@@ -150,7 +150,7 @@ function SignUpForm() {
           <button
             onClick={resendConfirmation}
             disabled={resending || resendCooldown > 0}
-            className="text-[#9D8CFF] text-xs font-bold border border-[#9D8CFF]/30 hover:border-[#9D8CFF]/60 px-4 py-2 rounded-full transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="text-[#38BDF8] text-xs font-bold border border-[#38BDF8]/30 hover:border-[#38BDF8]/60 px-4 py-2 rounded-full transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {resending ? 'Resending…' : resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend confirmation email →'}
           </button>
@@ -160,7 +160,7 @@ function SignUpForm() {
 
           <p className="text-[#7E7E8E] text-[11px] leading-relaxed mt-8">
             Can&apos;t find it? Check spam, or try a different email.<br />
-            <Link href="/login" className="text-[#9D8CFF] hover:underline">Already confirmed? Sign in</Link>
+            <Link href="/login" className="text-[#38BDF8] hover:underline">Already confirmed? Sign in</Link>
           </p>
         </div>
       </div>
@@ -176,7 +176,7 @@ function SignUpForm() {
         }
         .gradient-border-card {
           background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                      linear-gradient(135deg, rgba(157, 140, 255, 0.2), rgba(157, 140, 255, 0.2)) border-box;
+                      linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(56, 189, 248, 0.2)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
           transition: all 0.25s ease;
@@ -190,13 +190,13 @@ function SignUpForm() {
       }} />
 
       <div className="fixed top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none" style={{
-        background: 'radial-gradient(circle, rgba(157, 140, 255, 0.07) 0%, transparent 70%)',
+        background: 'radial-gradient(circle, rgba(56, 189, 248, 0.07) 0%, transparent 70%)',
       }} />
 
       <div className="relative z-10 max-w-md w-full">
         <div className="text-center mb-10">
           <Link href="/" className="font-black text-2xl tracking-tighter" style={{
-            background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+            background: 'linear-gradient(135deg, #38BDF8, #34D399)',
             backgroundSize: '200% 200%',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -225,7 +225,7 @@ function SignUpForm() {
                 onClick={() => setType('candidate')}
                 className={`flex-1 py-2.5 rounded-full text-sm font-bold transition-all ${
                   type === 'candidate'
-                    ? 'bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] text-white'
+                    ? 'bg-gradient-to-r from-[#38BDF8] to-[#38BDF8] text-white'
                     : 'text-[#A6A6B4] hover:text-[#C7C7D1]'
                 }`}
               >
@@ -236,7 +236,7 @@ function SignUpForm() {
                 onClick={() => setType('company')}
                 className={`flex-1 py-2.5 rounded-full text-sm font-bold transition-all ${
                   type === 'company'
-                    ? 'bg-gradient-to-r from-[#FB7185] to-[#9D8CFF] text-white'
+                    ? 'bg-gradient-to-r from-[#FB7185] to-[#38BDF8] text-white'
                     : 'text-[#A6A6B4] hover:text-[#C7C7D1]'
                 }`}
               >
@@ -259,8 +259,8 @@ function SignUpForm() {
             <button
               type="button"
               onClick={() => setMode('email')}
-              className={`flex-1 py-2 rounded-lg transition-colors ${mode === 'email' ? 'text-[#9D8CFF]' : 'text-[#7E7E8E] hover:text-[#A6A6B4]'}`}
-              style={mode === 'email' ? { background: 'rgba(157, 140, 255, 0.10)', border: '1px solid rgba(157, 140, 255, 0.30)' } : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+              className={`flex-1 py-2 rounded-lg transition-colors ${mode === 'email' ? 'text-[#38BDF8]' : 'text-[#7E7E8E] hover:text-[#A6A6B4]'}`}
+              style={mode === 'email' ? { background: 'rgba(56, 189, 248, 0.10)', border: '1px solid rgba(56, 189, 248, 0.30)' } : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
             >
               ✉ Email
             </button>
@@ -333,13 +333,13 @@ function SignUpForm() {
               type="checkbox"
               checked={agreedToTerms}
               onChange={e => setAgreedToTerms(e.target.checked)}
-              className="mt-0.5 w-4 h-4 flex-shrink-0 accent-[#9D8CFF]"
+              className="mt-0.5 w-4 h-4 flex-shrink-0 accent-[#38BDF8]"
             />
             <span className="text-[#A6A6B4] text-xs leading-relaxed">
               I agree to the{' '}
-              <Link href="/terms" target="_blank" className="text-[#9D8CFF] hover:underline">Terms of Service</Link>{' '}
+              <Link href="/terms" target="_blank" className="text-[#38BDF8] hover:underline">Terms of Service</Link>{' '}
               and{' '}
-              <Link href="/privacy" target="_blank" className="text-[#9D8CFF] hover:underline">Privacy Policy</Link>.
+              <Link href="/privacy" target="_blank" className="text-[#38BDF8] hover:underline">Privacy Policy</Link>.
             </span>
           </label>
 
@@ -348,7 +348,7 @@ function SignUpForm() {
               type="checkbox"
               checked={marketingOptIn}
               onChange={e => setMarketingOptIn(e.target.checked)}
-              className="mt-0.5 w-4 h-4 flex-shrink-0 accent-[#9D8CFF]"
+              className="mt-0.5 w-4 h-4 flex-shrink-0 accent-[#38BDF8]"
             />
             <span className="text-[#A6A6B4] text-xs leading-relaxed">
               Send me product updates and job-market insights. <span className="text-[#7E7E8E]">(Optional — unsubscribe anytime.)</span>
@@ -369,7 +369,7 @@ function SignUpForm() {
             <button
               type="submit"
               disabled={!type || !agreedToTerms || loading}
-              className="w-full bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed mt-2"
+              className="w-full bg-gradient-to-r from-[#38BDF8] to-[#38BDF8] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed mt-2"
             >
               {loading ? 'Creating account...' : 'Create account →'}
             </button>
@@ -377,7 +377,7 @@ function SignUpForm() {
 
           <p className="text-center text-xs text-[#7E7E8E] pt-1">
             Already have an account?{' '}
-            <Link href="/login" className="text-[#9D8CFF] font-semibold hover:opacity-80 transition-opacity">Sign in</Link>
+            <Link href="/login" className="text-[#38BDF8] font-semibold hover:opacity-80 transition-opacity">Sign in</Link>
           </p>
         </form>
       </div>
@@ -389,7 +389,7 @@ export default function SignUp() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-[#060609] flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-2 border-[rgba(255,255,255,0.08)] border-t-[#9D8CFF] animate-spin" />
+        <div className="w-8 h-8 rounded-full border-2 border-[rgba(255,255,255,0.08)] border-t-[#38BDF8] animate-spin" />
       </div>
     }>
       <SignUpForm />

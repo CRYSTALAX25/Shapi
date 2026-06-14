@@ -113,10 +113,10 @@ export async function POST(request: Request) {
     const matchLabel = (s: number) =>
       s >= 75 ? 'Strong match' : s >= 50 ? 'Good match' : 'Possible match'
     const matchColor = (s: number) =>
-      s >= 75 ? '#34D399' : s >= 50 ? '#9D8CFF' : '#9D8CFF'
+      s >= 75 ? '#34D399' : s >= 50 ? '#38BDF8' : '#38BDF8'
 
     const candidateRows = scored.map(c => `
-      <div style="background:#0D0C14;border:1px solid rgba(157, 140, 255, 0.1);border-radius:12px;padding:16px;margin-bottom:10px">
+      <div style="background:#0D0C14;border:1px solid rgba(56, 189, 248, 0.1);border-radius:12px;padding:16px;margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
           <div>
             <p style="color:rgba(255,255,255,0.8);font-weight:700;font-size:15px;margin:0 0 2px">Verified Candidate</p>
@@ -132,22 +132,22 @@ export async function POST(request: Request) {
           <span style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);font-size:11px;padding:2px 8px;border-radius:999px;font-weight:700">${matchLabel(c.score)}</span>
           ${(c.skills || []).slice(0, 3).map((s: string) => `<span style="background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.35);font-size:11px;padding:2px 8px;border-radius:999px">${s}</span>`).join('')}
         </div>
-        <a href="${SITE}/company/dashboard" style="font-size:12px;color:#9D8CFF;font-weight:700;text-decoration:none">View profile →</a>
+        <a href="${SITE}/company/dashboard" style="font-size:12px;color:#38BDF8;font-weight:700;text-decoration:none">View profile →</a>
       </div>
     `).join('')
 
     const html = `
       <div style="font-family:-apple-system,sans-serif;max-width:560px;margin:0 auto;padding:32px 20px;background:#060609">
         <p style="font-size:22px;font-weight:900;letter-spacing:-0.5px;margin:0 0 24px;
-          background:linear-gradient(135deg, #9D8CFF, #34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</p>
-        <div style="background:#0D0C14;border:1px solid rgba(157, 140, 255, 0.15);border-radius:16px;padding:28px">
+          background:linear-gradient(135deg, #38BDF8, #34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent">shapi</p>
+        <div style="background:#0D0C14;border:1px solid rgba(56, 189, 248, 0.15);border-radius:16px;padding:28px">
           <h1 style="color:#fff;font-size:20px;font-weight:900;margin:0 0 6px">Your weekly talent digest</h1>
           <p style="color:rgba(255,255,255,0.4);font-size:14px;margin:0 0 20px">
             Top ${scored.length} candidate${scored.length !== 1 ? 's' : ''} matched to your <strong style="color:rgba(255,255,255,0.6)">${topRole.title}</strong> role this week
           </p>
           ${candidateRows}
           <a href="${SITE}/company/dashboard" style="display:inline-block;margin-top:8px;padding:13px 26px;
-            background:linear-gradient(135deg,#9D8CFF, #34D399);color:#060609;font-size:14px;
+            background:linear-gradient(135deg,#38BDF8, #34D399);color:#060609;font-size:14px;
             font-weight:900;border-radius:100px;text-decoration:none">
             View all matches →
           </a>

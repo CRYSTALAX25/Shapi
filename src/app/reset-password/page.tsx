@@ -31,7 +31,7 @@ export default function ResetPassword() {
           backgroundSize: '44px 44px',
         }} />
         <div className="relative z-10 max-w-md w-full text-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#9D8CFF] to-[#9D8CFF] flex items-center justify-center mx-auto mb-6">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#38BDF8] to-[#38BDF8] flex items-center justify-center mx-auto mb-6">
             <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
@@ -40,7 +40,7 @@ export default function ResetPassword() {
           <p className="text-[#A6A6B4] text-sm leading-relaxed">
             We sent a reset link to <span className="text-[#F4F4F7] font-semibold">{email}</span>. Click it to set a new password.
           </p>
-          <Link href="/login" className="inline-block mt-6 text-[#9D8CFF] text-sm font-semibold hover:opacity-80">
+          <Link href="/login" className="inline-block mt-6 text-[#38BDF8] text-sm font-semibold hover:opacity-80">
             Back to sign in
           </Link>
         </div>
@@ -57,7 +57,7 @@ export default function ResetPassword() {
         }
         .gradient-border-card {
           background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                      linear-gradient(135deg, rgba(157, 140, 255, 0.2), rgba(157, 140, 255, 0.2)) border-box;
+                      linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(56, 189, 248, 0.2)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
@@ -71,7 +71,7 @@ export default function ResetPassword() {
       <div className="relative z-10 max-w-md w-full">
         <div className="text-center mb-10">
           <Link href="/" className="font-black text-2xl tracking-tighter" style={{
-            background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+            background: 'linear-gradient(135deg, #38BDF8, #34D399)',
             backgroundSize: '200% 200%',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -101,13 +101,13 @@ export default function ResetPassword() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity disabled:opacity-50 mt-2"
+            className="w-full bg-gradient-to-r from-[#38BDF8] to-[#38BDF8] py-4 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity disabled:opacity-50 mt-2"
           >
             {loading ? 'Sending...' : 'Send reset link →'}
           </button>
 
           <p className="text-center text-xs text-[#7E7E8E] pt-1">
-            <Link href="/login" className="text-[#9D8CFF] font-semibold hover:opacity-80">Back to sign in</Link>
+            <Link href="/login" className="text-[#38BDF8] font-semibold hover:opacity-80">Back to sign in</Link>
           </p>
         </form>
       </div>

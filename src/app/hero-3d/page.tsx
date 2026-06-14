@@ -21,7 +21,7 @@ import ShapiLogo from '@/components/ShapiLogo'
 
 const OCEAN = '#38BDF8'
 const MINT = '#34D399'
-const VIOLET = '#9D8CFF'
+const VIOLET = '#38BDF8'
 
 type Variant = 'globe' | 'star' | 'field'
 

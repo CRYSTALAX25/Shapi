@@ -256,7 +256,7 @@ export default async function Dashboard() {
           50% { background-position: 100% 50%; }
         }
         .animated-gradient {
-          background: linear-gradient(135deg, #9D8CFF, #34D399, #9D8CFF, #34D399);
+          background: linear-gradient(135deg, #38BDF8, #34D399, #38BDF8, #34D399);
           background-size: 300% 300%;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -264,17 +264,17 @@ export default async function Dashboard() {
           animation: gradientShift 5s ease infinite;
         }
         .dnav { color: rgba(255,255,255,0.8); transition: color .2s ease; }
-        .dnav:hover { background: linear-gradient(135deg, #9D8CFF, #34D399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .dnav:hover { background: linear-gradient(135deg, #38BDF8, #34D399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .gradient-border-card {
           background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                      linear-gradient(135deg, rgba(157, 140, 255, 0.18), rgba(157, 140, 255, 0.18)) border-box;
+                      linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(56, 189, 248, 0.18)) border-box;
           border: 1px solid transparent;
           transition: all 0.25s ease;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .gradient-border-card:hover {
           background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                      linear-gradient(135deg, rgba(157, 140, 255, 0.5), rgba(157, 140, 255, 0.5)) border-box;
+                      linear-gradient(135deg, rgba(56, 189, 248, 0.5), rgba(56, 189, 248, 0.5)) border-box;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
       `}</style>
@@ -284,7 +284,7 @@ export default async function Dashboard() {
         <div className="px-6 py-4 flex items-center justify-between max-w-6xl mx-auto">
           <Link href="/" className="flex items-center gap-2">
             <ShapiCharacter mood="happy" size={30} />
-            <span className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</span>
+            <span className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</span>
           </Link>
           <div className="flex items-center gap-5">
             <span className="text-sm text-white/60 hidden sm:block">{user.email}</span>
@@ -332,13 +332,13 @@ export default async function Dashboard() {
                         : 'text-[#C7C7D1] hover:text-[#FB7185]'
                     }`}
                     style={item.active
-                      ? { background: 'rgba(157, 140, 255, 0.12)', border: '1px solid rgba(157, 140, 255, 0.28)' }
+                      ? { background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.28)' }
                       : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
                   >
                     <span className="text-base leading-none">{item.icon}</span>
                     <span>{item.label}</span>
                     {'badge' in item && item.badge && (
-                      <span className="ml-auto text-[10px] font-black px-1.5 py-0.5 rounded-full" style={{ background: '#9D8CFF', color: '#060609' }}>{item.badge}</span>
+                      <span className="ml-auto text-[10px] font-black px-1.5 py-0.5 rounded-full" style={{ background: '#38BDF8', color: '#060609' }}>{item.badge}</span>
                     )}
                   </Link>
                 ))}
@@ -360,7 +360,7 @@ export default async function Dashboard() {
             {/* What needs you today — actionable items only; hides when there's nothing to do. */}
             {(upcomingInterviewsCount + needFeedbackCount + (isConcierge ? pendingDraftsCount : 0) + pendingRefsCount + (completion < 100 ? 1 : 0)) > 0 && (
               <div className="gradient-border-card rounded-2xl p-5 mb-5">
-                <p className="text-[#9D8CFF] text-[10px] font-bold uppercase tracking-wider mb-3">✦ What needs you today</p>
+                <p className="text-[#38BDF8] text-[10px] font-bold uppercase tracking-wider mb-3">✦ What needs you today</p>
                 <ul className="space-y-1.5">
                   {upcomingInterviewsCount > 0 && (
                     <li>
@@ -369,7 +369,7 @@ export default async function Dashboard() {
                           <span className="text-base leading-none">📅</span>
                           <span>{upcomingInterviewsCount} upcoming interview{upcomingInterviewsCount === 1 ? '' : 's'} — prep &amp; join</span>
                         </span>
-                        <span className="text-[#9D8CFF] text-xs font-bold flex-shrink-0">→</span>
+                        <span className="text-[#38BDF8] text-xs font-bold flex-shrink-0">→</span>
                       </Link>
                     </li>
                   )}
@@ -380,7 +380,7 @@ export default async function Dashboard() {
                           <span className="text-base leading-none">📝</span>
                           <span>{needFeedbackCount} interview{needFeedbackCount === 1 ? '' : 's'} need{needFeedbackCount === 1 ? 's' : ''} your feedback</span>
                         </span>
-                        <span className="text-[#9D8CFF] text-xs font-bold flex-shrink-0">→</span>
+                        <span className="text-[#38BDF8] text-xs font-bold flex-shrink-0">→</span>
                       </Link>
                     </li>
                   )}
@@ -391,7 +391,7 @@ export default async function Dashboard() {
                           <span className="text-base leading-none">✉️</span>
                           <span>{pendingDraftsCount} draft{pendingDraftsCount === 1 ? '' : 's'} ready to approve &amp; send</span>
                         </span>
-                        <span className="text-[#9D8CFF] text-xs font-bold flex-shrink-0">→</span>
+                        <span className="text-[#38BDF8] text-xs font-bold flex-shrink-0">→</span>
                       </Link>
                     </li>
                   )}
@@ -402,7 +402,7 @@ export default async function Dashboard() {
                           <span className="text-base leading-none">🤝</span>
                           <span>{pendingRefsCount} reference{pendingRefsCount === 1 ? '' : 's'} still awaiting a response</span>
                         </span>
-                        <span className="text-[#9D8CFF] text-xs font-bold flex-shrink-0">→</span>
+                        <span className="text-[#38BDF8] text-xs font-bold flex-shrink-0">→</span>
                       </Link>
                     </li>
                   )}
@@ -413,7 +413,7 @@ export default async function Dashboard() {
                           <span className="text-base leading-none">✦</span>
                           <span>Finish your profile — you&apos;re at {completion}%</span>
                         </span>
-                        <span className="text-[#9D8CFF] text-xs font-bold flex-shrink-0">→</span>
+                        <span className="text-[#38BDF8] text-xs font-bold flex-shrink-0">→</span>
                       </Link>
                     </li>
                   )}
@@ -429,15 +429,15 @@ export default async function Dashboard() {
               <Link
                 href="/cv-builder"
                 className="block mb-5 rounded-2xl p-5 transition-opacity hover:opacity-95"
-                style={{ background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.14), rgba(157, 140, 255, 0.06))', border: '1px solid rgba(157, 140, 255, 0.40)' }}
+                style={{ background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.14), rgba(56, 189, 248, 0.06))', border: '1px solid rgba(56, 189, 248, 0.40)' }}
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: '#9D8CFF' }}>↩</div>
+                  <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: '#38BDF8' }}>↩</div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[#F4F4F7] font-black text-base mb-0.5">Finish your CV</p>
                     <p className="text-[#A6A6B4] text-xs leading-relaxed">You&apos;re part-way through — pick up where you left off, takes a few more minutes.</p>
                   </div>
-                  <span className="flex-shrink-0 text-[#9D8CFF] text-xs font-black">Resume →</span>
+                  <span className="flex-shrink-0 text-[#38BDF8] text-xs font-black">Resume →</span>
                 </div>
               </Link>
             )}
@@ -461,15 +461,15 @@ export default async function Dashboard() {
               <Link
                 href="/cv-ready"
                 className="block mb-5 rounded-2xl p-5 transition-opacity hover:opacity-95"
-                style={{ background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.14), rgba(157, 140, 255, 0.14))', border: '1px solid rgba(157, 140, 255, 0.40)' }}
+                style={{ background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.14), rgba(56, 189, 248, 0.14))', border: '1px solid rgba(56, 189, 248, 0.40)' }}
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>📄</div>
+                  <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>📄</div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[#F4F4F7] font-black text-base mb-0.5">Your CV is ready ✨</p>
                     <p className="text-[#A6A6B4] text-xs leading-relaxed">Industry-styled, ATS-optimised, native + English. Unlock from <strong className="text-[#F4F4F7]">$25</strong> (Kit) or <strong className="text-[#F4F4F7]">$59</strong> (Pro).</p>
                   </div>
-                  <span className="flex-shrink-0 text-[#9D8CFF] text-xs font-black">Unlock →</span>
+                  <span className="flex-shrink-0 text-[#38BDF8] text-xs font-black">Unlock →</span>
                 </div>
               </Link>
             )}
@@ -478,15 +478,15 @@ export default async function Dashboard() {
             <div className="grid lg:grid-cols-2 gap-4 mb-5 items-stretch">
               {/* Shapi guide */}
               <div className="rounded-2xl p-6 flex items-center gap-5"
-                style={{ background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.12), rgba(157, 140, 255, 0.08))', border: '1px solid rgba(157, 140, 255, 0.28)', boxShadow: '0 10px 30px rgba(157, 140, 255, 0.12)' }}>
+                style={{ background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(56, 189, 248, 0.08))', border: '1px solid rgba(56, 189, 248, 0.28)', boxShadow: '0 10px 30px rgba(56, 189, 248, 0.12)' }}>
                 <ShapiCharacter mood={shapiMood} size={84} className="flex-shrink-0" />
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#9D8CFF' }}>Shapi says</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#38BDF8' }}>Shapi says</p>
                   <p className="text-[#F4F4F7] text-sm leading-relaxed font-medium">{shapiMessage}</p>
                 </div>
                 {!profile?.cv_parsed && (
                   <Link href="/upload-cv"
-                    className="ml-auto flex-shrink-0 bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] px-4 py-2 rounded-full text-xs font-black text-[#060609] hover:opacity-90 transition-opacity">
+                    className="ml-auto flex-shrink-0 bg-gradient-to-r from-[#38BDF8] to-[#38BDF8] px-4 py-2 rounded-full text-xs font-black text-[#060609] hover:opacity-90 transition-opacity">
                     Start →
                   </Link>
                 )}
@@ -501,8 +501,8 @@ export default async function Dashboard() {
                       <circle cx="40" cy="40" r="34" fill="none" stroke={completion >= 100 ? '#34D399' : 'url(#progGrad)'} strokeWidth="7" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={dashOffset} />
                       <defs>
                         <linearGradient id="progGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="#9D8CFF" />
-                          <stop offset="50%" stopColor="#9D8CFF" />
+                          <stop offset="0%" stopColor="#38BDF8" />
+                          <stop offset="50%" stopColor="#38BDF8" />
                           <stop offset="100%" stopColor="#FB7185" />
                         </linearGradient>
                       </defs>
@@ -514,12 +514,12 @@ export default async function Dashboard() {
                   <div className="flex-1 min-w-0">
                     <h2 className="text-xl font-black mb-0" style={completion >= 100
                       ? { color: '#34D399' }
-                      : { background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{completion}% complete</h2>
+                      : { background: 'linear-gradient(135deg, #38BDF8, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{completion}% complete</h2>
                     <p className="text-[#7E7E8E] text-xs mt-1">Profile strength</p>
                   </div>
                 </div>
                 <div className="mt-4 h-1 bg-white/[0.06] rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${completion}%`, background: 'linear-gradient(90deg, #9D8CFF, #34D399)' }} />
+                  <div className="h-full rounded-full transition-all" style={{ width: `${completion}%`, background: 'linear-gradient(90deg, #38BDF8, #34D399)' }} />
                 </div>
               </div>
             </div>
@@ -529,13 +529,13 @@ export default async function Dashboard() {
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-[#5C5C6A] text-xs font-bold uppercase tracking-wider">Your plan</span>
                 {isConcierge ? (
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.18)', color: '#9D8CFF' }}>Active Concierge</span>
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.18)', color: '#38BDF8' }}>Active Concierge</span>
                 ) : isActive ? (
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' }}>Shapi Active</span>
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8' }}>Shapi Active</span>
                 ) : profile?.cv_tier === 'pro' ? (
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.18)', color: '#9D8CFF' }}>CV Pro</span>
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.18)', color: '#38BDF8' }}>CV Pro</span>
                 ) : cvKitPurchased ? (
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>CV Kit</span>
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.12)', color: '#38BDF8' }}>CV Kit</span>
                 ) : (
                   <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#7E7E8E' }}>Free</span>
                 )}
@@ -545,7 +545,7 @@ export default async function Dashboard() {
               {(isActive || isConcierge) && (
                 <div className="space-y-2 mb-3">
                   {isActive && (
-                    <div className="flex items-start gap-2.5 rounded-xl p-3" style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.20)' }}>
+                    <div className="flex items-start gap-2.5 rounded-xl p-3" style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.20)' }}>
                       <span className="text-emerald-400 text-sm font-black mt-0.5">✓</span>
                       <div>
                         <p className="text-[#F4F4F7] text-sm font-bold">Shapi Active</p>
@@ -554,7 +554,7 @@ export default async function Dashboard() {
                     </div>
                   )}
                   {isConcierge && (
-                    <div className="flex items-start gap-2.5 rounded-xl p-3" style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.20)' }}>
+                    <div className="flex items-start gap-2.5 rounded-xl p-3" style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.20)' }}>
                       <span className="text-emerald-400 text-sm font-black mt-0.5">✓</span>
                       <div>
                         <p className="text-[#F4F4F7] text-sm font-bold">Active Concierge</p>
@@ -571,19 +571,19 @@ export default async function Dashboard() {
                   {!isActive && (
                     <SubscribeButton product="active_monthly" className="w-full flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors text-left">
                       <div>
-                        <p className="text-[#F4F4F7] text-sm font-bold">Shapi Active <span className="text-[#9D8CFF] font-black">$29/mo</span></p>
+                        <p className="text-[#F4F4F7] text-sm font-bold">Shapi Active <span className="text-[#38BDF8] font-black">$29/mo</span></p>
                         <p className="text-[#7E7E8E] text-xs">See every open role + get shortlisted by companies, scan jobs, draft outreach, track applications, prep interviews.</p>
                       </div>
-                      <span className="text-[#9D8CFF] text-xs font-black flex-shrink-0">Subscribe →</span>
+                      <span className="text-[#38BDF8] text-xs font-black flex-shrink-0">Subscribe →</span>
                     </SubscribeButton>
                   )}
                   {!isConcierge && (
                     <SubscribeButton product="concierge_monthly" className="w-full flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors text-left">
                       <div>
-                        <p className="text-[#F4F4F7] text-sm font-bold">Active Concierge <span className="text-[#9D8CFF] font-black">$89/mo</span></p>
+                        <p className="text-[#F4F4F7] text-sm font-bold">Active Concierge <span className="text-[#38BDF8] font-black">$89/mo</span></p>
                         <p className="text-[#7E7E8E] text-xs">Everything in Active, plus: AI drafts personalised intros daily — you just approve and send.</p>
                       </div>
-                      <span className="text-[#9D8CFF] text-xs font-black flex-shrink-0">Subscribe →</span>
+                      <span className="text-[#38BDF8] text-xs font-black flex-shrink-0">Subscribe →</span>
                     </SubscribeButton>
                   )}
                 </div>
@@ -593,13 +593,13 @@ export default async function Dashboard() {
             {/* Concierge queue — today's AI-drafted outreach (only if subscribed) */}
             {isConcierge && (
               <div className="rounded-2xl p-6 mb-5" style={{
-                background: 'linear-gradient(#0D0C14,#0D0C14) padding-box, linear-gradient(135deg,rgba(157, 140, 255, 0.35),rgba(157, 140, 255, 0.25)) border-box',
+                background: 'linear-gradient(#0D0C14,#0D0C14) padding-box, linear-gradient(135deg,rgba(56, 189, 248, 0.35),rgba(56, 189, 248, 0.25)) border-box',
                 border: '1px solid transparent',
                 boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)',
               }}>
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
-                    <p className="text-[#9D8CFF] text-xs font-bold uppercase tracking-wider mb-1">Concierge · today's shortlist</p>
+                    <p className="text-[#38BDF8] text-xs font-bold uppercase tracking-wider mb-1">Concierge · today's shortlist</p>
                     <h3 className="font-black text-[#F4F4F7] text-lg">
                       {conciergeDrafts.length > 0
                         ? `${conciergeDrafts.length} role${conciergeDrafts.length === 1 ? '' : 's'} matched · ready to send`
@@ -609,16 +609,16 @@ export default async function Dashboard() {
                     {(conciergeCounts.queued + conciergeCounts.approved + conciergeCounts.sent + conciergeCounts.replied) > 0 && (
                       <div className="flex items-center gap-2 mt-3 flex-wrap">
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/[0.05] text-[#A6A6B4]">{conciergeCounts.queued} queued</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#9D8CFF]/15 text-[#9D8CFF]">{conciergeCounts.approved} approved</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#38BDF8]/15 text-[#38BDF8]">{conciergeCounts.approved} approved</span>
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">{conciergeCounts.sent} sent</span>
                         {conciergeCounts.replied > 0 && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#9D8CFF]/20 text-[#9D8CFF]">{conciergeCounts.replied} replied ✓</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#38BDF8]/20 text-[#38BDF8]">{conciergeCounts.replied} replied ✓</span>
                         )}
                       </div>
                     )}
                   </div>
                   <form action="/api/concierge/scan" method="POST">
-                    <button type="submit" className="text-[#9D8CFF] text-xs font-bold border border-[#9D8CFF]/30 hover:border-[#9D8CFF]/60 px-3 py-1.5 rounded-full transition-colors">
+                    <button type="submit" className="text-[#38BDF8] text-xs font-bold border border-[#38BDF8]/30 hover:border-[#38BDF8]/60 px-3 py-1.5 rounded-full transition-colors">
                       Refresh now
                     </button>
                   </form>
@@ -634,12 +634,12 @@ export default async function Dashboard() {
                       return (
                         <div key={draft.id} className={`rounded-xl p-3 border ${
                           replied
-                            ? 'bg-[#9D8CFF]/[0.08] border-[#9D8CFF]/35'
+                            ? 'bg-[#38BDF8]/[0.08] border-[#38BDF8]/35'
                             : 'bg-white/[0.05] border-white/[0.08]'
                         }`}>
                           {replied && (
                             <div className="flex items-center gap-1.5 mb-2">
-                              <span className="text-[#9D8CFF] text-xs font-black">Manager replied ✓ — interview proposed</span>
+                              <span className="text-[#38BDF8] text-xs font-black">Manager replied ✓ — interview proposed</span>
                             </div>
                           )}
                           <div className="flex items-center justify-between mb-1">
@@ -647,7 +647,7 @@ export default async function Dashboard() {
                               <p className="text-[#F4F4F7] text-sm font-bold">{role?.title || 'Role'}</p>
                               <p className="text-[#A6A6B4] text-xs">{role?.company_name || ''}</p>
                             </div>
-                            <span className="text-[#9D8CFF] text-xs font-black">{draft.match_score}%</span>
+                            <span className="text-[#38BDF8] text-xs font-black">{draft.match_score}%</span>
                           </div>
                           {replied && draft.reply_excerpt ? (
                             <p className="text-[#A6A6B4] text-xs mt-2 italic line-clamp-3">&ldquo;{draft.reply_excerpt}&rdquo;</p>
@@ -661,10 +661,10 @@ export default async function Dashboard() {
                           )}
                           <div className="flex items-center justify-between mt-2 gap-2">
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                              draft.status === 'replied' ? 'bg-[#9D8CFF]/20 text-[#9D8CFF]' :
+                              draft.status === 'replied' ? 'bg-[#38BDF8]/20 text-[#38BDF8]' :
                               draft.status === 'sent' ? 'bg-emerald-500/15 text-emerald-400' :
-                              draft.status === 'approved' ? 'bg-[#9D8CFF]/15 text-[#9D8CFF]' :
-                              draft.status === 'auto_send' ? 'bg-[#9D8CFF]/15 text-[#9D8CFF]' :
+                              draft.status === 'approved' ? 'bg-[#38BDF8]/15 text-[#38BDF8]' :
+                              draft.status === 'auto_send' ? 'bg-[#38BDF8]/15 text-[#38BDF8]' :
                               'bg-white/[0.05] text-[#A6A6B4]'
                             }`}>
                               {draft.status === 'replied' ? 'replied' : draft.status.replace('_', ' ')}
@@ -672,12 +672,12 @@ export default async function Dashboard() {
                             {draft.status === 'sent' ? (
                               <form action="/api/concierge/replied" method="POST">
                                 <input type="hidden" name="draftId" value={draft.id} />
-                                <button type="submit" className="text-[10px] font-bold text-[#9D8CFF] border border-[#9D8CFF]/40 hover:bg-[#9D8CFF]/10 px-2.5 py-1 rounded-full transition-colors">
+                                <button type="submit" className="text-[10px] font-bold text-[#38BDF8] border border-[#38BDF8]/40 hover:bg-[#38BDF8]/10 px-2.5 py-1 rounded-full transition-colors">
                                   ✅ They replied — book me in
                                 </button>
                               </form>
                             ) : replied ? (
-                              <Link href="/dashboard" className="text-[10px] font-bold text-[#9D8CFF]">Interview proposed →</Link>
+                              <Link href="/dashboard" className="text-[10px] font-bold text-[#38BDF8]">Interview proposed →</Link>
                             ) : (
                               draft.match_reasons && draft.match_reasons.length > 0 && (
                                 <span className="text-[#7E7E8E] text-[10px]">{draft.match_reasons[0]}</span>
@@ -703,11 +703,11 @@ export default async function Dashboard() {
               <Link href="/profile" className="gradient-border-card rounded-2xl p-5 block hover:bg-white/[0.05] transition-colors">
                 <div className="flex items-center justify-between mb-1.5">
                   <h3 className="font-bold text-[#F4F4F7] text-sm">Profile completion</h3>
-                  <span className="text-[#9D8CFF] text-sm font-black">{completion}%</span>
+                  <span className="text-[#38BDF8] text-sm font-black">{completion}%</span>
                 </div>
                 <p className="text-[#7E7E8E] text-xs mb-3">{profileComplete ? 'Complete & live — companies can find you.' : 'Keep going to reach 100% and go live.'}</p>
                 <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${completion}%`, background: 'linear-gradient(90deg, #9D8CFF, #34D399)' }} />
+                  <div className="h-full rounded-full transition-all" style={{ width: `${completion}%`, background: 'linear-gradient(90deg, #38BDF8, #34D399)' }} />
                 </div>
               </Link>
 
@@ -715,7 +715,7 @@ export default async function Dashboard() {
               <Link href="/profile/references" className="gradient-border-card rounded-2xl p-5 block hover:bg-white/[0.05] transition-colors">
                 <div className="flex items-center justify-between mb-1.5">
                   <h3 className="font-bold text-[#F4F4F7] text-sm">References</h3>
-                  <span className={`text-sm font-black ${refScore.jobsComplete === 2 ? 'text-emerald-400' : 'text-[#9D8CFF]'}`}>{completedRefsCount}/{refsDenom}</span>
+                  <span className={`text-sm font-black ${refScore.jobsComplete === 2 ? 'text-emerald-400' : 'text-[#38BDF8]'}`}>{completedRefsCount}/{refsDenom}</span>
                 </div>
                 <p className="text-[#7E7E8E] text-xs mb-3">
                   {refScore.jobsComplete === 2
@@ -725,7 +725,7 @@ export default async function Dashboard() {
                     : 'Add the manager from your 2 latest jobs — we contact them.'}
                 </p>
                 <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (completedRefsCount / refsDenom) * 100)}%`, background: refScore.jobsComplete === 2 ? 'linear-gradient(90deg,#34D399,#34D399)' : 'linear-gradient(90deg, #9D8CFF, #34D399)' }} />
+                  <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, (completedRefsCount / refsDenom) * 100)}%`, background: refScore.jobsComplete === 2 ? 'linear-gradient(90deg,#34D399,#34D399)' : 'linear-gradient(90deg, #38BDF8, #34D399)' }} />
                 </div>
               </Link>
 
@@ -733,11 +733,11 @@ export default async function Dashboard() {
               <Link href="/course-wallet" className="gradient-border-card rounded-2xl p-5 block hover:bg-white/[0.05] transition-colors">
                 <div className="flex items-center justify-between mb-1.5">
                   <h3 className="font-bold text-[#F4F4F7] text-sm">Courses</h3>
-                  <span className="text-[#9D8CFF] text-sm font-black">{coursesCompleted} done · {coursesInProgress} learning</span>
+                  <span className="text-[#38BDF8] text-sm font-black">{coursesCompleted} done · {coursesInProgress} learning</span>
                 </div>
                 <p className="text-[#7E7E8E] text-xs mb-3">{(coursesInProgress + coursesCompleted) > 0 ? 'Verified learning shows companies real growth.' : 'Close your skill gaps — free, paid or financed.'}</p>
                 <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${(coursesInProgress + coursesCompleted) > 0 ? Math.min(100, (coursesCompleted / (coursesInProgress + coursesCompleted)) * 100) : 0}%`, background: 'linear-gradient(90deg, #9D8CFF, #34D399)' }} />
+                  <div className="h-full rounded-full transition-all" style={{ width: `${(coursesInProgress + coursesCompleted) > 0 ? Math.min(100, (coursesCompleted / (coursesInProgress + coursesCompleted)) * 100) : 0}%`, background: 'linear-gradient(90deg, #38BDF8, #34D399)' }} />
                 </div>
               </Link>
 
@@ -748,7 +748,7 @@ export default async function Dashboard() {
                     <h3 className="font-bold text-[#F4F4F7] text-sm">Applications</h3>
                     <p className="text-[#7E7E8E] text-xs mt-0.5">Active applications in flight.</p>
                   </div>
-                  <span className="text-3xl font-black" style={{ color: activeApplicationsCount > 0 ? '#9D8CFF' : 'rgba(255,255,255,0.10)' }}>{activeApplicationsCount}</span>
+                  <span className="text-3xl font-black" style={{ color: activeApplicationsCount > 0 ? '#38BDF8' : 'rgba(255,255,255,0.10)' }}>{activeApplicationsCount}</span>
                 </div>
               </Link>
 
@@ -759,7 +759,7 @@ export default async function Dashboard() {
                     <h3 className="font-bold text-[#F4F4F7] text-sm">Roles & matches</h3>
                     <p className="text-[#7E7E8E] text-xs mt-0.5">{interestedRolesCount} interested · {shortlistedByCount} shortlisted you</p>
                   </div>
-                  <span className="text-3xl font-black" style={{ color: shortlistedByCount > 0 ? '#9D8CFF' : 'rgba(255,255,255,0.10)' }}>{shortlistedByCount}</span>
+                  <span className="text-3xl font-black" style={{ color: shortlistedByCount > 0 ? '#38BDF8' : 'rgba(255,255,255,0.10)' }}>{shortlistedByCount}</span>
                 </div>
               </Link>
 
@@ -770,7 +770,7 @@ export default async function Dashboard() {
                     <h3 className="font-bold text-[#F4F4F7] text-sm">Work evidence</h3>
                     <p className="text-[#7E7E8E] text-xs mt-0.5">{evidenceCount > 0 ? 'Adds weight to your profile.' : 'Photos and docs that prove your experience.'}</p>
                   </div>
-                  <span className="text-3xl font-black" style={{ color: evidenceCount > 0 ? '#9D8CFF' : 'rgba(255,255,255,0.10)' }}>{evidenceCount}</span>
+                  <span className="text-3xl font-black" style={{ color: evidenceCount > 0 ? '#38BDF8' : 'rgba(255,255,255,0.10)' }}>{evidenceCount}</span>
                 </div>
               </Link>
 
@@ -801,15 +801,15 @@ export default async function Dashboard() {
               ) : (
                 <Link href="/upload-cv" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05]">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-[#9D8CFF]/15 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-5 h-5 text-[#9D8CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-10 h-10 rounded-xl bg-[#38BDF8]/15 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-0.5">
                         <h3 className="font-bold text-[#F4F4F7] text-sm">Upload your CV</h3>
-                        <span className="text-[10px] font-bold bg-[#9D8CFF]/15 text-[#9D8CFF] px-2 py-0.5 rounded-full">Start here →</span>
+                        <span className="text-[10px] font-bold bg-[#38BDF8]/15 text-[#38BDF8] px-2 py-0.5 rounded-full">Start here →</span>
                       </div>
                       <p className="text-[#7E7E8E] text-xs">Drop it and we build your profile. 3 minutes.</p>
                     </div>
@@ -838,8 +838,8 @@ export default async function Dashboard() {
               ) : (
                 <div className="gradient-border-card rounded-2xl p-6 opacity-50">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-[#9D8CFF]/15 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-5 h-5 text-[#9D8CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-10 h-10 rounded-xl bg-[#38BDF8]/15 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-5 h-5 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                       </svg>
                     </div>
@@ -854,7 +854,7 @@ export default async function Dashboard() {
               {/* CV Kit CTA — only if not yet purchased */}
               {!cvKitPurchased && profile?.cv_parsed && (
                 <Link href="/pay" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05] sm:col-span-2 lg:col-span-3" style={{
-                  background: 'linear-gradient(#0D0C14,#0D0C14) padding-box, linear-gradient(135deg,rgba(157, 140, 255, 0.3),rgba(157, 140, 255, 0.2)) border-box',
+                  background: 'linear-gradient(#0D0C14,#0D0C14) padding-box, linear-gradient(135deg,rgba(56, 189, 248, 0.3),rgba(56, 189, 248, 0.2)) border-box',
                   border: '1px solid transparent',
                   boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)',
                 }}>
@@ -862,11 +862,11 @@ export default async function Dashboard() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-bold text-[#F4F4F7] text-sm">Get your enhanced CV</h3>
-                        <span className="text-[10px] font-bold bg-[#9D8CFF]/15 text-[#9D8CFF] px-2 py-0.5 rounded-full">From $25 one-time</span>
+                        <span className="text-[10px] font-bold bg-[#38BDF8]/15 text-[#38BDF8] px-2 py-0.5 rounded-full">From $25 one-time</span>
                       </div>
                       <p className="text-[#7E7E8E] text-xs">English + native language version, industry-optimised, send to WhatsApp or email.</p>
                     </div>
-                    <span className="text-[#9D8CFF] font-black text-sm flex-shrink-0">Unlock →</span>
+                    <span className="text-[#38BDF8] font-black text-sm flex-shrink-0">Unlock →</span>
                   </div>
                 </Link>
               )}
@@ -920,13 +920,13 @@ export default async function Dashboard() {
               {/* Work evidence — visible for ALL candidates */}
               <Link href="/evidence" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05]">
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${evidenceCount > 0 ? 'bg-emerald-500/15' : 'bg-[#9D8CFF]/15'}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${evidenceCount > 0 ? 'bg-emerald-500/15' : 'bg-[#38BDF8]/15'}`}>
                     {evidenceCount > 0 ? (
                       <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     ) : (
-                      <svg className="w-5 h-5 text-[#9D8CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     )}
@@ -937,7 +937,7 @@ export default async function Dashboard() {
                       {evidenceCount > 0 ? (
                         <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">{evidenceCount} file{evidenceCount !== 1 ? 's' : ''} ✓</span>
                       ) : (
-                        <span className="text-[10px] font-bold bg-[#9D8CFF]/15 text-[#9D8CFF] px-2 py-0.5 rounded-full">Add now</span>
+                        <span className="text-[10px] font-bold bg-[#38BDF8]/15 text-[#38BDF8] px-2 py-0.5 rounded-full">Add now</span>
                       )}
                     </div>
                     <p className="text-[#7E7E8E] text-xs">{evidenceCount > 0 ? 'Photos and docs uploaded — adds weight to your profile.' : 'Photos and docs that prove your experience.'}</p>
@@ -952,13 +952,13 @@ export default async function Dashboard() {
                 return (
                   <Link href="/profile/edit" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05] transition-colors">
                     <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${has ? 'bg-emerald-500/15' : 'bg-[#9D8CFF]/15'}`}>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${has ? 'bg-emerald-500/15' : 'bg-[#38BDF8]/15'}`}>
                         {has ? (
                           <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
                         ) : (
-                          <svg className="w-5 h-5 text-[#9D8CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                         )}
@@ -968,7 +968,7 @@ export default async function Dashboard() {
                           <h3 className="font-bold text-[#F4F4F7] text-sm">Right to work</h3>
                           {has
                             ? <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">{rtw.length} added ✓</span>
-                            : <span className="text-[10px] font-bold bg-[#9D8CFF]/15 text-[#9D8CFF] px-2 py-0.5 rounded-full">Add now</span>}
+                            : <span className="text-[10px] font-bold bg-[#38BDF8]/15 text-[#38BDF8] px-2 py-0.5 rounded-full">Add now</span>}
                         </div>
                         <p className="text-[#7E7E8E] text-xs">{has ? rtw.map(r => r.region).slice(0, 3).join(' · ') : 'Where you’re authorised to work — a key signal for employers.'}</p>
                       </div>
@@ -980,7 +980,7 @@ export default async function Dashboard() {
               {/* Courses / learning */}
               <Link href="/course-wallet" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05] transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${(coursesInProgress + coursesCompleted) > 0 ? 'bg-emerald-500/15' : 'bg-[#9D8CFF]/15'}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${(coursesInProgress + coursesCompleted) > 0 ? 'bg-emerald-500/15' : 'bg-[#38BDF8]/15'}`}>
                     <span className="text-lg">🎓</span>
                   </div>
                   <div className="flex-1">
@@ -988,7 +988,7 @@ export default async function Dashboard() {
                       <h3 className="font-bold text-[#F4F4F7] text-sm">Courses & learning</h3>
                       {(coursesInProgress + coursesCompleted) > 0
                         ? <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">{coursesCompleted} done · {coursesInProgress} learning</span>
-                        : <span className="text-[10px] font-bold bg-[#9D8CFF]/15 text-[#9D8CFF] px-2 py-0.5 rounded-full">Browse</span>}
+                        : <span className="text-[10px] font-bold bg-[#38BDF8]/15 text-[#38BDF8] px-2 py-0.5 rounded-full">Browse</span>}
                     </div>
                     <p className="text-[#7E7E8E] text-xs">{(coursesInProgress + coursesCompleted) > 0 ? 'Verified learning shows companies real growth.' : 'Close your skill gaps — free, paid or financed.'}</p>
                   </div>
@@ -998,7 +998,7 @@ export default async function Dashboard() {
               {/* Work style */}
               <Link href="/work-style" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05] transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${profile?.work_style ? 'bg-emerald-500/15' : 'bg-[#9D8CFF]/15'}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${profile?.work_style ? 'bg-emerald-500/15' : 'bg-[#38BDF8]/15'}`}>
                     <span className="text-lg">🧭</span>
                   </div>
                   <div className="flex-1">
@@ -1006,7 +1006,7 @@ export default async function Dashboard() {
                       <h3 className="font-bold text-[#F4F4F7] text-sm">Work style</h3>
                       {profile?.work_style
                         ? <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full">Done ✓</span>
-                        : <span className="text-[10px] font-bold bg-[#9D8CFF]/15 text-[#9D8CFF] px-2 py-0.5 rounded-full">2 min</span>}
+                        : <span className="text-[10px] font-bold bg-[#38BDF8]/15 text-[#38BDF8] px-2 py-0.5 rounded-full">2 min</span>}
                     </div>
                     <p className="text-[#7E7E8E] text-xs">{profile?.work_style ? 'How you prefer to work — shown to companies.' : 'Quick check — how you work best (team vs solo, etc.).'}</p>
                   </div>
@@ -1032,7 +1032,7 @@ export default async function Dashboard() {
                         : 'Once verified, matched companies can view and reach out to you.'}
                     </p>
                   </div>
-                  <div className="text-5xl font-black" style={{ color: shortlistedByCount > 0 ? '#9D8CFF' : 'rgba(255,255,255,0.10)' }}>
+                  <div className="text-5xl font-black" style={{ color: shortlistedByCount > 0 ? '#38BDF8' : 'rgba(255,255,255,0.10)' }}>
                     {shortlistedByCount}
                   </div>
                 </div>
@@ -1047,7 +1047,7 @@ export default async function Dashboard() {
               <div className="gradient-border-card rounded-2xl p-4 mt-4 flex items-start gap-3">
                 <span className="text-lg leading-none">💬</span>
                 <p className="text-[#C7C7D1] text-xs leading-relaxed">
-                  Chat with Shapi on <strong className="text-[#F4F4F7]">WhatsApp</strong> anytime — say <span className="font-bold text-[#9D8CFF]">&quot;voice&quot;</span> to record in any language, <span className="font-bold text-[#9D8CFF]">&quot;references&quot;</span> to check your status, <span className="font-bold text-[#9D8CFF]">&quot;skip&quot;</span> during an interview, or just ask anything.
+                  Chat with Shapi on <strong className="text-[#F4F4F7]">WhatsApp</strong> anytime — say <span className="font-bold text-[#38BDF8]">&quot;voice&quot;</span> to record in any language, <span className="font-bold text-[#38BDF8]">&quot;references&quot;</span> to check your status, <span className="font-bold text-[#38BDF8]">&quot;skip&quot;</span> during an interview, or just ask anything.
                 </p>
               </div>
             )}
@@ -1067,8 +1067,8 @@ export default async function Dashboard() {
 
             <div className="grid md:grid-cols-2 gap-4">
               <Link href="/company/onboarding" className="gradient-border-card rounded-2xl p-7 block hover:bg-white/[0.05]">
-                <div className="w-11 h-11 rounded-xl bg-[#9D8CFF]/15 flex items-center justify-center mb-5">
-                  <svg className="w-5 h-5 text-[#9D8CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-11 h-11 rounded-xl bg-[#38BDF8]/15 flex items-center justify-center mb-5">
+                  <svg className="w-5 h-5 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
                   </svg>
                 </div>
@@ -1077,8 +1077,8 @@ export default async function Dashboard() {
               </Link>
 
               <Link href="/company/dashboard" className="gradient-border-card rounded-2xl p-7 block hover:bg-white/[0.05]">
-                <div className="w-11 h-11 rounded-xl bg-[#9D8CFF]/15 flex items-center justify-center mb-5">
-                  <svg className="w-5 h-5 text-[#9D8CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-11 h-11 rounded-xl bg-[#38BDF8]/15 flex items-center justify-center mb-5">
+                  <svg className="w-5 h-5 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
@@ -1103,8 +1103,8 @@ export default async function Dashboard() {
                 </div>
               ) : (
                 <Link href="/company/pricing" className="md:col-span-2 rounded-2xl p-7 block hover:opacity-90 transition-opacity" style={{
-                  background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.85) 0%, rgba(157, 140, 255, 0.85) 100%)',
-                  border: '1px solid rgba(157, 140, 255, 0.2)',
+                  background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.85) 0%, rgba(56, 189, 248, 0.85) 100%)',
+                  border: '1px solid rgba(56, 189, 248, 0.2)',
                 }}>
                   <div className="flex items-center justify-between">
                     <div>

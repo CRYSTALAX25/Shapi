@@ -252,7 +252,7 @@ function PrintContent() {
         <div style={{ color: '#FB7185', fontSize: 16, fontWeight: 700 }}>Something went wrong</div>
         <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>{error}</div>
         <button onClick={() => { fetched.current = false; loadCV(true) }}
-          style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)', color: '#060609', border: 'none', borderRadius: 99, padding: '10px 24px', fontWeight: 700, cursor: 'pointer', marginTop: 8 }}>
+          style={{ background: 'linear-gradient(135deg,#38BDF8, #34D399)', color: '#060609', border: 'none', borderRadius: 99, padding: '10px 24px', fontWeight: 700, cursor: 'pointer', marginTop: 8 }}>
           Try again
         </button>
         <button onClick={() => router.back()}
@@ -268,7 +268,7 @@ function PrintContent() {
       <div style={{ minHeight: '100vh', background: '#060609', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
         <div style={{
           width: 48, height: 48, borderRadius: '50%',
-          background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+          background: 'linear-gradient(135deg, #38BDF8, #34D399)',
           animation: 'spin 1.2s linear infinite',
         }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -357,7 +357,7 @@ function PrintContent() {
           max-width: calc(100vw - 24px);
         }
         .btn { padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; font-family: system-ui, sans-serif; white-space: nowrap; }
-        .btn-primary { background: linear-gradient(135deg,#9D8CFF, #34D399); color: #060609; }
+        .btn-primary { background: linear-gradient(135deg,#38BDF8, #34D399); color: #060609; }
         .btn-secondary { background: #e8e8e8; color: #333; }
         .btn-secondary.btn-active { background: #1a1a2e; color: white; }
         .lang-picker {
@@ -370,7 +370,7 @@ function PrintContent() {
           background-repeat: no-repeat;
           background-position: right 10px center;
         }
-        .lang-picker:focus { outline: 2px solid #9D8CFF; outline-offset: 2px; }
+        .lang-picker:focus { outline: 2px solid #38BDF8; outline-offset: 2px; }
         @media (max-width: 640px) {
           .no-print { top: 8px; right: 8px; padding: 4px 6px; }
           .btn, .lang-picker { padding: 6px 10px; font-size: 11px; }
@@ -411,7 +411,7 @@ function PrintContent() {
         .skills { display: flex; flex-wrap: wrap; gap: 8px; }
         .skill { background: #f5f5f5; color: #444; font-size: 12px; padding: 4px 12px; border-radius: 999px; font-family: system-ui, sans-serif; }
 
-        .quote { border-${isRTL ? 'right' : 'left'}: 3px solid #9D8CFF; padding-${isRTL ? 'right' : 'left'}: 16px; margin-bottom: 12px; font-size: 14px; line-height: 1.6; color: #555; font-style: italic; break-inside: avoid; page-break-inside: avoid; text-align: justify; }
+        .quote { border-${isRTL ? 'right' : 'left'}: 3px solid #38BDF8; padding-${isRTL ? 'right' : 'left'}: 16px; margin-bottom: 12px; font-size: 14px; line-height: 1.6; color: #555; font-style: italic; break-inside: avoid; page-break-inside: avoid; text-align: justify; }
 
         .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #eee; font-size: 11px; color: #bbb; font-family: system-ui, sans-serif; text-align: center; }
 
@@ -423,7 +423,7 @@ function PrintContent() {
           color: #1a1a2e; direction: ${isRTL ? 'rtl' : 'ltr'};
           display: grid; grid-template-columns: 1fr 240px; overflow: hidden;
         }
-        .va-strip { grid-column: 1 / -1; height: 7px; background: linear-gradient(90deg,#9D8CFF, #34D399); }
+        .va-strip { grid-column: 1 / -1; height: 7px; background: linear-gradient(90deg,#38BDF8, #34D399); }
         .va-main { padding: 40px 36px 32px 44px; }
         .va-side { padding: 40px 26px 32px 26px; background: #F7F9FB; border-${isRTL ? 'right' : 'left'}: 1px solid #E5E9F0; }
         .va-name { font-size: 28px; font-weight: 800; letter-spacing: -0.6px; line-height: 1.1; }
@@ -431,7 +431,7 @@ function PrintContent() {
         .va-loc { font-size: 12px; color: #888; margin-top: 8px; }
         .va-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px; border-radius: 999px; font-size: 11px; font-weight: 700; margin-top: 13px; font-family: system-ui, sans-serif; }
         .va-section { margin-top: 24px; break-inside: avoid; }
-        .va-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.3px; color: #0E7490; margin-bottom: 9px; border-bottom: 2px solid; border-image: linear-gradient(90deg,#9D8CFF, #34D399) 1; padding-bottom: 5px; font-family: system-ui, sans-serif; }
+        .va-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.3px; color: #0E7490; margin-bottom: 9px; border-bottom: 2px solid; border-image: linear-gradient(90deg,#38BDF8, #34D399) 1; padding-bottom: 5px; font-family: system-ui, sans-serif; }
         .va-summary { font-size: 13px; line-height: 1.65; color: #374151; text-align: justify; }
         .va-job { margin-bottom: 15px; break-inside: avoid; }
         .va-job-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
@@ -445,7 +445,7 @@ function PrintContent() {
         .va-bar-fill { display: flex; align-items: center; gap: 2px; }
         .va-seg { width: 9px; height: 6px; border-radius: 1px; }
         .va-chip-sm { display: inline-block; font-size: 10px; padding: 3px 9px; border-radius: 999px; background: linear-gradient(135deg,#F0FBFD,#F5F3FF); color: #1a1a2e; font-weight: 600; border: 1px solid #DDEAF0; margin: 2px 3px 2px 0; }
-        .va-quote { position: relative; font-size: 11.5px; line-height: 1.55; color: #374151; font-style: italic; padding: 4px 0 4px 13px; border-${isRTL ? 'right' : 'left'}: 2px solid #9D8CFF; margin-bottom: 11px; break-inside: avoid; }
+        .va-quote { position: relative; font-size: 11.5px; line-height: 1.55; color: #374151; font-style: italic; padding: 4px 0 4px 13px; border-${isRTL ? 'right' : 'left'}: 2px solid #38BDF8; margin-bottom: 11px; break-inside: avoid; }
         .va-quote .attr { display: block; font-size: 9px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: rgba(255,255,255,0.5); font-style: normal; margin-top: 4px; font-family: system-ui, sans-serif; }
         .va-lang { font-size: 11.5px; color: #374151; margin-bottom: 4px; }
         .va-lang strong { color: #1a1a2e; }
@@ -458,7 +458,7 @@ function PrintContent() {
         .va-arc { background: #F7F9FB; border: 1px solid #E5E9F0; border-radius: 10px; padding: 13px 16px; margin-top: 4px; }
         .va-arc-row { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: #374151; }
         .va-arc-node { font-weight: 700; color: #1a1a2e; }
-        .va-arc-sep { color: #9D8CFF; font-weight: 700; }
+        .va-arc-sep { color: #38BDF8; font-weight: 700; }
         .va-arc-next { color: #7C3AED; font-weight: 700; }
         .va-trust { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 999px; font-family: system-ui, sans-serif; letter-spacing: 0.3px; vertical-align: middle; }
         .va-verline { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; }
@@ -739,14 +739,14 @@ function PrintContent() {
               <svg width={RS + 56} height={RS + 20} viewBox={`-28 -10 ${RS + 56} ${RS + 20}`} style={{ maxWidth: '100%' }}>
                 <defs>
                   <linearGradient id="vaRadar" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#9D8CFF" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="#9D8CFF" stopOpacity={0.35} />
+                    <stop offset="0%" stopColor="#38BDF8" stopOpacity={0.35} />
+                    <stop offset="100%" stopColor="#38BDF8" stopOpacity={0.35} />
                   </linearGradient>
                 </defs>
                 {[0.33, 0.66, 1].map(rr => (
                   <path key={rr} d={`M ${cx} ${cy - maxR * rr} L ${cx + maxR * rr} ${cy} L ${cx} ${cy + maxR * rr} L ${cx - maxR * rr} ${cy} Z`} fill="none" stroke="#E5E7EB" strokeWidth={1} />
                 ))}
-                <path d={radarPath} fill="url(#vaRadar)" stroke="#9D8CFF" strokeWidth={1.5} strokeLinejoin="round" />
+                <path d={radarPath} fill="url(#vaRadar)" stroke="#38BDF8" strokeWidth={1.5} strokeLinejoin="round" />
                 <text x={cx} y={cy - maxR - 6} fontSize={8} fontWeight={700} textAnchor="middle" fill="#6B7280">HEAD</text>
                 <text x={cx + maxR + 6} y={cy + 3} fontSize={8} fontWeight={700} textAnchor="start" fill="#6B7280">SPARK</text>
                 <text x={cx} y={cy + maxR + 13} fontSize={8} fontWeight={700} textAnchor="middle" fill="#6B7280">HEART</text>

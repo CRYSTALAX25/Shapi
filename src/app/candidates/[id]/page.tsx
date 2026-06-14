@@ -65,7 +65,7 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                      linear-gradient(135deg, rgba(157, 140, 255, 0.15), rgba(157, 140, 255, 0.15)) border-box;
+                      linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.15)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
@@ -77,7 +77,7 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
 
       <nav className="relative z-10 px-6 py-4 border-b border-[rgba(255,255,255,0.08)] flex items-center justify-between max-w-5xl mx-auto">
         <Link href="/" className="font-black text-xl tracking-tighter" style={{
-          background: 'linear-gradient(135deg,#9D8CFF, #34D399)',
+          background: 'linear-gradient(135deg,#38BDF8, #34D399)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <Link href="/company/dashboard" className="text-[#A6A6B4] text-sm hover:text-[#C7C7D1] transition-colors">
@@ -97,12 +97,12 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
             </div>
             <div className="text-right flex-shrink-0">
               <div className="text-4xl font-black" style={{
-                background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+                background: 'linear-gradient(135deg, #38BDF8, #34D399)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
               }}>{c.completion_pct || 0}%</div>
               <div className="text-[#7E7E8E] text-xs">complete</div>
               {c.profile_live && (
-                <span className="inline-block mt-2 bg-[#9D8CFF]/15 text-[#9D8CFF] text-xs font-bold px-3 py-1 rounded-full">✓ Verified</span>
+                <span className="inline-block mt-2 bg-[#38BDF8]/15 text-[#38BDF8] text-xs font-bold px-3 py-1 rounded-full">✓ Verified</span>
               )}
             </div>
           </div>
@@ -112,17 +112,17 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
               <span className="text-xs font-bold px-3 py-1.5 rounded-full" style={{ background: `${tier.color}1f`, color: tier.color }}>✓ {tier.label}</span>
             )}
             {c.ai_tier && (
-              <span className="bg-[#9D8CFF]/15 text-[#9D8CFF] text-xs font-bold px-3 py-1.5 rounded-full">
+              <span className="bg-[#38BDF8]/15 text-[#38BDF8] text-xs font-bold px-3 py-1.5 rounded-full">
                 {aiTierLabel[c.ai_tier] || c.ai_tier}
               </span>
             )}
             {c.industry && (
-              <span className="bg-[#9D8CFF]/10 text-[#9D8CFF] text-xs font-bold px-3 py-1.5 rounded-full capitalize">
+              <span className="bg-[#38BDF8]/10 text-[#38BDF8] text-xs font-bold px-3 py-1.5 rounded-full capitalize">
                 {c.industry}
               </span>
             )}
             {salaryBand && (
-              <span className="bg-[rgba(255,255,255,0.05)] text-[#9D8CFF] text-xs font-bold px-3 py-1.5 rounded-full">💰 {salaryBand}</span>
+              <span className="bg-[rgba(255,255,255,0.05)] text-[#38BDF8] text-xs font-bold px-3 py-1.5 rounded-full">💰 {salaryBand}</span>
             )}
           </div>
 
@@ -132,8 +132,8 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
             <div className="mt-4">
               <p className="text-[#7E7E8E] text-[11px] font-bold uppercase tracking-wider mb-1.5">Looking for</p>
               <div className="flex flex-wrap gap-1.5">
-                {targetRoles.map((r, i) => <span key={`r${i}`} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.10)', color: '#9D8CFF' }}>{r}</span>)}
-                {targetIndustries.map((ind, i) => <span key={`i${i}`} className="text-[11px] font-bold px-2 py-0.5 rounded-full capitalize" style={{ background: 'rgba(157, 140, 255, 0.10)', color: '#9D8CFF' }}>{ind}</span>)}
+                {targetRoles.map((r, i) => <span key={`r${i}`} className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.10)', color: '#38BDF8' }}>{r}</span>)}
+                {targetIndustries.map((ind, i) => <span key={`i${i}`} className="text-[11px] font-bold px-2 py-0.5 rounded-full capitalize" style={{ background: 'rgba(56, 189, 248, 0.10)', color: '#38BDF8' }}>{ind}</span>)}
               </div>
             </div>
           )}
@@ -155,16 +155,16 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
 
             {/* AI cross-check — the verification moat */}
             {report && (report.summary_en || (report.claims_verified?.length ?? 0) > 0) && (
-              <div className="rounded-2xl p-6" style={{ background: '#0D0C14', border: '1px solid transparent', backgroundImage: 'linear-gradient(#0D0C14,#0D0C14), linear-gradient(135deg,rgba(157, 140, 255, 0.4),rgba(157, 140, 255, 0.3))', backgroundOrigin: 'border-box', backgroundClip: 'padding-box, border-box', boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)' }}>
+              <div className="rounded-2xl p-6" style={{ background: '#0D0C14', border: '1px solid transparent', backgroundImage: 'linear-gradient(#0D0C14,#0D0C14), linear-gradient(135deg,rgba(56, 189, 248, 0.4),rgba(56, 189, 248, 0.3))', backgroundOrigin: 'border-box', backgroundClip: 'padding-box, border-box', boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)' }}>
                 <div className="flex items-center gap-2.5 mb-3">
-                  <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#9D8CFF, #9D8CFF)' }} />
+                  <span className="w-1.5 h-6 rounded-full" style={{ background: 'linear-gradient(180deg,#38BDF8, #38BDF8)' }} />
                   <h2 className="text-[#F4F4F7] font-black text-lg tracking-tight">AI Cross-Check</h2>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' }}>✓ across {refCount} reference{refCount !== 1 ? 's' : ''}</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8' }}>✓ across {refCount} reference{refCount !== 1 ? 's' : ''}</span>
                 </div>
                 {report.summary_en && <p className="text-[#C7C7D1] text-sm leading-relaxed mb-3 ml-4">{report.summary_en}</p>}
                 {(report.claims_verified?.length ?? 0) > 0 && (
                   <div className="ml-4 mb-3">
-                    <p className="text-[#9D8CFF] text-[11px] font-bold uppercase tracking-wider mb-1.5">✓ Independently confirmed</p>
+                    <p className="text-[#38BDF8] text-[11px] font-bold uppercase tracking-wider mb-1.5">✓ Independently confirmed</p>
                     <ul className="space-y-1">{report.claims_verified!.slice(0, 5).map((cl, i) => <li key={i} className="text-[#C7C7D1] text-xs leading-relaxed">· {cl}</li>)}</ul>
                   </div>
                 )}
@@ -208,7 +208,7 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
                 <p className="text-[#7E7E8E] text-xs mb-5">From their Shapi conversation</p>
                 <div className="space-y-3">
                   {userAnswers.map((m, i) => (
-                    <div key={i} className="bg-[rgba(255,255,255,0.05)] rounded-xl px-4 py-3 border-l-2 border-[#9D8CFF]/40">
+                    <div key={i} className="bg-[rgba(255,255,255,0.05)] rounded-xl px-4 py-3 border-l-2 border-[#38BDF8]/40">
                       <p className="text-[#C7C7D1] text-sm leading-relaxed">&ldquo;{m.content}&rdquo;</p>
                     </div>
                   ))}
@@ -240,9 +240,9 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
                   { label: 'Profile live', done: c.profile_live },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${item.done ? 'bg-[#9D8CFF]/20' : 'bg-[rgba(255,255,255,0.05)]'}`}>
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${item.done ? 'bg-[#38BDF8]/20' : 'bg-[rgba(255,255,255,0.05)]'}`}>
                       {item.done
-                        ? <svg className="w-3 h-3 text-[#9D8CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                        ? <svg className="w-3 h-3 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                         : <div className="w-1.5 h-1.5 rounded-full bg-[#5C5C6A]" />}
                     </div>
                     <span className={`text-sm ${item.done ? 'text-[#C7C7D1]' : 'text-[#7E7E8E]'}`}>{item.label}</span>
@@ -253,7 +253,7 @@ export default async function CandidateProfile({ params }: { params: Promise<{ i
 
             <div className="gradient-border-card rounded-2xl p-6">
               <h2 className="text-[#F4F4F7] font-black text-xs uppercase tracking-widest mb-3 opacity-50">Share profile</h2>
-              <code className="text-[#9D8CFF] text-xs bg-[rgba(255,255,255,0.05)] px-3 py-2 rounded-lg block break-all">
+              <code className="text-[#38BDF8] text-xs bg-[rgba(255,255,255,0.05)] px-3 py-2 rounded-lg block break-all">
                 shapi.io/p/{c.id.slice(0, 8)}
               </code>
             </div>

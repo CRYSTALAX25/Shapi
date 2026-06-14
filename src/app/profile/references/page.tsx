@@ -47,9 +47,9 @@ function workEntryLabel(w: WorkEntry, i: number): string {
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   pending:   { label: 'Not sent',   color: '#7E7E8E',               bg: 'rgba(255,255,255,0.05)' },
-  contacted: { label: 'Contacted',  color: '#9D8CFF',               bg: 'rgba(157, 140, 255, 0.08)' },
-  opened:    { label: 'Opened',     color: '#9D8CFF',               bg: 'rgba(157, 140, 255, 0.08)' },
-  completed: { label: 'Responded ✓', color: '#9D8CFF',              bg: 'rgba(157, 140, 255, 0.08)' },
+  contacted: { label: 'Contacted',  color: '#38BDF8',               bg: 'rgba(56, 189, 248, 0.08)' },
+  opened:    { label: 'Opened',     color: '#38BDF8',               bg: 'rgba(56, 189, 248, 0.08)' },
+  completed: { label: 'Responded ✓', color: '#38BDF8',              bg: 'rgba(56, 189, 248, 0.08)' },
   no_response: { label: 'No response', color: '#FB7185',            bg: 'rgba(251, 113, 133, 0.08)' },
   declined:  { label: 'Declined',   color: '#FB7185',               bg: 'rgba(251, 113, 133, 0.08)' },
 }
@@ -273,7 +273,7 @@ export default function References() {
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle,rgba(255,255,255,0.05) 1px,transparent 1px)', backgroundSize: '44px 44px' }} />
 
       <nav className="relative z-10 px-6 py-5 flex items-center justify-between max-w-3xl mx-auto border-b border-white/[0.08]">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         <Link href="/profile?tab=verification" className="text-[#A6A6B4] text-sm hover:text-[#C7C7D1] transition-colors">← Profile</Link>
       </nav>
 
@@ -297,10 +297,10 @@ export default function References() {
             </div>
             <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
               <div className="h-full rounded-full transition-all duration-500"
-                style={{ width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%`, background: 'linear-gradient(90deg,#9D8CFF, #34D399)' }} />
+                style={{ width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%`, background: 'linear-gradient(90deg,#38BDF8, #34D399)' }} />
             </div>
             {completedCount >= 3 && (
-              <p className="text-[#9D8CFF] text-xs font-bold mt-2">✓ Verification threshold reached — your profile now shows verified references.</p>
+              <p className="text-[#38BDF8] text-xs font-bold mt-2">✓ Verification threshold reached — your profile now shows verified references.</p>
             )}
           </div>
         )}
@@ -344,13 +344,13 @@ export default function References() {
         {/* Test mode toggle — routes ALL outreach (manager + nominees) to the candidate */}
         <label className="flex items-center gap-3 mb-6 p-4 rounded-xl cursor-pointer transition-colors"
           style={{
-            background: testMode ? 'rgba(157, 140, 255, 0.08)' : 'rgba(255,255,255,0.05)',
-            border: `1px solid ${testMode ? 'rgba(157, 140, 255, 0.3)' : 'rgba(255,255,255,0.08)'}`,
+            background: testMode ? 'rgba(56, 189, 248, 0.08)' : 'rgba(255,255,255,0.05)',
+            border: `1px solid ${testMode ? 'rgba(56, 189, 248, 0.3)' : 'rgba(255,255,255,0.08)'}`,
           }}>
           <input type="checkbox" checked={testMode} onChange={e => setTestMode(e.target.checked)}
-            className="w-4 h-4 accent-[#9D8CFF]" />
+            className="w-4 h-4 accent-[#38BDF8]" />
           <div>
-            <p className={`text-sm font-bold ${testMode ? 'text-[#9D8CFF]' : 'text-[#C7C7D1]'}`}>
+            <p className={`text-sm font-bold ${testMode ? 'text-[#38BDF8]' : 'text-[#C7C7D1]'}`}>
               🧪 Test mode — send all outreach to me
             </p>
             <p className="text-[#7E7E8E] text-xs mt-0.5">
@@ -362,10 +362,10 @@ export default function References() {
         {/* Shapi's smart-picker recommendation banner */}
         {suggestion && (
           <div className="mb-6 p-4 rounded-2xl" style={{
-            background: 'rgba(157, 140, 255, 0.06)',
-            border: '1px solid rgba(157, 140, 255, 0.18)',
+            background: 'rgba(56, 189, 248, 0.06)',
+            border: '1px solid rgba(56, 189, 248, 0.18)',
           }}>
-            <p className="text-[#9D8CFF] text-xs font-bold uppercase tracking-wider mb-2">💡 Shapi recommends</p>
+            <p className="text-[#38BDF8] text-xs font-bold uppercase tracking-wider mb-2">💡 Shapi recommends</p>
             <p className="text-[#C7C7D1] text-sm leading-relaxed mb-2">{suggestion.reasoning}</p>
             <p className="text-[#7E7E8E] text-xs">You can change any of the picks below if you prefer different roles.</p>
           </div>
@@ -378,13 +378,13 @@ export default function References() {
 
         {/* ─── Peer reference for CURRENT role (discretion-protected) ─── */}
         <div className="mb-6 rounded-2xl p-6" style={{
-          background: 'linear-gradient(#0D0C14,#0D0C14) padding-box,linear-gradient(135deg,rgba(157, 140, 255, 0.15),rgba(251, 113, 133, 0.12)) border-box',
+          background: 'linear-gradient(#0D0C14,#0D0C14) padding-box,linear-gradient(135deg,rgba(56, 189, 248, 0.15),rgba(251, 113, 133, 0.12)) border-box',
           border: '1px solid transparent',
           boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)',
         }}>
           <div className="flex items-center justify-between mb-1">
-            <p className="text-[#9D8CFF] text-xs font-bold uppercase tracking-wider">Current role · peer reference</p>
-            {sentPeer && <span className="text-[#9D8CFF] text-xs font-bold">✓ Sent</span>}
+            <p className="text-[#38BDF8] text-xs font-bold uppercase tracking-wider">Current role · peer reference</p>
+            {sentPeer && <span className="text-[#38BDF8] text-xs font-bold">✓ Sent</span>}
           </div>
           <p className="text-[#7E7E8E] text-xs mb-5">A <strong>colleague</strong> (not your manager) from your current job. Keeps your job-hunt discreet — we never contact your current boss.</p>
 
@@ -414,7 +414,7 @@ export default function References() {
                     ))}
                   </select>
                   {suggestion?.currentRole && peerJob.workIndex === suggestion.currentRole.index && (
-                    <p style={{ fontSize: 11, color: '#9D8CFF', marginTop: 6 }}>
+                    <p style={{ fontSize: 11, color: '#38BDF8', marginTop: 6 }}>
                       💡 Shapi&apos;s pick: {suggestion.currentRole.reason}
                     </p>
                   )}
@@ -448,7 +448,7 @@ export default function References() {
                 onClick={sendPeerRequest}
                 disabled={sendingPeer || sentPeer}
                 className="w-full py-3.5 rounded-full font-black text-sm transition-opacity disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', color: '#060609' }}>
+                style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', color: '#060609' }}>
                 {sentPeer ? '✓ Peer reference sent' : sendingPeer ? 'Sending…' : 'Send peer reference →'}
               </button>
             </div>
@@ -472,7 +472,7 @@ export default function References() {
 
           return (
             <div key={slot} className="mb-6 rounded-2xl p-6" style={{
-              background: 'linear-gradient(#0D0C14,#0D0C14) padding-box,linear-gradient(135deg,rgba(157, 140, 255, 0.12),rgba(157, 140, 255, 0.12)) border-box',
+              background: 'linear-gradient(#0D0C14,#0D0C14) padding-box,linear-gradient(135deg,rgba(56, 189, 248, 0.12),rgba(56, 189, 248, 0.12)) border-box',
               border: '1px solid transparent',
               boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)',
             }}>
@@ -480,7 +480,7 @@ export default function References() {
                 <p className="text-[#A6A6B4] text-xs font-bold uppercase tracking-wider">
                   Reference {slot} of 2
                 </p>
-                {alreadySent && <span className="text-[#9D8CFF] text-xs font-bold">✓ Sent</span>}
+                {alreadySent && <span className="text-[#38BDF8] text-xs font-bold">✓ Sent</span>}
               </div>
 
               {alreadySent && !sent ? (
@@ -520,7 +520,7 @@ export default function References() {
                         💡 Pick the role most <strong>relevant to where you&apos;re applying</strong> — not necessarily your latest. If you&apos;re moving into sales, pick a sales role even if your last job was operations.
                       </p>
                       {suggestion?.pastManagers?.[slot - 1] && form.workIndex === suggestion.pastManagers[slot - 1].index && (
-                        <p style={{ fontSize: 11, color: '#9D8CFF', marginTop: 6 }}>
+                        <p style={{ fontSize: 11, color: '#38BDF8', marginTop: 6 }}>
                           💡 Shapi&apos;s pick: {suggestion.pastManagers[slot - 1].reason}
                         </p>
                       )}
@@ -558,7 +558,7 @@ export default function References() {
                     onClick={() => sendRequest(slot as 1 | 2)}
                     disabled={sending || sent}
                     className="w-full py-3.5 rounded-full font-black text-sm transition-opacity disabled:opacity-40"
-                    style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', color: '#060609' }}>
+                    style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', color: '#060609' }}>
                     {sent ? '✓ Reference request sent' : sending ? 'Sending…' : `Send reference request →`}
                   </button>
 
