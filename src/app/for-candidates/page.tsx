@@ -53,10 +53,10 @@ function ForCandidatesInner() {
   // click-to-expand cards (founder: tone down colour + don't dump 15 at once,
   // and keep it benefit-led rather than a copyable checklist for competitors).
   const uspGroups = [
-    { color: '#34D399', title: 'Proof & profile', keys: ['u1', 'u14', 'u13'] },
-    { color: '#38BDF8', title: 'Navigate the AI era', keys: ['u2', 'u3', 'u4', 'u5', 'u7'] },
-    { color: '#FB7185', title: 'Get hired', keys: ['u11', 'u12', 'u8'] },
-    { color: '#FBBF24', title: 'Always-on, for everyone', keys: ['u9', 'u10', 'u6', 'u15'] },
+    { color: '#34D399', title: 'Proof & Profile', keys: ['u1', 'u14', 'u13'] },
+    { color: '#FB7185', title: 'Get Hired', keys: ['u11', 'u12', 'u8'] },
+    { color: '#38BDF8', title: 'Navigate the AI Era', keys: ['u2', 'u3', 'u4', 'u5', 'u7'] },
+    { color: '#FBBF24', title: 'Always-On, for Everyone', keys: ['u9', 'u10', 'u6', 'u15'] },
   ].map(g => ({
     ...g,
     items: g.keys.map(k => ({ title: t(`forCandidates.usps.${k}Title`), body: t(`forCandidates.usps.${k}Body`) })),
@@ -137,8 +137,8 @@ function ForCandidatesInner() {
           </span>
 
           <h1 className="text-5xl md:text-7xl font-black leading-[0.95] tracking-tighter mb-6" style={{ color: '#fff' }}>
-            {t('forCandidates.hero.headlineLine1')}<br />
-            <span className="grad-text">{t('forCandidates.hero.headlineLine2')}</span>
+            A profile that <span className="grad-text">proves</span><br />
+            what you can do.
           </h1>
 
           <p className="text-lg md:text-xl text-[#C7C7D1] max-w-2xl mx-auto leading-relaxed mb-3">
@@ -159,7 +159,7 @@ function ForCandidatesInner() {
 
           {/* Free hook — blurred-profile preview, no signup required */}
           <p className="mt-5">
-            <Link href="/preview" className="text-sm font-bold hover:underline" style={{ color: '#9D8CFF' }}>
+            <Link href="/preview" className="text-sm font-bold hover:underline" style={{ color: '#38BDF8' }}>
               ✨ Try it free — see your polished profile in 60 seconds →
             </Link>
           </p>
@@ -328,7 +328,7 @@ function ForCandidatesInner() {
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-20">
         <div className="text-center mb-10">
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#fff' }}>
-            {t('forCandidates.pricing.title')}
+            <span className="grad-text">Clear</span> pricing.
           </h2>
           <p className="text-[#A6A6B4] text-base mt-3">{t('forCandidates.pricing.subtitle')}</p>
         </div>
@@ -358,7 +358,7 @@ function ForCandidatesInner() {
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(251,113,133,0.16), transparent 60%)' }} />
           <div className="relative">
             <h2 className="text-3xl md:text-5xl font-black mb-5 tracking-tighter max-w-3xl mx-auto leading-[1.05]" style={{ color: '#fff' }}>
-              Become the candidate companies trust on sight.<br />
+              Become the candidate companies <span className="grad-text">trust</span> on sight.<br />
               Start shaping what&apos;s <span className="grad-text">next</span>.
             </h2>
             <p className="text-[#A6A6B4] mb-9 text-base max-w-xl mx-auto">
