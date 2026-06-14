@@ -76,7 +76,7 @@ function ForCompaniesInner() {
             {t('forCompanies.hero.badge')}
           </span>
           <h1 className="mb-7 text-5xl font-black leading-[0.95] tracking-tighter text-[#F4F4F7] md:text-7xl">
-            <Hl text={t('forCompanies.hero.headline')} word="verified talent" />
+            <Hl text={t('forCompanies.hero.headline')} word="intelligence and verified talent" />
           </h1>
           <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-[#E6E6EC] md:text-xl">
             {t('forCompanies.hero.subhead')}
@@ -93,7 +93,7 @@ function ForCompaniesInner() {
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
         <div className="mb-10 text-center">
           <span className="inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-widest" style={{ background: `${MINT}1f`, color: MINT }}>Two products, one platform</span>
-          <h2 className="mt-5 text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">Hire what&apos;s <span style={{ color: OCEAN }}>proven.</span><br />Reshape what you <span style={{ color: MINT }}>have.</span></h2>
+          <h2 className="mt-5 text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">Hire what&apos;s proven.<br /><span className="c-grad">Reshape</span> what you have.</h2>
         </div>
         <div className="grid gap-5 md:grid-cols-2">
           <ProductCard
@@ -144,7 +144,7 @@ function ForCompaniesInner() {
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
         <div className="mb-12 text-center">
           <span className="mb-5 inline-block rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.25em]" style={{ background: `${OCEAN}1f`, color: OCEAN }}>{t('forCompanies.usps.eyebrow')}</span>
-          <h2 className="mx-auto max-w-3xl text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl"><Hl text={t('forCompanies.usps.title')} word="plain terms" /></h2>
+          <h2 className="mx-auto max-w-3xl text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl"><Hl text={t('forCompanies.usps.title')} word="capability" /></h2>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <UspGroup color={OCEAN} title="In Shapi Hire" sub="Recruitment" items={hireKeys.map(usp)} open />
@@ -214,7 +214,7 @@ function ForCompaniesInner() {
       {/* Pricing — divided by product */}
       <section id="pricing" className="relative z-10 mx-auto max-w-6xl px-6 py-16 scroll-mt-20">
         <div className="mb-12 text-center">
-          <h2 className="text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl"><Hl text={t('forCompanies.pricing.title')} word="clear pricing" /></h2>
+          <h2 className="text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl"><Hl text={t('forCompanies.pricing.title')} word="clear" /></h2>
           <p className="mx-auto mt-3 max-w-2xl text-lg text-[#A6A6B4]">{t('forCompanies.pricing.subtitle')}</p>
         </div>
 
@@ -240,7 +240,7 @@ function ForCompaniesInner() {
         <div className="relative overflow-hidden rounded-3xl px-8 py-16 text-center md:py-20" style={{ background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }}>
           <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(56,189,248,0.16), transparent 60%)' }} />
           <div className="relative">
-            <h2 className="mb-5 text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-6xl"><Hl text={t('forCompanies.finalCta.title')} word="stands" /></h2>
+            <h2 className="mb-5 text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-6xl">Shape what&apos;s <span className="c-grad">next</span> for your workforce.</h2>
             <p className="mx-auto mb-10 max-w-2xl text-lg text-[#A6A6B4]">{t('forCompanies.finalCta.subtitle')}</p>
             <div className="flex flex-col justify-center gap-3 sm:flex-row">
               <Link href="/signup?type=company" className="c-btn rounded-full px-8 py-4 text-sm font-black">{t('forCompanies.finalCta.ctaSnapshot')}</Link>
