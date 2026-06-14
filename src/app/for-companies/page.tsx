@@ -321,9 +321,9 @@ function UspGroup({ color, title, sub, items, open = false }: { color: string; t
 
 function PriceCard({ tier, wide = false }: { tier: { name: string; price: string; suffix: string; desc: string; cta: string; href: string; c: string; hot: boolean }; wide?: boolean }) {
   return (
-    <div className={`c-card flex rounded-2xl p-7 ${wide ? 'flex-col md:flex-row md:items-center md:gap-8' : 'flex-col'}`} style={tier.hot ? { border: '1px solid rgba(52,211,153,0.35)' } : undefined}>
+    <div className={`c-card relative flex rounded-2xl p-7 ${wide ? 'flex-col md:flex-row md:items-center md:gap-8' : 'flex-col'}`} style={tier.hot ? { border: '1px solid rgba(52,211,153,0.35)' } : undefined}>
+      {tier.hot && <span className="absolute right-5 top-5 rounded-full px-2 py-0.5 text-[10px] font-black" style={{ background: 'rgba(52,211,153,0.15)', color: '#34D399' }}>MOST POPULAR</span>}
       <div className={wide ? 'md:flex-1' : ''}>
-        {tier.hot && <span className="mb-2 inline-block rounded-full px-2 py-0.5 text-[10px] font-black" style={{ background: 'rgba(52,211,153,0.15)', color: '#34D399' }}>MOST POPULAR</span>}
         <p className="mb-2 text-sm font-bold uppercase tracking-wider" style={{ color: tier.c }}>{tier.name}</p>
         <p className="text-4xl font-black">{tier.price}</p>
         {tier.suffix && <p className="mb-5 mt-1 text-xs text-[#7E7E8E]">{tier.suffix}</p>}

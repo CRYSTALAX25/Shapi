@@ -336,8 +336,8 @@ function ForCandidatesInner() {
             { name: 'Pro', price: '$59', sub: '/mo', color: '#FB7185', popular: true, body: 'Everything in CV, plus Shapi Active: stay in the matching pool, get surfaced to companies, with daily outreach drafted in your voice.' },
             { name: 'Concierge', price: '$199', sub: '/mo', color: '#FBBF24', body: 'Done for you. We run the applications, outreach and interview prep until you land.' },
           ].map((tier, i) => (
-            <div key={i} className="card rounded-2xl p-6 flex flex-col" style={tier.popular ? { border: '1px solid rgba(251,113,133,0.4)' } : undefined}>
-              {tier.popular && <span className="self-start text-[10px] font-black px-2 py-0.5 rounded-full mb-2" style={{ background: 'rgba(251,113,133,0.15)', color: '#FB7185' }}>MOST POPULAR</span>}
+            <div key={i} className="card rounded-2xl p-6 flex flex-col relative" style={tier.popular ? { border: '1px solid rgba(251,113,133,0.4)' } : undefined}>
+              {tier.popular && <span className="absolute right-5 top-5 text-[10px] font-black px-2 py-0.5 rounded-full" style={{ background: 'rgba(251,113,133,0.15)', color: '#FB7185' }}>MOST POPULAR</span>}
               <p className="text-xs font-black uppercase tracking-wider mb-2" style={{ color: tier.color }}>{tier.name}</p>
               <p className="text-3xl font-black text-[#F4F4F7]">{tier.price}<span className="text-sm font-bold text-[#7E7E8E]">{tier.sub}</span></p>
               <p className="text-xs text-[#A6A6B4] leading-relaxed mt-3">{tier.body}</p>
