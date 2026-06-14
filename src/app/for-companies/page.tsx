@@ -275,7 +275,7 @@ function ProductCard({ color, kicker, label, title, body, points, cta, href }: {
     <div className="c-card flex flex-col rounded-3xl p-8">
       <div className="mb-4 flex items-center gap-2">
         <span className="text-lg font-black" style={{ color }}>{kicker}</span>
-        <span className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ background: `${color}1f`, color }}>{label}</span>
+        <span className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider" style={{ background: `${color}1f`, color: '#F4F4F7' }}>{label}</span>
       </div>
       <h3 className="mb-3 text-2xl font-black tracking-tight text-[#F4F4F7]">{title}</h3>
       <p className="mb-5 text-sm leading-relaxed text-[#C7C7D1]">{body}</p>
