@@ -132,10 +132,9 @@ function ForCandidatesInner() {
       {/* Hero */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 pt-20 pb-16">
         <div className="text-center max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6" style={{ background: 'rgba(251,113,133,0.10)', border: '1px solid rgba(251,113,133,0.25)' }}>
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#FB7185' }} />
-            <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: '#FB7185' }}>{t('forCandidates.hero.badge')}</span>
-          </div>
+          <span className="mb-6 inline-block rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.25em]" style={{ background: 'rgba(251,113,133,0.12)', color: '#FB7185' }}>
+            {t('forCandidates.hero.badge')}
+          </span>
 
           <h1 className="text-5xl md:text-7xl font-black leading-[0.95] tracking-tighter mb-6" style={{ color: '#fff' }}>
             {t('forCandidates.hero.headlineLine1')}<br />
@@ -213,7 +212,7 @@ function ForCandidatesInner() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 gap-4 items-start">
           {uspGroups.map((g, i) => {
             const isOpen = openGroups.has(i)
             return (
@@ -358,8 +357,9 @@ function ForCandidatesInner() {
         }}>
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(251,113,133,0.16), transparent 60%)' }} />
           <div className="relative">
-            <h2 className="text-4xl md:text-6xl font-black mb-5 tracking-tighter max-w-3xl mx-auto" style={{ color: '#fff' }}>
-              {t('forCandidates.finalCta.title')}
+            <h2 className="text-3xl md:text-5xl font-black mb-5 tracking-tighter max-w-3xl mx-auto leading-[1.05]" style={{ color: '#fff' }}>
+              Become the candidate companies trust on sight.<br />
+              Start shaping what&apos;s <span className="grad-text">next</span>.
             </h2>
             <p className="text-[#A6A6B4] mb-9 text-base max-w-xl mx-auto">
               {t('forCandidates.finalCta.subtitle')}

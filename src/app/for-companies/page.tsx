@@ -146,7 +146,7 @@ function ForCompaniesInner() {
           <span className="mb-5 inline-block rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.25em]" style={{ background: `${OCEAN}1f`, color: OCEAN }}>{t('forCompanies.usps.eyebrow')}</span>
           <h2 className="mx-auto max-w-3xl text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl"><Hl text={t('forCompanies.usps.title')} word="capability" /></h2>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2 items-start">
           <UspGroup color={OCEAN} title="In Shapi Hire" sub="Recruitment" items={hireKeys.map(usp)} open />
           <UspGroup color={MINT} title="In Shapi Workforce" sub="HR & Restructuring" items={workforceKeys.map(usp)} />
         </div>

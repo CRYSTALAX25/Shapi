@@ -14,6 +14,16 @@ function isHidden(path: string | null): boolean {
   return false
 }
 
+// The current route tells us the audience INSTANTLY on audience-specific pages —
+// no candidate→company flash, and never the wrong content on the companies page.
+// Neutral pages (dashboard etc.) return null and fall back to the profile fetch.
+function roleFromPath(path: string | null): 'candidate' | 'company' | null {
+  if (!path) return null
+  if (path === '/for-companies' || path.startsWith('/company') || path.startsWith('/business')) return 'company'
+  if (path === '/for-candidates') return 'candidate'
+  return null
+}
+
 // Two intros — Shapi serves candidates AND companies. The widget detects the
 // signed-in user's profile.type on first open and shows the right one.
 const INTRO_CANDIDATE: Msg = {
@@ -35,46 +45,52 @@ const FILL = 'rgba(255,255,255,0.05)'
 const TEXT = '#F4F4F7'
 const TEXT_DIM = '#C7C7D1'
 const TEXT_FAINT = '#A6A6B4'
-const BLUE = '#9D8CFF'
-const CTA = 'linear-gradient(135deg, #9D8CFF, #34D399)'
+const BLUE = '#38BDF8'
+const CTA = 'linear-gradient(135deg, #38BDF8, #34D399)'
 
 export default function AskShapi() {
+  const pathname = usePathname()
+  const pathRole = roleFromPath(pathname)
+  const initialIntro = pathRole === 'company' ? INTRO_COMPANY : INTRO_CANDIDATE
+
   const [open, setOpen] = useState(false)
-  // Start neutral with the candidate intro; switched to company once we know.
-  // Storing intro separately so we can swap it without losing user messages.
-  const [intro, setIntro] = useState<Msg>(INTRO_CANDIDATE)
-  const [role, setRole] = useState<'candidate' | 'company' | null>(null)
-  const [messages, setMessages] = useState<Msg[]>([INTRO_CANDIDATE])
+  // Seed intro + messages from the PATH so the right audience shows instantly
+  // (no candidate→company flash, no candidate text on the companies page).
+  const [intro, setIntro] = useState<Msg>(initialIntro)
+  const [role, setRole] = useState<'candidate' | 'company' | null>(pathRole)
+  const [messages, setMessages] = useState<Msg[]>([initialIntro])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const pathname = usePathname()
 
-  // Detect role on first open so the intro + placeholder match the audience.
+  // Keep the intro in sync with the audience. The path is authoritative on
+  // audience-specific routes (instant); neutral pages fall back to the profile.
   useEffect(() => {
+    const swapIntro = (type: 'candidate' | 'company') => {
+      setRole(type)
+      const nextIntro = type === 'company' ? INTRO_COMPANY : INTRO_CANDIDATE
+      setIntro(nextIntro)
+      // Only swap the canned intro if the user hasn't started a conversation.
+      setMessages(prev => (prev.length === 1 && prev[0].role === 'assistant') ? [nextIntro] : prev)
+    }
+
+    if (pathRole) {
+      if (role !== pathRole) swapIntro(pathRole)
+      return
+    }
+    // Neutral page: detect from the signed-in profile on first open.
     if (!open || role) return
     let cancelled = false
     fetch('/api/profile/get')
       .then(r => r.ok ? r.json() : null)
       .then(d => {
         if (cancelled) return
-        // /api/profile/get returns { profile: { ... } }. We then look up `type`
-        // on the row. (Note: the current endpoint doesn't select `type` so we
-        // fall back to candidate.) See companion fix in /api/profile/get.
-        const type = d?.profile?.type === 'company' ? 'company' : 'candidate'
-        setRole(type)
-        const nextIntro = type === 'company' ? INTRO_COMPANY : INTRO_CANDIDATE
-        setIntro(nextIntro)
-        setMessages(prev => {
-          // If the user hasn't sent anything yet, just swap the intro.
-          if (prev.length === 1 && prev[0].role === 'assistant') return [nextIntro]
-          return prev
-        })
+        swapIntro(d?.profile?.type === 'company' ? 'company' : 'candidate')
       })
       .catch(() => {})
     return () => { cancelled = true }
-  }, [open, role])
+  }, [open, role, pathRole])
 
   useEffect(() => {
     if (scrollRef.current) {
