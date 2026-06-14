@@ -202,7 +202,7 @@ function ForCandidatesInner() {
           <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(251,113,133,0.10)', color: '#FB7185' }}>
             {t('forCandidates.usps.eyebrow')}
           </div>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#fff' }}>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#38BDF8' }}>
             {t('forCandidates.usps.title')}
           </h2>
           <p className="text-[#A6A6B4] text-base mt-4 max-w-2xl mx-auto">
@@ -236,7 +236,7 @@ function ForCandidatesInner() {
           <div className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>
             {t('forCandidates.comparison.eyebrow')}
           </div>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#fff' }}>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#38BDF8' }}>
             {t('forCandidates.comparison.title')}
           </h2>
         </div>
@@ -285,7 +285,7 @@ function ForCandidatesInner() {
       {/* How it works */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-20">
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#fff' }}>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#38BDF8' }}>
             {t('forCandidates.how.title')}
           </h2>
         </div>
@@ -323,7 +323,7 @@ function ForCandidatesInner() {
       {/* Pricing tease */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 pb-20">
         <div className="text-center mb-10">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#fff' }}>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter" style={{ color: '#38BDF8' }}>
             {t('forCandidates.pricing.title')}
           </h2>
           <p className="text-[#A6A6B4] text-base mt-3">{t('forCandidates.pricing.subtitle')}</p>
@@ -353,7 +353,7 @@ function ForCandidatesInner() {
         }}>
           <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(251,113,133,0.16), transparent 60%)' }} />
           <div className="relative">
-            <h2 className="text-4xl md:text-6xl font-black mb-5 tracking-tighter max-w-3xl mx-auto" style={{ color: '#fff' }}>
+            <h2 className="text-4xl md:text-6xl font-black mb-5 tracking-tighter max-w-3xl mx-auto" style={{ color: '#38BDF8' }}>
               {t('forCandidates.finalCta.title')}
             </h2>
             <p className="text-[#A6A6B4] mb-9 text-base max-w-xl mx-auto">
