@@ -338,7 +338,7 @@ function ForCandidatesInner() {
             { name: 'Free', price: '$0', sub: '', color: '#38BDF8', body: 'Your verified profile. Verification is always free — for everyone.' },
             { name: 'CV', price: '$25', sub: ' one-time', color: '#34D399', body: 'A polished, verified CV in every language and format that matters — yours to keep.' },
             { name: 'Pro', price: '$59', sub: '/mo', color: '#FB7185', popular: true, body: 'Everything in CV, plus Shapi Active: stay in the matching pool, get surfaced to companies, with daily outreach drafted in your voice.' },
-            { name: 'Concierge', price: '$199', sub: '/mo', color: '#FBBF24', body: 'Done for you. We run the applications, outreach and interview prep until you land.' },
+            { name: 'Concierge', price: '$99', sub: '/mo', color: '#FBBF24', body: 'Done for you. Shapi scans roles daily, drafts the outreach in your voice, sends on your approval, and preps you for every interview — until you land.' },
           ].map((tier, i) => (
             <div key={i} className="card rounded-2xl p-6 flex flex-col relative" style={tier.popular ? { border: '1px solid rgba(251,113,133,0.4)' } : undefined}>
               {tier.popular && <span className="absolute right-5 top-5 text-[10px] font-black px-2 py-0.5 rounded-full" style={{ background: 'rgba(251,113,133,0.15)', color: '#FB7185' }}>MOST POPULAR</span>}
