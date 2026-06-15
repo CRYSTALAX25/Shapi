@@ -22,7 +22,7 @@ type Teams = React.ComponentProps<typeof TeamsSection>['teams']
 type Persons = React.ComponentProps<typeof PersonsSection>['persons']
 type Seats = React.ComponentProps<typeof SeatsSection>['seats']
 
-const ACCENT = '#9D8CFF'
+const ACCENT = '#38BDF8'
 
 export default function SpineManager({
   locations,
@@ -72,7 +72,7 @@ export default function SpineManager({
             onClick={() => setOpen(it.id)}
             className="flex items-center gap-2 rounded-full px-3.5 py-2 text-xs font-bold transition-colors"
             style={{
-              background: 'rgba(157,140,255,0.10)',
+              background: 'rgba(56, 189, 248,0.10)',
               color: ACCENT,
               border: `1px solid ${ACCENT}40`,
             }}

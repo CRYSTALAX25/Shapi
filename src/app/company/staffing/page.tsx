@@ -17,8 +17,8 @@ type Recommendation = {
 }
 
 const KIND_COLOR: Record<string, string> = {
-  hire: '#9D8CFF',          // blue
-  reskill: '#9D8CFF',        // pink
+  hire: '#38BDF8',          // blue
+  reskill: '#38BDF8',        // pink
   freeze: '#FB7185',         // light pink / high-risk
   redeploy: '#FB7185',       // light pink / high-risk
   restructure: '#FBBF24',    // amber
@@ -35,7 +35,7 @@ const KIND_LABEL: Record<string, string> = {
 const URGENCY_COLOR: Record<string, string> = {
   'now': '#FB7185',
   'this quarter': '#FBBF24',
-  'next 6 months': '#9D8CFF',
+  'next 6 months': '#38BDF8',
 }
 
 export default function AutonomousStaffingPage() {
@@ -165,7 +165,7 @@ export default function AutonomousStaffingPage() {
           href="/"
           className="font-black text-xl tracking-tighter"
           style={{
-            background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+            background: 'linear-gradient(135deg, #38BDF8, #34D399)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -209,7 +209,7 @@ export default function AutonomousStaffingPage() {
             onChange={e => setTeamComposition(e.target.value)}
             placeholder="e.g. 5 engineers, 1 designer, 2 sales reps, 1 marketing lead, 1 ops manager"
             rows={3}
-            className="w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50 mb-4"
+            className="w-full rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#38BDF8]/50 mb-4"
             style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
           />
           <p className="text-[#7E7E8E] text-[11px] mb-4">
@@ -219,7 +219,7 @@ export default function AutonomousStaffingPage() {
             onClick={generate}
             disabled={generating}
             className="px-6 py-3 rounded-full font-black text-sm text-white disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
+            style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}
           >
             {generating ? 'Generating…' : 'Generate fresh recommendations'}
           </button>

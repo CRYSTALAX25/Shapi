@@ -26,7 +26,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 
-const VIOLET = '#9D8CFF'
+const VIOLET = '#38BDF8'
 const EMERALD = '#34D399'
 const AMBER = '#FBBF24'
 const CORAL = '#FB7185'
@@ -35,7 +35,7 @@ const CARD = '#0D0C14'
 const ACCENT = VIOLET
 const HEADING: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
 const BODY: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
-const GRADIENT = 'linear-gradient(135deg, #9D8CFF, #34D399)'
+const GRADIENT = 'linear-gradient(135deg, #38BDF8, #34D399)'
 
 type Provenance = 'brain' | 'delegation'
 
@@ -507,7 +507,7 @@ export default function SkillDensityMatrix({ planTier, companyName }: Props) {
       {isSample && (
         <div
           className="rounded-2xl p-4 flex items-start gap-3"
-          style={{ background: 'rgba(157,140,255,0.08)', border: `1px solid ${VIOLET}40` }}
+          style={{ background: 'rgba(56, 189, 248,0.08)', border: `1px solid ${VIOLET}40` }}
         >
           <span
             className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-base font-black"
@@ -566,7 +566,7 @@ export default function SkillDensityMatrix({ planTier, companyName }: Props) {
                 key={v.seat_id}
                 onClick={() => setQuery(v.title)}
                 className="text-[11px] font-semibold px-2.5 py-1 rounded-full transition-opacity hover:opacity-80"
-                style={{ background: 'rgba(157, 140, 255, 0.12)', color: ACCENT }}
+                style={{ background: 'rgba(56, 189, 248, 0.12)', color: ACCENT }}
               >
                 {v.title}
               </button>
@@ -602,10 +602,10 @@ export default function SkillDensityMatrix({ planTier, companyName }: Props) {
           </h2>
           <div className="flex items-center gap-3 text-[10px]" style={BODY}>
             <span className="inline-flex items-center gap-1.5">
-              <span className="inline-block w-3 h-3 rounded-sm" style={{ background: `rgba(157,140,255,0.8)` }} /> dense
+              <span className="inline-block w-3 h-3 rounded-sm" style={{ background: `rgba(56, 189, 248,0.8)` }} /> dense
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="inline-block w-3 h-3 rounded-sm" style={{ background: `rgba(157,140,255,0.16)` }} /> thin
+              <span className="inline-block w-3 h-3 rounded-sm" style={{ background: `rgba(56, 189, 248,0.16)` }} /> thin
             </span>
             {riskCount > 0 && (
               <span className="inline-flex items-center gap-1.5" style={{ color: AMBER }}>
@@ -665,7 +665,7 @@ export default function SkillDensityMatrix({ planTier, companyName }: Props) {
                             <span
                               className="w-full max-w-[44px] h-9 rounded-lg flex items-center justify-center text-xs font-black"
                               style={{
-                                background: c === 0 ? 'rgba(255,255,255,0.02)' : `rgba(157,140,255,${alpha})`,
+                                background: c === 0 ? 'rgba(255,255,255,0.02)' : `rgba(56, 189, 248,${alpha})`,
                                 color: c === 0 ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.95)',
                                 border: c === 0 ? '1px solid rgba(255,255,255,0.04)' : 'none',
                               }}
@@ -842,7 +842,7 @@ function Avatar({ name, vacant }: { name: string | null; vacant?: boolean }) {
 
 function StatusPill({ status }: { status: string | null }) {
   const map: Record<string, { bg: string; fg: string; label: string }> = {
-    planned: { bg: 'rgba(157, 140, 255, 0.15)', fg: ACCENT, label: 'Planned' },
+    planned: { bg: 'rgba(56, 189, 248, 0.15)', fg: ACCENT, label: 'Planned' },
     vacant: { bg: 'rgba(251,113,133,0.15)', fg: CORAL, label: 'Vacant' },
     active: { bg: 'rgba(52,211,153,0.15)', fg: EMERALD, label: 'Active' },
   }
@@ -863,7 +863,7 @@ function SkillCard({ skill, maxHolders }: { skill: Skill; maxHolders: number }) 
     ? { label: 'Key-person risk', bg: 'rgba(251,191,36,0.14)', fg: AMBER }
     : wellCovered
       ? { label: 'Well covered', bg: 'rgba(52,211,153,0.14)', fg: EMERALD }
-      : { label: 'Covered', bg: 'rgba(157,140,255,0.14)', fg: VIOLET }
+      : { label: 'Covered', bg: 'rgba(56, 189, 248,0.14)', fg: VIOLET }
 
   return (
     <div className="rounded-xl p-4" style={{ background: CARD, border: '1px solid rgba(255,255,255,0.06)' }}>

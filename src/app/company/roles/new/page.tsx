@@ -381,10 +381,10 @@ export default function NewRole() {
             ) : waState === 'failed' ? (
               <div className="text-xs text-[#A6A6B4] space-y-1.5">
                 <p className="text-[#FB7185] font-bold">Couldn&apos;t send to your WhatsApp — is your number on your <Link href="/company/profile" className="underline">company profile</Link>?</p>
-                {waLink && <p>Direct edit link (valid 14 days): <a href={waLink} className="text-[#9D8CFF] underline break-all">{waLink}</a></p>}
+                {waLink && <p>Direct edit link (valid 14 days): <a href={waLink} className="text-[#38BDF8] underline break-all">{waLink}</a></p>}
                 <p>
                   Or message Shapi directly:{' '}
-                  <a href={getShapiTriggerUrl(`Deep-dive on my ${title || 'new'} role — ask me the hard questions`)} target="_blank" rel="noopener noreferrer" className="text-[#9D8CFF] underline">
+                  <a href={getShapiTriggerUrl(`Deep-dive on my ${title || 'new'} role — ask me the hard questions`)} target="_blank" rel="noopener noreferrer" className="text-[#38BDF8] underline">
                     open WhatsApp chat →
                   </a>
                 </p>
@@ -394,7 +394,7 @@ export default function NewRole() {
                 onClick={whatsappDeepDive}
                 disabled={waState === 'sending'}
                 className="w-full py-3 rounded-full font-black text-xs transition-opacity disabled:opacity-60"
-                style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF', border: '1px solid rgba(157, 140, 255, 0.2)' }}>
+                style={{ background: 'rgba(56, 189, 248, 0.12)', color: '#38BDF8', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
                 {waState === 'sending' ? 'Sending…' : 'WhatsApp me the JD — I want to go deeper →'}
               </button>
             )}
@@ -405,9 +405,9 @@ export default function NewRole() {
               + draft outreach converts 3-5x better here than on
               /company/pricing. Card collected via Stripe Checkout;
               auto-charges after 7 days unless cancelled. */}
-          <div className="rounded-2xl p-5 mb-5 text-left" style={{ background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.14), rgba(157, 140, 255, 0.10))', border: '1px solid rgba(157, 140, 255, 0.40)' }}>
+          <div className="rounded-2xl p-5 mb-5 text-left" style={{ background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.14), rgba(56, 189, 248, 0.10))', border: '1px solid rgba(56, 189, 248, 0.40)' }}>
             <div className="flex items-start gap-3 mb-3">
-              <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)' }}>⚡</div>
+              <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg,#38BDF8, #34D399)' }}>⚡</div>
               <div className="flex-1 min-w-0">
                 <p className="text-[#F4F4F7] font-black text-sm mb-0.5">Let Shapi do the shortlisting for you</p>
                 <p className="text-[#A6A6B4] text-[11px] leading-relaxed">
@@ -419,7 +419,7 @@ export default function NewRole() {
               product="active_hiring_monthly"
               trial={7}
               className="w-full py-3 rounded-full font-black text-xs text-white hover:opacity-90 transition-opacity disabled:opacity-60"
-              style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
+              style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}
             >
               Start 7-day free trial → no charge for a week
             </SubscribeButton>
@@ -473,8 +473,8 @@ export default function NewRole() {
             onClick={() => fileRef.current?.click()}
             className={`gradient-border-card rounded-2xl p-10 text-center cursor-pointer mb-5 ${dragging ? 'drop-zone-active' : 'hover:bg-[rgba(255,255,255,0.03)]'}`}
           >
-            <div className="w-14 h-14 rounded-xl bg-[rgba(157, 140, 255, 0.10)] flex items-center justify-center mx-auto mb-5">
-              <svg className="w-7 h-7 text-[#9D8CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-14 h-14 rounded-xl bg-[rgba(56, 189, 248, 0.10)] flex items-center justify-center mx-auto mb-5">
+              <svg className="w-7 h-7 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
@@ -507,7 +507,7 @@ export default function NewRole() {
               onClick={parsePasted}
               disabled={parsing || !jdText.trim()}
               className="mt-3 px-5 py-2 rounded-full text-xs font-black transition-opacity disabled:opacity-40"
-              style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF', border: '1px solid rgba(157, 140, 255, 0.2)' }}>
+              style={{ background: 'rgba(56, 189, 248, 0.12)', color: '#38BDF8', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
               {parsing ? 'Reading your JD…' : 'Read my JD →'}
             </button>
           </div>
@@ -551,10 +551,10 @@ export default function NewRole() {
 
         {/* "Drafted for you" banner — explicit, obvious edit step */}
         {aiFilled && (
-          <div className="rounded-xl px-4 py-3 mb-6 flex items-start gap-3" style={{ background: 'rgba(157, 140, 255, 0.10)', border: '1px solid rgba(157, 140, 255, 0.35)' }}>
+          <div className="rounded-xl px-4 py-3 mb-6 flex items-start gap-3" style={{ background: 'rgba(56, 189, 248, 0.10)', border: '1px solid rgba(56, 189, 248, 0.35)' }}>
             <span className="text-base leading-none mt-0.5">✍️</span>
             <div>
-              <p className="text-[#9D8CFF] text-sm font-black">
+              <p className="text-[#38BDF8] text-sm font-black">
                 {aiFilled === 'parsed' ? 'Filled from your JD' : 'Drafted for you'} — review and edit anything before publishing.
               </p>
               <p className="text-[#A6A6B4] text-xs mt-0.5">Nothing goes live until you hit Publish. Every field below is yours to change.</p>
@@ -599,9 +599,9 @@ export default function NewRole() {
                 <button key={o.v} type="button" onClick={() => setEngagementType(o.v)}
                   className="text-left rounded-xl px-3 py-2.5 transition-all"
                   style={engagementType === o.v
-                    ? { background: 'rgba(157, 140, 255, 0.1)', border: '1px solid rgba(157, 140, 255, 0.45)' }
+                    ? { background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.45)' }
                     : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <p className="text-sm font-bold" style={{ color: engagementType === o.v ? '#9D8CFF' : '#C7C7D1' }}>{o.l}</p>
+                  <p className="text-sm font-bold" style={{ color: engagementType === o.v ? '#38BDF8' : '#C7C7D1' }}>{o.l}</p>
                   <p className="text-[#7E7E8E] text-[10px] leading-tight">{o.s}</p>
                 </button>
               ))}
@@ -611,7 +611,7 @@ export default function NewRole() {
           <label className="flex items-center gap-3 cursor-pointer">
             <div
               onClick={() => setRemote(!remote)}
-              className={`w-10 h-6 rounded-full transition-colors relative ${remote ? 'bg-[#9D8CFF]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
+              className={`w-10 h-6 rounded-full transition-colors relative ${remote ? 'bg-[#38BDF8]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
               <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${remote ? 'left-5' : 'left-1'}`} />
             </div>
             <span className="text-[#A6A6B4] text-sm">Remote / hybrid OK</span>
@@ -620,7 +620,7 @@ export default function NewRole() {
           <label className="flex items-start gap-3 cursor-pointer">
             <div
               onClick={() => setAcceptsPivot(!acceptsPivot)}
-              className={`mt-0.5 flex-shrink-0 w-10 h-6 rounded-full transition-colors relative ${acceptsPivot ? 'bg-[#9D8CFF]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
+              className={`mt-0.5 flex-shrink-0 w-10 h-6 rounded-full transition-colors relative ${acceptsPivot ? 'bg-[#38BDF8]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
               <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${acceptsPivot ? 'left-5' : 'left-1'}`} />
             </div>
             <span className="text-sm">
@@ -661,7 +661,7 @@ export default function NewRole() {
           </div>
 
           {salaryMin && salaryMax && parseInt(salaryMin) < parseInt(salaryMax) && (
-            <p className="text-[#9D8CFF] text-xs font-semibold">
+            <p className="text-[#38BDF8] text-xs font-semibold">
               {currency} {parseInt(salaryMin).toLocaleString()} – {parseInt(salaryMax).toLocaleString()} per year
             </p>
           )}
@@ -669,7 +669,7 @@ export default function NewRole() {
           <label className="flex items-center gap-3 cursor-pointer mt-4">
             <div
               onClick={() => setSalaryVisible(!salaryVisible)}
-              className={`w-10 h-6 rounded-full transition-colors relative ${salaryVisible ? 'bg-[#9D8CFF]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
+              className={`w-10 h-6 rounded-full transition-colors relative ${salaryVisible ? 'bg-[#38BDF8]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
               <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${salaryVisible ? 'left-5' : 'left-1'}`} />
             </div>
             <span className="text-[#A6A6B4] text-sm">Show salary publicly on role listing</span>
@@ -742,7 +742,7 @@ export default function NewRole() {
               onClick={draftJD}
               disabled={drafting}
               className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-black transition-opacity disabled:opacity-40"
-              style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF', border: '1px solid rgba(157, 140, 255, 0.2)' }}>
+              style={{ background: 'rgba(56, 189, 248, 0.12)', color: '#38BDF8', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
               {drafting ? 'Drafting… ~15s' : description ? '↻ Redraft with AI' : 'Draft my JD with AI →'}
             </button>
           </div>
@@ -787,7 +787,7 @@ export default function NewRole() {
               onClick={translate}
               disabled={translating || (!description.trim() && !title.trim())}
               className="px-5 py-3 rounded-full text-xs font-black transition-opacity disabled:opacity-40"
-              style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF', border: '1px solid rgba(157, 140, 255, 0.2)' }}>
+              style={{ background: 'rgba(56, 189, 248, 0.12)', color: '#38BDF8', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
               {translating ? 'Translating…' : translations[translateLang] ? '↻ Re-translate' : 'Translate →'}
             </button>
           </div>
@@ -807,7 +807,7 @@ export default function NewRole() {
                     <button key={code} type="button" onClick={() => setActiveTransTab(code)}
                       className="px-3 py-1.5 rounded-full text-xs font-bold transition-all"
                       style={active
-                        ? { background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF', border: '1px solid rgba(157, 140, 255, 0.45)' }
+                        ? { background: 'rgba(56, 189, 248, 0.12)', color: '#38BDF8', border: '1px solid rgba(56, 189, 248, 0.45)' }
                         : { background: 'rgba(255,255,255,0.05)', color: '#A6A6B4', border: '1px solid rgba(255,255,255,0.08)' }}>
                       {meta?.native || code}
                     </button>
@@ -854,7 +854,7 @@ export default function NewRole() {
 
         <button
           onClick={submit}
-          className="w-full bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity"
+          className="w-full bg-gradient-to-r from-[#38BDF8] to-[#38BDF8] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity"
         >
           Publish role{transCount > 0 ? ` (+${transCount} translation${transCount > 1 ? 's' : ''})` : ''} →
         </button>
@@ -871,18 +871,18 @@ function PageStyles() {
     <style>{`
       .gradient-border-card {
         background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                    linear-gradient(135deg, rgba(157, 140, 255, 0.15), rgba(157, 140, 255, 0.15)) border-box;
+                    linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.15)) border-box;
         border: 1px solid transparent;
         box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
       }
       .drop-zone-active {
         background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                    linear-gradient(135deg, rgba(157, 140, 255, 0.6), rgba(157, 140, 255, 0.6)) border-box !important;
+                    linear-gradient(135deg, rgba(56, 189, 248, 0.6), rgba(56, 189, 248, 0.6)) border-box !important;
         transform: scale(1.01);
       }
       .field { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #F4F4F7; outline: none; transition: border-color 0.2s; }
       .field::placeholder { color: rgba(126,126,142,1); }
-      .field:focus { border-color: rgba(157, 140, 255, 0.5); }
+      .field:focus { border-color: rgba(56, 189, 248, 0.5); }
       label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #A6A6B4; margin-bottom: 8px; }
       .required::after { content: " *"; color: #FB7185; }
     `}</style>
@@ -901,7 +901,7 @@ function DotGrid() {
 function Nav() {
   return (
     <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-6xl mx-auto">
-      <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+      <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
       <Link href="/company/dashboard" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1] transition-colors">← Dashboard</Link>
     </nav>
   )
@@ -913,7 +913,7 @@ function Screen({ children }: { children: React.ReactNode }) {
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                      linear-gradient(135deg, rgba(157, 140, 255, 0.15), rgba(157, 140, 255, 0.15)) border-box;
+                      linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.15)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }

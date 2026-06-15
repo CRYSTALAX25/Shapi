@@ -50,8 +50,8 @@ export default function StepCard({
         <span
           className="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-sm font-black"
           style={{
-            background: status === 'done' ? 'rgba(52,211,153,0.18)' : 'rgba(157, 140, 255, 0.15)',
-            color: status === 'done' ? '#34D399' : '#9D8CFF',
+            background: status === 'done' ? 'rgba(52,211,153,0.18)' : 'rgba(56, 189, 248, 0.15)',
+            color: status === 'done' ? '#34D399' : '#38BDF8',
           }}
         >
           {step}
@@ -78,7 +78,7 @@ export default function StepCard({
                 onClick={() => onSave()}
                 disabled={saving}
                 className="px-5 py-2.5 rounded-full font-black text-xs text-white disabled:opacity-40"
-                style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
+                style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}
               >
                 {saving ? 'Working…' : saveLabel}
               </button>

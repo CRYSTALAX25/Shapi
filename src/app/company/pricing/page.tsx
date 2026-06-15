@@ -84,7 +84,7 @@ export default function CompanyPricing() {
   return (
     <div className="min-h-screen bg-[#060609]">
       <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-6xl mx-auto">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         <Link href={authed ? '/company/dashboard' : '/login'} className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1] transition-colors">
           {authed ? '← Dashboard' : 'Sign in'}
         </Link>
@@ -102,11 +102,11 @@ export default function CompanyPricing() {
 
         {/* Founding Partner banner — REAL cohort cap of 15 enforced at checkout.
             v5.1: coupon attaches to MONTHLY billing only (yearly already gets 2 months free). */}
-        <div className="max-w-3xl mx-auto mb-8 rounded-xl px-5 py-3 text-center" style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.25)' }}>
-          <p className="text-sm font-bold" style={{ color: '#9D8CFF' }}>
+        <div className="max-w-3xl mx-auto mb-8 rounded-xl px-5 py-3 text-center" style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+          <p className="text-sm font-bold" style={{ color: '#38BDF8' }}>
             ★ Founding Partners — the first 15 companies get 50% off their first paid tier for 6 months, then it reverts. Grandfathered for life.
           </p>
-          <p className="text-[11px] mt-1" style={{ color: 'rgba(157, 140, 255, 0.75)' }}>
+          <p className="text-[11px] mt-1" style={{ color: 'rgba(56, 189, 248, 0.75)' }}>
             Founding discount applies to monthly billing — annual plans already include 2 months free.
           </p>
         </div>
@@ -120,7 +120,7 @@ export default function CompanyPricing() {
                 onClick={() => setBilling(b)}
                 className="px-5 py-2 rounded-full text-xs font-black transition-all"
                 style={billing === b
-                  ? { background: 'linear-gradient(135deg, #9D8CFF, #34D399)', color: '#fff' }
+                  ? { background: 'linear-gradient(135deg, #38BDF8, #34D399)', color: '#fff' }
                   : { color: '#7E7E8E' }}
               >
                 {b === 'monthly' ? 'Monthly' : (
@@ -157,7 +157,7 @@ export default function CompanyPricing() {
                 'Salary benchmark (1/month)',
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-2.5">
-                  <svg className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#9D8CFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                  <svg className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#38BDF8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
                   <p className="text-sm text-[#C7C7D1]">{item}</p>
                 </div>
               ))}
@@ -173,11 +173,11 @@ export default function CompanyPricing() {
           </div>
 
           {/* ── PRO ──────────────────────────────────────────────────── */}
-          <div className="rounded-2xl p-7 relative overflow-hidden text-white flex flex-col" style={{ background: 'linear-gradient(160deg, #060609, #0b1228 60%, #0e1a2e)', boxShadow: '0 20px 50px rgba(157, 140, 255, 0.22)', border: '1px solid rgba(157, 140, 255, 0.30)' }}>
-            <div className="absolute top-4 right-4 text-white text-[10px] font-black px-3 py-1 rounded-full" style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)' }}>
+          <div className="rounded-2xl p-7 relative overflow-hidden text-white flex flex-col" style={{ background: 'linear-gradient(160deg, #060609, #0b1228 60%, #0e1a2e)', boxShadow: '0 20px 50px rgba(56, 189, 248, 0.22)', border: '1px solid rgba(56, 189, 248, 0.30)' }}>
+            <div className="absolute top-4 right-4 text-white text-[10px] font-black px-3 py-1 rounded-full" style={{ background: 'linear-gradient(135deg,#38BDF8, #34D399)' }}>
               Most popular
             </div>
-            <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#9D8CFF' }}>Pro</p>
+            <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#38BDF8' }}>Pro</p>
             <div className="flex items-end gap-1 mb-1">
               <span className="text-4xl font-black text-white">{billing === 'yearly' ? '$4,990' : '$499'}</span>
               <span className="text-white/50 mb-1">{billing === 'yearly' ? '/year' : '/month'}</span>
@@ -200,7 +200,7 @@ export default function CompanyPricing() {
                 'Proof-Over-Polish verification',
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-2.5">
-                  <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke={i === 0 ? 'transparent' : '#9D8CFF'} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                  <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke={i === 0 ? 'transparent' : '#38BDF8'} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
                   <p className={`text-sm ${i === 0 ? 'text-white/60 font-bold uppercase text-xs tracking-wider' : 'text-white/90'}`}>{item}</p>
                 </div>
               ))}
@@ -210,7 +210,7 @@ export default function CompanyPricing() {
               onClick={() => startTier('pro')}
               disabled={loading === 'pro'}
               className="w-full py-3.5 rounded-full font-black text-sm transition-all disabled:opacity-50 text-white"
-              style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
+              style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}
             >
               {loading === 'pro' ? 'Redirecting...' : 'Start 14-day trial →'}
             </button>
@@ -262,8 +262,8 @@ export default function CompanyPricing() {
           </div>
 
           {/* ── ENTERPRISE ───────────────────────────────────────────── */}
-          <div className="bg-[#0D0C14] rounded-2xl p-7 flex flex-col" style={{ border: '1px solid rgba(157, 140, 255, 0.30)', boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)' }}>
-            <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#9D8CFF' }}>Enterprise</p>
+          <div className="bg-[#0D0C14] rounded-2xl p-7 flex flex-col" style={{ border: '1px solid rgba(56, 189, 248, 0.30)', boxShadow: '0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35)' }}>
+            <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#38BDF8' }}>Enterprise</p>
             {/* v5.1: anchored "from $2,500/mo" replaces "Custom". Full band
                 ($2,500–12,000/mo, scaled to workforce size) is sales-led. */}
             <div className="flex items-end gap-1 mb-1">
@@ -283,7 +283,7 @@ export default function CompanyPricing() {
                 'Scenario modelling (1/3/5/10y)',
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-2.5">
-                  <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke={i === 0 ? 'transparent' : '#9D8CFF'} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                  <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke={i === 0 ? 'transparent' : '#38BDF8'} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
                   <p className={`text-sm ${i === 0 ? 'text-[#7E7E8E] font-bold uppercase text-xs tracking-wider' : 'text-[#C7C7D1]'}`}>{item}</p>
                 </div>
               ))}
@@ -298,7 +298,7 @@ export default function CompanyPricing() {
             <button
               onClick={talkToSales}
               className="w-full py-3.5 rounded-full font-black text-sm transition-all text-white"
-              style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
+              style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}
             >
               Talk to sales →
             </button>
@@ -307,14 +307,14 @@ export default function CompanyPricing() {
         </div>
 
         {/* Bespoke Transformation — greyed teaser card (one-off door-opener). */}
-        <div className="rounded-2xl p-6 mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 opacity-80" style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(157, 140, 255, 0.30)' }}>
+        <div className="rounded-2xl p-6 mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 opacity-80" style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(56, 189, 248, 0.30)' }}>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#9D8CFF' }}>Bespoke Transformation · $15–25k one-off</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#38BDF8' }}>Bespoke Transformation · $15–25k one-off</p>
             <p className="text-sm text-[#A6A6B4] leading-relaxed max-w-2xl">
               One-shot engagement: custom severance multipliers, overhead %, taxonomy overrides + a leadership workshop. Scoped per-org — a door-opener that usually converts into a recurring Enterprise subscription.
             </p>
           </div>
-          <Link href="/book-call?intent=enterprise" className="flex-shrink-0 text-center px-5 py-2.5 rounded-full font-bold text-xs" style={{ border: '1px solid rgba(157, 140, 255, 0.40)', color: '#9D8CFF', background: 'rgba(157, 140, 255, 0.05)' }}>
+          <Link href="/book-call?intent=enterprise" className="flex-shrink-0 text-center px-5 py-2.5 rounded-full font-bold text-xs" style={{ border: '1px solid rgba(56, 189, 248, 0.40)', color: '#38BDF8', background: 'rgba(56, 189, 248, 0.05)' }}>
             Enquire →
           </Link>
         </div>

@@ -117,7 +117,7 @@ export default function HiringPlanPage() {
   }
 
   const inputCls =
-    'w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50'
+    'w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#38BDF8]/50'
   const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }
   const labelCls = 'text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider'
   const cardStyle = { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }
@@ -132,15 +132,15 @@ export default function HiringPlanPage() {
 
   const hireLevelColor = (level?: string) => {
     const l = (level || '').toLowerCase()
-    if (l === 'senior') return '#9D8CFF'
-    if (l === 'mid') return '#9D8CFF'
+    if (l === 'senior') return '#38BDF8'
+    if (l === 'mid') return '#38BDF8'
     return '#34D399' // junior / default
   }
   const modeColor = (mode?: string) => {
     const m = (mode || '').toLowerCase()
-    if (m === 'perm') return '#9D8CFF'
+    if (m === 'perm') return '#38BDF8'
     if (m === 'temp') return '#FBBF24'
-    if (m === 'fractional') return '#9D8CFF'
+    if (m === 'fractional') return '#38BDF8'
     return '#7E7E8E'
   }
 
@@ -159,7 +159,7 @@ export default function HiringPlanPage() {
           href="/"
           className="font-black text-xl tracking-tighter"
           style={{
-            background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+            background: 'linear-gradient(135deg, #38BDF8, #34D399)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -228,9 +228,9 @@ export default function HiringPlanPage() {
                     style={
                       active
                         ? {
-                            background: 'rgba(157, 140, 255, 0.15)',
-                            color: '#9D8CFF',
-                            border: '1px solid rgba(157, 140, 255, 0.45)',
+                            background: 'rgba(56, 189, 248, 0.15)',
+                            color: '#38BDF8',
+                            border: '1px solid rgba(56, 189, 248, 0.45)',
                           }
                         : {
                             background: 'rgba(255,255,255,0.05)',
@@ -296,7 +296,7 @@ export default function HiringPlanPage() {
             onClick={submit}
             disabled={loading || !industry.trim() || !country.trim()}
             className="mt-5 w-full sm:w-auto px-6 py-3 rounded-full font-black text-sm text-white disabled:opacity-40"
-            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
+            style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}
           >
             {loading ? 'Building your plan…' : '🚀 Plan my next hires'}
           </button>
@@ -310,11 +310,11 @@ export default function HiringPlanPage() {
               <div
                 className="rounded-2xl p-5"
                 style={{
-                  background: 'rgba(157, 140, 255, 0.10)',
-                  border: '1px solid rgba(157, 140, 255, 0.30)',
+                  background: 'rgba(56, 189, 248, 0.10)',
+                  border: '1px solid rgba(56, 189, 248, 0.30)',
                 }}
               >
-                <p className="text-[#9D8CFF] text-[10px] font-bold uppercase tracking-wider mb-1.5">
+                <p className="text-[#38BDF8] text-[10px] font-bold uppercase tracking-wider mb-1.5">
                   Shapi&apos;s read
                 </p>
                 <p className="text-[#F4F4F7] text-sm leading-relaxed">{plan.summary}</p>
@@ -331,21 +331,21 @@ export default function HiringPlanPage() {
                   className="flex w-full h-3 rounded-full overflow-hidden mb-4"
                   style={{ background: 'rgba(255,255,255,0.05)' }}
                 >
-                  <div style={{ width: `${perm}%`, background: '#9D8CFF' }} />
+                  <div style={{ width: `${perm}%`, background: '#38BDF8' }} />
                   <div style={{ width: `${temp}%`, background: '#FBBF24' }} />
-                  <div style={{ width: `${fractional}%`, background: '#9D8CFF' }} />
+                  <div style={{ width: `${fractional}%`, background: '#38BDF8' }} />
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 mb-3">
                   <div
                     className="rounded-xl p-3"
                     style={{
-                      background: 'rgba(157, 140, 255, 0.10)',
-                      border: '1px solid rgba(157, 140, 255, 0.25)',
+                      background: 'rgba(56, 189, 248, 0.10)',
+                      border: '1px solid rgba(56, 189, 248, 0.25)',
                     }}
                   >
                     <p className={labelCls}>Perm</p>
-                    <p className="text-sm font-black mt-0.5" style={{ color: '#9D8CFF' }}>
+                    <p className="text-sm font-black mt-0.5" style={{ color: '#38BDF8' }}>
                       {perm}%
                     </p>
                   </div>
@@ -364,12 +364,12 @@ export default function HiringPlanPage() {
                   <div
                     className="rounded-xl p-3"
                     style={{
-                      background: 'rgba(157, 140, 255, 0.10)',
-                      border: '1px solid rgba(157, 140, 255, 0.25)',
+                      background: 'rgba(56, 189, 248, 0.10)',
+                      border: '1px solid rgba(56, 189, 248, 0.25)',
                     }}
                   >
                     <p className={labelCls}>Fractional</p>
-                    <p className="text-sm font-black mt-0.5" style={{ color: '#9D8CFF' }}>
+                    <p className="text-sm font-black mt-0.5" style={{ color: '#38BDF8' }}>
                       {fractional}%
                     </p>
                   </div>
@@ -421,11 +421,11 @@ export default function HiringPlanPage() {
               <div
                 className="rounded-2xl p-5"
                 style={{
-                  background: 'rgba(157, 140, 255, 0.08)',
-                  border: '1px solid rgba(157, 140, 255, 0.25)',
+                  background: 'rgba(56, 189, 248, 0.08)',
+                  border: '1px solid rgba(56, 189, 248, 0.25)',
                 }}
               >
-                <p className="text-[#9D8CFF] text-[10px] font-bold uppercase tracking-wider mb-2">
+                <p className="text-[#38BDF8] text-[10px] font-bold uppercase tracking-wider mb-2">
                   💸 Monthly comp burden — 70% confidence band (3 hires combined)
                 </p>
                 <p className="text-2xl md:text-3xl font-black tracking-tighter text-[#F4F4F7]">

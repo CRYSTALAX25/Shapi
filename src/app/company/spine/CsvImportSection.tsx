@@ -31,7 +31,7 @@ type ParseResult = {
   notes?: string
 }
 
-const ACCENT = '#9D8CFF'
+const ACCENT = '#38BDF8'
 const SUCCESS = '#34D399'
 const DANGER = '#FB7185'
 const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
@@ -39,7 +39,7 @@ const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
 const CTA_STYLE: React.CSSProperties = { background: '#eef1f6', color: '#060609' }
 const INPUT_STYLE: React.CSSProperties = {
   background: '#060609',
-  border: '1px solid rgba(157,140,255,0.20)',
+  border: '1px solid rgba(56, 189, 248,0.20)',
   color: 'rgba(255,255,255,0.9)',
 }
 
@@ -262,7 +262,7 @@ export default function CsvImportSection({
         <div className="overflow-x-auto rounded-lg" style={{ background: '#060609' }}>
           <table className="w-full text-xs">
             <thead>
-              <tr style={{ background: 'rgba(157,140,255,0.08)' }}>
+              <tr style={{ background: 'rgba(56, 189, 248,0.08)' }}>
                 <th className="text-left px-3 py-2" style={BODY_STYLE}>Name</th>
                 <th className="text-left px-3 py-2" style={BODY_STYLE}>Role</th>
                 <th className="text-left px-3 py-2" style={BODY_STYLE}>Team</th>
@@ -325,7 +325,7 @@ export default function CsvImportSection({
             </>
           )}
         </div>
-        <button onClick={downloadTemplate} className="text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap" style={{ background: 'rgba(157,140,255,0.10)', color: ACCENT, border: `1px solid ${ACCENT}40` }}>
+        <button onClick={downloadTemplate} className="text-xs font-bold px-3 py-1.5 rounded-full whitespace-nowrap" style={{ background: 'rgba(56, 189, 248,0.10)', color: ACCENT, border: `1px solid ${ACCENT}40` }}>
           ↓ Template
         </button>
       </div>
@@ -349,7 +349,7 @@ export default function CsvImportSection({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className="text-xs font-bold px-4 py-2 rounded-full"
-            style={{ background: 'rgba(157,140,255,0.14)', color: ACCENT, border: `1px solid ${ACCENT}55` }}
+            style={{ background: 'rgba(56, 189, 248,0.14)', color: ACCENT, border: `1px solid ${ACCENT}55` }}
           >
             📄 Pick CSV file
           </button>

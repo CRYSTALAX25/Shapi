@@ -125,7 +125,7 @@ export default function RoleEditForm({ role, fromWhatsApp }: { role: EditableRol
   }
 
   const statusBadge =
-    status === 'active' ? { label: 'Active', bg: 'rgba(157, 140, 255, 0.12)', c: '#9D8CFF' } :
+    status === 'active' ? { label: 'Active', bg: 'rgba(56, 189, 248, 0.12)', c: '#38BDF8' } :
     status === 'closed' ? { label: 'Closed', bg: 'rgba(251, 113, 133, 0.12)', c: '#FB7185' } :
     { label: 'Draft', bg: 'rgba(251,191,36,0.12)', c: '#FBBF24' }
 
@@ -134,13 +134,13 @@ export default function RoleEditForm({ role, fromWhatsApp }: { role: EditableRol
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                      linear-gradient(135deg, rgba(157, 140, 255, 0.15), rgba(157, 140, 255, 0.15)) border-box;
+                      linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.15)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .field { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #F4F4F7; outline: none; transition: border-color 0.2s; }
         .field::placeholder { color: rgba(126,126,142,1); }
-        .field:focus { border-color: rgba(157, 140, 255, 0.5); }
+        .field:focus { border-color: rgba(56, 189, 248, 0.5); }
         .rolelabel { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #A6A6B4; margin-bottom: 8px; }
         .required::after { content: " *"; color: #FB7185; }
       `}</style>
@@ -158,8 +158,8 @@ export default function RoleEditForm({ role, fromWhatsApp }: { role: EditableRol
       </div>
 
       {fromWhatsApp && (
-        <div className="rounded-xl px-4 py-3 mb-6" style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.22)' }}>
-          <p className="text-sm font-bold text-[#9D8CFF]">💬 Drafted from your WhatsApp chat</p>
+        <div className="rounded-xl px-4 py-3 mb-6" style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.22)' }}>
+          <p className="text-sm font-bold text-[#38BDF8]">💬 Drafted from your WhatsApp chat</p>
           <p className="text-[#A6A6B4] text-xs mt-1 leading-relaxed">
             Shapi turned your conversation into this role. Review the salary, JD and requirements below — they&apos;re fully editable — then hit Publish to start matching candidates.
           </p>
@@ -202,9 +202,9 @@ export default function RoleEditForm({ role, fromWhatsApp }: { role: EditableRol
               <button key={o.v} type="button" onClick={() => setEngagementType(o.v)}
                 className="text-left rounded-xl px-3 py-2.5 transition-all"
                 style={engagementType === o.v
-                  ? { background: 'rgba(157, 140, 255, 0.1)', border: '1px solid rgba(157, 140, 255, 0.45)' }
+                  ? { background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.45)' }
                   : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <p className="text-sm font-bold" style={{ color: engagementType === o.v ? '#9D8CFF' : '#C7C7D1' }}>{o.l}</p>
+                <p className="text-sm font-bold" style={{ color: engagementType === o.v ? '#38BDF8' : '#C7C7D1' }}>{o.l}</p>
                 <p className="text-[#7E7E8E] text-[10px] leading-tight">{o.s}</p>
               </button>
             ))}
@@ -213,7 +213,7 @@ export default function RoleEditForm({ role, fromWhatsApp }: { role: EditableRol
 
         <label className="flex items-center gap-3 cursor-pointer">
           <div onClick={() => setRemote(!remote)}
-            className={`w-10 h-6 rounded-full transition-colors relative ${remote ? 'bg-[#9D8CFF]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
+            className={`w-10 h-6 rounded-full transition-colors relative ${remote ? 'bg-[#38BDF8]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
             <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${remote ? 'left-5' : 'left-1'}`} />
           </div>
           <span className="text-[#A6A6B4] text-sm">Remote / hybrid OK</span>
@@ -221,7 +221,7 @@ export default function RoleEditForm({ role, fromWhatsApp }: { role: EditableRol
 
         <label className="flex items-start gap-3 cursor-pointer">
           <div onClick={() => setAcceptsPivot(!acceptsPivot)}
-            className={`mt-0.5 flex-shrink-0 w-10 h-6 rounded-full transition-colors relative ${acceptsPivot ? 'bg-[#9D8CFF]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
+            className={`mt-0.5 flex-shrink-0 w-10 h-6 rounded-full transition-colors relative ${acceptsPivot ? 'bg-[#38BDF8]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
             <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${acceptsPivot ? 'left-5' : 'left-1'}`} />
           </div>
           <span className="text-sm">
@@ -254,13 +254,13 @@ export default function RoleEditForm({ role, fromWhatsApp }: { role: EditableRol
           </div>
         </div>
         {salaryMin && salaryMax && parseInt(salaryMin) < parseInt(salaryMax) && (
-          <p className="text-[#9D8CFF] text-xs font-semibold">
+          <p className="text-[#38BDF8] text-xs font-semibold">
             {currency} {parseInt(salaryMin).toLocaleString()} – {parseInt(salaryMax).toLocaleString()} per year
           </p>
         )}
         <label className="flex items-center gap-3 cursor-pointer mt-4">
           <div onClick={() => setSalaryVisible(!salaryVisible)}
-            className={`w-10 h-6 rounded-full transition-colors relative ${salaryVisible ? 'bg-[#9D8CFF]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
+            className={`w-10 h-6 rounded-full transition-colors relative ${salaryVisible ? 'bg-[#38BDF8]' : 'bg-[rgba(255,255,255,0.05)]'}`}>
             <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${salaryVisible ? 'left-5' : 'left-1'}`} />
           </div>
           <span className="text-[#A6A6B4] text-sm">Show salary publicly on role listing</span>
@@ -295,7 +295,7 @@ export default function RoleEditForm({ role, fromWhatsApp }: { role: EditableRol
 
       {/* Save */}
       <button onClick={save} disabled={saving}
-        className="w-full bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity disabled:opacity-50">
+        className="w-full bg-gradient-to-r from-[#38BDF8] to-[#38BDF8] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity disabled:opacity-50">
         {saving ? 'Saving…' : 'Save changes'}
       </button>
 
@@ -305,7 +305,7 @@ export default function RoleEditForm({ role, fromWhatsApp }: { role: EditableRol
         <div className="flex flex-wrap gap-3">
           {status !== 'active' && (
             <button onClick={publish} disabled={saving}
-              className="bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] px-6 py-3 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity disabled:opacity-50">
+              className="bg-gradient-to-r from-[#38BDF8] to-[#38BDF8] px-6 py-3 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity disabled:opacity-50">
               {status === 'closed' ? 'Reopen & publish →' : 'Publish role →'}
             </button>
           )}

@@ -257,10 +257,10 @@ export default function ManualForm({ onSwitchToChat }: { onSwitchToChat?: () => 
         <h2 className="text-xl font-black text-[#F4F4F7] mb-2 text-center">You&apos;re already set up.</h2>
         <p className="text-[#A6A6B4] text-sm text-center leading-relaxed max-w-xs mb-6">
           Opening your dashboard. Need to update company info? Use{' '}
-          <Link href="/company/onboarding?edit=true" className="underline text-[#9D8CFF]">edit mode</Link>.
+          <Link href="/company/onboarding?edit=true" className="underline text-[#38BDF8]">edit mode</Link>.
         </p>
-        <div className="flex items-center gap-2" style={{ color: '#9D8CFF' }}>
-          <div className="w-4 h-4 rounded-full border-2 border-[#9D8CFF]/30 border-t-[#9D8CFF] animate-spin" />
+        <div className="flex items-center gap-2" style={{ color: '#38BDF8' }}>
+          <div className="w-4 h-4 rounded-full border-2 border-[#38BDF8]/30 border-t-[#38BDF8] animate-spin" />
           <span className="text-xs font-bold">Loading dashboard…</span>
         </div>
       </Screen>
@@ -302,7 +302,7 @@ export default function ManualForm({ onSwitchToChat }: { onSwitchToChat?: () => 
           <button
             onClick={() => router.push('/company/spine?welcome=true')}
             className="w-full py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity"
-            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+            style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
             🌳 Build your org spine →
           </button>
           <button
@@ -326,13 +326,13 @@ export default function ManualForm({ onSwitchToChat }: { onSwitchToChat?: () => 
       <style>{`
         .gradient-border-card {
           background: linear-gradient(#0D0C14, #0D0C14) padding-box,
-                      linear-gradient(135deg, rgba(157, 140, 255, 0.15), rgba(157, 140, 255, 0.15)) border-box;
+                      linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.15)) border-box;
           border: 1px solid transparent;
           box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35);
         }
         .field { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 16px; font-size: 14px; color: #F4F4F7; outline: none; transition: border-color 0.2s; }
         .field::placeholder { color: rgba(126,126,142,1); }
-        .field:focus { border-color: rgba(157, 140, 255, 0.5); }
+        .field:focus { border-color: rgba(56, 189, 248, 0.5); }
         label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #A6A6B4; margin-bottom: 8px; }
       `}</style>
 
@@ -342,10 +342,10 @@ export default function ManualForm({ onSwitchToChat }: { onSwitchToChat?: () => 
       }} />
 
       <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-6xl mx-auto">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         <div className="flex items-center gap-4">
           {onSwitchToChat && (
-            <button onClick={onSwitchToChat} className="text-[#9D8CFF] text-sm font-medium hover:underline">
+            <button onClick={onSwitchToChat} className="text-[#38BDF8] text-sm font-medium hover:underline">
               ← Back to chat
             </button>
           )}
@@ -389,7 +389,7 @@ export default function ManualForm({ onSwitchToChat }: { onSwitchToChat?: () => 
             </div>
           </div>
 
-          <div className="rounded-xl p-4" style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.25)' }}>
+          <div className="rounded-xl p-4" style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div className="min-w-0">
                 <p className="text-sm font-black text-[#F4F4F7] mb-0.5">✨ Auto-fill from your website</p>
@@ -402,7 +402,7 @@ export default function ManualForm({ onSwitchToChat }: { onSwitchToChat?: () => 
                 onClick={handlePull}
                 disabled={pulling || !website.trim()}
                 className="text-xs font-black px-4 py-2 rounded-full whitespace-nowrap disabled:opacity-40"
-                style={{ background: '#9D8CFF', color: '#fff' }}
+                style={{ background: '#38BDF8', color: '#fff' }}
               >
                 {pulling ? 'Pulling…' : 'Pull now'}
               </button>
@@ -421,7 +421,7 @@ export default function ManualForm({ onSwitchToChat }: { onSwitchToChat?: () => 
                 <button key={s} type="button" onClick={() => setSize(s)}
                   className={`py-2 rounded-xl text-xs font-bold transition-colors ${
                     size === s
-                      ? 'bg-[#9D8CFF] text-[#fff]'
+                      ? 'bg-[#38BDF8] text-[#fff]'
                       : 'bg-[rgba(255,255,255,0.05)] text-[#A6A6B4] hover:bg-[rgba(255,255,255,0.07)]'
                   }`}>
                   {s}
@@ -468,7 +468,7 @@ export default function ManualForm({ onSwitchToChat }: { onSwitchToChat?: () => 
         <button
           onClick={submit}
           disabled={saving}
-          className="w-full bg-gradient-to-r from-[#9D8CFF] to-[#9D8CFF] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity disabled:opacity-50">
+          className="w-full bg-gradient-to-r from-[#38BDF8] to-[#38BDF8] py-4 rounded-full font-black text-sm text-[#fff] hover:opacity-90 transition-opacity disabled:opacity-50">
           {saving ? 'Setting up...' : 'Set up company — takes 15 seconds →'}
         </button>
       </div>

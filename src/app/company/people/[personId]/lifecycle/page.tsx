@@ -18,7 +18,7 @@ export const metadata = { title: 'Lifecycle Playbooks · Shapi' }
 // the stub. The actual binding document is authored by counsel.
 // ────────────────────────────────────────────────────────────────────────────
 
-const ACCENT = '#9D8CFF'
+const ACCENT = '#38BDF8'
 const BG = '#060609'
 const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
 const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }

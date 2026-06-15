@@ -74,9 +74,9 @@ function Pill({ item, compact = false }: { item: NavItem; compact?: boolean }) {
     ? 'flex-shrink-0 whitespace-nowrap'
     : 'w-full min-w-0'
   const tone = item.active
-    ? 'bg-[rgba(157,140,255,0.10)] border-[rgba(157,140,255,0.25)] text-[#9D8CFF]'
+    ? 'bg-[rgba(56, 189, 248,0.10)] border-[rgba(56, 189, 248,0.25)] text-[#38BDF8]'
     : compact
-      ? 'bg-[#0D0C14] border-white/[0.06] text-white/60 hover:text-white/90 hover:bg-[#131220] hover:border-[rgba(157,140,255,0.25)]'
+      ? 'bg-[#0D0C14] border-white/[0.06] text-white/60 hover:text-white/90 hover:bg-[#131220] hover:border-[rgba(56, 189, 248,0.25)]'
       : 'border-transparent text-white/60 hover:text-white/90 hover:bg-[#131220]'
   return (
     <Link
@@ -106,7 +106,7 @@ function PlanChip({ planLabel, showUpgrade, compact = false }: { planLabel: stri
     return (
       <Link
         href="/company/pricing"
-        className="flex-shrink-0 whitespace-nowrap flex items-center gap-2 rounded-xl border border-white/[0.06] bg-[#0D0C14] px-3 py-2 text-[13px] font-bold text-white/60 hover:text-white/90 hover:border-[rgba(157,140,255,0.25)] transition-colors"
+        className="flex-shrink-0 whitespace-nowrap flex items-center gap-2 rounded-xl border border-white/[0.06] bg-[#0D0C14] px-3 py-2 text-[13px] font-bold text-white/60 hover:text-white/90 hover:border-[rgba(56, 189, 248,0.25)] transition-colors"
       >
         <span className="text-sm leading-none">💳</span>
         <span>Plan: {planLabel}</span>
@@ -121,7 +121,7 @@ function PlanChip({ planLabel, showUpgrade, compact = false }: { planLabel: stri
   return (
     <Link
       href="/company/pricing"
-      className="block rounded-2xl border border-white/[0.06] bg-[#0D0C14] p-3.5 hover:bg-[#131220] hover:border-[rgba(157,140,255,0.25)] transition-colors"
+      className="block rounded-2xl border border-white/[0.06] bg-[#0D0C14] p-3.5 hover:bg-[#131220] hover:border-[rgba(56, 189, 248,0.25)] transition-colors"
     >
       <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/40 mb-1.5">Plan &amp; billing</p>
       <div className="flex items-center justify-between gap-2">

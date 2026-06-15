@@ -35,7 +35,7 @@ export default async function BrainPage() {
     .select('id', { count: 'exact', head: true })
     .eq('company_id', user.id)
 
-  const ACCENT = '#9D8CFF'
+  const ACCENT = '#38BDF8'
   const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
   const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
 
@@ -66,7 +66,7 @@ export default async function BrainPage() {
         <div
           className="mb-6 p-5 rounded-2xl"
           style={{
-            background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.10), rgba(157, 140, 255, 0.10))',
+            background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.10), rgba(56, 189, 248, 0.10))',
             border: `1px solid ${ACCENT}55`,
           }}
         >

@@ -8,12 +8,12 @@
 // move commits. Confirm = PATCH seat.team_id + POST the decision with the typed
 // reason. Cancel / Escape = abort, no DB write.
 //
-// Native to the dark canvas: card surface #0D0C14, accent #9D8CFF, Plus Jakarta
+// Native to the dark canvas: card surface #0D0C14, accent #38BDF8, Plus Jakarta
 // Sans inherited from the app shell.
 
 import { useEffect, useRef, useState } from 'react'
 
-const ACCENT = '#9D8CFF'
+const ACCENT = '#38BDF8'
 const MIN_CHARS = 20
 
 // Mirrors the decision_type CHECK constraint in blueprint_v4_06_decisions.sql,
@@ -250,7 +250,7 @@ export default function ReassignModal({ ctx, onCancel, onConfirm, defaultDecisio
             disabled={!valid || submitting}
             className="text-xs font-bold px-4 py-2 rounded-full transition-colors"
             style={{
-              background: !valid || submitting ? 'rgba(157,140,255,0.2)' : ACCENT,
+              background: !valid || submitting ? 'rgba(56, 189, 248,0.2)' : ACCENT,
               color: !valid || submitting ? 'rgba(255,255,255,0.4)' : '#060609',
               border: `1px solid ${!valid || submitting ? `${ACCENT}55` : ACCENT}`,
               cursor: !valid || submitting ? 'not-allowed' : 'pointer',

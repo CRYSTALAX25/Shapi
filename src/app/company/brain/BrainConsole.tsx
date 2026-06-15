@@ -21,7 +21,7 @@ type SearchResult = {
   score: number | null
 }
 
-const ACCENT = '#9D8CFF'
+const ACCENT = '#38BDF8'
 const SUCCESS = '#34D399'
 const DANGER = '#FB7185'
 const AMBER = '#FBBF24'
@@ -30,12 +30,12 @@ const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
 const CTA_STYLE: React.CSSProperties = { background: '#eef1f6', color: '#060609' }
 const INPUT_STYLE: React.CSSProperties = {
   background: '#060609',
-  border: '1px solid rgba(157, 140, 255, 0.20)',
+  border: '1px solid rgba(56, 189, 248, 0.20)',
   color: 'rgba(255,255,255,0.9)',
 }
 const CARD_STYLE: React.CSSProperties = {
   background: '#0D0C14',
-  border: '1px solid rgba(157, 140, 255, 0.14)',
+  border: '1px solid rgba(56, 189, 248, 0.14)',
   borderRadius: '1rem',
 }
 
@@ -281,18 +281,18 @@ export default function BrainConsole({
         {results && results.length > 0 && (
           <div className="space-y-3 mt-2">
             {results.map((r) => (
-              <div key={r.id} className="p-3 rounded-lg" style={{ background: '#060609', border: '1px solid rgba(157, 140, 255, 0.10)' }}>
+              <div key={r.id} className="p-3 rounded-lg" style={{ background: '#060609', border: '1px solid rgba(56, 189, 248, 0.10)' }}>
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={sensitivityBadge(r.sensitivity)}>
                     {r.sensitivity}
                   </span>
                   {seatTitle(r.anchor_seat_id) && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.12)', color: ACCENT }}>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.12)', color: ACCENT }}>
                       seat · {seatTitle(r.anchor_seat_id)}
                     </span>
                   )}
                   {teamName(r.anchor_team_id) && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.12)', color: '#38BDF8' }}>
                       team · {teamName(r.anchor_team_id)}
                     </span>
                   )}

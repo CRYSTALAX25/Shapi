@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation'
 // field for those rows.
 // ────────────────────────────────────────────────────────────────────────────
 
-const ACCENT = '#9D8CFF'
+const ACCENT = '#38BDF8'
 const SUCCESS = '#34D399'
 const CORAL = '#FB7185'
 const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
@@ -247,7 +247,7 @@ export default function AttendanceLedger({
                     <button
                       onClick={() => openEdit(a)}
                       className="text-[10px] font-bold px-2 py-0.5 rounded-md"
-                      style={{ background: 'rgba(157, 140, 255, 0.14)', color: ACCENT }}
+                      style={{ background: 'rgba(56, 189, 248, 0.14)', color: ACCENT }}
                     >
                       Edit
                     </button>

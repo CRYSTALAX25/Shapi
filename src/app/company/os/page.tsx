@@ -37,7 +37,7 @@ type OsResponse = {
 }
 
 const SEVERITY_STYLE: Record<string, { bg: string; border: string; color: string; label: string }> = {
-  info:     { bg: 'rgba(157, 140, 255, 0.10)', border: 'rgba(157, 140, 255, 0.30)', color: '#9D8CFF', label: 'Info' },
+  info:     { bg: 'rgba(56, 189, 248, 0.10)', border: 'rgba(56, 189, 248, 0.30)', color: '#38BDF8', label: 'Info' },
   warning:  { bg: 'rgba(251,191,36,0.10)',  border: 'rgba(251,191,36,0.30)',  color: '#FBBF24', label: 'Warning' },
   critical: { bg: 'rgba(251, 113, 133, 0.12)', border: 'rgba(251, 113, 133, 0.35)', color: '#FB7185', label: 'Critical' },
 }
@@ -190,7 +190,7 @@ export default function WorkforceOsPage() {
           href="/"
           className="font-black text-xl tracking-tighter"
           style={{
-            background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+            background: 'linear-gradient(135deg, #38BDF8, #34D399)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -246,7 +246,7 @@ export default function WorkforceOsPage() {
                   <Link
                     href="/company/workforce-snapshot"
                     className="inline-block text-xs font-black px-4 py-2 rounded-full text-white"
-                    style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
+                    style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}
                   >
                     Run Workforce Snapshot →
                   </Link>
@@ -353,9 +353,9 @@ export default function WorkforceOsPage() {
                               disabled={isBusy}
                               className="text-xs font-bold px-3 py-1.5 rounded-full disabled:opacity-40"
                               style={{
-                                background: 'rgba(157, 140, 255, 0.12)',
-                                color: '#9D8CFF',
-                                border: '1px solid rgba(157, 140, 255, 0.30)',
+                                background: 'rgba(56, 189, 248, 0.12)',
+                                color: '#38BDF8',
+                                border: '1px solid rgba(56, 189, 248, 0.30)',
                               }}
                             >
                               {isBusy ? '…' : 'Ack'}
@@ -391,11 +391,11 @@ export default function WorkforceOsPage() {
                   style={cardStyle}
                 >
                   <p className="text-[10px] text-[#A6A6B4]">Staffing recs open</p>
-                  <p className="text-2xl font-black mt-1" style={{ color: '#9D8CFF' }}>{counts.staffing_recs}</p>
+                  <p className="text-2xl font-black mt-1" style={{ color: '#38BDF8' }}>{counts.staffing_recs}</p>
                 </Link>
                 <div className="rounded-2xl p-4" style={cardStyle}>
                   <p className="text-[10px] text-[#A6A6B4]">Interviews this week</p>
-                  <p className="text-2xl font-black mt-1" style={{ color: '#9D8CFF' }}>{counts.interviews_week}</p>
+                  <p className="text-2xl font-black mt-1" style={{ color: '#38BDF8' }}>{counts.interviews_week}</p>
                 </div>
                 <div className="rounded-2xl p-4" style={cardStyle}>
                   <p className="text-[10px] text-[#A6A6B4]">Candidates active</p>
@@ -433,7 +433,7 @@ export default function WorkforceOsPage() {
               <Link
                 href="/book-call?topic=workforce-os"
                 className="inline-block text-xs font-black px-4 py-2 rounded-full text-white"
-                style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
+                style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}
               >
                 Request invite to enterprise beta →
               </Link>

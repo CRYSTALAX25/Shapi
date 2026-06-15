@@ -86,7 +86,7 @@ export default async function SpinePage({
   const planLabel = planTier === 'enterprise' ? 'Enterprise' : (planTier === 'pro' || planTier === 'growth') ? 'Pro' : 'Free'
   const showUpgrade = planTier !== 'enterprise'
 
-  const ACCENT = '#9D8CFF'
+  const ACCENT = '#38BDF8'
   const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
   const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
 
@@ -94,7 +94,7 @@ export default async function SpinePage({
     <div className="min-h-screen" style={{ background: '#060609' }}>
       {/* Dot-grid overlay — Violet Mint spec, matches the dashboard shell. */}
       <div className="fixed inset-0 pointer-events-none" style={{
-        backgroundImage: 'radial-gradient(circle, rgba(157,140,255,0.07) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, rgba(56, 189, 248,0.07) 1px, transparent 1px)',
         backgroundSize: '44px 44px',
       }} />
 
@@ -104,7 +104,7 @@ export default async function SpinePage({
           <Link
             href="/"
             className="font-black text-xl"
-            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '-0.02em' }}
+            style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '-0.02em' }}
           >
             shapi
           </Link>
@@ -152,7 +152,7 @@ export default async function SpinePage({
               <div
                 className="mb-6 p-5 rounded-2xl"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(157,140,255,0.10), rgba(52,211,153,0.08))',
+                  background: 'linear-gradient(135deg, rgba(56, 189, 248,0.10), rgba(52,211,153,0.08))',
                   border: `1px solid ${ACCENT}55`,
                 }}
               >

@@ -18,14 +18,14 @@ import {
   type OkrObjective,
 } from '@/lib/okrTemplates'
 
-const ACCENT = '#9D8CFF'
+const ACCENT = '#38BDF8'
 const GREEN = '#34D399'
 const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
 const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
 const HAIRLINE = '1px solid rgba(255,255,255,0.06)'
 const INPUT_STYLE: React.CSSProperties = {
   background: '#060609',
-  border: '1px solid rgba(157,140,255,0.20)',
+  border: '1px solid rgba(56, 189, 248,0.20)',
   color: 'rgba(255,255,255,0.9)',
 }
 
@@ -140,7 +140,7 @@ export default function OkrEditor({
           <button
             onClick={() => setEditing(true)}
             className="text-xs font-bold px-3 py-1.5 rounded-lg"
-            style={{ background: 'rgba(157,140,255,0.14)', color: ACCENT }}
+            style={{ background: 'rgba(56, 189, 248,0.14)', color: ACCENT }}
           >
             {okrs.length === 0 ? 'Set objectives' : 'Edit objectives'}
           </button>
@@ -208,7 +208,7 @@ export default function OkrEditor({
         <button
           onClick={() => setShowImport(v => !v)}
           className="text-xs font-bold px-3 py-1.5 rounded-lg"
-          style={{ background: 'rgba(157,140,255,0.14)', color: ACCENT }}
+          style={{ background: 'rgba(56, 189, 248,0.14)', color: ACCENT }}
         >
           {showImport ? 'Close import' : '↥ Import / paste'}
         </button>
@@ -279,7 +279,7 @@ export default function OkrEditor({
         ))}
       </ul>
 
-      <button onClick={addObjective} className="text-xs font-bold px-3 py-1.5 rounded-lg" style={{ background: 'rgba(157,140,255,0.10)', color: ACCENT, border: `1px solid ${ACCENT}33` }}>
+      <button onClick={addObjective} className="text-xs font-bold px-3 py-1.5 rounded-lg" style={{ background: 'rgba(56, 189, 248,0.10)', color: ACCENT, border: `1px solid ${ACCENT}33` }}>
         + Add objective
       </button>
 

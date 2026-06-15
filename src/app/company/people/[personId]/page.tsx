@@ -24,8 +24,8 @@ export const metadata = { title: 'HR Portal · Shapi' }
 // every tile carries a polished, informative empty state.
 // ────────────────────────────────────────────────────────────────────────────
 
-const ACCENT = '#9D8CFF'
-const PURPLE = '#9D8CFF'
+const ACCENT = '#38BDF8'
+const PURPLE = '#38BDF8'
 const BG = '#060609'
 const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
 const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
@@ -167,8 +167,8 @@ const PROGRAM_TYPE_LABEL: Record<string, string> = {
 }
 
 const PROGRAM_STATUS_STYLE: Record<string, { bg: string; color: string }> = {
-  open: { bg: 'rgba(157, 140, 255, 0.14)', color: ACCENT },
-  in_progress: { bg: 'rgba(157, 140, 255, 0.14)', color: PURPLE },
+  open: { bg: 'rgba(56, 189, 248, 0.14)', color: ACCENT },
+  in_progress: { bg: 'rgba(56, 189, 248, 0.14)', color: PURPLE },
   completed: { bg: 'rgba(52,211,153,0.12)', color: '#34D399' },
   abandoned: { bg: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' },
   escalated: { bg: 'rgba(251, 113, 133, 0.12)', color: '#FB7185' },
@@ -312,7 +312,7 @@ export default async function PersonHrPortalPage({
         {/* Privacy banner — the PDPL gate is part of the product story. */}
         <div
           className="mb-6 p-4 rounded-xl text-xs leading-relaxed"
-          style={{ background: 'rgba(157, 140, 255, 0.08)', border: `1px solid ${ACCENT}33`, color: '#c9d2f5' }}
+          style={{ background: 'rgba(56, 189, 248, 0.08)', border: `1px solid ${ACCENT}33`, color: '#c9d2f5' }}
         >
           <strong style={{ color: 'rgba(255,255,255,0.9)' }}>RBAC + PDPL floor.</strong> This record is visible
           only to the company owner, the assigned HRBP, and the reporting manager — enforced at the
@@ -327,7 +327,7 @@ export default async function PersonHrPortalPage({
               <Link
                 href={`/company/people/${personId}/lifecycle`}
                 className="inline-block text-xs font-bold px-3 py-1.5 rounded-lg"
-                style={{ background: 'rgba(157, 140, 255, 0.14)', color: ACCENT }}
+                style={{ background: 'rgba(56, 189, 248, 0.14)', color: ACCENT }}
               >
                 Open Lifecycle Playbooks (PIP / Separation) →
               </Link>
@@ -372,7 +372,7 @@ export default async function PersonHrPortalPage({
                           <span
                             key={m.label}
                             className="text-[10px] px-2 py-1 rounded-md"
-                            style={{ background: 'rgba(157, 140, 255, 0.10)', color: ACCENT }}
+                            style={{ background: 'rgba(56, 189, 248, 0.10)', color: ACCENT }}
                           >
                             {m.label}: {m.n} milestone{m.n === 1 ? '' : 's'}
                           </span>
@@ -540,7 +540,7 @@ export default async function PersonHrPortalPage({
           <Tile
             icon="🎓"
             title="Training"
-            badge={{ label: 'Coming next', color: PURPLE, bg: 'rgba(157, 140, 255, 0.12)' }}
+            badge={{ label: 'Coming next', color: PURPLE, bg: 'rgba(56, 189, 248, 0.12)' }}
           >
             <EmptyState>
               No training records yet. Courses, certifications and skill paths will populate from

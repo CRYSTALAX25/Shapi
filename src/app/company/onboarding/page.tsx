@@ -198,8 +198,8 @@ function CompanyOnboardingInner() {
   if (redirecting) {
     return (
       <div className="min-h-screen bg-[#060609] flex flex-col items-center justify-center px-6">
-        <div className="flex items-center gap-2" style={{ color: '#9D8CFF' }}>
-          <div className="w-4 h-4 rounded-full border-2 border-[#9D8CFF]/30 border-t-[#9D8CFF] animate-spin" />
+        <div className="flex items-center gap-2" style={{ color: '#38BDF8' }}>
+          <div className="w-4 h-4 rounded-full border-2 border-[#38BDF8]/30 border-t-[#38BDF8] animate-spin" />
           <span className="text-xs font-bold">Loading…</span>
         </div>
       </div>
@@ -226,14 +226,14 @@ function CompanyOnboardingInner() {
       {/* Nav */}
       <nav className="px-6 py-4 flex items-center justify-between border-b border-[rgba(255,255,255,0.08)] bg-[#060609]/80 backdrop-blur sticky top-0 z-10">
         <Link href="/" className="font-bold text-xl tracking-tight" style={{
-          background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+          background: 'linear-gradient(135deg, #38BDF8, #34D399)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>shapi</Link>
         <div className="flex items-center gap-4">
           <span className="text-xs text-[#5C5C6A] hidden sm:inline">Company setup</span>
           <button
             onClick={() => setMode('form')}
-            className="text-xs text-[#9D8CFF] font-medium hover:underline"
+            className="text-xs text-[#38BDF8] font-medium hover:underline"
             title="Switch to the classic form — fill the fields yourself"
           >
             Prefer a form? Skip to manual entry →
@@ -254,7 +254,7 @@ function CompanyOnboardingInner() {
               width: `${turnPct}%`,
               background: saving
                 ? '#34D399'
-                : 'linear-gradient(90deg, #9D8CFF, #34D399)',
+                : 'linear-gradient(90deg, #38BDF8, #34D399)',
             }}
           />
         </div>
@@ -270,7 +270,7 @@ function CompanyOnboardingInner() {
                   ? 'text-white rounded-br-sm'
                   : 'bg-[#0D0C14] text-[#C7C7D1] border border-[rgba(255,255,255,0.08)] shadow-sm rounded-bl-sm'
               }`}
-              style={m.role === 'user' ? { background: 'linear-gradient(135deg, #9D8CFF, #34D399)' } : undefined}
+              style={m.role === 'user' ? { background: 'linear-gradient(135deg, #38BDF8, #34D399)' } : undefined}
             >
               {m.content.split('\n').map((line, j) => {
                 const parts = line.split(/\*\*(.*?)\*\*/g)
@@ -290,9 +290,9 @@ function CompanyOnboardingInner() {
           <div className="flex justify-start">
             <div className="bg-[#0D0C14] border border-[rgba(255,255,255,0.08)] shadow-sm rounded-2xl rounded-bl-sm px-5 py-4">
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-[#9D8CFF]/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 bg-[#9D8CFF]/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 bg-[#9D8CFF]/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="w-2 h-2 bg-[#38BDF8]/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 bg-[#38BDF8]/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 bg-[#38BDF8]/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
           </div>
@@ -319,21 +319,21 @@ function CompanyOnboardingInner() {
             placeholder="Type your answer... (Enter to send)"
             rows={1}
             disabled={saving}
-            className="flex-1 bg-[#0D0C14] border border-[rgba(255,255,255,0.08)] rounded-2xl px-5 py-3.5 text-sm text-[#F4F4F7] placeholder-[#5C5C6A] focus:outline-none focus:border-[#9D8CFF] transition-colors resize-none disabled:opacity-50"
+            className="flex-1 bg-[#0D0C14] border border-[rgba(255,255,255,0.08)] rounded-2xl px-5 py-3.5 text-sm text-[#F4F4F7] placeholder-[#5C5C6A] focus:outline-none focus:border-[#38BDF8] transition-colors resize-none disabled:opacity-50"
             style={{ minHeight: '52px', maxHeight: '120px' }}
           />
           <button
             onClick={send}
             disabled={!input.trim() || loading || saving}
             className="text-white px-5 py-3.5 rounded-2xl font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
+            style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}
           >
             Send
           </button>
         </div>
         <p className="text-center text-xs text-[#5C5C6A] mt-2">
           Prefer to fill it in yourself?{' '}
-          <button onClick={() => setMode('form')} className="text-[#9D8CFF] hover:underline font-medium">
+          <button onClick={() => setMode('form')} className="text-[#38BDF8] hover:underline font-medium">
             Skip to manual entry
           </button>
         </p>

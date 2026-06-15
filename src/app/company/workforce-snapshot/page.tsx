@@ -60,9 +60,9 @@ const SIZES = ['<10', '10-50', '50-200', '200-1000', '1000+']
 function recColor(rec: string): { bg: string; color: string; label: string } {
   switch (rec) {
     case 'protect': return { bg: 'rgba(52,211,153,0.15)', color: '#34D399', label: 'Protect' }
-    case 'augment': return { bg: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF', label: 'Augment' }
+    case 'augment': return { bg: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8', label: 'Augment' }
     case 'reskill': return { bg: 'rgba(251,191,36,0.15)', color: '#FBBF24', label: 'Reskill' }
-    case 'redeploy': return { bg: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF', label: 'Redeploy' }
+    case 'redeploy': return { bg: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8', label: 'Redeploy' }
     case 'replace': return { bg: 'rgba(251, 113, 133, 0.18)', color: '#FB7185', label: 'Replace' }
     default: return { bg: 'rgba(255,255,255,0.06)', color: '#A6A6B4', label: rec }
   }
@@ -328,7 +328,7 @@ function WorkforceSnapshotInner() {
     } finally { setLoading(false) }
   }
 
-  const inputCls = 'w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50'
+  const inputCls = 'w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#38BDF8]/50'
   const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }
   const labelCls = 'text-[#7E7E8E] text-[10px] font-bold uppercase tracking-wider'
   const cardStyle = { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }
@@ -336,12 +336,12 @@ function WorkforceSnapshotInner() {
   return (
     <div className="min-h-screen bg-[#060609] text-[#F4F4F7]">
       <style>{`
-        .gradient-border-card { background: linear-gradient(#0D0C14,#0D0C14) padding-box, linear-gradient(135deg, rgba(157, 140, 255, 0.15), rgba(157, 140, 255, 0.15)) border-box; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35); }
+        .gradient-border-card { background: linear-gradient(#0D0C14,#0D0C14) padding-box, linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(56, 189, 248, 0.15)) border-box; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 16px 40px rgba(0,0,0,0.35); }
       `}</style>
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
 
       <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-4xl mx-auto">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         {/* Hide the Dashboard escape during the forced first-run flow — the
             Snapshot is the wedge experience, we want them through it. */}
         {!isFirstRun && (
@@ -369,13 +369,13 @@ function WorkforceSnapshotInner() {
               <div
                 className="rounded-2xl p-4"
                 style={{
-                  background: spineApplied ? 'rgba(52,211,153,0.08)' : 'rgba(157, 140, 255, 0.08)',
-                  border: `1px solid ${spineApplied ? 'rgba(52,211,153,0.30)' : 'rgba(157, 140, 255, 0.30)'}`,
+                  background: spineApplied ? 'rgba(52,211,153,0.08)' : 'rgba(56, 189, 248, 0.08)',
+                  border: `1px solid ${spineApplied ? 'rgba(52,211,153,0.30)' : 'rgba(56, 189, 248, 0.30)'}`,
                 }}
               >
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <div className="min-w-0">
-                    <p className="text-sm font-black mb-0.5" style={{ color: spineApplied ? '#34D399' : '#9D8CFF' }}>
+                    <p className="text-sm font-black mb-0.5" style={{ color: spineApplied ? '#34D399' : '#38BDF8' }}>
                       {spineApplied ? '✓ Filled from your org spine' : '✨ Use your org spine data'}
                     </p>
                     <p className="text-xs text-[#A6A6B4]">
@@ -390,7 +390,7 @@ function WorkforceSnapshotInner() {
                       type="button"
                       onClick={applySpine}
                       className="text-xs font-black px-4 py-2 rounded-full whitespace-nowrap"
-                      style={{ background: '#9D8CFF', color: '#fff' }}
+                      style={{ background: '#38BDF8', color: '#fff' }}
                     >
                       Pre-fill now
                     </button>
@@ -418,7 +418,7 @@ function WorkforceSnapshotInner() {
                     {SIZES.map(s => (
                       <button key={s} onClick={() => setSize(s)}
                         className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
-                        style={{ background: size === s ? 'rgba(157, 140, 255, 0.18)' : 'rgba(255,255,255,0.05)', color: size === s ? '#9D8CFF' : '#A6A6B4', border: size === s ? '1px solid rgba(157, 140, 255, 0.4)' : '1px solid rgba(255,255,255,0.08)' }}>
+                        style={{ background: size === s ? 'rgba(56, 189, 248, 0.18)' : 'rgba(255,255,255,0.05)', color: size === s ? '#38BDF8' : '#A6A6B4', border: size === s ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid rgba(255,255,255,0.08)' }}>
                         {s}
                       </button>
                     ))}
@@ -430,7 +430,7 @@ function WorkforceSnapshotInner() {
                     {AI_MATURITY.map(m => (
                       <button key={m.value} onClick={() => setAiMaturity(m.value)}
                         className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
-                        style={{ background: aiMaturity === m.value ? 'rgba(157, 140, 255, 0.18)' : 'rgba(255,255,255,0.05)', color: aiMaturity === m.value ? '#9D8CFF' : '#A6A6B4', border: aiMaturity === m.value ? '1px solid rgba(157, 140, 255, 0.4)' : '1px solid rgba(255,255,255,0.08)' }}>
+                        style={{ background: aiMaturity === m.value ? 'rgba(56, 189, 248, 0.18)' : 'rgba(255,255,255,0.05)', color: aiMaturity === m.value ? '#38BDF8' : '#A6A6B4', border: aiMaturity === m.value ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid rgba(255,255,255,0.08)' }}>
                         {m.label}
                       </button>
                     ))}
@@ -443,7 +443,7 @@ function WorkforceSnapshotInner() {
                   {OPERATING_MODELS.map(o => (
                     <button key={o.value} onClick={() => setOpModel(o.value)}
                       className="text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
-                      style={{ background: opModel === o.value ? 'rgba(157, 140, 255, 0.18)' : 'rgba(255,255,255,0.05)', color: opModel === o.value ? '#9D8CFF' : '#A6A6B4', border: opModel === o.value ? '1px solid rgba(157, 140, 255, 0.4)' : '1px solid rgba(255,255,255,0.08)' }}>
+                      style={{ background: opModel === o.value ? 'rgba(56, 189, 248, 0.18)' : 'rgba(255,255,255,0.05)', color: opModel === o.value ? '#38BDF8' : '#A6A6B4', border: opModel === o.value ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid rgba(255,255,255,0.08)' }}>
                       {o.label}
                     </button>
                   ))}
@@ -460,10 +460,10 @@ function WorkforceSnapshotInner() {
                 </div>
                 <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
                   <button type="button" onClick={() => setBulkOpen(o => !o)}
-                    className="text-[#9D8CFF] text-[10px] font-bold border border-[#9D8CFF]/30 px-2.5 py-1 rounded-full hover:border-[#9D8CFF]/60 transition-colors whitespace-nowrap">
+                    className="text-[#38BDF8] text-[10px] font-bold border border-[#38BDF8]/30 px-2.5 py-1 rounded-full hover:border-[#38BDF8]/60 transition-colors whitespace-nowrap">
                     {bulkOpen ? 'Close paste' : '📋 Paste rows'}
                   </button>
-                  <label className="text-[#9D8CFF] text-[10px] font-bold border border-[#9D8CFF]/30 px-2.5 py-1 rounded-full hover:border-[#9D8CFF]/60 transition-colors cursor-pointer whitespace-nowrap">
+                  <label className="text-[#38BDF8] text-[10px] font-bold border border-[#38BDF8]/30 px-2.5 py-1 rounded-full hover:border-[#38BDF8]/60 transition-colors cursor-pointer whitespace-nowrap">
                     📄 Upload CSV
                     <input type="file" accept=".csv,text/csv,text/plain" className="hidden"
                       onChange={e => { const f = e.target.files?.[0]; if (f) onCsvFile(f); e.currentTarget.value = '' }} />
@@ -477,7 +477,7 @@ function WorkforceSnapshotInner() {
               </div>
 
               {bulkOpen && (
-                <div className="mb-3 rounded-lg p-3" style={{ background: 'rgba(157, 140, 255, 0.06)', border: '1px solid rgba(157, 140, 255, 0.18)' }}>
+                <div className="mb-3 rounded-lg p-3" style={{ background: 'rgba(56, 189, 248, 0.06)', border: '1px solid rgba(56, 189, 248, 0.18)' }}>
                   <p className="text-[#A6A6B4] text-[10px] mb-1.5">One role per line. Format: <strong className="text-[#C7C7D1]">role, dept, count</strong> — comma or tab separated. Header row is fine to leave in; we&apos;ll skip empty ones.</p>
                   <textarea value={bulkText} onChange={e => setBulkText(e.target.value)} rows={5}
                     placeholder="Engineer, Tech, 5&#10;Designer, Product, 1&#10;Sales Rep, GTM, 2"
@@ -486,7 +486,7 @@ function WorkforceSnapshotInner() {
                   <div className="flex gap-2 mt-2">
                     <button type="button" onClick={importBulk} disabled={!bulkText.trim()}
                       className="text-[10px] font-black px-3 py-1.5 rounded-full text-white disabled:opacity-40"
-                      style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+                      style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
                       Import {bulkText.trim() ? `${bulkText.split(/\r?\n/).filter(l => l.trim()).length} rows` : ''}
                     </button>
                     <button type="button" onClick={() => { setBulkText(''); setBulkOpen(false) }}
@@ -512,7 +512,7 @@ function WorkforceSnapshotInner() {
                   </div>
                 ))}
               </div>
-              <button onClick={addRole} className="mt-3 text-[#9D8CFF] text-xs font-bold border border-[#9D8CFF]/30 px-3 py-1.5 rounded-full hover:border-[#9D8CFF]/60 transition-colors">+ Add role</button>
+              <button onClick={addRole} className="mt-3 text-[#38BDF8] text-xs font-bold border border-[#38BDF8]/30 px-3 py-1.5 rounded-full hover:border-[#38BDF8]/60 transition-colors">+ Add role</button>
             </div>
 
             {/* CUT 1 from master Section 1: removed the standalone "AI use
@@ -527,7 +527,7 @@ function WorkforceSnapshotInner() {
 
             <button onClick={run} disabled={loading || !industry.trim() || !size}
               className="w-full py-4 rounded-full font-black text-white text-sm disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+              style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
               {loading ? 'Building your snapshot…' : 'Get my Workforce Readiness Score →'}
             </button>
             <p className="text-[#7E7E8E] text-[11px] text-center">~30 seconds. Anonymised. Nothing stored beyond what you typed.</p>
@@ -624,7 +624,7 @@ function WorkforceSnapshotInner() {
                     <div key={i} className="bg-white/[0.04] rounded-lg p-4">
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <p className="text-[#F4F4F7] text-sm font-black">{u.use_case}</p>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' }}>{u.build_buy_partner}</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8' }}>{u.build_buy_partner}</span>
                       </div>
                       <p className="text-[#A6A6B4] text-xs mb-2">{u.why}</p>
                       <div className="grid sm:grid-cols-2 gap-2 text-xs">
@@ -648,7 +648,7 @@ function WorkforceSnapshotInner() {
               <ol className="space-y-2">
                 {report.quick_wins.map((w, i) => (
                   <li key={i} className="flex gap-3">
-                    <span className="text-[#9D8CFF] text-sm font-black flex-shrink-0">{i + 1}.</span>
+                    <span className="text-[#38BDF8] text-sm font-black flex-shrink-0">{i + 1}.</span>
                     <p className="text-[#C7C7D1] text-sm leading-relaxed">{w}</p>
                   </li>
                 ))}
@@ -664,7 +664,7 @@ function WorkforceSnapshotInner() {
               <ul className="space-y-1.5 mb-4">
                 {report.raise_score_to.biggest_levers.map((l, i) => (
                   <li key={i} className="text-[#C7C7D1] text-sm leading-relaxed flex gap-2">
-                    <span className="text-[#9D8CFF]">→</span>
+                    <span className="text-[#38BDF8]">→</span>
                     <span>{l}</span>
                   </li>
                 ))}
@@ -677,9 +677,9 @@ function WorkforceSnapshotInner() {
             {/* CTA 1 — Growth trial (the SaaS upsell). 14-day trial = peak
                 intent moment. They just saw their AI-risk heatmap; the
                 Hiring Roadmap turns that diagnosis into action. */}
-            <div className="rounded-2xl p-5" style={{ background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.14), rgba(52,211,153,0.10))', border: '1px solid rgba(157, 140, 255, 0.40)' }}>
+            <div className="rounded-2xl p-5" style={{ background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.14), rgba(52,211,153,0.10))', border: '1px solid rgba(56, 189, 248, 0.40)' }}>
               <div className="flex items-start gap-3.5">
-                <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)' }}>🚀</div>
+                <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg,#38BDF8, #34D399)' }}>🚀</div>
                 <div className="flex-1">
                   <p className="text-[#F4F4F7] font-black text-base mb-1">Turn this report into a hiring plan</p>
                   <p className="text-[#A6A6B4] text-sm mb-3 leading-relaxed">
@@ -690,7 +690,7 @@ function WorkforceSnapshotInner() {
                         while exploring pricing — backbutton-wipes-data was a
                         real complaint in testing. */}
                     <Link href="/company/pricing?plan=growth&trial=14" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-black text-white"
-                      style={{ background: 'linear-gradient(135deg,#9D8CFF, #34D399)' }}>
+                      style={{ background: 'linear-gradient(135deg,#38BDF8, #34D399)' }}>
                       Start free 14-day trial →
                     </Link>
                     <span className="text-[#7E7E8E] text-[11px]">Card on file via Stripe. No charge for 14 days. Cancel anytime.</span>
@@ -702,10 +702,10 @@ function WorkforceSnapshotInner() {
             {/* CTA 2 — Strategic Workforce Plan (enterprise consulting tier).
                 Distinct buyer + ask; kept as the secondary, premium-bookable
                 path. Internally "Tier B" in pricing config / comments. */}
-            <div className="rounded-2xl p-5 text-center" style={{ background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.10), rgba(157, 140, 255, 0.10))', border: '1px solid rgba(157, 140, 255, 0.30)' }}>
+            <div className="rounded-2xl p-5 text-center" style={{ background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.10), rgba(56, 189, 248, 0.10))', border: '1px solid rgba(56, 189, 248, 0.30)' }}>
               <p className="text-[#F4F4F7] font-black text-base mb-1">Want the full Strategic Workforce Plan?</p>
               <p className="text-[#A6A6B4] text-sm mb-4">1 / 3 / 5 / 10-year operating-model diagnostic, per-BU mapping, scenario modelling, execution playbook, talent sourced from our verified pool.</p>
-              <Link href="/book-call?topic=strategic-plan" className="inline-block px-6 py-3 rounded-full font-black text-sm" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', color: '#fff' }}>
+              <Link href="/book-call?topic=strategic-plan" className="inline-block px-6 py-3 rounded-full font-black text-sm" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', color: '#fff' }}>
                 Book a strategy call →
               </Link>
             </div>
@@ -717,7 +717,7 @@ function WorkforceSnapshotInner() {
               <button
                 onClick={() => router.push('/company/dashboard?snapshot=done')}
                 className="w-full py-3 rounded-full font-black text-sm text-white hover:opacity-90 transition-opacity"
-                style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+                style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
                 Take me to my dashboard →
               </button>
             ) : (

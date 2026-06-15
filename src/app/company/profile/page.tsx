@@ -29,7 +29,7 @@ export default async function CompanyProfilePage() {
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '44px 44px' }} />
 
       <nav className="relative z-10 px-6 py-4 border-b border-white/[0.08] flex items-center justify-between max-w-4xl mx-auto">
-        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
+        <Link href="/" className="font-black text-xl tracking-tighter" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>shapi</Link>
         <Link href="/company/dashboard" className="text-[#7E7E8E] text-sm hover:text-[#C7C7D1] transition-colors">← Dashboard</Link>
       </nav>
 
@@ -40,7 +40,7 @@ export default async function CompanyProfilePage() {
             <h1 className="text-3xl md:text-4xl font-black tracking-tighter mb-2" style={{ color: '#FB7185' }}>Company profile</h1>
             <p className="text-[#A6A6B4] text-sm max-w-xl">How candidates see you. A complete + transparent profile builds the trust signal that pulls verified candidates to your roles.</p>
           </div>
-          <Link href="/company/onboarding" className="flex-shrink-0 px-5 py-2.5 rounded-full font-black text-xs text-white whitespace-nowrap" style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}>
+          <Link href="/company/onboarding" className="flex-shrink-0 px-5 py-2.5 rounded-full font-black text-xs text-white whitespace-nowrap" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
             Edit profile
           </Link>
         </div>
@@ -86,8 +86,8 @@ export default async function CompanyProfilePage() {
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-3">Public signals</p>
             <div className="flex flex-wrap gap-3">
               {!!cd.glassdoor_rating && (
-                <div className="bg-[#9D8CFF]/10 rounded-xl px-4 py-3 text-center min-w-[100px]">
-                  <p className="text-2xl font-black text-[#9D8CFF]">{String(cd.glassdoor_rating)}</p>
+                <div className="bg-[#38BDF8]/10 rounded-xl px-4 py-3 text-center min-w-[100px]">
+                  <p className="text-2xl font-black text-[#38BDF8]">{String(cd.glassdoor_rating)}</p>
                   <p className="text-[10px] text-[#7E7E8E]">Glassdoor</p>
                 </div>
               )}
@@ -122,7 +122,7 @@ export default async function CompanyProfilePage() {
               </p>
               <p className="text-[#A6A6B4] text-xs mt-0.5">{profile.subscription_status === 'active' ? 'Full access — view profiles, contact candidates directly.' : 'Subscribe to unlock names, full profiles, and direct contact.'}</p>
             </div>
-            <Link href="/company/pricing" className="flex-shrink-0 text-[#9D8CFF] text-xs font-bold border border-[#9D8CFF]/30 hover:border-[#9D8CFF]/60 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap">View plans →</Link>
+            <Link href="/company/pricing" className="flex-shrink-0 text-[#38BDF8] text-xs font-bold border border-[#38BDF8]/30 hover:border-[#38BDF8]/60 px-3 py-1.5 rounded-full transition-colors whitespace-nowrap">View plans →</Link>
           </div>
         </div>
 
@@ -144,7 +144,7 @@ function Field({ label, value, link }: { label: string; value: string | null | u
     <div>
       <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1">{label}</p>
       {link
-        ? <a href={value.startsWith('http') ? value : `https://${value}`} target="_blank" rel="noopener noreferrer" className="text-[#9D8CFF] text-sm hover:underline break-all">{value}</a>
+        ? <a href={value.startsWith('http') ? value : `https://${value}`} target="_blank" rel="noopener noreferrer" className="text-[#38BDF8] text-sm hover:underline break-all">{value}</a>
         : <p className="text-[#F4F4F7] text-sm">{value}</p>}
     </div>
   )

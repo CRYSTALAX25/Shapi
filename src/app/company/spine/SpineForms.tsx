@@ -46,17 +46,17 @@ type Seat = {
 const CARD = 'rounded-2xl border'
 const CARD_STYLE: React.CSSProperties = {
   background: '#0D0C14',
-  borderColor: 'rgba(157,140,255,0.18)',
+  borderColor: 'rgba(56, 189, 248,0.18)',
 }
 const HEADING = 'text-lg font-black tracking-tight'
 const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
 const BODY_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.5)' }
-const ACCENT = '#9D8CFF'
+const ACCENT = '#38BDF8'
 const CTA_STYLE: React.CSSProperties = { background: '#eef1f6', color: '#060609' }
 const INPUT = 'w-full px-3 py-2 rounded-lg text-sm'
 const INPUT_STYLE: React.CSSProperties = {
   background: '#060609',
-  border: '1px solid rgba(157,140,255,0.20)',
+  border: '1px solid rgba(56, 189, 248,0.20)',
   color: 'rgba(255,255,255,0.9)',
 }
 const LABEL = 'block text-[10px] font-bold uppercase tracking-wider mb-1'

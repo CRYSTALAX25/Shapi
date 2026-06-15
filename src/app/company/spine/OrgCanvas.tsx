@@ -59,14 +59,14 @@ const PALETTE = {
   // verified/positive.
   '--bg': '#060609',                          // canvas background (deep space)
   '--surface': '#0D0C14',                     // card / panel surface (violet-tinted)
-  '--accent': '#9D8CFF',                      // primary accent (violet)
+  '--accent': '#38BDF8',                      // primary accent (violet)
   '--accent2': '#34D399',                     // secondary accent (emerald — gradient pair)
   '--verified': '#34D399',                    // emerald — employee-verified
   '--warn': '#FBBF24',                        // amber — assessed / caution
   '--punch': '#FB7185',                       // coral — destructive / risk
   '--text': 'rgba(255,255,255,0.9)',          // headings / primary text
   '--text-muted': 'rgba(255,255,255,0.5)',    // body / secondary text
-  '--edge': 'rgba(157,140,255,0.35)',         // reporting lines (violet)
+  '--edge': 'rgba(56, 189, 248,0.35)',         // reporting lines (violet)
 } as React.CSSProperties
 
 /* ── Types (mirror the spine tables loaded by page.tsx via select('*')) ── */

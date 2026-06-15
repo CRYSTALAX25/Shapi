@@ -21,8 +21,8 @@ import type {
 // decided_by_user_id from auth.uid() and writes the audit row server-side.
 // ────────────────────────────────────────────────────────────────────────────
 
-const ACCENT = '#9D8CFF'
-const PURPLE = '#9D8CFF'
+const ACCENT = '#38BDF8'
+const PURPLE = '#38BDF8'
 const SUCCESS = '#34D399'
 const CORAL = '#FB7185'
 const AMBER = '#FBBF24'
@@ -76,8 +76,8 @@ const PROGRAM_TYPE_LABEL: Record<string, string> = {
 }
 
 const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
-  open: { bg: 'rgba(157, 140, 255, 0.14)', color: ACCENT },
-  in_progress: { bg: 'rgba(157, 140, 255, 0.14)', color: PURPLE },
+  open: { bg: 'rgba(56, 189, 248, 0.14)', color: ACCENT },
+  in_progress: { bg: 'rgba(56, 189, 248, 0.14)', color: PURPLE },
   completed: { bg: 'rgba(52,211,153,0.12)', color: SUCCESS },
   abandoned: { bg: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' },
   escalated: { bg: 'rgba(251,113,133,0.12)', color: CORAL },
@@ -455,7 +455,7 @@ export default function LifecycleClient({
           <button
             onClick={() => { setProgramType('pip'); setShowForm(true); resetForm() }}
             className="px-4 py-2.5 rounded-xl text-sm font-bold"
-            style={{ background: 'rgba(157, 140, 255, 0.14)', color: PURPLE, border: `1px solid ${PURPLE}44` }}
+            style={{ background: 'rgba(56, 189, 248, 0.14)', color: PURPLE, border: `1px solid ${PURPLE}44` }}
           >
             Start a PIP
           </button>
@@ -521,7 +521,7 @@ export default function LifecycleClient({
             selectedTemplate ? (
               <div
                 className="rounded-xl p-4 mb-4"
-                style={{ background: 'rgba(157, 140, 255, 0.06)', border: `1px solid ${ACCENT}33` }}
+                style={{ background: 'rgba(56, 189, 248, 0.06)', border: `1px solid ${ACCENT}33` }}
               >
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: 'rgba(52,211,153,0.12)', color: SUCCESS }}>
@@ -693,7 +693,7 @@ export default function LifecycleClient({
                       { label: '60d', lines: toLines(p.milestones_60d) },
                       { label: '90d', lines: toLines(p.milestones_90d) },
                     ].map((m) => (
-                      <div key={m.label} className="rounded-lg p-2" style={{ background: 'rgba(157, 140, 255, 0.06)' }}>
+                      <div key={m.label} className="rounded-lg p-2" style={{ background: 'rgba(56, 189, 248, 0.06)' }}>
                         <p className="text-[10px] font-bold mb-1" style={{ color: ACCENT }}>{m.label}</p>
                         {m.lines.length === 0 ? (
                           <p className="text-[10px]" style={BODY_STYLE}>—</p>
@@ -832,7 +832,7 @@ export default function LifecycleClient({
                             <button
                               onClick={() => handleCopyComms(p)}
                               className="px-3 py-1.5 rounded-lg text-[11px] font-bold"
-                              style={{ background: 'rgba(157, 140, 255, 0.14)', color: PURPLE, border: `1px solid ${PURPLE}33` }}
+                              style={{ background: 'rgba(56, 189, 248, 0.14)', color: PURPLE, border: `1px solid ${PURPLE}33` }}
                             >
                               Copy
                             </button>
@@ -897,7 +897,7 @@ export default function LifecycleClient({
               return (
                 <li key={d.id} className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.02)', border: HAIRLINE }}>
                   <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: 'rgba(157, 140, 255, 0.12)', color: ACCENT }}>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: 'rgba(56, 189, 248, 0.12)', color: ACCENT }}>
                       {d.decision_type.replace('_', ' ')}
                     </span>
                     <span className="text-[10px]" style={BODY_STYLE}>{fmtDateTime(d.decided_at)}</span>

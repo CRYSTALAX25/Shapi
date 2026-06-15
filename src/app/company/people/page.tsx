@@ -16,7 +16,7 @@ export const metadata = { title: 'People · Shapi' }
 // roles_seats are gated to company members via is_company_member()).
 // ────────────────────────────────────────────────────────────────────────────
 
-const ACCENT = '#9D8CFF'
+const ACCENT = '#38BDF8'
 const BG = '#060609'
 const CARD = '#0D0C14'
 const HEADING_STYLE: React.CSSProperties = { color: 'rgba(255,255,255,0.9)' }
@@ -44,7 +44,7 @@ type Team = {
 
 const PERSON_STATUS_STYLE: Record<string, { bg: string; color: string; label: string }> = {
   active:      { bg: 'rgba(52,211,153,0.12)',  color: '#34D399', label: 'Active' },
-  on_leave:    { bg: 'rgba(157, 140, 255, 0.14)', color: ACCENT,    label: 'On leave' },
+  on_leave:    { bg: 'rgba(56, 189, 248, 0.14)', color: ACCENT,    label: 'On leave' },
   separating:  { bg: 'rgba(251,191,36,0.12)',  color: '#FBBF24', label: 'Separating' },
   departed:    { bg: 'rgba(251, 113, 133, 0.12)', color: '#FB7185', label: 'Departed' },
   archived:    { bg: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', label: 'Archived' },
@@ -134,7 +134,7 @@ export default async function PeoplePage() {
             <Link
               href="/company/spine"
               className="inline-block text-xs font-black px-4 py-2 rounded-full text-white"
-              style={{ background: `linear-gradient(135deg, ${ACCENT}, #9D8CFF)` }}
+              style={{ background: `linear-gradient(135deg, ${ACCENT}, #38BDF8)` }}
             >
               Go to the org spine →
             </Link>
@@ -156,7 +156,7 @@ export default async function PeoplePage() {
                   >
                     <div
                       className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-black"
-                      style={{ background: 'rgba(157, 140, 255, 0.15)', color: ACCENT }}
+                      style={{ background: 'rgba(56, 189, 248, 0.15)', color: ACCENT }}
                     >
                       {displayName.slice(0, 1).toUpperCase()}
                     </div>

@@ -136,7 +136,7 @@ function OrgDesignInner() {
 
   const cardStyle = { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }
   const labelCls = 'text-[#A6A6B4] text-[10px] font-bold uppercase tracking-wider'
-  const inputCls = 'w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#9D8CFF]/50'
+  const inputCls = 'w-full mt-1 rounded-lg px-3 py-2.5 text-sm text-[#F4F4F7] placeholder-[#7E7E8E] outline-none focus:border-[#38BDF8]/50'
   const inputStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }
 
   const currency = design?.cost_envelope?.currency || 'USD'
@@ -156,7 +156,7 @@ function OrgDesignInner() {
           href="/"
           className="font-black text-xl tracking-tighter"
           style={{
-            background: 'linear-gradient(135deg, #9D8CFF, #34D399)',
+            background: 'linear-gradient(135deg, #38BDF8, #34D399)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -284,7 +284,7 @@ function OrgDesignInner() {
               onClick={run}
               disabled={loading || !currentTeam.trim() || !strategy.trim() || !aiPlan.trim()}
               className="w-full py-4 rounded-full font-black text-white text-sm disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg, #9D8CFF, #34D399)' }}
+              style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}
             >
               {loading ? 'Designing your year-2 org…' : 'Design my target org →'}
             </button>
@@ -298,8 +298,8 @@ function OrgDesignInner() {
           <div className="space-y-5">
             {/* Hero summary */}
             <div className="rounded-2xl p-6" style={{
-              background: 'linear-gradient(135deg, rgba(157, 140, 255, 0.10), rgba(157, 140, 255, 0.10))',
-              border: '1px solid rgba(157, 140, 255, 0.30)',
+              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.10), rgba(56, 189, 248, 0.10))',
+              border: '1px solid rgba(56, 189, 248, 0.30)',
             }}>
               <p className={`${labelCls} mb-2`}>The honest read</p>
               <p className="text-[#F4F4F7] text-lg leading-snug font-bold">
@@ -327,7 +327,7 @@ function OrgDesignInner() {
                           {t.reports_to && (
                             <span
                               className="text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
-                              style={{ background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' }}
+                              style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8' }}
                             >
                               ↗ {t.reports_to}
                             </span>
@@ -369,7 +369,7 @@ function OrgDesignInner() {
                               <span
                                 key={k}
                                 className="text-[10px] px-2 py-0.5 rounded-full"
-                                style={{ background: 'rgba(157, 140, 255, 0.12)', color: '#9D8CFF' }}
+                                style={{ background: 'rgba(56, 189, 248, 0.12)', color: '#38BDF8' }}
                               >
                                 {r}
                               </span>
@@ -399,14 +399,14 @@ function OrgDesignInner() {
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span
                           className="text-[11px] font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' }}
+                          style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8' }}
                         >
                           {d.from || '—'}
                         </span>
                         <span className="text-[#7E7E8E] text-sm">→</span>
                         <span
                           className="text-[11px] font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: 'rgba(157, 140, 255, 0.15)', color: '#9D8CFF' }}
+                          style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8' }}
                         >
                           {d.to || '—'}
                         </span>
@@ -424,13 +424,13 @@ function OrgDesignInner() {
               <div className="grid sm:grid-cols-2 gap-3">
                 <div
                   className="rounded-xl p-4"
-                  style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.25)' }}
+                  style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.25)' }}
                 >
-                  <p className="text-[#9D8CFF] text-xs font-black uppercase tracking-wider mb-2">Year 1</p>
+                  <p className="text-[#38BDF8] text-xs font-black uppercase tracking-wider mb-2">Year 1</p>
                   <ul className="space-y-1.5">
                     {(design.growth_path?.y1 ?? []).map((m, i) => (
                       <li key={i} className="flex gap-2 text-[#C7C7D1] text-xs leading-relaxed">
-                        <span className="text-[#9D8CFF]">→</span>
+                        <span className="text-[#38BDF8]">→</span>
                         <span>{m}</span>
                       </li>
                     ))}
@@ -486,10 +486,10 @@ function OrgDesignInner() {
               <div className="grid sm:grid-cols-2 gap-3 mb-4">
                 <div
                   className="rounded-xl p-4 text-center"
-                  style={{ background: 'rgba(157, 140, 255, 0.08)', border: '1px solid rgba(157, 140, 255, 0.25)' }}
+                  style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.25)' }}
                 >
                   <p className="text-[10px] text-[#7E7E8E] font-bold uppercase tracking-wider mb-1">Year 1</p>
-                  <p className="text-xl md:text-2xl font-black" style={{ color: '#9D8CFF' }}>
+                  <p className="text-xl md:text-2xl font-black" style={{ color: '#38BDF8' }}>
                     {formatMoney(design.cost_envelope?.y1_low, currency)} – {formatMoney(design.cost_envelope?.y1_high, currency)}
                   </p>
                 </div>
@@ -509,7 +509,7 @@ function OrgDesignInner() {
                   <ul className="space-y-1">
                     {design.cost_envelope!.drivers!.map((d, i) => (
                       <li key={i} className="text-[#C7C7D1] text-xs leading-relaxed flex gap-2">
-                        <span className="text-[#9D8CFF]">·</span>
+                        <span className="text-[#38BDF8]">·</span>
                         <span>{d}</span>
                       </li>
                     ))}
