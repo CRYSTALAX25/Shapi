@@ -479,11 +479,12 @@ export default function CVReady() {
     }
   }
 
+  // Pro is now the $59/mo subscription (one-time CV Pro retired 2026-06-16).
   const upgradeToPro = async () => {
-    const res = await fetch('/api/stripe/cv-checkout', {
+    const res = await fetch('/api/stripe/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tier: 'pro' }),
+      body: JSON.stringify({ product: 'active_monthly' }),
     })
     const data = await res.json()
     if (data.url) window.location.href = data.url

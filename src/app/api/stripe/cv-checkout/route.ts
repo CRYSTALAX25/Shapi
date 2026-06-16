@@ -26,8 +26,11 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { getStripe, stripeMode } from '@/lib/stripe'
 
+// 2026-06-16: one-time CV Pro RETIRED (Pro is now the $59/mo subscription via
+// /api/stripe/subscribe). 'kit' = CV $25 one-time. Active/Concierge subscription
+// entries kept for any path that still posts here; canonical sub path is subscribe.
 type ProductKey =
-  | 'kit' | 'pro'
+  | 'kit'
   | 'active_monthly' | 'active_yearly'
   | 'concierge_monthly'
 
@@ -51,27 +54,21 @@ const PRODUCTS: Record<ProductKey, ProductConfig> = {
     description: 'Multi-language CVs + industry-targeted versions · Downloadable PDF · Yours to keep.',
     product: 'cv_kit', mode: 'payment', requires: 'cv_parsed',
   },
-  pro: {
-    amount: 5900, name: 'Shapi CV Pro',
-    description: 'CV Kit + WhatsApp deep-dive interviews + verification chain + AI cross-check + Career Roadmap.',
-    product: 'cv_pro', mode: 'payment', requires: 'cv_parsed',
-  },
-  // v5: Active now INCLUDES the old Open Roles Board — candidates see every
-  // open role plus the job tools. v5.1: NO CV Pro prerequisite — subscriptions
-  // are unbundled from the one-time CV products.
+  // Pro $59/mo — the candidate workhorse sub (formerly "Active"). Canonical
+  // path is /api/stripe/subscribe; kept here for any legacy caller.
   active_monthly: {
-    amount: 2900, name: 'Shapi Active (monthly)',
+    amount: 5900, name: 'Shapi Pro (monthly)',
     description: 'See every open role · Job scanner · AI cover letters · Applications tracker · Interview prep briefs.',
     product: 'active_monthly', mode: 'subscription', interval: 'month',
   },
   active_yearly: {
-    amount: 24900, name: 'Shapi Active (yearly)',
-    description: 'See every open role · Job scanner · AI cover letters · Applications tracker · Interview prep briefs. Best price.',
+    amount: 24900, name: 'Shapi Pro (yearly)',
+    description: 'See every open role · Job scanner · AI cover letters · Applications tracker · Interview prep briefs.',
     product: 'active_yearly', mode: 'subscription', interval: 'year',
   },
-  // Concierge — LOCKED at $89/mo. (Live bug fix: previously charged $79/7900.)
+  // Concierge $99/mo — AI-delivered (2026-06-15).
   concierge_monthly: {
-    amount: 8900, name: 'Active Concierge (monthly)',
+    amount: 9900, name: 'Shapi Concierge (monthly)',
     description: 'Daily AI-shortlisted matches · One-tap personalised outreach · Auto-send opt-in.',
     product: 'concierge_monthly', mode: 'subscription', interval: 'month',
   },
@@ -159,7 +156,7 @@ export async function POST(request: Request) {
       // Stays 'cv_kit' even for the $9 blue-collar price — the webhook's
       // fulfillment switch (product === 'cv_kit') must keep matching.
       product: product.product,
-      cv_tier: productKey === 'kit' ? 'kit' : productKey === 'pro' ? 'pro' : '',
+      cv_tier: productKey === 'kit' ? 'kit' : '', // subscriptions set subscription_product, not cv_tier
       // Observability only — fulfillment is identical either way.
       ...(blueCollar ? { blue_collar: 'true' } : {}),
     },

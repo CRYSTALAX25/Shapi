@@ -12,8 +12,15 @@
 // pre-v5 subscribers whose arrays still contain them keep their access; no new
 // checkout path creates them.
 
+// 2026-06-16 (Ana, FINAL): candidate ladder = Free / CV $25 one-time /
+// **Pro $59/mo** / Concierge $99/mo. "Pro" IS the former "Active" subscription
+// (identical feature set: every open role + scan + draft + prep) repriced
+// $29→$59 and rebranded — internal keys stay `active_*` (no data migration), the
+// LABEL becomes "Shapi Pro". Candidate commitment step is **quarterly $159**
+// (active_quarterly), not annual. The one-time CV Pro (cv_tier='pro') is retired;
+// existing one-time-Pro buyers are grandfathered by the entitlement checks below.
 export type SubscriptionProduct =
-  | 'active_monthly' | 'active_yearly'
+  | 'active_monthly' | 'active_quarterly' | 'active_yearly'
   | 'concierge_monthly'
   // Company-side products (STRATEGY §14 Tier 1 / §16 Tier B)
   | 'active_hiring_monthly' | 'active_hiring_yearly'
@@ -39,16 +46,17 @@ export function hasOpenRolesBoard(profile: ProfileWithSubscriptions | null | und
   // v5: Roles Board is folded into Active — anyone on Active (or Concierge,
   // which includes Active) sees all open roles. Legacy roles_board_* / bundle_*
   // keys still resolve true for grandfathered subscribers.
-  return p.has('active_monthly') || p.has('active_yearly')
+  return p.has('active_monthly') || p.has('active_quarterly') || p.has('active_yearly')
     || p.has('concierge_monthly')
     || p.has('roles_board_monthly') || p.has('roles_board_yearly')
     || p.has('bundle_monthly') || p.has('bundle_yearly')
 }
 
+// Pro (formerly "Active") — the $59/mo candidate subscription. Concierge ($99)
+// includes Pro. Any active_* key, or legacy bundle, grants it.
 export function hasActive(profile: ProfileWithSubscriptions | null | undefined): boolean {
   const p = products(profile)
-  // Tier ladder: Concierge ($89) includes Active ($29).
-  return p.has('active_monthly') || p.has('active_yearly')
+  return p.has('active_monthly') || p.has('active_quarterly') || p.has('active_yearly')
     || p.has('concierge_monthly')
     || p.has('bundle_monthly') || p.has('bundle_yearly')  // legacy grandfather
 }
@@ -65,13 +73,16 @@ export function hasActiveHiring(profile: ProfileWithSubscriptions | null | undef
   return p.has('active_hiring_monthly') || p.has('active_hiring_yearly')
 }
 
-// CV access — paid Kit or Pro tier (one-time, not subscription)
+// CV access — one-time CV $25 (kit) or legacy CV Pro (cv_tier='pro'), OR any Pro
+// subscriber (Pro/Concierge now INCLUDE the CV).
 export function hasCVAccess(profile: ProfileWithSubscriptions | null | undefined): boolean {
-  return profile?.cv_tier === 'kit' || profile?.cv_tier === 'pro'
+  return profile?.cv_tier === 'kit' || profile?.cv_tier === 'pro' || hasActive(profile)
 }
 
+// Pro access — the $59/mo Pro subscription (active_*), OR a legacy one-time
+// CV Pro buyer (cv_tier='pro'), grandfathered.
 export function hasProAccess(profile: ProfileWithSubscriptions | null | undefined): boolean {
-  return profile?.cv_tier === 'pro'
+  return profile?.cv_tier === 'pro' || hasActive(profile)
 }
 
 // Platform-access shortcut used by some routes: anyone who's paid for something
@@ -87,9 +98,10 @@ export function hasPlatformAccess(profile: ProfileWithSubscriptions | null | und
 // Convert an internal product key to the human label shown to candidates.
 // Legacy keys retain labels so grandfathered subscribers see a sane name.
 export const PRODUCT_LABELS: Record<SubscriptionProduct | LegacySubscriptionProduct, string> = {
-  active_monthly: 'Shapi Active',
-  active_yearly: 'Shapi Active',
-  concierge_monthly: 'Active Concierge',
+  active_monthly: 'Shapi Pro',
+  active_quarterly: 'Shapi Pro',
+  active_yearly: 'Shapi Pro',
+  concierge_monthly: 'Shapi Concierge',
   active_hiring_monthly: 'Active Hiring',
   active_hiring_yearly: 'Active Hiring',
   // legacy
@@ -105,12 +117,16 @@ export const PRODUCT_LABELS: Record<SubscriptionProduct | LegacySubscriptionProd
 // v5 candidate prices: Active $29/mo (now includes the Roles Board), Concierge
 // $89/mo. The $89 number is the locked Concierge price — the live bug where it
 // charged $79 (amount 7900) was fixed here and in /api/stripe/cv-checkout.
-export const PRODUCT_PRICES: Record<SubscriptionProduct, { amount: number; interval: 'month' | 'year' }> = {
-  // Active now bundles the old Roles Board ($19) — candidates see every open role.
-  active_monthly: { amount: 29, interval: 'month' },
+export const PRODUCT_PRICES: Record<SubscriptionProduct, { amount: number; interval: 'month' | 'year'; intervalCount?: number }> = {
+  // Pro $59/mo — the candidate workhorse sub (every open role + scan + draft +
+  // prep + Profile Boost). Quarterly $159 (~10% off) is the commitment step.
+  active_monthly: { amount: 59, interval: 'month' },
+  active_quarterly: { amount: 159, interval: 'month', intervalCount: 3 },
+  // Legacy yearly — NOT sold to new candidates (they get quarterly), kept so any
+  // grandfathered active_yearly subscriber keeps a sane price reference.
   active_yearly: { amount: 249, interval: 'year' },
-  // Concierge — locked at $89/mo (2026-06-02 lock; re-confirmed v5 2026-06-10).
-  concierge_monthly: { amount: 89, interval: 'month' },
+  // Concierge $99/mo — AI-delivered (NOT human); 2026-06-15 (was $89/$79).
+  concierge_monthly: { amount: 99, interval: 'month' },
   // Active Hiring — company-side add-on bundled into the Pro/Growth tiers.
   active_hiring_monthly: { amount: 499, interval: 'month' },
   active_hiring_yearly: { amount: 4990, interval: 'year' },

@@ -288,12 +288,16 @@ function CVPreviewGate({ onClose }: { onClose: () => void }) {
             <p className="text-[10px] text-[#A6A6B4] leading-relaxed">Industry-styled PDF · Native + English · One-time</p>
           </button>
           <button
-            onClick={() => router.push('/pay?tier=pro')}
+            onClick={async () => {
+              const r = await fetch('/api/stripe/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ product: 'active_monthly' }) })
+              const d = await r.json().catch(() => ({}))
+              if (d.url) window.location.href = d.url
+            }}
             className="rounded-xl p-4 text-left transition-colors hover:opacity-95"
             style={{ background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.14), rgba(56, 189, 248, 0.14))', border: '1px solid rgba(56, 189, 248, 0.45)' }}>
-            <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#38BDF8' }}>CV Pro · most picked</p>
-            <p className="text-2xl font-black text-[#F4F4F7] mb-1">$59</p>
-            <p className="text-[10px] text-[#A6A6B4] leading-relaxed">Kit + deep-dive industry interview + Pro CV</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: '#38BDF8' }}>Shapi Pro · most picked</p>
+            <p className="text-2xl font-black text-[#F4F4F7] mb-1">$59<span className="text-sm font-bold text-[#7E7E8E]">/mo</span></p>
+            <p className="text-[10px] text-[#A6A6B4] leading-relaxed">Everything in Kit, plus stay surfaced to companies + daily job tools</p>
           </button>
         </div>
 

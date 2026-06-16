@@ -19,6 +19,7 @@ const SUBSCRIPTION_PRODUCT_COLUMN: Record<string, string> = {
   roles_board_monthly: 'roles_board_subscription_id',
   roles_board_yearly: 'roles_board_subscription_id',
   active_monthly: 'active_subscription_id',
+  active_quarterly: 'active_subscription_id',
   active_yearly: 'active_subscription_id',
   concierge_monthly: 'concierge_subscription_id',
   bundle_monthly: 'bundle_subscription_id',

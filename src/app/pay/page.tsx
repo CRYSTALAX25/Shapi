@@ -60,10 +60,9 @@ export default function Pay() {
 }
 
 function PayInner() {
-  const searchParams = useSearchParams()
-  // Tier comes from the CV-builder gate: /pay?tier=kit | /pay?tier=pro.
-  // Anything else (or nothing) falls back to the $25 Kit.
-  const tier: TierKey = searchParams.get('tier') === 'pro' ? 'pro' : 'kit'
+  // /pay sells ONLY the one-time CV Kit ($25). One-time CV Pro is retired
+  // (2026-06-16) — Pro is now the $59/mo subscription via /api/stripe/subscribe.
+  const tier: TierKey = 'kit'
   const t = TIERS[tier]
 
   // v5.1 blue-collar Kit price — $9 self-selected, Kit only (never Pro).
@@ -241,11 +240,6 @@ function PayInner() {
             <div>
               <p className="text-[#F4F4F7] font-black text-lg">
                 {t.title}
-                {tier === 'pro' && (
-                  <span className="ml-2 align-middle text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ color: '#38BDF8', background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.35)' }}>
-                    Most picked
-                  </span>
-                )}
               </p>
               <p className="text-[#7E7E8E] text-sm mt-1">{t.subtitle}</p>
             </div>

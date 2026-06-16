@@ -12,8 +12,9 @@ const DESCRIPTIONS: Record<SubscriptionProduct, string> = {
   // v5: Active now includes seeing every open role (the old standalone Roles
   // Board is merged in). Bundle is killed.
   active_monthly: 'See every open role, scan jobs, draft outreach, track applications and prep for interviews.',
+  active_quarterly: 'See every open role, scan jobs, draft outreach, track applications and prep for interviews. Billed quarterly — ~10% off.',
   active_yearly: 'See every open role, scan jobs, draft outreach, track applications and prep for interviews.',
-  concierge_monthly: 'AI drafts personalised intros daily — you just approve and send.',
+  concierge_monthly: 'Shapi scans roles daily, drafts outreach in your voice, sends on your approval, and preps you for every interview.',
   active_hiring_monthly: 'Daily AI-shortlisted verified candidates per open role, with drafted outreach awaiting your one-tap approval.',
   active_hiring_yearly: 'Daily AI-shortlisted verified candidates per open role, with drafted outreach awaiting your one-tap approval. Annual save.',
 }
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
             description: DESCRIPTIONS[product as SubscriptionProduct],
           },
           unit_amount: price.amount * 100,
-          recurring: { interval: price.interval },
+          recurring: { interval: price.interval, ...(price.intervalCount ? { interval_count: price.intervalCount } : {}) },
         },
         quantity: 1,
       },
