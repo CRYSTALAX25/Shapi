@@ -4,6 +4,7 @@ import { generateBundledPdf, type CVSelection, labelForSelection } from '@/lib/c
 import { signBundlePayload } from '@/app/api/cv/pdf-bundle/route'
 import { Resend } from 'resend'
 import { NextResponse } from 'next/server'
+import { hasCVAccess } from '@/lib/subscriptions'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 export const maxDuration = 60
@@ -42,12 +43,13 @@ export async function POST(request: Request) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, whatsapp_number, cv_kit_purchased, cv_tier')
+    .select('full_name, whatsapp_number, cv_kit_purchased, cv_tier, subscription_product')
     .eq('id', user.id)
     .single()
 
-  // Gate: Kit OR Pro
-  const hasAccess = !!profile?.cv_kit_purchased || profile?.cv_tier === 'pro'
+  if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+  // Gate: Kit OR Pro (one-time kit, legacy one-time Pro, or any Pro/Concierge subscriber)
+  const hasAccess = !!profile.cv_kit_purchased || hasCVAccess(profile)
   if (!hasAccess) return NextResponse.json({ error: 'CV kit not purchased' }, { status: 403 })
 
   const name = (profile.full_name as string) || 'there'

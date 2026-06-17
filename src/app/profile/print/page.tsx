@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Suspense } from 'react'
+import { hasProAccess } from '@/lib/subscriptions'
 
 type WorkEntry = {
   title?: string
@@ -137,6 +138,7 @@ function PrintContent() {
     profile_id?: string | null
     verification_tier?: string | null
     cv_tier?: string | null
+    subscription_product?: string[] | null
     ai_resilience_score?: number | null
     pivot?: { to_role?: string; to_industry?: string } | null
   }>({})
@@ -173,6 +175,7 @@ function PrintContent() {
           profile_id: profile.id,
           verification_tier: profile.verification_tier as string | null,
           cv_tier: profile.cv_tier as string | null,
+          subscription_product: (profile.subscription_product as string[] | null) ?? null,
           ai_resilience_score: (profile.ai_resilience_score as number | null) ?? roadmap?.ai_resilience_score ?? null,
           pivot: roadmap?.pivot_paths?.[0] ?? null,
         })
@@ -302,7 +305,7 @@ function PrintContent() {
   // Kit users keep the classic single-column format. The premium design
   // showcases Pro-only elements: verification tier badge, skill fingerprint,
   // and "In Their Own Words" deep-dive pull-quotes.
-  const isPro = footerData.cv_tier === 'pro'
+  const isPro = hasProAccess(footerData)
   const q = footerData.skill_quadrant
   const tier = footerData.verification_tier
   const tierMeta: Record<string, { label: string; color: string }> = {

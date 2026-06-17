@@ -17,6 +17,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { hasProAccess } from '@/lib/subscriptions'
 
 export const maxDuration = 60
 
@@ -66,14 +67,14 @@ export async function POST() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('work_history, headline, summary, skills, matched_industries, ai_tier, location, continuous_learning, cv_tier, cv_kit_purchased, languages_spoken, native_language')
+    .select('work_history, headline, summary, skills, matched_industries, ai_tier, location, continuous_learning, cv_tier, cv_kit_purchased, subscription_product, languages_spoken, native_language')
     .eq('id', user.id)
     .single()
 
   if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
 
   // Pro-gated — Roadmap is part of the Pro tier
-  const isPro = profile.cv_tier === 'pro'
+  const isPro = hasProAccess(profile)
   if (!isPro) {
     return NextResponse.json({
       error: 'Career Roadmap is a Pro feature. Upgrade to unlock personalised AI-resilience analysis + pivot recommendations.',

@@ -310,15 +310,12 @@ function PayInner() {
             {loading ? 'Redirecting to payment…' : displayCta}
           </button>
 
-          {/* Tier switch — keep both prices one tap away */}
+          {/* The deep-dive + verification chain now live in the $59/mo Shapi Pro
+              subscription, surfaced after the Kit on /cv-ready — not a one-time
+              upsell here. /pay sells only the one-time CV Kit. */}
           <p className="text-center text-xs text-[#7E7E8E] mt-3">
-            {tier === 'kit' ? (
-              <>Want the deep-dive + verification chain?{' '}
-                <Link href="/pay?tier=pro" className="text-[#38BDF8] font-bold hover:underline">CV Pro — $59 →</Link></>
-            ) : (
-              <>Just the enhanced CV?{' '}
-                <Link href="/pay?tier=kit" className="text-[#38BDF8] font-bold hover:underline">CV Kit — $25 →</Link></>
-            )}
+            Want every open role, the job scanner, deep-dive interviews and the verification chain?{' '}
+            <Link href="/cv-ready" className="text-[#38BDF8] font-bold hover:underline">Shapi Pro is $59/mo →</Link>
           </p>
 
           <p className="text-center text-xs text-[#5C5C6A] mt-4">

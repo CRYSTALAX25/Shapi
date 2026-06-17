@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { INDUSTRY_FOCUS_SHORT, type Industry } from '@/lib/industry-briefs'
+import { hasProAccess, hasCVAccess } from '@/lib/subscriptions'
 
 type SendState = 'idle' | 'sending' | 'sent' | 'error' | 'fallback'
 
@@ -21,6 +22,7 @@ type LanguageSpoken = { language: string; level: string }
 type Profile = {
   cv_kit_purchased?: boolean
   cv_tier?: string | null
+  subscription_product?: string[] | null
   full_name: string | null
   id: string
   location: string | null
@@ -254,7 +256,7 @@ export default function CVReady() {
 
       const { data: p, error: profileErr } = await supabase
         .from('profiles')
-        .select('full_name, cv_kit_purchased, cv_tier, location, native_language, cv_language_preference, languages_spoken, matched_industries, industry_chats')
+        .select('full_name, cv_kit_purchased, cv_tier, subscription_product, location, native_language, cv_language_preference, languages_spoken, matched_industries, industry_chats')
         .eq('id', user.id)
         .single()
 
@@ -268,9 +270,9 @@ export default function CVReady() {
         alert(`Couldn't load your profile: ${profileErr.message}. Open browser console for details.`)
         return
       }
-      const hasAccess = !!p?.cv_kit_purchased || p?.cv_tier === 'pro'
+      const hasAccess = !!p?.cv_kit_purchased || hasCVAccess(p)
       if (!hasAccess) {
-        console.warn('[cv-ready] redirecting to /profile — neither cv_kit_purchased nor cv_tier=pro is set')
+        console.warn('[cv-ready] redirecting to /profile — no CV access (kit, legacy Pro, or active subscription)')
         router.replace('/profile')
         return
       }
@@ -278,6 +280,7 @@ export default function CVReady() {
       setProfile({
         cv_kit_purchased: p?.cv_kit_purchased ?? false,
         cv_tier: p?.cv_tier ?? null,
+        subscription_product: (p?.subscription_product as string[] | null) ?? null,
         full_name: p?.full_name ?? null,
         id: user.id,
         location: p?.location ?? null,
@@ -291,7 +294,7 @@ export default function CVReady() {
 
       // ── Assess coverage for ALL matched industries (one Claude call) so every
       // industry card shows its thin/medium/rich badge without being started ──
-      if (p?.cv_tier === 'pro' && Array.isArray(p?.matched_industries) && p.matched_industries.length > 0) {
+      if (hasProAccess(p) && Array.isArray(p?.matched_industries) && p.matched_industries.length > 0) {
         fetch('/api/cv/coverage', { method: 'POST' })
           .then(r => r.json())
           .then(d => {
@@ -432,7 +435,7 @@ export default function CVReady() {
     ? resolveCVLanguages(profile)
     : { showEnglish: true, showNative: false, nativeLabel: 'Native language' }
 
-  const isPro = profile?.cv_tier === 'pro'
+  const isPro = hasProAccess(profile)
   const matchedIndustries = profile?.matched_industries || []
   const industryChats = profile?.industry_chats || {}
 
@@ -741,17 +744,17 @@ export default function CVReady() {
         {!isPro && (
           <div className="gradient-border-card rounded-2xl p-5 mb-6" style={{ borderColor: 'rgba(56, 189, 248, 0.3)' }}>
             <div className="flex items-start justify-between mb-2">
-              <p className="text-[#38BDF8] text-xs font-bold uppercase tracking-wider">CV Pro — $59</p>
+              <p className="text-[#38BDF8] text-xs font-bold uppercase tracking-wider">Shapi Pro — $59/mo</p>
               <span className="text-[10px] font-bold bg-[#38BDF8]/10 text-[#38BDF8] px-2 py-0.5 rounded-full flex-shrink-0">Upgrade</span>
             </div>
             <p className="text-[#C7C7D1] text-sm font-bold mb-1">Get the stories that win the role you actually want</p>
             <p className="text-[#7E7E8E] text-xs mb-4 leading-relaxed">
-              Claude reviews your CV and WhatsApp answers, identifies what&apos;s missing for {matchedIndustries.length > 0 ? matchedIndustries.map(i => INDUSTRY_META[i]?.label || i).join(', ') : 'your target industries'}, then interviews you on WhatsApp to surface the specific projects, numbers and stories that only come out when you&apos;re asked directly.
+              Claude reviews your CV and WhatsApp answers, identifies what&apos;s missing for {matchedIndustries.length > 0 ? matchedIndustries.map(i => INDUSTRY_META[i]?.label || i).join(', ') : 'your target industries'}, then interviews you on WhatsApp to surface the specific projects, numbers and stories that only come out when you&apos;re asked directly — plus every open role, the job scanner and interview prep, for {' '}<span className="text-[#C7C7D1] font-bold">$59/mo</span>.
             </p>
             <button onClick={upgradeToPro}
               className="w-full py-3 rounded-xl font-black text-sm transition-all hover:opacity-90"
               style={{ background: 'linear-gradient(135deg, #34D399, #38BDF8)', color: '#fff' }}>
-              Upgrade to Pro — $59 →
+              Upgrade to Pro — $59/mo →
             </button>
           </div>
         )}

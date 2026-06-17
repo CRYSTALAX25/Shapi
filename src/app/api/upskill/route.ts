@@ -4,6 +4,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { hasProAccess } from '@/lib/subscriptions'
 
 export async function GET() {
   const supabase = await createClient()
@@ -12,11 +13,11 @@ export async function GET() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('cv_tier, career_recommendations')
+    .select('cv_tier, subscription_product, career_recommendations')
     .eq('id', user.id)
     .single()
 
-  const isPro = profile?.cv_tier === 'pro'
+  const isPro = hasProAccess(profile)
   const roadmap = profile?.career_recommendations as {
     skills_gaps?: Array<{ skill: string; priority?: string; why?: string }>
     events_to_attend?: Array<{ name: string; when?: string; where?: string; why?: string; priority?: string }>

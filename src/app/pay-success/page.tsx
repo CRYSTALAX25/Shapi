@@ -13,6 +13,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { hasCVAccess } from '@/lib/subscriptions'
 import ShapiCharacter from '@/components/ShapiCharacter'
 import Link from 'next/link'
 
@@ -39,11 +40,11 @@ function PaySuccessContent() {
       }
       const { data: p } = await supabase
         .from('profiles')
-        .select('cv_kit_purchased, cv_tier')
+        .select('cv_kit_purchased, cv_tier, subscription_product')
         .eq('id', user.id)
         .single()
 
-      if (!stopped && (p?.cv_kit_purchased || p?.cv_tier === 'pro')) {
+      if (!stopped && p && (p.cv_kit_purchased || hasCVAccess(p))) {
         setTier((p.cv_tier as 'kit' | 'pro') || 'kit')
         setStage('confirmed')
         // Hold the confirmed state visible for ~1.5s so it feels intentional

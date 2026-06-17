@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { INDUSTRY_BRIEFS, INDUSTRY_FOCUS_SHORT, type Industry } from '@/lib/industry-briefs'
+import { hasCVAccess } from '@/lib/subscriptions'
 
 // Countries where English is the primary native language — hide native CV option for these
 const NATIVE_ENGLISH_COUNTRIES = [
@@ -84,13 +85,13 @@ export async function POST(request: Request) {
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, industry, whatsapp_number, ai_tier, industry_chats, native_language, cv_language_preference, cv_kit_purchased, cv_tier, continuous_learning')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, industry, whatsapp_number, ai_tier, industry_chats, native_language, cv_language_preference, cv_kit_purchased, cv_tier, subscription_product, continuous_learning')
     .eq('id', user.id)
     .single()
 
   if (!profile || profileError) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
-  // Gate: Kit OR Pro purchase grants access (Pro is the upgraded Kit)
-  const hasAccess = !!profile.cv_kit_purchased || profile.cv_tier === 'pro'
+  // Gate: Kit OR Pro grants access (one-time kit, legacy one-time Pro, or any Pro/Concierge subscriber)
+  const hasAccess = !!profile.cv_kit_purchased || hasCVAccess(profile)
   if (!hasAccess) return NextResponse.json({ error: 'CV kit not purchased' }, { status: 403 })
 
   // ── Cache check (separate query — cv_cache column may not exist yet) ─────────

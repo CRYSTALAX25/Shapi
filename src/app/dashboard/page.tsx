@@ -5,7 +5,7 @@ import ShapiCharacter from '@/components/ShapiCharacter'
 import SubscribeButton from '@/components/SubscribeButton'
 import WhatsAppConnectCard from '@/components/WhatsAppConnectCard'
 import { computeJobCompletionScore } from '@/lib/references'
-import { hasOpenRolesBoard, hasActive as hasActiveProduct, hasConcierge } from '@/lib/subscriptions'
+import { hasOpenRolesBoard, hasActive as hasActiveProduct, hasConcierge, hasCVAccess } from '@/lib/subscriptions'
 
 export default async function Dashboard() {
   const supabase = await createClient()
@@ -123,8 +123,9 @@ export default async function Dashboard() {
     }
   }
 
-  // Tier detection — Pro purchase ALSO grants CV Kit access (Pro is the upgraded Kit)
-  const cvKitPurchased = !!profile?.cv_kit_purchased || profile?.cv_tier === 'pro'
+  // Tier detection — CV access comes from the one-time Kit, the legacy one-time
+  // Pro, OR any Pro/Concierge subscriber (the $59/mo Pro subscription includes the CV).
+  const cvKitPurchased = !!profile?.cv_kit_purchased || hasCVAccess(profile)
   // Strict SKU-split gating: each product needs its OWN subscription. No legacy fallbacks.
   const isRolesBoard = hasOpenRolesBoard(profile)
   const isActive = hasActiveProduct(profile)

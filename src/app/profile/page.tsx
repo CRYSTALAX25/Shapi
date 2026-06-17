@@ -6,6 +6,7 @@ import SkillRadar, { SkillSummary } from '@/components/SkillRadar'
 import ContinuousLearning from '@/components/ContinuousLearning'
 import ProfileTabs from './ProfileTabs'
 import { computeJobCompletionScore } from '@/lib/references'
+import { hasCVAccess, hasProAccess } from '@/lib/subscriptions'
 
 type WorkEntry = {
   title?: string
@@ -22,7 +23,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work, work_style, linkedin_url, github_url, website_url, portfolio_url, job_search_status, salary_expectations, open_to_engagement, target_roles, target_industries')
+    .select('full_name, headline, location, summary, skills, work_history, whatsapp_chat, ai_tier, profile_live, cv_parsed, cv_kit_purchased, cv_tier, subscription_product, whatsapp_number, completion_pct, type, verification_tier, verification_report, skill_quadrant, continuous_learning, career_recommendations, ai_resilience_score, languages_spoken, language_proficiency, english_level, native_language, voice_samples, profile_image_url, right_to_work, work_style, linkedin_url, github_url, website_url, portfolio_url, job_search_status, salary_expectations, open_to_engagement, target_roles, target_industries')
     .eq('id', user.id)
     .single()
 
@@ -39,8 +40,11 @@ export default async function ProfilePage() {
   const workHistory: WorkEntry[] = Array.isArray(profile.work_history) ? profile.work_history : []
   const isLive = profile.profile_live
   const cvKitPurchased = !!profile.cv_kit_purchased
-  // Pro purchase also grants Kit access
-  const hasCvAccess = cvKitPurchased || profile.cv_tier === 'pro'
+  // CV access: one-time Kit, legacy one-time Pro, or any Pro/Concierge subscriber.
+  const hasCvAccess = cvKitPurchased || hasCVAccess(profile)
+  // Pro features (verification chain, Pro CV, deep-dive): legacy one-time Pro
+  // OR any active Pro/Concierge subscription.
+  const isProTier = hasProAccess(profile)
 
   const refScore = await computeJobCompletionScore(user.id)
   let completion = 0
@@ -460,7 +464,7 @@ export default async function ProfilePage() {
     <ContinuousLearning view="learning"
       data={(profile.continuous_learning as Parameters<typeof ContinuousLearning>[0]['data']) ?? null}
       roadmap={(profile.career_recommendations as Parameters<typeof ContinuousLearning>[0]['roadmap']) ?? null}
-      isPro={profile.cv_tier === 'pro'}
+      isPro={isProTier}
       resilienceScore={(profile.ai_resilience_score as number | null) ?? null}
     />
   )
@@ -479,7 +483,7 @@ export default async function ProfilePage() {
       <ContinuousLearning view="career"
         data={(profile.continuous_learning as Parameters<typeof ContinuousLearning>[0]['data']) ?? null}
         roadmap={(profile.career_recommendations as Parameters<typeof ContinuousLearning>[0]['roadmap']) ?? null}
-        isPro={profile.cv_tier === 'pro'}
+        isPro={isProTier}
         resilienceScore={(profile.ai_resilience_score as number | null) ?? null}
       />
     </div>
@@ -489,7 +493,7 @@ export default async function ProfilePage() {
     <ContinuousLearning view="events"
       data={(profile.continuous_learning as Parameters<typeof ContinuousLearning>[0]['data']) ?? null}
       roadmap={(profile.career_recommendations as Parameters<typeof ContinuousLearning>[0]['roadmap']) ?? null}
-      isPro={profile.cv_tier === 'pro'}
+      isPro={isProTier}
       resilienceScore={(profile.ai_resilience_score as number | null) ?? null}
     />
   )

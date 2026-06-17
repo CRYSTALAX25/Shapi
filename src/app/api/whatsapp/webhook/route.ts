@@ -11,6 +11,7 @@ import { INDUSTRY_BRIEFS, INDUSTRY_META, type Industry } from '@/lib/industry-br
 import { saveVoiceSample, pickNextLanguageToCapture, type VoiceSamplesMap } from '@/lib/voice-samples'
 import { buildJDPrompt, extractRoleFromChat, saveDraftRole } from '@/lib/jd-extract'
 import { sendPendingConciergeOutreach } from '@/lib/concierge'
+import { hasCVAccess, hasProAccess } from '@/lib/subscriptions'
 import {
   parseOrgDesignTrigger,
   parseOrgDesignCancel,
@@ -339,7 +340,7 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
   // back to most-recently-created.
   const { data: profileCandidates } = await admin
     .from('profiles')
-    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, languages_spoken, cv_tier, industry_chats, whatsapp_conversation_active, created_at, voice_samples, awaiting_voice_sample_lang, type, company_name, jd_chat, jd_active_role_id, org_design_voice_state')
+    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, languages_spoken, cv_tier, subscription_product, industry_chats, whatsapp_conversation_active, created_at, voice_samples, awaiting_voice_sample_lang, type, company_name, jd_chat, jd_active_role_id, org_design_voice_state')
     .eq('whatsapp_number', phone)
     .order('created_at', { ascending: false })
 
@@ -840,7 +841,7 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
       return new NextResponse('', { status: 200 })
     }
     const url = `${SITE}/p/${profile.id.slice(0, 8)}`
-    const hasKit = profile.cv_tier === 'kit' || profile.cv_tier === 'pro'
+    const hasKit = hasCVAccess(profile)
     const kitLine = hasKit
       ? `\n\nDownloadable CV versions (industry-optimised, native language): ${SITE}/cv-ready`
       : `\n\nWant a downloadable industry-optimised CV (PDF) too? CV Kit is $25: ${SITE}/pay`
@@ -1130,7 +1131,8 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
   }
 
   // ── State (single source of truth, computed once) ───────────────────────
-  const isPro = profile.cv_tier === 'pro'
+  // Pro = legacy one-time CV Pro (cv_tier='pro') OR any active Pro/Concierge sub.
+  const isPro = hasProAccess(profile)
   type IndustryChatEntry = {
     status?: string
     answers?: string[]
