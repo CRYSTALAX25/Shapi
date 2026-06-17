@@ -72,7 +72,7 @@ export default async function CultureSurveyPage({
 
   const { data: row } = await admin
     .from('company_culture_references')
-    .select('id, token, invited_at, submitted_at, company_id')
+    .select('id, token, invited_at, submitted_at, company_id, respondent_type')
     .eq('token', token)
     .maybeSingle()
 
@@ -143,13 +143,18 @@ export default async function CultureSurveyPage({
           What was it really like at {companyName}?
         </h1>
         <p className="text-[#C7C7D1] text-base leading-relaxed mb-2">
-          Three questions. Anonymous. Aggregated with other past and current employees, so no single answer
+          A few quick questions. Anonymous. Aggregated with other past and current employees, so no single answer
           can be traced back to you.
         </p>
         <p className="text-[#7E7E8E] text-sm leading-relaxed mb-6">
           {companyName} sees the combined picture only — never your individual answers, never that you took part.
+          Your score only appears once at least 3 people have responded.
         </p>
-        <CultureSurveyForm token={token} companyName={companyName} />
+        <CultureSurveyForm
+          token={token}
+          companyName={companyName}
+          respondentType={row.respondent_type as 'current' | 'past' | null}
+        />
       </Card>
     </Shell>
   )

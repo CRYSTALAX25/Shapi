@@ -4,8 +4,11 @@
 // the dashboard now lives here, where it belongs.
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { getCultureAggregate } from '@/lib/culture-references'
+import CompanyTrustCard from '@/components/company/CompanyTrustCard'
 
 export default async function CompanyProfilePage() {
   const supabase = await createClient()
@@ -23,6 +26,11 @@ export default async function CompanyProfilePage() {
   const companyName = profile.company_name || profile.full_name || 'Your company'
   const cd = (profile.company_data || {}) as Record<string, unknown>
   const cardStyle = { background: '#0D0C14', border: '1px solid rgba(255,255,255,0.08)' }
+
+  // The independent employee trust score — aggregate ONLY, exactly what a
+  // candidate sees. The company never gets raw responses (Plane B firewall).
+  const cultureAggregate = await getCultureAggregate(createAdminClient(), user.id)
+  const glassdoor = cd.glassdoor_rating != null ? Number(cd.glassdoor_rating) : null
 
   return (
     <div className="min-h-screen bg-[#060609]">
@@ -109,6 +117,16 @@ export default async function CompanyProfilePage() {
             <p className="text-[#7E7E8E] text-[10px] mt-3">Synthesised from Glassdoor public ratings · Reddit public mentions · enrichment APIs.</p>
           </div>
         )}
+
+        {/* Independent employee trust score — aggregate only */}
+        <div className="rounded-2xl p-6 mb-4" style={cardStyle}>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1">Workplace trust score</p>
+          <p className="text-[#A6A6B4] text-sm leading-relaxed mb-4">
+            Shapi independently surveys your current &amp; former employees — anonymously — and shows candidates
+            this score. You see only the combined averages below, never who responded or any individual answer.
+          </p>
+          <CompanyTrustCard companyName={companyName} aggregate={cultureAggregate} glassdoor={glassdoor} />
+        </div>
 
         {/* Plan / billing */}
         <div className="rounded-2xl p-6" style={cardStyle}>
