@@ -401,7 +401,7 @@ const en = {
     },
     hero: {
       badge: 'For companies',
-      headline: 'Workforce intelligence and verified talent, in one place.',
+      headline: 'Workforce ⟦intelligence and verified talent⟧, in one place.',
       subhead: 'Headcount planning and AI adoption are the same decision. You cannot plan who to hire without knowing which roles AI will reshape, and you cannot plan for AI without a clear view of the people you already have.',
       subheadExtra: 'Shapi scores where your workforce stands, plans the changes ahead, and supplies verified candidates to fill the gaps. One platform, not three vendors.',
       ctaSnapshot: 'Run your free Workforce Snapshot →',
@@ -414,7 +414,7 @@ const en = {
       trusted5: 'Future logos welcome',
     },
     pitch: {
-      title: 'One platform, three layers.',
+      title: 'One platform, ⟦three layers⟧.',
       subtitle: 'Verified data feeds the intelligence. The intelligence shapes the plan. The plan runs on talent from the same verified pool.',
       p1Title: 'Verified',
       p1Desc: 'Independent references, AI cross-check and work-history checks sit under everything. Each signal the intelligence reads is backed by evidence, not a self-reported claim.',
@@ -425,7 +425,7 @@ const en = {
     },
     usps: {
       eyebrow: 'The full product',
-      title: 'Every capability, in plain terms.',
+      title: 'Every ⟦capability⟧, in plain terms.',
       subtitle: 'Fourteen workforce-intelligence tools, all reading from the same verified data.',
       u1Title: 'Workforce Future Readiness Score',
       u1Desc: 'A single 0–100 figure per organisation, built from AI exposure, skills maturity, leadership adaptability, innovation density and resilience. A clear place to start the board conversation.',

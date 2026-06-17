@@ -403,7 +403,7 @@ const bn: typeof en = {
     },
     hero: {
       badge: 'কোম্পানির জন্য',
-      headline: 'Verified workforce intelligence — McKinsey-এর মতো plan, LinkedIn-এর মতো talent, আর কারও কাছে নেই এমন verification।',
+      headline: '⟦Verified workforce intelligence⟧ — McKinsey-এর মতো plan, LinkedIn-এর মতো talent, আর কারও কাছে নেই এমন verification।',
       subhead: 'Workforce planning ও AI integration দুটো আলাদা সমস্যা নয় — এটা একটাই সমস্যা। AI rollout plan ছাড়া headcount plan করা যায় না, এবং talent plan ছাড়া AI rollout plan করা যায় না।',
       subheadExtra: 'আমরা আপনার readiness score করি, transformation plan করি, এবং execute করতে verified talent সরবরাহ করি — সব এক platform-এ।',
       ctaSnapshot: 'আপনার ফ্রি Workforce Snapshot চালান →',
@@ -416,7 +416,7 @@ const bn: typeof en = {
       trusted5: 'ভবিষ্যৎ logo স্বাগতম',
     },
     pitch: {
-      title: 'একটাই platform, তিনটা layer।',
+      title: 'একটাই platform, ⟦তিনটা layer⟧।',
       subtitle: 'Verified data intelligence-কে খাওয়ায়। Intelligence plan-কে চালায়। Plan আমাদের talent supply দিয়ে execute হয়।',
       p1Title: 'Verified',
       p1Desc: 'স্বাধীন references + AI cross-check + work-history verification। আমাদের intelligence layer-এর প্রতিটা signal প্রমাণের উপর ভিত্তি করে — self-reported claim নয়।',
@@ -427,7 +427,7 @@ const bn: typeof en = {
     },
     usps: {
       eyebrow: 'পূর্ণ product',
-      title: 'প্রতিটা ক্ষমতা, mapped — কোনো fluff নেই।',
+      title: 'প্রতিটা ⟦ক্ষমতা⟧, mapped — কোনো fluff নেই।',
       subtitle: 'চৌদ্দটা workforce-intelligence capability, সবাই একই verified data layer থেকে পড়ে।',
       u1Title: 'Workforce Future Readiness Score',
       u1Desc: 'প্রতি organisation-এ একটাই 0–100 number — AI exposure, skills maturity, leadership adaptability, innovation density, resilience। CEO-র সাথে কথা শুরুর হাতিয়ার।',

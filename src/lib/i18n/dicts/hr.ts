@@ -401,7 +401,7 @@ const hr: typeof en = {
     },
     hero: {
       badge: 'Za tvrtke',
-      headline: 'Provjerena inteligencija radne snage — plan kakav biste dobili od McKinseya, talenti kakve biste dobili od LinkedIna, provjera kakvu nitko drugi nema.',
+      headline: '⟦Provjerena inteligencija radne snage⟧ — plan kakav biste dobili od McKinseya, talenti kakve biste dobili od LinkedIna, provjera kakvu nitko drugi nema.',
       subhead: 'Planiranje radne snage i AI integracija nisu dva problema — to je jedan problem. Ne možete planirati broj zaposlenih bez plana AI uvođenja, niti AI uvođenje bez plana talenata.',
       subheadExtra: 'Ocjenjujemo vašu spremnost, planiramo vašu transformaciju i isporučujemo provjerene talente za izvedbu — sve na jednoj platformi.',
       ctaSnapshot: 'Pokrenite besplatni Workforce Snapshot →',
@@ -414,7 +414,7 @@ const hr: typeof en = {
       trusted5: 'budući logoi dobrodošli',
     },
     pitch: {
-      title: 'Jedna platforma, tri sloja.',
+      title: 'Jedna platforma, ⟦tri sloja⟧.',
       subtitle: 'Provjereni podaci hrane inteligenciju. Inteligencija pokreće plan. Plan se izvršava kroz našu opskrbu talentima.',
       p1Title: 'Provjereno',
       p1Desc: 'Neovisne reference + AI unakrsna provjera + provjera radne povijesti. Svaki signal u našem sloju inteligencije temelji se na dokazima — ne na samoizjavama.',
@@ -425,7 +425,7 @@ const hr: typeof en = {
     },
     usps: {
       eyebrow: 'Cjeloviti proizvod',
-      title: 'Svaka mogućnost, mapirana — bez floskula.',
+      title: 'Svaka ⟦mogućnost⟧, mapirana — bez floskula.',
       subtitle: 'Četrnaest mogućnosti workforce inteligencije, sve čitaju iz istog provjerenog sloja podataka.',
       u1Title: 'Workforce Future Readiness Score',
       u1Desc: 'Jedna brojka 0–100 po organizaciji — izloženost AI-u, zrelost vještina, prilagodljivost vodstva, gustoća inovacija, otpornost. Otvarač razgovora s CEO-om.',

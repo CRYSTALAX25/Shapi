@@ -403,7 +403,7 @@ const tl: typeof en = {
     },
     hero: {
       badge: 'Para sa mga kumpanya',
-      headline: 'Verified workforce intelligence — ang plano galing sa McKinsey, ang talent galing sa LinkedIn, ang verification na walang ibang meron.',
+      headline: '⟦Verified workforce intelligence⟧ — ang plano galing sa McKinsey, ang talent galing sa LinkedIn, ang verification na walang ibang meron.',
       subhead: 'Ang workforce planning at AI integration ay hindi dalawang problema — isa lang sila. Hindi mo mapaplano ang headcount kung walang AI rollout plan, at hindi mo mapaplano ang AI rollout kung walang talent plan.',
       subheadExtra: 'Sini-score namin ang readiness mo, pina-plano ang transformation, at sinusuplayan ng verified talent para mai-execute — lahat sa isang platform.',
       ctaSnapshot: 'Patakbuhin ang libreng Workforce Snapshot →',
@@ -416,7 +416,7 @@ const tl: typeof en = {
       trusted5: 'Future logos welcome',
     },
     pitch: {
-      title: 'Isang platform, tatlong layer.',
+      title: 'Isang platform, ⟦tatlong layer⟧.',
       subtitle: 'Verified data ang nagpapatakbo sa intelligence. Ang intelligence ang nagdadala sa plano. Ang plano ay ipinapatupad sa pamamagitan ng aming talent supply.',
       p1Title: 'Verified',
       p1Desc: 'Independent references + AI cross-check + work-history verification. Bawat signal sa intelligence layer namin ay base sa ebidensiya — hindi self-reported na claim.',
@@ -427,7 +427,7 @@ const tl: typeof en = {
     },
     usps: {
       eyebrow: 'Buong produkto',
-      title: 'Bawat kakayahan, naka-map — walang basura.',
+      title: 'Bawat ⟦kakayahan⟧, naka-map — walang basura.',
       subtitle: 'Labing-apat na workforce-intelligence capabilities, lahat nagbabasa mula sa parehong verified data layer.',
       u1Title: 'Workforce Future Readiness Score',
       u1Desc: 'Isang 0–100 na numero kada organisasyon — AI exposure, skills maturity, leadership adaptability, innovation density, resilience. Ang pang-bukas ng usapan ng CEO.',

@@ -76,7 +76,7 @@ function ForCompaniesInner() {
             {t('forCompanies.hero.badge')}
           </span>
           <h1 className="mb-7 text-5xl font-black leading-[0.95] tracking-tighter text-[#F4F4F7] md:text-7xl">
-            <Hl text={t('forCompanies.hero.headline')} word="intelligence and verified talent" />
+            <Hl text={t('forCompanies.hero.headline')} />
           </h1>
           <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-[#E6E6EC] md:text-xl">
             {t('forCompanies.hero.subhead')}
@@ -122,7 +122,7 @@ function ForCompaniesInner() {
       {/* Pitch — 3 panels */}
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
         <div className="mb-12 text-center">
-          <h2 className="text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl"><Hl text={t('forCompanies.pitch.title')} word="three layers" /></h2>
+          <h2 className="text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl"><Hl text={t('forCompanies.pitch.title')} /></h2>
           <p className="mx-auto mt-3 max-w-2xl text-lg text-[#E6E6EC]">{t('forCompanies.pitch.subtitle')}</p>
         </div>
         <div className="grid gap-5 md:grid-cols-3">
@@ -144,7 +144,7 @@ function ForCompaniesInner() {
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
         <div className="mb-12 text-center">
           <span className="mb-5 inline-block rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.25em]" style={{ background: `${OCEAN}1f`, color: OCEAN }}>{t('forCompanies.usps.eyebrow')}</span>
-          <h2 className="mx-auto max-w-3xl text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl"><Hl text={t('forCompanies.usps.title')} word="capability" /></h2>
+          <h2 className="mx-auto max-w-3xl text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl"><Hl text={t('forCompanies.usps.title')} /></h2>
         </div>
         <div className="grid gap-4 md:grid-cols-2 items-start">
           <UspGroup color={OCEAN} title="In Shapi Hire" sub="Recruitment" items={hireKeys.map(usp)} open />
@@ -255,19 +255,13 @@ function ForCompaniesInner() {
   )
 }
 
-// Highlights one English word/phrase inside a (possibly translated) title with
-// the brand gradient. If the word isn't present (non-English locale), renders
-// the title plain — i18n-safe.
-function Hl({ text, word }: { text: string; word: string }) {
-  const i = text.indexOf(word)
-  if (i < 0) return <>{text}</>
-  return (
-    <>
-      {text.slice(0, i)}
-      <span className="c-grad">{word}</span>
-      {text.slice(i + word.length)}
-    </>
-  )
+// Renders ⟦…⟧ segments of a (possibly translated) string in the brand gradient.
+// Each locale marks the words to emphasise IN ITS OWN LANGUAGE inside the dict
+// string, so the highlight follows the meaning across locales instead of an
+// English substring. No markers → plain text (i18n-safe, zero regression).
+function Hl({ text }: { text: string }) {
+  const parts = text.split(/⟦([^⟧]*)⟧/g) // odd indices are the highlighted segments
+  return <>{parts.map((p, i) => (i % 2 === 1 ? <span key={i} className="c-grad">{p}</span> : p))}</>
 }
 
 function ProductCard({ color, kicker, label, title, body, points, cta, href }: { color: string; kicker: string; label: string; title: string; body: string; points: string[]; cta: string; href: string }) {

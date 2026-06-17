@@ -397,7 +397,7 @@ const fr: typeof en = {
     },
     hero: {
       badge: 'Pour les entreprises',
-      headline: 'Workforce intelligence vérifiée — le plan d’un McKinsey, le talent d’un LinkedIn, la vérification que personne d’autre n’a.',
+      headline: '⟦Workforce intelligence vérifiée⟧ — le plan d’un McKinsey, le talent d’un LinkedIn, la vérification que personne d’autre n’a.',
       subhead: 'Planification des effectifs et intégration IA ne sont pas deux problèmes — c’est le même. Pas de plan headcount sans plan IA, et pas de plan IA sans plan talent.',
       subheadExtra: 'Nous notons votre maturité, planifions votre transformation et fournissons le talent vérifié pour exécuter — sur une seule plateforme.',
       ctaSnapshot: 'Lancer votre Workforce Snapshot gratuit →',
@@ -410,7 +410,7 @@ const fr: typeof en = {
       trusted5: 'Futurs logos bienvenus',
     },
     pitch: {
-      title: 'Une plateforme, trois couches.',
+      title: 'Une plateforme, ⟦trois couches⟧.',
       subtitle: 'La donnée vérifiée nourrit l’intelligence. L’intelligence pilote le plan. Le plan s’exécute via notre vivier de talents.',
       p1Title: 'Vérifié',
       p1Desc: 'Références indépendantes + croisement IA + vérification du parcours pro. Chaque signal dans la couche d’intelligence est ancré dans la preuve — pas dans le déclaratif.',
@@ -421,7 +421,7 @@ const fr: typeof en = {
     },
     usps: {
       eyebrow: 'Le produit complet',
-      title: 'Chaque capacité, cartographiée — sans bla-bla.',
+      title: 'Chaque ⟦capacité⟧, cartographiée — sans bla-bla.',
       subtitle: 'Quatorze capacités de workforce intelligence, toutes lues depuis la même couche de données vérifiée.',
       u1Title: 'Workforce Future Readiness Score',
       u1Desc: 'Un score unique de 0 à 100 par organisation — exposition IA, maturité des compétences, adaptabilité du leadership, densité d’innovation, résilience. Le sujet d’ouverture côté CEO.',

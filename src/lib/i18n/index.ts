@@ -5,11 +5,12 @@ import tl from './dicts/tl'
 import bn from './dicts/bn'
 import es from './dicts/es'
 import fr from './dicts/fr'
+import it from './dicts/it'
 import hr from './dicts/hr'
 import ar from './dicts/ar'
 import type { Locale } from './locales'
 
-export const DICTS = { en, hi, ur, tl, bn, es, fr, hr, ar } as const
+export const DICTS = { en, hi, ur, tl, bn, es, fr, it, hr, ar } as const
 
 export type Dict = typeof en
 

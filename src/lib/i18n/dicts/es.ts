@@ -402,7 +402,7 @@ const es: typeof en = {
     },
     hero: {
       badge: 'Para empresas',
-      headline: 'Inteligencia de plantilla verificada — el plan que tendrías con McKinsey, el talento que tendrías con LinkedIn, la verificación que nadie más tiene.',
+      headline: '⟦Inteligencia de plantilla verificada⟧ — el plan que tendrías con McKinsey, el talento que tendrías con LinkedIn, la verificación que nadie más tiene.',
       subhead: 'La planificación de plantilla y la integración de IA no son dos problemas — son uno. No puedes planear headcount sin un plan de IA, y no puedes planear IA sin un plan de talento.',
       subheadExtra: 'Puntuamos tu preparación, planeamos tu transformación y aportamos el talento verificado para ejecutar — todo en una plataforma.',
       ctaSnapshot: 'Lanza tu Workforce Snapshot gratis →',
@@ -415,7 +415,7 @@ const es: typeof en = {
       trusted5: 'Logos futuros bienvenidos',
     },
     pitch: {
-      title: 'Una plataforma, tres capas.',
+      title: 'Una plataforma, ⟦tres capas⟧.',
       subtitle: 'Los datos verificados alimentan la inteligencia. La inteligencia impulsa el plan. El plan se ejecuta con nuestra red de talento.',
       p1Title: 'Verificado',
       p1Desc: 'Referencias independientes + verificación cruzada con IA + verificación de historial laboral. Cada señal en nuestra capa de inteligencia está respaldada por evidencia — no por declaraciones propias.',
@@ -426,7 +426,7 @@ const es: typeof en = {
     },
     usps: {
       eyebrow: 'El producto completo',
-      title: 'Cada capacidad, mapeada — sin relleno.',
+      title: 'Cada ⟦capacidad⟧, mapeada — sin relleno.',
       subtitle: 'Catorce capacidades de workforce-intelligence, todas leyendo de la misma capa de datos verificados.',
       u1Title: 'Workforce Future Readiness Score',
       u1Desc: 'Un único número 0–100 por organización — exposición a IA, madurez de habilidades, adaptabilidad de liderazgo, densidad de innovación, resiliencia. El punto de entrada con el CEO.',
