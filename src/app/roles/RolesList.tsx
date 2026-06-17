@@ -28,6 +28,8 @@ export type CompanyInfo = {
   name: string
   glassdoor?: number
   trust?: { avg: number; count: number }
+  // Independent employee culture aggregate (only present above the ≥3 floor).
+  culture?: { overall: number; wouldRecommend?: number; count: number }
 }
 
 export default function RolesList({
@@ -145,6 +147,11 @@ export default function RolesList({
                       })()}
                       {company.trust && company.trust.count > 0 && (
                         <span className="font-bold" style={{ color: '#38BDF8' }}>✓ {company.trust.avg}/5 Shapi trust ({company.trust.count})</span>
+                      )}
+                      {company.culture && (
+                        <span className="font-bold" style={{ color: '#34D399' }}>
+                          🏢 {company.culture.overall}/100 workplace trust ({company.culture.count})
+                        </span>
                       )}
                       <span>Posted {new Date(role.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
                     </div>

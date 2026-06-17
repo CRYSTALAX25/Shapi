@@ -5,6 +5,7 @@ import Link from 'next/link'
 import RolesList from './RolesList'
 import SubscribeButton from '@/components/SubscribeButton'
 import { companyTrustRatings } from '@/lib/trust'
+import { getCultureAggregates } from '@/lib/culture-references'
 import { hasOpenRolesBoard } from '@/lib/subscriptions'
 
 type Role = {
@@ -65,13 +66,25 @@ export default async function RolesBoard() {
     .in('id', companyIds)
 
   const trustMap = await companyTrustRatings(admin, companyIds)
-  const companyMap: Record<string, { name: string; glassdoor?: number; trust?: { avg: number; count: number } }> = {}
+  // Independent employee culture aggregate (Plane B) — one batch query.
+  const cultureMap = await getCultureAggregates(admin, companyIds)
+  const companyMap: Record<string, {
+    name: string
+    glassdoor?: number
+    trust?: { avg: number; count: number }
+    culture?: { overall: number; wouldRecommend?: number; count: number }
+  }> = {}
   for (const c of companies || []) {
     const cd = c.company_data as Record<string, unknown> | null
+    const ca = cultureMap.get(c.id)
     companyMap[c.id] = {
       name: c.company_name || c.full_name || 'Company',
       glassdoor: cd?.glassdoor_rating as number | undefined,
       trust: trustMap.get(c.id),
+      // Only surface once it's above the anonymity floor (overall present).
+      culture: typeof ca?.overall === 'number'
+        ? { overall: ca.overall, wouldRecommend: ca.would_recommend, count: ca.count }
+        : undefined,
     }
   }
 
