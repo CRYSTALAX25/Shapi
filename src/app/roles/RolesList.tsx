@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import RoleInterestButton from './RoleInterestButton'
+import SubscribeButton from '@/components/SubscribeButton'
 import { getPrestigeForCompany, topAccolade } from '@/lib/company-prestige'
 
 export type ScoredRole = {
@@ -168,13 +169,13 @@ export default function RolesList({
                       <div className="text-[#5C5C6A] text-[10px]">match</div>
                     </div>
                     {blurred ? (
-                      <a
-                        href="/pay?product=roles_board_monthly"
+                      <SubscribeButton
+                        product="active_monthly"
                         className="px-3 py-2 rounded-full text-[11px] font-black text-white whitespace-nowrap"
                         style={{ background: 'linear-gradient(135deg,#38BDF8, #34D399)' }}
                       >
-                        Unlock · $19/mo
-                      </a>
+                        Unlock · $59/mo
+                      </SubscribeButton>
                     ) : (
                       <RoleInterestButton roleId={role.id} initialInterested={isInterested} />
                     )}

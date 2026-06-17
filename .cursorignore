@@ -1,0 +1,9 @@
+# Keep Cursor's indexer/AI out of heavy generated dirs — prevents OOM crashes
+node_modules/
+.next/
+out/
+build/
+coverage/
+.vercel/
+*.tsbuildinfo
+dist/

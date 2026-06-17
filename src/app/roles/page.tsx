@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import RolesList from './RolesList'
+import SubscribeButton from '@/components/SubscribeButton'
 import { companyTrustRatings } from '@/lib/trust'
 import { hasOpenRolesBoard } from '@/lib/subscriptions'
 
@@ -148,12 +149,12 @@ export default async function RolesBoard() {
           <div className="mb-5 rounded-2xl p-5 flex items-center gap-4" style={{ background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(56, 189, 248, 0.12))', border: '1px solid rgba(56, 189, 248, 0.30)' }}>
             <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg,#38BDF8, #34D399)' }}>🔓</div>
             <div className="flex-1 min-w-0">
-              <p className="text-[#F4F4F7] font-black text-base mb-0.5">Unlock all {scoredRoles.length} roles · $19/mo</p>
-              <p className="text-[#A6A6B4] text-xs leading-relaxed">You&apos;re seeing 3 previews. Roles Board unlocks every verified role + applies you straight from WhatsApp.</p>
+              <p className="text-[#F4F4F7] font-black text-base mb-0.5">Unlock all {scoredRoles.length} roles · $59/mo</p>
+              <p className="text-[#A6A6B4] text-xs leading-relaxed">You&apos;re seeing 3 previews. Shapi Pro unlocks every verified role + applies you straight from WhatsApp.</p>
             </div>
-            <Link href="/pay?product=roles_board_monthly" className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-black text-white whitespace-nowrap" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
+            <SubscribeButton product="active_monthly" className="flex-shrink-0 px-4 py-2 rounded-full text-xs font-black text-white whitespace-nowrap" style={{ background: 'linear-gradient(135deg, #38BDF8, #34D399)' }}>
               Unlock →
-            </Link>
+            </SubscribeButton>
           </div>
         )}
 

@@ -56,11 +56,14 @@ COMPETITORS.md). Sell trust, not chat.
   future price rises. Status-led (Founding Partner badge + founder access + roadmap input).
   ⚠️ MUST make the cohort cap a **real count check** before 2 June launch — today's "first 25"
   is marketing framing only (coupon applies to all checkouts and never stops).
-- **[LOCKED — v5] Candidates** — free to start; verification ALWAYS free (it's the scarce-side
-  asset). Collapse the 8-SKU sprawl to: **Free → CV Kit $25 → CV Pro $59 → Active $29/mo →
-  Concierge $89/mo + Profile Boost $29**. Bundle ($39) killed; Roles Board ($19) merged into
-  Active. Fix the live bug where Concierge charges $79 instead of $89. **Comp the CV Pro fee for
-  the founding / friends-&-family cohort** to seed verified supply.
+- **[LOCKED — FINAL, wired 2026-06-17] Candidates** — free to start; verification ALWAYS free
+  (it's the scarce-side asset). Final ladder: **Free → CV Kit $25 one-time ($9 blue-collar) →
+  Shapi Pro $59/mo (or $159/quarter) → Concierge $99/mo**. "Active" was repriced $29→$59 and
+  rebranded **Shapi Pro** (internal keys stay `active_*`). One-time CV Pro is RETIRED (Pro is now
+  the subscription; legacy one-time buyers grandfathered). Bundle ($39), standalone Roles Board
+  ($19) and standalone Profile Boost ($29) all killed/merged into Pro. Concierge is $99/mo,
+  AI-delivered. Entitlements gate on `subscription_product[]` via `hasProAccess()`/`hasCVAccess()`,
+  NOT raw `cv_tier`. **Comp the fee for the founding / friends-&-family cohort** to seed supply.
 - **[RECOMMENDED] Placement fee = Phase 2.** Once there are real placements + proof, add a
   **small ($500) placement fee for NEW company cohorts only.** Never raise price on early
   believers — grandfather them. Framing: "we win when you win."

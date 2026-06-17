@@ -530,9 +530,9 @@ export default async function Dashboard() {
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-[#5C5C6A] text-xs font-bold uppercase tracking-wider">Your plan</span>
                 {isConcierge ? (
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.18)', color: '#38BDF8' }}>Active Concierge</span>
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.18)', color: '#38BDF8' }}>Shapi Concierge</span>
                 ) : isActive ? (
-                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8' }}>Shapi Active</span>
+                  <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38BDF8' }}>Shapi Pro</span>
                 ) : profile?.cv_tier === 'pro' ? (
                   <span className="text-xs font-bold px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(56, 189, 248, 0.18)', color: '#38BDF8' }}>CV Pro</span>
                 ) : cvKitPurchased ? (
@@ -549,7 +549,7 @@ export default async function Dashboard() {
                     <div className="flex items-start gap-2.5 rounded-xl p-3" style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.20)' }}>
                       <span className="text-emerald-400 text-sm font-black mt-0.5">✓</span>
                       <div>
-                        <p className="text-[#F4F4F7] text-sm font-bold">Shapi Active</p>
+                        <p className="text-[#F4F4F7] text-sm font-bold">Shapi Pro</p>
                         <p className="text-[#A6A6B4] text-xs">See every open role · job scanner · email drafter · application tracker · interview prep.</p>
                       </div>
                     </div>
@@ -558,7 +558,7 @@ export default async function Dashboard() {
                     <div className="flex items-start gap-2.5 rounded-xl p-3" style={{ background: 'rgba(56, 189, 248, 0.08)', border: '1px solid rgba(56, 189, 248, 0.20)' }}>
                       <span className="text-emerald-400 text-sm font-black mt-0.5">✓</span>
                       <div>
-                        <p className="text-[#F4F4F7] text-sm font-bold">Active Concierge</p>
+                        <p className="text-[#F4F4F7] text-sm font-bold">Shapi Concierge</p>
                         <p className="text-[#A6A6B4] text-xs">AI scans roles daily and drafts personalised intros — you approve and send.</p>
                       </div>
                     </div>
@@ -572,7 +572,7 @@ export default async function Dashboard() {
                   {!isActive && (
                     <SubscribeButton product="active_monthly" className="w-full flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors text-left">
                       <div>
-                        <p className="text-[#F4F4F7] text-sm font-bold">Shapi Active <span className="text-[#38BDF8] font-black">$29/mo</span></p>
+                        <p className="text-[#F4F4F7] text-sm font-bold">Shapi Pro <span className="text-[#38BDF8] font-black">$59/mo</span></p>
                         <p className="text-[#7E7E8E] text-xs">See every open role + get shortlisted by companies, scan jobs, draft outreach, track applications, prep interviews.</p>
                       </div>
                       <span className="text-[#38BDF8] text-xs font-black flex-shrink-0">Subscribe →</span>
@@ -581,7 +581,7 @@ export default async function Dashboard() {
                   {!isConcierge && (
                     <SubscribeButton product="concierge_monthly" className="w-full flex items-center justify-between gap-3 rounded-xl p-3 hover:bg-white/[0.05] transition-colors text-left">
                       <div>
-                        <p className="text-[#F4F4F7] text-sm font-bold">Active Concierge <span className="text-[#38BDF8] font-black">$89/mo</span></p>
+                        <p className="text-[#F4F4F7] text-sm font-bold">Shapi Concierge <span className="text-[#38BDF8] font-black">$99/mo</span></p>
                         <p className="text-[#7E7E8E] text-xs">Everything in Active, plus: AI drafts personalised intros daily — you just approve and send.</p>
                       </div>
                       <span className="text-[#38BDF8] text-xs font-black flex-shrink-0">Subscribe →</span>
@@ -1042,7 +1042,7 @@ export default async function Dashboard() {
 
             {/* WhatsApp — just a hint now. The full command list is delivered in the
                 first WhatsApp message (lib/whatsapp.ts), and Ask Shapi (the floating
-                ✦ button) answers anything in-app. Open Roles Board + Shapi Active live
+                ✦ button) answers anything in-app. Open Roles Board + Shapi Pro live
                 in the sidebar nav and each explains itself on its own page. */}
             {profile?.whatsapp_number && (
               <div className="gradient-border-card rounded-2xl p-4 mt-4 flex items-start gap-3">

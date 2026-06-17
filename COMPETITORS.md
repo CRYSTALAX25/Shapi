@@ -45,7 +45,7 @@ today largely runs through **unstructured WhatsApp groups** — a wide-open, low
 | Jack & Jill | **Free** for candidates |
 | LinkedIn Premium (Career) | ~$30–40 / month |
 | LazyApply | $149 / year |
-| **Shapi** | **Free to start** · CV Kit **$25** one-time · CV Pro **$59** one-time · add-ons: Roles Board $19/mo, Active $29/mo, Bundle $39/mo, Concierge $79/mo |
+| **Shapi** | **Free to start** · CV Kit **$25** one-time ($9 blue-collar) · **Shapi Pro $59/mo** (or $159/quarter) · **Concierge $99/mo** _(one-time CV Pro, Roles Board, Active $29, Bundle all retired/merged — final ladder wired 2026-06-17)_ |
 
 ### Company / employer side
 | Platform | Price | Model |
@@ -54,8 +54,7 @@ today largely runs through **unstructured WhatsApp groups** — a wide-open, low
 | Traditional recruitment agencies | **15–25% of first-year salary** | Pure success fee |
 | LinkedIn Recruiter | **$1,680/yr (Lite)** → $10,000–15,000 / seat / yr (Corporate) | SaaS subscription |
 | Reference tools (Xref/Crosschq/HiPeople) | Custom / tiered ("pricey for a reference tool") | Per-check or subscription |
-| **Shapi (current site)** | $299/mo (Starter) · $799/mo (Growth) · Custom (Enterprise) + **$500 flat placement / hire** | SaaS + small placement |
-| **Shapi (launch plan — see STRATEGY.md)** | 30-day free trial → $299 / $799 / Custom · **Founding Partner: 50% off 12mo** · **no placement fee at launch** (small one added Phase 2 for new cohorts) | Subscription-first |
+| **Shapi (wired 2026-06-17)** | **Pro $499/mo** (or $4,990/yr) · **Growth $1,500/mo** (or $15,000/yr) · **Enterprise $2,500+/mo** (sales-led) · 14-day trial · **Founding Partner: first 15 cos, 50% off 6mo** · no placement fee at launch | Subscription-first |
 
 ---
 
