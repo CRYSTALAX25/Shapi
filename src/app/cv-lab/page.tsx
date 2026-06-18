@@ -16,20 +16,20 @@ const ANA: CVData = {
   narrative:
     'Twenty years turning complex operations into measurable savings — across media production, studio facilities and corporate transformation. Now operating at the seam of studio ops and AI.',
   // Chosen for impact AND range — the strongest result on each skill axis, not
-  // the three most recent jobs.
+  // the most recent jobs. (Founding/scale wins: Essential Staff over "11 placed".)
   proofs: [
     { axis: 'Head', number: '$40M', context: 'NEOM · Business Operations Manager', outcome: 'saved by restructuring a $56M facilities contract', v: 'verified' },
     { axis: 'Hands', number: '90+', context: 'NEOM · Studio Operations', outcome: 'operational workforce run across two production-ready studios', v: 'verified' },
-    { axis: 'Spark', number: '$60K', context: 'Crystalax / Luxynest · Founder', outcome: 'revenue from zero with a fully AI-run brand, 5★ on Amazon US', v: 'assessed' },
-    { axis: 'Heart', number: '11', context: 'NEOM · Recruitment, Media & Entertainment', outcome: 'executives placed in 6 months; teams built across four countries', v: 'verified' },
+    { axis: 'Spark', number: '£1M', context: 'Essential Staff · Founder & MD', outcome: 'recruitment company built from zero to £1M turnover in 3 years', v: 'assessed' },
+    { axis: 'Heart', number: '2,000+', context: 'Essential Staff · Founder & MD', outcome: 'people deployed & onboarded; an 8-person team led from the office', v: 'assessed' },
   ],
   expertise: {
-    label: 'The Operator',
+    label: 'The Builder-Operator',
     bars: [
-      { name: 'Head — strategy & structure', v: 90 },
-      { name: 'Hands — execution & ops', v: 88 },
-      { name: 'Spark — building new', v: 72 },
-      { name: 'Heart — people & teams', v: 64 },
+      { name: 'Head — strategy & structure', v: 88 },
+      { name: 'Heart — people & teams', v: 86 },
+      { name: 'Spark — building new', v: 84 },
+      { name: 'Hands — execution & ops', v: 70 },
     ],
   },
   waysToWork: ['Permanent', 'Fractional', 'Advisory'],
