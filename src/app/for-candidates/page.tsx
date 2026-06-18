@@ -44,10 +44,10 @@ export default function ForCandidatesPage() {
 
 function ForCandidatesInner() {
   const { t } = useTranslation()
-  // Controlled accordion state — first group open. Without this, React's
-  // controlled `open` prop fights the native <details> toggle (cards wouldn't
-  // close + content desynced).
-  const [openGroups, setOpenGroups] = useState<Set<number>>(() => new Set([0]))
+  // Controlled accordion state — ALL groups start closed; the user opens them.
+  // (Controlled state is still needed so React's `open` doesn't fight the native
+  // <details> toggle — that caused cards to not close + content to desync.)
+  const [openGroups, setOpenGroups] = useState<Set<number>>(() => new Set())
 
   // The 15 benefits grouped into 4 themes — one colour each, shown as
   // click-to-expand cards (founder: tone down colour + don't dump 15 at once,

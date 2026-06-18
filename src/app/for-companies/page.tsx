@@ -92,28 +92,28 @@ function ForCompaniesInner() {
       {/* ── TWO PRODUCTS ── */}
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-16">
         <div className="mb-10 text-center">
-          <span className="inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-widest" style={{ background: `${MINT}1f`, color: MINT }}>Two products, one platform</span>
-          <h2 className="mt-5 text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl">Hire what&apos;s <span className="c-grad">proven.</span><br /><span className="c-grad">Reshape</span> what you have.</h2>
+          <span className="inline-flex rounded-full px-4 py-2 text-xs font-black uppercase tracking-widest" style={{ background: `${MINT}1f`, color: MINT }}>{t('forCompanies.products.eyebrow')}</span>
+          <h2 className="mt-5 text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl"><Hl text={t('forCompanies.products.headline')} /></h2>
         </div>
         <div className="grid gap-5 md:grid-cols-2">
           <ProductCard
             color={OCEAN}
             kicker="Shapi Hire"
-            label="Recruitment"
-            title="Find & hire what's proven"
-            body="Candidates arrive already verified — independent references, evidence-based skills, a real trust score on both sides. Add active hiring, a candidate pool, salary benchmarks and starter JDs."
-            points={['Verified candidates before they reach you', 'Active hiring + candidate pool', 'Salary benchmarks & starter JDs', 'Hiring-manager WhatsApp + mobile review']}
-            cta="See recruitment plans →"
+            label={t('forCompanies.products.hireLabel')}
+            title={t('forCompanies.products.hireTitle')}
+            body={t('forCompanies.products.hireBody')}
+            points={[t('forCompanies.products.hireP1'), t('forCompanies.products.hireP2'), t('forCompanies.products.hireP3'), t('forCompanies.products.hireP4')]}
+            cta={t('forCompanies.products.hireCta')}
             href="#pricing"
           />
           <ProductCard
             color={MINT}
             kicker="Shapi Workforce"
-            label="HR & Restructuring"
-            title="Understand & reshape who you have"
-            body="A living view of the workforce you already employ — readiness score, skills map, AI-exposure per role, org design and a defensible, immutable audit trail for every restructuring decision."
-            points={['Workforce readiness + skills density map', 'AI-exposure scored per role', 'Org design & redeployment before you hire', 'Immutable restructuring audit + outplacement']}
-            cta="Talk to us →"
+            label={t('forCompanies.products.workforceLabel')}
+            title={t('forCompanies.products.workforceTitle')}
+            body={t('forCompanies.products.workforceBody')}
+            points={[t('forCompanies.products.workforceP1'), t('forCompanies.products.workforceP2'), t('forCompanies.products.workforceP3'), t('forCompanies.products.workforceP4')]}
+            cta={t('forCompanies.products.workforceCta')}
             href="/book-call?intent=enterprise"
           />
         </div>
@@ -147,8 +147,8 @@ function ForCompaniesInner() {
           <h2 className="mx-auto max-w-3xl text-4xl font-black tracking-tighter text-[#F4F4F7] md:text-5xl"><Hl text={t('forCompanies.usps.title')} /></h2>
         </div>
         <div className="grid gap-4 md:grid-cols-2 items-start">
-          <UspGroup color={OCEAN} title="In Shapi Hire" sub="Recruitment" items={hireKeys.map(usp)} open />
-          <UspGroup color={MINT} title="In Shapi Workforce" sub="HR & Restructuring" items={workforceKeys.map(usp)} />
+          <UspGroup color={OCEAN} title={t('forCompanies.products.hireGroup')} sub={t('forCompanies.products.hireLabel')} items={hireKeys.map(usp)} />
+          <UspGroup color={MINT} title={t('forCompanies.products.workforceGroup')} sub={t('forCompanies.products.workforceLabel')} items={workforceKeys.map(usp)} />
         </div>
       </section>
 
