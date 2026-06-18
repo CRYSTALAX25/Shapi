@@ -11,6 +11,7 @@ import { INDUSTRY_BRIEFS, INDUSTRY_META, type Industry } from '@/lib/industry-br
 import { saveVoiceSample, pickNextLanguageToCapture, type VoiceSamplesMap } from '@/lib/voice-samples'
 import { buildJDPrompt, extractRoleFromChat, saveDraftRole } from '@/lib/jd-extract'
 import { sendPendingConciergeOutreach } from '@/lib/concierge'
+import { isPositioningActive, runPositioningTurn } from '@/lib/positioning-deepdive'
 import { hasCVAccess, hasProAccess } from '@/lib/subscriptions'
 import {
   parseOrgDesignTrigger,
@@ -340,7 +341,7 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
   // back to most-recently-created.
   const { data: profileCandidates } = await admin
     .from('profiles')
-    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, languages_spoken, cv_tier, subscription_product, industry_chats, whatsapp_conversation_active, created_at, voice_samples, awaiting_voice_sample_lang, type, company_name, jd_chat, jd_active_role_id, org_design_voice_state')
+    .select('id, full_name, headline, skills, work_history, whatsapp_chat, completion_pct, cv_parsed, native_language, awaiting_cv_language, cv_language_preference, languages_spoken, cv_tier, subscription_product, industry_chats, positioning_deepdive, whatsapp_conversation_active, created_at, voice_samples, awaiting_voice_sample_lang, type, company_name, jd_chat, jd_active_role_id, org_design_voice_state')
     .eq('whatsapp_number', phone)
     .order('created_at', { ascending: false })
 
@@ -1144,6 +1145,33 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
     whatsapp_chat?: Array<{ role: 'user' | 'assistant'; content: string }>
     delivered?: boolean
   }
+  // ═══ Positioning deep-dive — the career-wide proof interview. While active it
+  // takes priority over the industry deep-dive: each reply drives the next
+  // question via the interviewer, and on completion it auto-extracts the proofs.
+  if (isPositioningActive(profile.positioning_deepdive)) {
+    if (/^(pause|stop|cancel)$/i.test(lowerMsg)) {
+      await admin.from('profiles')
+        .update({ positioning_deepdive: { ...(profile.positioning_deepdive as object), status: 'paused' } })
+        .eq('id', profile.id)
+      await sendWhatsApp(phone, `No problem — paused and saved. Message me anytime and we'll pick up where we left off. 👍`)
+      return new NextResponse('', { status: 200 })
+    }
+    try {
+      const result = await runPositioningTurn(admin, profile.id, userMessage)
+      if (result) {
+        const msg = result.done
+          ? `${result.reply}\n\n✨ That's everything I need — I'm turning this into your verified profile now. You'll see it shortly.`
+          : result.reply
+        await sendWhatsApp(phone, msg)
+        return new NextResponse('', { status: 200 })
+      }
+    } catch (err) {
+      console.error('[webhook] positioning turn failed:', err)
+      await sendWhatsApp(phone, `Hmm, my brain glitched for a second — could you send that again?`)
+      return new NextResponse('', { status: 200 })
+    }
+  }
+
   const industryChats = (profile.industry_chats as Record<string, IndustryChatEntry> | null) || {}
   // New conversational deep-dive uses status='in_progress'; legacy batched
   // flow used status='questions_sent'. Treat both as active.
