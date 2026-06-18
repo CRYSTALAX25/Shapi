@@ -10,11 +10,11 @@ export const metadata = { title: 'CV Lab — Verified Positioning CV', robots: {
 // verified proof points; verification tiers are illustrative for the mockup.
 const ANA: CVData = {
   name: 'Ana O. Barber',
-  roleLabel: 'Film Studio Operations · AI-Enabled Leader',
+  roleLabel: 'Founder · Operations & Commercial Leader',
   tier: 'Strongly',
-  headline: 'I make multi-million-dollar studio operations ⟦run lean⟧.',
+  headline: 'I build and run the complex — and make it ⟦pay off⟧.',
   narrative:
-    'Twenty years turning complex operations into measurable savings — across media production, studio facilities and corporate transformation. Now operating at the seam of studio ops and AI.',
+    'Twenty years across recruitment, operations, business development and three ventures of my own — a firm built from zero to £1M, $40M saved on a $56M studio contract, 100+ young mothers trained into work, an AI-run brand launched solo. Four languages, four countries — and learning AI hands-on as I build with it.',
   // Chosen for impact AND range — the strongest result on each skill axis, not
   // the most recent jobs. (Founding/scale wins: Essential Staff over "11 placed".)
   proofs: [
