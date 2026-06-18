@@ -21,7 +21,7 @@ const ANA: CVData = {
     { axis: 'Head', number: '$40M', context: 'NEOM · Business Operations Manager', outcome: 'saved by restructuring a $56M facilities contract', v: 'verified' },
     { axis: 'Hands', number: '90+', context: 'NEOM · Studio Operations', outcome: 'operational workforce run across two production-ready studios', v: 'verified' },
     { axis: 'Spark', number: '£1M', context: 'Essential Staff · Founder & MD', outcome: 'recruitment company built from zero to £1M turnover in 3 years', v: 'assessed' },
-    { axis: 'Heart', number: '2,000+', context: 'Essential Staff · Founder & MD', outcome: 'people deployed & onboarded; an 8-person team led from the office', v: 'assessed' },
+    { axis: 'Heart', number: '100+', context: 'Essential Training School (City & Guilds approved) · surfaced in deep-dive', outcome: 'young mothers trained and placed into work — a story her CV never mentioned', v: 'assessed' },
   ],
   expertise: {
     label: 'The Builder-Operator',
