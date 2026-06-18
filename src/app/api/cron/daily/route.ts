@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { runNurtureSweep } from '@/lib/nurture'
 import { runConciergeScanForAll, sendPendingConciergeOutreach } from '@/lib/concierge'
+import { sweepPastEmployeeSourcing } from '@/lib/culture-sourcing'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { buildDigestMessage, buildCompanyDigestMessage, sendWhatsApp } from '@/lib/whatsapp'
 
@@ -50,6 +51,7 @@ export async function GET(request: Request) {
     monthlyRoiDigest?: unknown
     trialEndingNudge?: unknown
     dunningSweep?: unknown
+    cultureSourcing?: unknown
   } = {
     ranAt: new Date().toISOString(),
     nurture: null,
@@ -158,6 +160,15 @@ export async function GET(request: Request) {
   } catch (err) {
     console.error('[cron/daily] monthly ROI digest failed:', err)
     summary.monthlyRoiDigest = { error: String(err) }
+  }
+
+  // Culture sourcing — independently invite past employees (from our own
+  // candidate pool) to the anonymous trust-score survey. Idempotent.
+  try {
+    summary.cultureSourcing = await sweepPastEmployeeSourcing(createAdminClient(), { companyLimit: 25 })
+  } catch (err) {
+    console.error('[cron/daily] culture sourcing failed:', err)
+    summary.cultureSourcing = { error: String(err) }
   }
 
   return NextResponse.json({ ok: true, ...summary })

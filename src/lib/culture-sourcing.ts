@@ -122,3 +122,31 @@ export async function sourcePastEmployeesFromPool(
 
   return { company: companyName, matched, invited, sent }
 }
+
+// Daily sweep — source past employees for a batch of companies. Idempotent (the
+// unique index on company_id+candidate_id means a re-run only invites NEW
+// matching candidates), so it's safe to run every day from the cron.
+export async function sweepPastEmployeeSourcing(
+  admin: SupabaseClient,
+  opts: { companyLimit?: number } = {},
+): Promise<{ companies: number; invited: number; sent: number }> {
+  const companyLimit = opts.companyLimit ?? 25
+  const { data: companies } = await admin
+    .from('profiles')
+    .select('id')
+    .eq('type', 'company')
+    .limit(companyLimit)
+
+  let invited = 0
+  let sent = 0
+  for (const c of companies || []) {
+    try {
+      const r = await sourcePastEmployeesFromPool(admin, c.id as string)
+      invited += r.invited
+      sent += r.sent
+    } catch (e) {
+      console.error('[culture-sourcing] sweep: company failed', c.id, e)
+    }
+  }
+  return { companies: (companies || []).length, invited, sent }
+}
