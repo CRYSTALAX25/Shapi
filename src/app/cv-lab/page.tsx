@@ -43,6 +43,39 @@ const ANA: CVData = {
   profileUrl: 'shapi.io/p/ana-barber',
 }
 
+// Blue-collar example — same template, same axes, but the proof comes in a
+// different currency (covers, hygiene rating, apprentices, repeat covers — not £).
+const CHEF: CVData = {
+  name: 'Grace Mwangi',
+  roleLabel: 'Head Chef · 18 years in professional kitchens',
+  tier: 'Strongly',
+  headline: 'I run a kitchen that ⟦never sends a bad plate⟧.',
+  narrative:
+    'Eighteen years from kitchen porter to head chef, across hotels and high-volume restaurants. I’ve brought up commis chefs who now run their own kitchens — and I’ve never once failed a hygiene inspection.',
+  proofs: [
+    { axis: 'Hands', number: '400+', context: 'The Grand Hotel · Head Chef', outcome: 'covers plated to standard on a Saturday night, no walkouts', v: 'verified' },
+    { axis: 'Head', number: '5★', context: 'Every kitchen run · 18 years', outcome: 'food-hygiene rating held at every site — never a failed inspection', v: 'assessed' },
+    { axis: 'Heart', number: '12', context: 'Commis chefs trained', outcome: 'junior chefs brought up; three now run their own kitchens', v: 'assessed' },
+    { axis: 'Spark', number: '2×', context: 'Riverside Bistro', outcome: 'a signature menu built from scratch that doubled quiet-night covers', v: 'self' },
+  ],
+  expertise: {
+    label: 'The Grafter',
+    bars: [
+      { name: 'Hands — the craft & the output', v: 92 },
+      { name: 'Heart — bringing people up', v: 80 },
+      { name: 'Head — judgement under pressure', v: 72 },
+      { name: 'Spark — new dishes & ways', v: 66 },
+    ],
+  },
+  waysToWork: ['Permanent', 'Shifts', 'Temp'],
+  languages: [
+    { name: 'English', verified: true },
+    { name: 'Swahili', verified: true },
+  ],
+  rightToWork: ['UK — settled status'],
+  profileUrl: 'shapi.io/p/grace-mwangi',
+}
+
 function VariantBlock({ n, title, blurb, children }: { n: number; title: string; blurb: string; children: React.ReactNode }) {
   return (
     <section style={{ width: '100%', maxWidth: 820, margin: '0 auto 56px' }}>
@@ -83,6 +116,15 @@ export default function CvLab() {
       <VariantBlock n={3} title="The Proof Grid" blurb="Metric-forward and digital-first. Proofs become a grid of verified number cards — instantly scannable on a screen, still prints clean.">
         <PositioningGrid d={ANA} />
       </VariantBlock>
+
+      <div style={{ maxWidth: 820, margin: '24px auto 56px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 40 }}>
+        <div style={{ marginBottom: 16 }}>
+          <span style={{ fontSize: 12, fontWeight: 900, color: '#34D399', letterSpacing: 1 }}>BUILT FOR EVERY WORKER</span>
+          <h2 style={{ margin: '4px 0 4px', fontSize: 22, fontWeight: 900, color: '#F4F4F7' }}>The same template — a head chef</h2>
+          <p style={{ margin: 0, fontSize: 13, color: '#7E7E8E', maxWidth: 660 }}>No £ or P&amp;L in sight. The proof comes in a chef&apos;s currency — covers, hygiene rating, apprentices brought up — and the deep-dive asks in their language. A blue-collar career deserves the same proof as a boardroom one.</p>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center' }}><PositioningStatement d={CHEF} /></div>
+      </div>
     </div>
   )
 }

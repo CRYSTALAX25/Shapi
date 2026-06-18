@@ -30,26 +30,30 @@ export type Axis = 'Head' | 'Hands' | 'Spark' | 'Heart'
 
 // What each axis means + what a STRONG proof for it looks like. Shared by the
 // interviewer (to probe) and the extractor (to classify + score).
+// Each axis is written to fit BOTH white- AND blue-collar work. The texture of
+// the proof differs by trade (a chef's number is covers served; an exec's is
+// $ saved) but every axis is equally real for a carer, an electrician, a driver
+// and a director. The interviewer/extractor must honour both.
 export const AXIS_GUIDE: Record<Axis, { meaning: string; strongProof: string; probe: string }> = {
   Head: {
-    meaning: 'Strategy, structure, judgement — untangling complexity, turnarounds, restructures, decisions that saved or made serious money, governance.',
-    strongProof: 'A complex or broken situation they turned around, with the money or risk impact named (e.g. "$40M saved restructuring a $56M contract").',
-    probe: 'What is the most complex or broken situation you have turned around — where your judgement saved or made real money? Walk me through what you actually decided.',
+    meaning: 'Judgement and problem-solving. Office: strategy, turnarounds, decisions that saved or made money, untangling complexity. On the tools / on shift: diagnosing the fault no one else could, fixing the job that was going wrong, the call made under pressure that saved the day.',
+    strongProof: 'A hard problem only they could solve, with the stakes named — money saved, a disaster averted, or the job rescued.',
+    probe: 'What is the trickiest problem you have ever cracked — the fault, the mess or the situation that others were stuck on, and you sorted it?',
   },
   Hands: {
-    meaning: 'Execution and delivery at scale — running big, operationally demanding things; logistics; the buck-stops-here delivery where the stakes or the scale were highest.',
-    strongProof: 'The largest / hardest thing they personally ran or delivered, with the scale named (people, sites, budget, throughput).',
-    probe: 'What is the biggest, most operationally demanding thing you have personally run or delivered? How large was it — people, sites, budget — and where did the buck stop?',
+    meaning: 'Skill and delivery — getting the work DONE, to a high standard. For trades/service work this is often the HERO axis: the craft itself, the output, the hardest job done well, the most ever produced/served/built, the safety record. For office work: running large or complex operations, logistics, delivery at scale.',
+    strongProof: 'Their best hands-on work or the biggest thing they ran — output, scale, quality or safety named (covers served, units made, sites run, years with no accidents, budget).',
+    probe: 'What is the best or biggest job you have ever done with your own hands — or the biggest thing you have run? How much, how many, how big?',
   },
   Spark: {
-    meaning: 'Building and creating from nothing — founding companies, launching products/programmes/teams, originating something that did not exist before they made it.',
-    strongProof: 'Something built from zero, with the growth/outcome named (e.g. "0 → £1M turnover in 3 years").',
-    probe: 'What have you built from nothing — a company, a team, a programme, a product — that did not exist until you made it? Where did it start and where did it get to?',
+    meaning: 'Making something new or better. Office: founding companies, launching products or programmes. On the ground: setting up their own round or business, inventing a faster or safer way to do the job, a signature dish or technique, building something from scratch.',
+    strongProof: 'Something they created, or a better way they found, with the result named.',
+    probe: 'What have you made or set up from scratch — a business of your own, or a smarter, faster, safer way of doing the work that became how it is done?',
   },
   Heart: {
-    meaning: 'People and human impact — building and developing teams, mentoring, changing lives, social impact; the difference they made to people, including outside formal "work".',
-    strongProof: 'People developed or lifted, with the number named (e.g. "trained 100+ young mothers and placed them into work").',
-    probe: 'Who have you developed or lifted? A team you built, people whose careers — or lives — you changed. Include the things you are proud of even if they were never a "job".',
+    meaning: 'People — training, looking after, leading, going above and beyond. Office: teams built, careers changed. On the ground: an apprentice trained up, a customer/patient/regular they went the extra mile for, keeping a crew together, looking after the new starters — including good they did that was never a "job".',
+    strongProof: 'People they developed or served, with the number/impact named (apprentices trained, customers kept, a team led, lives changed).',
+    probe: 'Who have you trained, looked after or gone the extra mile for? Include the things you are proud of even if they were never part of a job.',
   },
 }
 
@@ -116,14 +120,25 @@ THE ARC (follow their energy, but make sure every item is hit):
 6. HEART: who have you developed or lifted — teams, careers, lives.
 7. Signature: if a hiring manager remembered ONE thing about you, what should it be?
 
+SPEAK THEIR LANGUAGE (this works for EVERY kind of worker)
+- Read their work and match their world. To a director: strategy, budgets, turnarounds. To a chef, electrician, carer, driver, cleaner, hairdresser: plain words — "the trickiest job you nailed", "the most you've ever done in a shift", "someone you trained up", "a customer you went the extra mile for".
+- NEVER use office jargon (governance, P&L, stakeholders, restructuring) with a trades or service worker. It makes people feel small. A blue-collar career is every bit as worthy of proof as a boardroom one — treat it that way.
+- For hands-on workers, HANDS is usually their strongest axis. Let it shine; don't force an equal "strategy" answer if their genius is the craft.
+
+WHAT COUNTS AS A NUMBER (money is just one kind)
+- Equally strong, depending on the trade: covers/meals served, units made or fixed, jobs completed, speed, square metres, customers or regulars kept, ratings/reviews, repeat business, years of service, a SAFETY RECORD ("10 years, zero accidents"), apprentices trained, a hygiene/inspection score. Push for whichever number fits THEIR work — not £ by default.
+
+VERIFIERS (who could confirm it)
+- A name, a company, a foreman, a head chef, a site manager, a long-standing customer, a previous employer — or a certificate/card/licence (NVQ, City & Guilds, CSCS, a trade licence). Ask for whichever fits. Without one it stays honestly self-reported.
+
 NON-NEGOTIABLE RULES
 - ACHIEVEMENTS, never duties. "What did you DO and what changed?" — not "what were you responsible for?"
-- Every story needs a NUMBER. If they don't give one, ask once, gently and specifically: "Roughly how much / how many / how big?" Don't badger.
-- Every story needs a VERIFIER. Ask: "Who saw this — a name, a company, a body — who could confirm it?" This is what lets us verify it later; without it, it stays self-reported.
+- Every story needs a NUMBER (any of the kinds above). If they don't give one, ask once, gently and specifically. Don't badger.
+- Every story needs a VERIFIER (any of the kinds above). This is what lets us verify it later.
 - NEVER invent, inflate, lead, or put numbers/words in their mouth. If they're unsure, that's fine — capture it honestly.
-- ONE question per message. Short. Warm. Plain language. Voice notes are welcome — say so early.
+- ONE question per message. Short. Warm. Plain language. VOICE NOTES IN ANY LANGUAGE are welcome — say so early and warmly; many people (especially hands-on workers, or anyone easier in another language) speak far better than they type.
 - Skip axes the CV already proves richly; spend the time on gaps and on the off-CV stories.
-- Acknowledge what they say before the next question — make it feel like a conversation with someone who's impressed, not a form.
+- Acknowledge what they say before the next question — a conversation with someone who's impressed, not a form.
 
 WHEN YOU HAVE ENOUGH
 Once you have a strong quantified story for each of the four axes (or an honest gap), at least one off-CV gem, and the signature line, warmly wrap up and end your message with the exact token [DEEP_DIVE_DONE] on its own line. Do not pad it out past that.
@@ -137,9 +152,9 @@ export function buildOpeningMessage(p: Parameters<typeof profileSummary>[0]): st
   const firstName = (p.full_name as string || 'there').split(' ')[0]
   return (
     `Hi ${firstName} 👋 This is the part most CVs get wrong.\n\n` +
-    `I've read your background — now I want the *proof* behind it, including the things that never make it onto a CV. Honestly, those are often the best: the thing you built from nothing, or the people whose lives you changed.\n\n` +
-    `So let's start there: *what's the achievement you're most proud of that isn't written down anywhere?* The one you'd tell a friend about, not a recruiter.\n\n` +
-    `Take your time — text or a voice note, whatever's easier.`
+    `I've read your background — now I want the *real proof* of what you're great at, including the things that never make it onto a CV. Honestly, those are often the best bit: the toughest job you nailed, the thing you built, or someone you helped that you're proud of.\n\n` +
+    `So let's start there: *what are you most proud of — in your work or even outside it — that isn't written down anywhere?*\n\n` +
+    `Tell me however's easiest — a voice note, in any language, works great.`
   )
 }
 
@@ -162,8 +177,8 @@ THE FOUR AXES (classify each proof to exactly one):
 - Heart — ${AXIS_GUIDE.Heart.meaning}  Strong proof: ${AXIS_GUIDE.Heart.strongProof}
 
 RULES
-- Select the SINGLE STRONGEST proof per axis. Magnitude wins ($/£/people/scale); founding / 0→X / turnarounds rank highest; recency does NOT.
-- A proof MUST have a concrete number. If a story has no number, lower its confidence; never invent one.
+- Select the SINGLE STRONGEST proof per axis. Magnitude wins — but magnitude is NOT only money. Depending on the trade it can be covers served, units made/fixed, customers kept, years of service, a safety record, apprentices trained, a rating/inspection score, or $/£/people/scale. Founding / 0→X / turnarounds / "the hardest job, done right" rank highest; recency does NOT.
+- A proof MUST have a concrete number (of any of those kinds). If a story has no number, lower its confidence; never invent one.
 - 'verifier' = the specific person, company, or body that could confirm it (from what they said). null if none was given.
 - 'source' = 'deepdive' if it came (mainly) from the interview, else 'cv'.
 - 'confidence' = high (concrete + quantified + verifiable), medium (quantified but soft verifier), low (no hard number).
@@ -172,7 +187,7 @@ RULES
 
 Return ONLY valid JSON:
 {
-  "headline": "a bold first-person positioning statement (their throughline across the WHOLE career, not the latest job), with the single most memorable phrase wrapped in ⟦…⟧. Honest — no inflation.",
+  "headline": "a bold first-person positioning statement in THEIR voice (plain and proud for a tradesperson — e.g. 'I run a kitchen that ⟦never sends a bad plate⟧'; sharper for an exec). Their throughline across the WHOLE career, not the latest job, with the single most memorable phrase wrapped in ⟦…⟧. Honest — no inflation, no corporate jargon forced onto a hands-on worker.",
   "roleLabel": "a short positioning label (e.g. 'Founder · Operations & Commercial Leader') — breadth over latest title",
   "narrative": "2 sentences carrying the range + the human story",
   "proofs": [
