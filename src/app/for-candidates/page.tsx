@@ -53,10 +53,10 @@ function ForCandidatesInner() {
   // click-to-expand cards (founder: tone down colour + don't dump 15 at once,
   // and keep it benefit-led rather than a copyable checklist for competitors).
   const uspGroups = [
-    { color: '#34D399', title: 'Proof & Profile', keys: ['u1', 'u14', 'u13'] },
-    { color: '#FB7185', title: 'Get Hired', keys: ['u11', 'u12', 'u8'] },
-    { color: '#38BDF8', title: 'Navigate the AI Era', keys: ['u2', 'u3', 'u4', 'u5', 'u7'] },
-    { color: '#FBBF24', title: 'Always-On, for Everyone', keys: ['u9', 'u10', 'u6', 'u15'] },
+    { color: '#34D399', title: t('forCandidates.uspGroups.proofProfile'), keys: ['u1', 'u14', 'u13'] },
+    { color: '#FB7185', title: t('forCandidates.uspGroups.getHired'), keys: ['u11', 'u12', 'u8'] },
+    { color: '#38BDF8', title: t('forCandidates.uspGroups.navigateAi'), keys: ['u2', 'u3', 'u4', 'u5', 'u7'] },
+    { color: '#FBBF24', title: t('forCandidates.uspGroups.alwaysOn'), keys: ['u9', 'u10', 'u6', 'u15'] },
   ].map(g => ({
     ...g,
     items: g.keys.map(k => ({ title: t(`forCandidates.usps.${k}Title`), body: t(`forCandidates.usps.${k}Body`) })),

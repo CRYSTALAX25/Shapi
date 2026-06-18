@@ -324,6 +324,12 @@ const it: typeof en = {
       u15Title: 'Mestieri e professioni',
       u15Body: 'Prima la voce per i mestieri e un percorso solo da telefono dall’inizio alla fine. Il cuoco, il capocantiere e il direttore operativo sono presi ugualmente sul serio.',
     },
+    uspGroups: {
+      proofProfile: 'Prove e Profilo',
+      getHired: 'Fatti Assumere',
+      navigateAi: 'Naviga l’Era dell’IA',
+      alwaysOn: 'Sempre Attivo, per Tutti',
+    },
     comparison: {
       eyebrow: 'Come si confronta Shapi',
       title: 'Costruita dove gli altri si sono fermati.',

@@ -323,6 +323,12 @@ const en = {
       u15Title: 'Trades and professions',
       u15Body: 'Voice-first for trades and a phone-only journey throughout. The chef, the supervisor and the operations director are taken equally seriously.',
     },
+    uspGroups: {
+      proofProfile: 'Proof & Profile',
+      getHired: 'Get Hired',
+      navigateAi: 'Navigate the AI Era',
+      alwaysOn: 'Always-On, for Everyone',
+    },
     comparison: {
       eyebrow: 'How Shapi compares',
       title: 'Built where the others stopped.',
