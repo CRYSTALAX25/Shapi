@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { runNurtureSweep } from '@/lib/nurture'
 import { runConciergeScanForAll, sendPendingConciergeOutreach } from '@/lib/concierge'
+import { runActiveHiringScanForAll, sendApprovedActiveHiringOutreach } from '@/lib/active-hiring'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { buildDigestMessage, buildCompanyDigestMessage, sendWhatsApp } from '@/lib/whatsapp'
 
@@ -50,6 +51,8 @@ export async function GET(request: Request) {
     monthlyRoiDigest?: unknown
     trialEndingNudge?: unknown
     dunningSweep?: unknown
+    activeHiringScan?: unknown
+    activeHiringSend?: unknown
   } = {
     ranAt: new Date().toISOString(),
     nurture: null,
@@ -158,6 +161,19 @@ export async function GET(request: Request) {
   } catch (err) {
     console.error('[cron/daily] monthly ROI digest failed:', err)
     summary.monthlyRoiDigest = { error: String(err) }
+  }
+
+  // Active Hiring — daily company-side shortlist + drafted outreach, then flush
+  // any outreach the company already approved.
+  try {
+    summary.activeHiringScan = await runActiveHiringScanForAll()
+  } catch (e) {
+    summary.activeHiringScan = { error: e instanceof Error ? e.message : String(e) }
+  }
+  try {
+    summary.activeHiringSend = await sendApprovedActiveHiringOutreach(50)
+  } catch (e) {
+    summary.activeHiringSend = { error: e instanceof Error ? e.message : String(e) }
   }
 
   return NextResponse.json({ ok: true, ...summary })

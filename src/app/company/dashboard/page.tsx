@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/admin'
 import InviteForm from './InviteForm'
 import DashboardNav from './DashboardNav'
+import ActiveHiringQueue from './ActiveHiringQueue'
 import { scoreCandidateForRole, type MatchCandidate } from '@/lib/matching'
 import SubscribeButton from '@/components/SubscribeButton'
 import WhatsAppConnectCard from '@/components/WhatsAppConnectCard'
@@ -459,6 +460,11 @@ export default async function CompanyDashboard({ searchParams }: { searchParams:
                   </p>
                   <p className="text-[#38BDF8] text-xs font-bold mt-4">Subscribe →</p>
                 </SubscribeButton>
+              )}
+
+              {/* Active Hiring subscribers — the live daily shortlist + outreach queue. */}
+              {hasAH && (
+                <div className="sm:col-span-2"><ActiveHiringQueue /></div>
               )}
 
               {/* Connect Shapi WhatsApp — first-encounter entry point, shown
