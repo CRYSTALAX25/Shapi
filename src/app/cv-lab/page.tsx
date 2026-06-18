@@ -15,10 +15,13 @@ const ANA: CVData = {
   headline: 'I make multi-million-dollar studio operations ⟦run lean⟧.',
   narrative:
     'Twenty years turning complex operations into measurable savings — across media production, studio facilities and corporate transformation. Now operating at the seam of studio ops and AI.',
+  // Chosen for impact AND range — the strongest result on each skill axis, not
+  // the three most recent jobs.
   proofs: [
-    { number: '$40M', context: 'NEOM · Business Operations Manager', outcome: 'saved on a $56M facilities contract', v: 'verified' },
-    { number: '$60K', context: 'Crystalax / Luxynest · Founder', outcome: 'revenue in months, 5★ on Amazon US — a fully AI-run brand', v: 'assessed' },
-    { number: '11', context: 'NEOM · Recruitment, Media & Entertainment', outcome: 'executives placed in 6 months (1 ED, 5 Directors, 5 Managers)', v: 'verified' },
+    { axis: 'Head', number: '$40M', context: 'NEOM · Business Operations Manager', outcome: 'saved by restructuring a $56M facilities contract', v: 'verified' },
+    { axis: 'Hands', number: '90+', context: 'NEOM · Studio Operations', outcome: 'operational workforce run across two production-ready studios', v: 'verified' },
+    { axis: 'Spark', number: '$60K', context: 'Crystalax / Luxynest · Founder', outcome: 'revenue from zero with a fully AI-run brand, 5★ on Amazon US', v: 'assessed' },
+    { axis: 'Heart', number: '11', context: 'NEOM · Recruitment, Media & Entertainment', outcome: 'executives placed in 6 months; teams built across four countries', v: 'verified' },
   ],
   expertise: {
     label: 'The Operator',
@@ -69,7 +72,7 @@ export default function CvLab() {
         </p>
       </div>
 
-      <VariantBlock n={1} title="The Statement" blurb="Editorial and minimal. The headline is the hero; proofs read as big numbers down the page. Most like Julie's format — premium, lots of air.">
+      <VariantBlock n={1} title="The Statement  ★ Recommended" blurb="Editorial and minimal — the headline is the hero. Credentials (languages · right to work) are now promoted up top, and each proof is tagged to a skill axis (Head / Hands / Spark / Heart), chosen for impact AND range so the candidate's full breadth lands at a glance.">
         <PositioningStatement d={ANA} />
       </VariantBlock>
 

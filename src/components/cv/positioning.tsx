@@ -12,11 +12,46 @@ const OCEAN = '#38BDF8'
 const EMERALD = '#34D399'
 const GRAD = `linear-gradient(135deg, ${OCEAN}, ${EMERALD})`
 
+// Each proof is tagged to a skill axis (Head / Hands / Spark / Heart) so the
+// glance shows RANGE, not recency. Proofs are chosen as the highest-impact
+// achievements that also maximise axis coverage — Shapi's skill-quadrant data
+// powers this (no other CV tool can).
+export type Axis = 'Head' | 'Hands' | 'Spark' | 'Heart'
+
 export type Proof = {
+  axis: Axis
   number: string                 // "$40M"
   context: string                // "NEOM · Studio Operations"
   outcome: string                // "saved on a $56M facilities contract"
   v: 'verified' | 'assessed' | 'self'
+}
+
+const AXIS_META: Record<Axis, { label: string; color: string }> = {
+  Head: { label: 'Head · strategy', color: '#38BDF8' },
+  Hands: { label: 'Hands · execution', color: '#34D399' },
+  Spark: { label: 'Spark · building', color: '#FBBF24' },
+  Heart: { label: 'Heart · people', color: '#FB7185' },
+}
+
+function AxisTag({ axis }: { axis: Axis }) {
+  const m = AXIS_META[axis]
+  return (
+    <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 0.5, textTransform: 'uppercase', color: m.color, background: `${m.color}1a`, border: `1px solid ${m.color}3a`, borderRadius: 999, padding: '2px 8px', whiteSpace: 'nowrap' }}>{m.label}</span>
+  )
+}
+
+// A high, verified credentials strip — languages · right to work · ways to work —
+// so they're never lost at the bottom.
+function CredentialStrip({ d }: { d: CVData }) {
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 18px', alignItems: 'center', padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <span style={{ fontSize: 11.5, color: '#C7C7D1' }}>🌐 {d.languages.map(l => `${l.name}${l.verified ? ' ✓' : ''}`).join(' · ')}</span>
+      <span style={{ width: 1, height: 12, background: 'rgba(255,255,255,0.12)' }} />
+      <span style={{ fontSize: 11.5, color: '#C7C7D1' }}><span style={{ color: EMERALD }}>✓</span> Right to work: {d.rightToWork.join(' · ')}</span>
+      <span style={{ width: 1, height: 12, background: 'rgba(255,255,255,0.12)' }} />
+      <span style={{ fontSize: 11.5, color: '#7E7E8E' }}>Works as: {d.waysToWork.join(' · ')}</span>
+    </div>
+  )
 }
 
 export type CVData = {
@@ -130,24 +165,31 @@ const LABEL: CSSProperties = { fontSize: 10, fontWeight: 800, letterSpacing: 1.5
 export function PositioningStatement({ d }: { d: CVData }) {
   return (
     <div style={{ ...SHELL, padding: '44px 48px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 26 }}>
         <span style={LABEL}>{d.roleLabel}</span>
         <TierBadge tier={d.tier} />
       </div>
-      <h1 style={{ fontSize: 40, lineHeight: 1.05, fontWeight: 900, letterSpacing: -1, margin: '0 0 18px' }}>
+      <h1 style={{ fontSize: 40, lineHeight: 1.05, fontWeight: 900, letterSpacing: -1, margin: '0 0 16px' }}>
         <Hl text={d.headline} />
       </h1>
-      <p style={{ fontSize: 15, lineHeight: 1.6, color: '#A6A6B4', maxWidth: 560, margin: '0 0 32px' }}>{d.narrative}</p>
+      <p style={{ fontSize: 15, lineHeight: 1.6, color: '#A6A6B4', maxWidth: 580, margin: '0 0 20px' }}>{d.narrative}</p>
 
-      <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '0 0 22px' }} />
-      <p style={{ ...LABEL, marginBottom: 16 }}>Proven on real work</p>
+      {/* credentials promoted high — never lost at the bottom */}
+      <CredentialStrip d={d} />
+
+      <p style={{ ...LABEL, margin: '28px 0 4px' }}>Proven across the full range</p>
+      <p style={{ fontSize: 11.5, color: '#7E7E8E', margin: '0 0 18px' }}>The strongest result on each of the four ways this person creates value.</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         {d.proofs.map((p, i) => (
           <div key={i} style={{ display: 'flex', gap: 18, alignItems: 'baseline' }}>
-            <span style={{ fontSize: 30, fontWeight: 900, letterSpacing: -1, minWidth: 96, background: GRAD, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{p.number}</span>
+            <span style={{ fontSize: 30, fontWeight: 900, letterSpacing: -1, minWidth: 92, textAlign: 'right', background: GRAD, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{p.number}</span>
             <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                <AxisTag axis={p.axis} />
+                <VBadge v={p.v} />
+              </div>
               <p style={{ margin: 0, fontSize: 14, fontWeight: 700 }}>{p.outcome}</p>
-              <p style={{ margin: '2px 0 0', fontSize: 12, color: '#7E7E8E' }}>{p.context} &nbsp;·&nbsp; <VBadge v={p.v} /></p>
+              <p style={{ margin: '2px 0 0', fontSize: 12, color: '#7E7E8E' }}>{p.context}</p>
             </div>
           </div>
         ))}
@@ -155,23 +197,14 @@ export function PositioningStatement({ d }: { d: CVData }) {
 
       <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '26px 0 22px' }} />
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 28, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-        <div style={{ flex: 1, minWidth: 200 }}>
-          <p style={{ ...LABEL, marginBottom: 8 }}>Expertise style · {d.expertise.label}</p>
+        <div style={{ flex: 1, minWidth: 220 }}>
+          <p style={{ ...LABEL, marginBottom: 10 }}>Expertise style · {d.expertise.label}</p>
           <Bars bars={d.expertise.bars} />
-          <div style={{ marginTop: 14 }}>
-            <p style={{ ...LABEL, marginBottom: 8 }}>How I work</p>
-            <Chips items={d.waysToWork} />
-          </div>
         </div>
         <div style={{ textAlign: 'right' }}>
           <QR />
           <p style={{ margin: '8px 0 0', fontSize: 11, color: OCEAN, fontWeight: 700 }}>{d.profileUrl}</p>
         </div>
-      </div>
-
-      <div style={{ marginTop: 22, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', fontSize: 11, color: '#7E7E8E' }}>
-        <span>🌐 {d.languages.map(l => `${l.name}${l.verified ? ' ✓' : ''}`).join(' · ')}</span>
-        <span>✓ Right to work: {d.rightToWork.join(' · ')}</span>
       </div>
     </div>
   )
@@ -222,9 +255,9 @@ export function PositioningDossier({ d }: { d: CVData }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {d.proofs.map((p, i) => (
               <div key={i} style={{ padding: '14px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontSize: 22, fontWeight: 900, letterSpacing: -0.5, background: GRAD, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{p.number}</span>
-                  <VBadge v={p.v} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><AxisTag axis={p.axis} /><VBadge v={p.v} /></div>
                 </div>
                 <p style={{ margin: '4px 0 0', fontSize: 13.5, fontWeight: 700 }}>{p.outcome}</p>
                 <p style={{ margin: '2px 0 0', fontSize: 11.5, color: '#7E7E8E' }}>{p.context}</p>
@@ -251,6 +284,7 @@ export function PositioningGrid({ d }: { d: CVData }) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 26 }}>
         {d.proofs.map((p, i) => (
           <div key={i} style={{ padding: 16, borderRadius: 14, background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.16)' }}>
+            <div style={{ marginBottom: 8 }}><AxisTag axis={p.axis} /></div>
             <p style={{ margin: 0, fontSize: 26, fontWeight: 900, letterSpacing: -1, background: GRAD, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{p.number}</p>
             <p style={{ margin: '6px 0 8px', fontSize: 12.5, fontWeight: 700, color: '#F4F4F7', lineHeight: 1.35 }}>{p.outcome}</p>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
