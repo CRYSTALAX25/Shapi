@@ -57,7 +57,7 @@ function CredentialStrip({ d }: { d: CVData }) {
 export type CVData = {
   name: string
   roleLabel: string              // "FILM STUDIO OPERATIONS · AI-ENABLED LEADER"
-  tier: 'Basic' | 'Strongly' | 'Premium'
+  tier?: 'Basic' | 'Strongly' | 'Premium'  // omit until actually earned (no overclaiming)
   headline: string               // bold statement, ⟦…⟧ marks the highlighted phrase
   narrative: string
   proofs: Proof[]
@@ -167,7 +167,7 @@ export function PositioningStatement({ d }: { d: CVData }) {
     <div style={{ ...SHELL, padding: '44px 48px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 26 }}>
         <span style={LABEL}>{d.roleLabel}</span>
-        <TierBadge tier={d.tier} />
+        {d.tier && <TierBadge tier={d.tier} />}
       </div>
       <h1 style={{ fontSize: 40, lineHeight: 1.05, fontWeight: 900, letterSpacing: -1, margin: '0 0 16px' }}>
         <Hl text={d.headline} />
@@ -217,7 +217,7 @@ export function PositioningDossier({ d }: { d: CVData }) {
       <div style={{ padding: '34px 40px 26px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <span style={LABEL}>{d.roleLabel}</span>
-          <TierBadge tier={d.tier} />
+          {d.tier && <TierBadge tier={d.tier} />}
         </div>
         <h1 style={{ fontSize: 30, lineHeight: 1.1, fontWeight: 900, letterSpacing: -0.5, margin: 0 }}><Hl text={d.headline} /></h1>
       </div>
@@ -276,7 +276,7 @@ export function PositioningGrid({ d }: { d: CVData }) {
     <div style={{ ...SHELL, padding: '40px 44px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
         <span style={LABEL}>{d.roleLabel}</span>
-        <TierBadge tier={d.tier} />
+        {d.tier && <TierBadge tier={d.tier} />}
       </div>
       <h1 style={{ fontSize: 32, lineHeight: 1.1, fontWeight: 900, letterSpacing: -0.5, margin: '0 0 14px' }}><Hl text={d.headline} /></h1>
       <p style={{ fontSize: 14, lineHeight: 1.6, color: '#A6A6B4', margin: '0 0 26px', maxWidth: 600 }}>{d.narrative}</p>

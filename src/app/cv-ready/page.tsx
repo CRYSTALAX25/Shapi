@@ -572,6 +572,19 @@ export default function CVReady() {
           </p>
         </div>
 
+        {/* Verified Positioning CV — the new lead format */}
+        <Link href="/profile/positioning" className="block gradient-border-card rounded-2xl p-5 mb-6 hover:opacity-95 transition-opacity" style={{ borderColor: 'rgba(52,211,153,0.35)' }}>
+          <div className="flex items-center justify-between gap-3 mb-1">
+            <p className="text-[#34D399] text-xs font-bold uppercase tracking-wider">✨ New · Verified Positioning CV</p>
+            <span className="text-[#34D399] text-sm font-black flex-shrink-0">Build it →</span>
+          </div>
+          <p className="text-[#F4F4F7] text-sm font-bold mb-1">The CV is dead — here&apos;s what replaces it.</p>
+          <p className="text-[#7E7E8E] text-xs leading-relaxed">
+            A 5-minute WhatsApp chat surfaces the proof that makes you undeniable — including the things that never
+            make it onto a CV — and builds a positioning page where every claim is verified.
+          </p>
+        </Link>
+
         {/* Before / After */}
         {(loadingPreview || preview?.has_whatsapp) && (
           <div className="gradient-border-card rounded-2xl p-5 mb-6">
