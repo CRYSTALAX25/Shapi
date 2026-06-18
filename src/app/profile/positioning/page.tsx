@@ -6,8 +6,9 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { PositioningStatement, type CVData, type Axis } from '@/components/cv/positioning'
 import StartDeepDiveButton from './StartDeepDiveButton'
+import { GenerateFromCvButton, PrintButton } from './Actions'
 
-type RawProof = { axis?: string; number?: string; outcome?: string; context?: string; verifier?: string | null; confidence?: string }
+type RawProof = { axis?: string; number?: string; outcome?: string; context?: string; verifier?: string | null; confidence?: string; verification?: string }
 type Result = { headline?: string; roleLabel?: string; narrative?: string; proofs?: RawProof[] }
 type Deepdive = { status?: string; result?: Result } | null
 
@@ -24,7 +25,10 @@ function tierLabel(vt: string | null | undefined): CVData['tier'] {
 // Honest verification mapping: nothing claims ✓ Verified until the reference
 // engine confirms it. Deep-dive/CV proofs are ◆ Shapi-assessed; thin ones ○ self.
 function proofV(p: RawProof): 'verified' | 'assessed' | 'self' {
-  if (p.confidence === 'low' || (!p.number)) return 'self'
+  // The extractor sets this honestly (✓ only when references confirm the claim).
+  if (p.verification === 'verified' || p.verification === 'assessed' || p.verification === 'self') return p.verification
+  // Fallback if absent: never claim verified.
+  if (p.confidence === 'low' || !p.number) return 'self'
   return 'assessed'
 }
 
@@ -111,12 +115,16 @@ export default async function PositioningCVPage() {
     }
     return (
       <Shell>
-        <div className="mb-6">
-          <h1 className="text-2xl font-black text-[#F4F4F7] mb-1">Your Verified Positioning CV</h1>
-          <p className="text-[#7E7E8E] text-sm">Built from your deep-dive. As your references come back, more of these move from ◆ Shapi-assessed to ✓ Verified.</p>
+        <style>{`@media print { nav, .no-print, .fixed { display: none !important } body { background: #060609 !important } }`}</style>
+        <div className="mb-6 flex items-start justify-between gap-4 no-print">
+          <div>
+            <h1 className="text-2xl font-black text-[#F4F4F7] mb-1">Your Verified Positioning CV</h1>
+            <p className="text-[#7E7E8E] text-sm">As your references come back, more proofs move from ◆ Shapi-assessed to ✓ Verified.</p>
+          </div>
+          <div className="flex-shrink-0"><PrintButton /></div>
         </div>
         <div className="flex justify-center mb-8"><PositioningStatement d={data} /></div>
-        <div className="flex justify-center"><StartDeepDiveButton restart label="Redo my deep-dive →" /></div>
+        <div className="flex justify-center no-print"><StartDeepDiveButton restart label="Redo my deep-dive →" /></div>
       </Shell>
     )
   }
@@ -166,7 +174,10 @@ export default async function PositioningCVPage() {
           <li>✓ Who can vouch for each — so we can verify it, not just take your word.</li>
         </ul>
       </div>
-      <div className="flex justify-center"><StartDeepDiveButton /></div>
+      <div className="flex flex-col items-center gap-3">
+        <StartDeepDiveButton />
+        <GenerateFromCvButton />
+      </div>
     </Shell>
   )
 }

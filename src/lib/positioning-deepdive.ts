@@ -161,14 +161,25 @@ export function buildOpeningMessage(p: Parameters<typeof profileSummary>[0]): st
 // The EXTRACTION prompt — turns the full transcript (+ CV) into structured,
 // axis-tagged proofs for the selection engine. Pulls from BOTH the conversation
 // and the CV, dedupes, and is strict about numbers + verifiers.
-export function buildExtractionPrompt(p: Parameters<typeof profileSummary>[0], transcript: string): string {
-  return `You are extracting a candidate's strongest achievements into structured proofs for their Verified Positioning CV. Use BOTH their CV and the deep-dive interview transcript. The interview often contains their best, off-CV stories — weight those highly.
+export function buildExtractionPrompt(
+  p: Parameters<typeof profileSummary>[0],
+  transcript: string,
+  verifiedClaims: string[] = [],
+): string {
+  const verifiedBlock = verifiedClaims.length
+    ? `These claims have been INDEPENDENTLY CONFIRMED by the candidate's reference cross-check (you may mark a matching proof "verified"):\n- ${verifiedClaims.join('\n- ')}`
+    : `No independent reference confirmation is available yet — so NO proof may be marked "verified". Use "assessed" or "self".`
+
+  return `You are extracting a candidate's strongest achievements into structured proofs for their Verified Positioning CV. Use BOTH their CV and the deep-dive interview transcript (which may be empty — then work from the CV alone). The interview often contains their best, off-CV stories — weight those highly.
 
 THEIR CV:
 ${profileSummary(p)}
 
-THE DEEP-DIVE TRANSCRIPT:
-${transcript}
+THE DEEP-DIVE TRANSCRIPT (may be empty):
+${transcript || '(no interview yet — extract from the CV alone)'}
+
+INDEPENDENT VERIFICATION STATUS:
+${verifiedBlock}
 
 THE FOUR AXES (classify each proof to exactly one):
 - Head — ${AXIS_GUIDE.Head.meaning}  Strong proof: ${AXIS_GUIDE.Head.strongProof}
@@ -182,6 +193,7 @@ RULES
 - 'verifier' = the specific person, company, or body that could confirm it (from what they said). null if none was given.
 - 'source' = 'deepdive' if it came (mainly) from the interview, else 'cv'.
 - 'confidence' = high (concrete + quantified + verifiable), medium (quantified but soft verifier), low (no hard number).
+- 'verification' = "verified" ONLY if the proof clearly matches one of the independently-confirmed claims listed above; "assessed" if it came from the CV or interview with a credible verifier named but is NOT yet independently confirmed; "self" if it's their word alone with no verifier. NEVER mark "verified" without a confirmed match — this is a promise to employers.
 - Prefer DIFFERENT experiences across the four proofs to show career breadth — but if one experience is genuinely the strongest on two axes and nothing else is close, it may anchor both (say so via context).
 - Do NOT inflate, merge unrelated facts, or put words in their mouth.
 
@@ -191,7 +203,7 @@ Return ONLY valid JSON:
   "roleLabel": "a short positioning label (e.g. 'Founder · Operations & Commercial Leader') — breadth over latest title",
   "narrative": "2 sentences carrying the range + the human story",
   "proofs": [
-    { "axis": "Head|Hands|Spark|Heart", "number": "...", "outcome": "...", "context": "company · role", "verifier": "name/company/body or null", "source": "cv|deepdive", "confidence": "high|medium|low" }
+    { "axis": "Head|Hands|Spark|Heart", "number": "...", "outcome": "...", "context": "company · role", "verifier": "name/company/body or null", "source": "cv|deepdive", "confidence": "high|medium|low", "verification": "verified|assessed|self" }
   ]
 }`
 }
@@ -269,7 +281,7 @@ export async function runPositioningTurn(
 export async function runPositioningExtraction(admin: SupabaseClient, userId: string): Promise<void> {
   const { data: profile } = await admin
     .from('profiles')
-    .select('full_name, headline, summary, work_history, skills, positioning_deepdive')
+    .select('full_name, headline, summary, work_history, skills, verification_report, positioning_deepdive')
     .eq('id', userId)
     .single()
   if (!profile) return
@@ -279,11 +291,16 @@ export async function runPositioningExtraction(admin: SupabaseClient, userId: st
     .map(t => `${t.role === 'assistant' ? 'INTERVIEWER' : 'CANDIDATE'}: ${t.content}`)
     .join('\n\n')
 
+  // Claims the reference cross-check has independently confirmed — only these
+  // may earn a proof the ✓ Verified badge.
+  const report = profile.verification_report as { claims_verified?: string[] } | null
+  const verifiedClaims = Array.isArray(report?.claims_verified) ? report!.claims_verified! : []
+
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
   const res = await anthropic.messages.create({
     model: MODEL,
     max_tokens: 1600,
-    messages: [{ role: 'user', content: buildExtractionPrompt(profile, transcript) }],
+    messages: [{ role: 'user', content: buildExtractionPrompt(profile, transcript, verifiedClaims) }],
   })
   const text = res.content[0].type === 'text' ? res.content[0].text : ''
   const m = text.match(/\{[\s\S]*\}/)
