@@ -486,6 +486,12 @@ function PrintContent() {
       <div className="no-print">
         <button className="btn btn-secondary" onClick={() => router.back()}>← Back</button>
 
+        {/* Format switch — Classic (this page) ⇄ Verified Positioning CV */}
+        <span style={{ display: 'inline-flex', borderRadius: 999, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.14)', marginLeft: 8, verticalAlign: 'middle' }}>
+          <span style={{ padding: '7px 14px', fontSize: 13, fontWeight: 800, background: 'linear-gradient(135deg,#38BDF8,#34D399)', color: '#060609' }}>📄 Classic</span>
+          <a href="/profile/positioning" style={{ padding: '7px 14px', fontSize: 13, fontWeight: 700, color: '#C7C7D1', textDecoration: 'none' }}>✨ Positioning</a>
+        </span>
+
         {/* Language picker — single dropdown lists English + every CV
             language + Universal. Selecting jumps to that version. */}
         <select

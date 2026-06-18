@@ -116,6 +116,12 @@ export default async function PositioningCVPage() {
     return (
       <Shell>
         <style>{`@media print { nav, .no-print, .fixed { display: none !important } body { background: #060609 !important } }`}</style>
+        <div className="no-print mb-5 flex justify-center">
+          <span style={{ display: 'inline-flex', borderRadius: 999, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.14)' }}>
+            <a href="/profile/print" style={{ padding: '8px 16px', fontSize: 13, fontWeight: 700, color: '#C7C7D1', textDecoration: 'none' }}>📄 Classic</a>
+            <span style={{ padding: '8px 16px', fontSize: 13, fontWeight: 800, background: 'linear-gradient(135deg,#38BDF8,#34D399)', color: '#060609' }}>✨ Positioning</span>
+          </span>
+        </div>
         <div className="mb-6 flex items-start justify-between gap-4 no-print">
           <div>
             <h1 className="text-2xl font-black text-[#F4F4F7] mb-1">Your Verified Positioning CV</h1>
