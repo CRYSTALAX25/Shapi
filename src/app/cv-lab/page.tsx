@@ -1,0 +1,85 @@
+// /cv-lab — design review for the new "Verified Positioning CV" (the format we
+// lead with; classic chronological CV stays as the toggle). Renders all three
+// variants with Ana's real CV as the live example. Unlinked review route.
+
+import { PositioningStatement, PositioningDossier, PositioningGrid, type CVData } from '@/components/cv/positioning'
+
+export const metadata = { title: 'CV Lab — Verified Positioning CV', robots: { index: false } }
+
+// Ana's CV → positioning data (from 2026 May CV). Numbers + outcomes become the
+// verified proof points; verification tiers are illustrative for the mockup.
+const ANA: CVData = {
+  name: 'Ana O. Barber',
+  roleLabel: 'Film Studio Operations · AI-Enabled Leader',
+  tier: 'Strongly',
+  headline: 'I make multi-million-dollar studio operations ⟦run lean⟧.',
+  narrative:
+    'Twenty years turning complex operations into measurable savings — across media production, studio facilities and corporate transformation. Now operating at the seam of studio ops and AI.',
+  proofs: [
+    { number: '$40M', context: 'NEOM · Business Operations Manager', outcome: 'saved on a $56M facilities contract', v: 'verified' },
+    { number: '$60K', context: 'Crystalax / Luxynest · Founder', outcome: 'revenue in months, 5★ on Amazon US — a fully AI-run brand', v: 'assessed' },
+    { number: '11', context: 'NEOM · Recruitment, Media & Entertainment', outcome: 'executives placed in 6 months (1 ED, 5 Directors, 5 Managers)', v: 'verified' },
+  ],
+  expertise: {
+    label: 'The Operator',
+    bars: [
+      { name: 'Head — strategy & structure', v: 90 },
+      { name: 'Hands — execution & ops', v: 88 },
+      { name: 'Spark — building new', v: 72 },
+      { name: 'Heart — people & teams', v: 64 },
+    ],
+  },
+  waysToWork: ['Permanent', 'Fractional', 'Advisory'],
+  languages: [
+    { name: 'Croatian', verified: true },
+    { name: 'English', verified: true },
+    { name: 'Italian', verified: true },
+    { name: 'Spanish' },
+  ],
+  rightToWork: ['UK PR', 'Saudi PR', 'EU (Croatian passport)'],
+  profileUrl: 'shapi.io/p/ana-barber',
+}
+
+function VariantBlock({ n, title, blurb, children }: { n: number; title: string; blurb: string; children: React.ReactNode }) {
+  return (
+    <section style={{ width: '100%', maxWidth: 820, margin: '0 auto 56px' }}>
+      <div style={{ marginBottom: 16 }}>
+        <span style={{ fontSize: 12, fontWeight: 900, color: '#34D399', letterSpacing: 1 }}>TEMPLATE {n}</span>
+        <h2 style={{ margin: '4px 0 4px', fontSize: 22, fontWeight: 900, color: '#F4F4F7' }}>{title}</h2>
+        <p style={{ margin: 0, fontSize: 13, color: '#7E7E8E', maxWidth: 640 }}>{blurb}</p>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>{children}</div>
+    </section>
+  )
+}
+
+export default function CvLab() {
+  return (
+    <div style={{ minHeight: '100vh', background: '#060609', padding: '48px 20px 80px', fontFamily: "'Plus Jakarta Sans', -apple-system, sans-serif" }}>
+      <div style={{ maxWidth: 820, margin: '0 auto 40px', textAlign: 'center' }}>
+        <span style={{ fontSize: 11, fontWeight: 900, letterSpacing: 2, textTransform: 'uppercase', color: '#7E7E8E' }}>Shapi · CV Lab</span>
+        <h1 style={{ margin: '10px 0 8px', fontSize: 30, fontWeight: 900, color: '#F4F4F7' }}>The Verified Positioning CV</h1>
+        <p style={{ margin: '0 auto', maxWidth: 600, fontSize: 14, color: '#A6A6B4', lineHeight: 1.6 }}>
+          Three takes on the format we&apos;d lead with — statement headline, a narrative throughline, and proof
+          engagements where every number carries its verification status (the bit no other CV can do). Same data,
+          three layouts. Pick one and I&apos;ll wire it into the builder, with the classic CV as the toggle.
+        </p>
+        <p style={{ marginTop: 14, fontSize: 12, color: '#5C5C6A' }}>
+          ✓ Verified &nbsp; ◆ Shapi-assessed &nbsp; ○ Self-reported
+        </p>
+      </div>
+
+      <VariantBlock n={1} title="The Statement" blurb="Editorial and minimal. The headline is the hero; proofs read as big numbers down the page. Most like Julie's format — premium, lots of air.">
+        <PositioningStatement d={ANA} />
+      </VariantBlock>
+
+      <VariantBlock n={2} title="The Dossier" blurb="Two-column and structured. Left rail carries expertise style, languages, right-to-work and the profile QR; the right side tells the story + proofs. Recruiter-friendly, complete.">
+        <PositioningDossier d={ANA} />
+      </VariantBlock>
+
+      <VariantBlock n={3} title="The Proof Grid" blurb="Metric-forward and digital-first. Proofs become a grid of verified number cards — instantly scannable on a screen, still prints clean.">
+        <PositioningGrid d={ANA} />
+      </VariantBlock>
+    </div>
+  )
+}
