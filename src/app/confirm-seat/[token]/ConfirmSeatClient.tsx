@@ -7,6 +7,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import CultureSurveyForm from '@/app/culture/[token]/CultureSurveyForm'
 
 type InitialState = 'pending' | 'confirmed' | 'disputed' | 'expired' | 'invalid'
 
@@ -55,6 +56,10 @@ function Center({ icon, title, body }: { icon: string; title: string; body: stri
 
 export default function ConfirmSeatClient({ token, initial }: Props) {
   const [state, setState] = useState<InitialState>(initial.state)
+  // After confirming, we offer the anonymous culture survey (Layer 2 of the
+  // trust score). cultureToken is minted server-side on confirm.
+  const [cultureToken, setCultureToken] = useState<string | null>(null)
+  const [cultureSkipped, setCultureSkipped] = useState(false)
   const [disputing, setDisputing] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -91,6 +96,7 @@ export default function ConfirmSeatClient({ token, initial }: Props) {
       if (!res.ok) { setError(data.error || 'Something went wrong — please try again.'); return }
       // Idempotent re-visit: server reports the existing status.
       setState(data.status === 'disputed' ? 'disputed' : 'confirmed')
+      if (action === 'confirm' && typeof data.cultureToken === 'string') setCultureToken(data.cultureToken)
     } catch {
       setError('Network error — please try again.')
     } finally {
@@ -105,7 +111,30 @@ export default function ConfirmSeatClient({ token, initial }: Props) {
     return <Center icon="⏳" title="This link has expired" body="Seat confirmation links are valid for 14 days. Ask your company to send a fresh one — it takes them one click." />
   }
   if (state === 'confirmed') {
-    return <Center icon="✓" title={`Thank you, ${firstName}.`} body={`Your role at ${initial.companyName || 'your company'} is confirmed and now shows as verified on the org chart. Nothing else to do.`} />
+    const companyName = initial.companyName || 'your company'
+    // Piggyback: offer the anonymous culture survey right after confirming.
+    if (cultureToken && !cultureSkipped) {
+      return (
+        <Shell>
+          <div className="text-center">
+            <div className="text-3xl mb-2">✓</div>
+            <h1 className="text-2xl font-black text-[#F4F4F7] mb-2">Verified — thanks, {firstName}.</h1>
+          </div>
+          <p className="text-[#A6A6B4] text-sm leading-relaxed mb-1">
+            While you&rsquo;re here: <strong className="text-[#C7C7D1]">anonymously</strong>, what&rsquo;s it really like to work at {companyName}?
+          </p>
+          <p className="text-[#7E7E8E] text-xs leading-relaxed mb-5">
+            {companyName} only ever sees the combined averages — never your individual answers, and never that you took part.
+            A score only appears once at least 3 people respond. Totally optional.
+          </p>
+          <CultureSurveyForm token={cultureToken} companyName={companyName} respondentType="current" />
+          <button onClick={() => setCultureSkipped(true)} className="w-full py-3 mt-3 text-xs" style={{ color: '#7E7E8E' }}>
+            No thanks — I&rsquo;m done
+          </button>
+        </Shell>
+      )
+    }
+    return <Center icon="✓" title={`Thank you, ${firstName}.`} body={`Your role at ${companyName} is confirmed and now shows as verified on the org chart. Nothing else to do.`} />
   }
   if (state === 'disputed') {
     return <Center icon="📝" title={`Got it, ${firstName}.`} body="We've flagged this seat for review and passed your corrections along. Your company will update the org chart." />

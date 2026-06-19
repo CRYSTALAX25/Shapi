@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
+import crypto from 'crypto'
 
 // PUBLIC endpoint — the employee confirming their seat has NO login. Auth is
 // the unguessable token itself, exactly like /api/references/submit. All DB
@@ -78,7 +79,30 @@ export async function POST(request: Request) {
         .eq('company_id', row.company_id)
       if (seatErr) console.error('[confirm-seat] seat update failed:', seatErr.message)
     }
-    return NextResponse.json({ ok: true, status: 'confirmed' })
+
+    // Piggyback the anonymous culture survey onto the seat confirmation — this
+    // is how CURRENT employees feed the company trust score (Layer 2). We mint a
+    // fresh culture-reference token so they can rate their employer right after
+    // confirming. ANONYMOUS by design: the row carries company_id + source only,
+    // NO person/seat link, so a response can never be traced back. Only the
+    // first confirm mints one (re-visits return early above). Degrades quietly
+    // if the culture table isn't present.
+    let cultureToken: string | null = null
+    try {
+      const minted = crypto.randomBytes(32).toString('hex')
+      const { error: cErr } = await admin.from('company_culture_references').insert({
+        company_id: row.company_id,
+        token: minted,
+        respondent_type: 'current',
+        source: 'seat_confirmation',
+      })
+      if (cErr) console.error('[confirm-seat] culture token mint failed:', cErr.message)
+      else cultureToken = minted
+    } catch (e) {
+      console.error('[confirm-seat] culture token error:', e)
+    }
+
+    return NextResponse.json({ ok: true, status: 'confirmed', cultureToken })
   }
 
   // action === 'dispute'
