@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import FeatureGate from '@/components/FeatureGate'
 
 export const metadata = { title: 'People · Shapi' }
 
@@ -107,6 +108,7 @@ export default async function PeoplePage() {
           ← Dashboard
         </Link>
 
+        <FeatureGate feature="employee_hr_portal">
         <header className="mb-6">
           <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: ACCENT }}>
             People · {planTier === 'free' ? 'Free' : planTier === 'pro' ? 'Pro' : 'Enterprise'}
@@ -181,6 +183,7 @@ export default async function PeoplePage() {
             })}
           </ul>
         )}
+        </FeatureGate>
       </div>
     </main>
   )

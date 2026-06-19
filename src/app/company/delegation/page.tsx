@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import DelegationBoard from './DelegationBoard'
+import FeatureGate from '@/components/FeatureGate'
 
 export const metadata = { title: 'Workload Delegation · Shapi' }
 
@@ -79,27 +80,29 @@ export default async function DelegationPage() {
           ← Dashboard
         </Link>
 
-        <header className="mb-6">
-          <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: ACCENT }}>
-            Workload Delegation · HR OS
-          </p>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-2" style={HEADING_STYLE}>
-            Cover the work, not just the seat
-          </h1>
-          <p className="text-sm leading-relaxed" style={BODY_STYLE}>
-            When someone is overloaded or separating, move a slice of their workload onto covering
-            seats. Each delegation lifts the covering seat&apos;s absorbed capacity — when a seat
-            crosses 100%, it surfaces as a retention risk in the Calibration Lens. Deliverables
-            produced under a delegation later feed Skill Density.
-          </p>
-        </header>
+        <FeatureGate feature="workload_delegation">
+          <header className="mb-6">
+            <p className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: ACCENT }}>
+              Workload Delegation · HR OS
+            </p>
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-2" style={HEADING_STYLE}>
+              Cover the work, not just the seat
+            </h1>
+            <p className="text-sm leading-relaxed" style={BODY_STYLE}>
+              When someone is overloaded or separating, move a slice of their workload onto covering
+              seats. Each delegation lifts the covering seat&apos;s absorbed capacity — when a seat
+              crosses 100%, it surfaces as a retention risk in the Calibration Lens. Deliverables
+              produced under a delegation later feed Skill Density.
+            </p>
+          </header>
 
-        <DelegationBoard
-          seats={seats}
-          persons={persons}
-          initialDelegations={delegations}
-          planTier={planTier}
-        />
+          <DelegationBoard
+            seats={seats}
+            persons={persons}
+            initialDelegations={delegations}
+            planTier={planTier}
+          />
+        </FeatureGate>
       </div>
     </main>
   )
