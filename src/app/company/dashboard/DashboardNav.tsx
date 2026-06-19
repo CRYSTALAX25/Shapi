@@ -38,6 +38,7 @@ const NAV_GROUPS: Array<{ label: string; badge?: string; items: NavItem[] }> = [
     badge: 'Enterprise',
     items: [
       { href: '/company/skill-density', label: 'Skill Density', icon: '🔬' },
+      { href: '/company/workforce-pl', label: 'Workforce P&L', icon: '⚖️' },
       { href: '/company/brain', label: 'Company Brain', icon: '🧬' },
       { href: '/company/delegation', label: 'Workload Delegation', icon: '⚖️' },
       { href: '/company/os', label: 'Workforce OS', icon: '📡' },
