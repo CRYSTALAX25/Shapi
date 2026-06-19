@@ -27,34 +27,28 @@ export async function POST(
     return NextResponse.json({ error: 'Missing token' }, { status: 400 })
   }
 
-  let body: {
-    paid_on_time?: unknown
-    real_hours?: unknown
-    manager_quality?: unknown
-    period_worked?: unknown
-    notes?: unknown
-  } = {}
-  try { body = await request.json() } catch {}
+  const body: Record<string, unknown> = await request.json().catch(() => ({}))
 
-  const paid = body.paid_on_time
-  const hours = body.real_hours
-  const mgr = body.manager_quality
+  // The 8 universal dimensions are required; exit_handled is past-only (optional).
+  const REQUIRED = ['paid_on_time', 'real_hours', 'manager_quality', 'promise_kept',
+    'respect_safety', 'growth', 'fair_treatment', 'would_recommend'] as const
 
-  if (!isValidRating(paid) || !isValidRating(hours) || !isValidRating(mgr)) {
-    return NextResponse.json(
-      { error: 'Ratings must be integers 1–5 on all three questions.' },
-      { status: 400 },
-    )
+  const ratings: Record<string, number> = {}
+  for (const key of REQUIRED) {
+    const v = body[key]
+    if (!isValidRating(v)) {
+      return NextResponse.json({ error: 'Please answer all questions (1–5).' }, { status: 400 })
+    }
+    ratings[key] = v
   }
+  // exit_handled — only stored if a valid rating was sent.
+  if (isValidRating(body.exit_handled)) ratings.exit_handled = body.exit_handled
 
-  const periodWorked =
-    typeof body.period_worked === 'string' && body.period_worked.trim()
-      ? body.period_worked.trim().slice(0, 200)
-      : null
-  const notes =
-    typeof body.notes === 'string' && body.notes.trim()
-      ? body.notes.trim().slice(0, 600)
-      : null
+  const text = (v: unknown, max: number) =>
+    typeof v === 'string' && v.trim() ? v.trim().slice(0, max) : null
+  const periodWorked = text(body.period_worked, 200)
+  const improveCulture = text(body.improve_culture, 600)
+  const bestThing = text(body.best_thing, 600)
 
   const admin = createAdminClient()
 
@@ -101,11 +95,11 @@ export async function POST(
   const { error: updateError } = await admin
     .from('company_culture_references')
     .update({
-      paid_on_time: paid,
-      real_hours: hours,
-      manager_quality: mgr,
-      notes,
+      ...ratings,
+      improve_culture: improveCulture,
+      best_thing: bestThing,
       period_worked: periodWorked,
+      consent_ack: true,
       submitted_at: new Date().toISOString(),
       submit_ip: submitIp,
       flagged,
