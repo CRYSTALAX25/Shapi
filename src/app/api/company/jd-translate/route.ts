@@ -12,6 +12,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { LOCALES, type Locale } from '@/lib/i18n/locales'
 
 export const maxDuration = 60
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
     ? JSON.stringify({ title, description, requirements })
     : JSON.stringify({ jd_text: jdText.slice(0, 12000) })
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   let response
   try {

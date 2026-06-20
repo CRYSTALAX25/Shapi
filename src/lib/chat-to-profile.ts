@@ -8,7 +8,7 @@
 // After this runs, the profile is upserted with the extracted fields and
 // cv_parsed is flipped to true.
 
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 type ChatTurn = { role: 'user' | 'assistant'; content: string }
@@ -51,7 +51,7 @@ export type ExtractedProfile = {
 export async function extractProfileFromChat(history: ChatTurn[]): Promise<ExtractedProfile | null> {
   if (history.length === 0) return null
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const transcript = history.map((m, i) =>
     `${m.role === 'user' ? 'CANDIDATE' : 'SHAPI'} (${i + 1}): ${m.content}`

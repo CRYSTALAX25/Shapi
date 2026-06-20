@@ -6,10 +6,10 @@
 // (or after enough turns) we call extractRoleFromChat() to produce a draft
 // `roles` insert.
 
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+const anthropic = getAnthropic()
 
 export type ExtractedRole = {
   title: string

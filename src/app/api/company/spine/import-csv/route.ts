@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 // Vercel Pro plan: Claude column-mapping + structuring of a ~200-row CSV
 // usually finishes inside 30s but cold starts + large headers can push us
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     const truncated = lines.length > MAX_ROWS + 1
     const csvForClaude = truncated ? lines.slice(0, MAX_ROWS + 1).join('\n') : csvText
 
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+    const anthropic = getAnthropic()
 
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',

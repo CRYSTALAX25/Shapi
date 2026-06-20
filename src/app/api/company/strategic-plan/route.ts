@@ -22,6 +22,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { scoreCandidateForRole, type MatchCandidate, type MatchRole } from '@/lib/matching'
 
 // Sonnet 4.6 with 3200-4000 tokens + multi-block context (company +
@@ -424,7 +425,7 @@ LENGTH DISCIPLINE: stay inside the word caps named in each field (150-200 for al
   // effect. On Hobby the 300s is silently clamped to 60s and Sonnet's
   // 45-65s response time trips the cap → silent reverts. See
   // project_post_launch_backlog for the upgrade trigger conditions.
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   async function callClaude(model: string) {
     return anthropic.messages.create({

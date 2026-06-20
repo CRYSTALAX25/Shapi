@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export const maxDuration = 30
 
@@ -44,7 +44,7 @@ export async function GET() {
   const industry = (profile.industry as string) || 'general'
   const guide = INDUSTRY_GUIDES[industry] || INDUSTRY_GUIDES.general
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',

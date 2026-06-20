@@ -3,7 +3,7 @@
 // consistent.
 
 import { createAdminClient } from '@/lib/supabase/admin'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export type RefRow = {
   id: string
@@ -162,7 +162,7 @@ export async function runVerificationCrossCheck(candidateId: string): Promise<Ve
 
   if (!refs || refs.length === 0) return null
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const refSummaries = refs.map((r, i) => {
     const responses = r.responses as Record<string, unknown> | null

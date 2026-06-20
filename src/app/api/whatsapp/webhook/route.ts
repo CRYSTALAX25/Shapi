@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendWhatsApp, sendReferenceOutreach } from '@/lib/whatsapp'
 import { sendProfileLiveEmail, sendCompanyMatchEmail, sendNominatedReferenceEmail, sendReferencesVerifiedEmail } from '@/lib/email'
@@ -882,7 +883,7 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
   const prepMatch = lowerMsg.match(/^prep(?:\s+me)?(?:\s+for)?\s+(.+?)$/)
   if (prepMatch && prepMatch[1].length > 1 && prepMatch[1].length < 80) {
     const company = prepMatch[1].trim()
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+    const anthropic = getAnthropic()
     try {
       const completion = await anthropic.messages.create({
         model: 'claude-sonnet-4-6',
@@ -908,7 +909,7 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
   const researchMatch = lowerMsg.match(/^(?:research|look up|find out about|tell me about)\s+(.+?)$/)
   if (researchMatch && researchMatch[1].length > 1 && researchMatch[1].length < 100) {
     const company = researchMatch[1].trim()
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+    const anthropic = getAnthropic()
     try {
       const completion = await anthropic.messages.create({
         model: 'claude-sonnet-4-6',
@@ -986,7 +987,7 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
     const coResearchMatch = lowerMsg.match(/^(?:research|look up|find out about|tell me about)\s+(.+?)$/)
     if (coResearchMatch && coResearchMatch[1].length > 1 && coResearchMatch[1].length < 100) {
       const person = coResearchMatch[1].trim()
-      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+      const anthropic = getAnthropic()
       try {
         const completion = await anthropic.messages.create({
           model: 'claude-sonnet-4-6',
@@ -1074,7 +1075,7 @@ async function handleWebhookRequest(request: Request, registerPhone: (p: string)
     const userTurns = jdChat.filter(m => m.role === 'user').length
     jdChat.push({ role: 'user', content: userMessage })
 
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+    const anthropic = getAnthropic()
 
     try {
       const completion = await anthropic.messages.create({
@@ -1261,7 +1262,7 @@ This is exchange ${userTurns + 1}. ${userTurns >= 8 ? 'WRAP UP NOW with [DEEP_DI
     let aiReply = ''
     let isDeepDiveDone = false
     try {
-      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+      const anthropic = getAnthropic()
       const response = await anthropic.messages.create({
         model: 'claude-sonnet-4-6',
         max_tokens: 400,
@@ -1435,7 +1436,7 @@ This is exchange ${userTurns + 1}. ${userTurns >= 8 ? 'WRAP UP NOW with [DEEP_DI
   const userTurns = chatHistory.filter(m => m.role === 'user').length
   chatHistory.push({ role: 'user', content: userMessage })
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const workHistory = Array.isArray(profile.work_history)
     ? (profile.work_history as Array<{ title?: string; company?: string; achievements?: string }>)

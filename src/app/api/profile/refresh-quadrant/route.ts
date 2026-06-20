@@ -9,7 +9,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export const maxDuration = 30
 
@@ -26,7 +26,7 @@ export async function POST() {
 
   if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
   const workHistory = Array.isArray(profile.work_history) ? profile.work_history : []
   const skills = Array.isArray(profile.skills) ? profile.skills : []
 

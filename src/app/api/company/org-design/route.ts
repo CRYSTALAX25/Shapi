@@ -11,6 +11,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export const maxDuration = 60
 
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
   const stage = companyData.stage || companyData.funding_stage || null
   const hq = country || companyData.hq || companyData.headquarters || profile.location || 'not provided'
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const prompt = `You are a senior operating-model strategist designing a target-state organisation for a company building toward year 2 in an AI-disrupted market. Produce a focused Target-State Org Design.
 

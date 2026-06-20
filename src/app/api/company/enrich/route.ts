@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 // Vercel Pro plan — 300s ceiling. Enrich fetches 4 external URLs + calls
 // Claude; without this it defaults to 60s which Ana hit repeatedly during
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
   // Strip HTML for Glassdoor/LinkedIn snippets
   const stripHtml = (html: string) => html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 1500)
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const prompt = `You are extracting company information for a hiring platform profile.
 

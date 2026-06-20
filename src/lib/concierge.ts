@@ -7,7 +7,7 @@
 // the candidate opted in to autonomous mode).
 
 import { randomBytes } from 'crypto'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { createAdminClient } from '@/lib/supabase/admin'
 import {
   sendConciergeOutreach,
@@ -17,7 +17,7 @@ import {
 } from '@/lib/email'
 import { sendWhatsApp } from '@/lib/whatsapp'
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+const anthropic = getAnthropic()
 
 const MAX_DRAFTS_PER_RUN = 5
 const MIN_MATCH_SCORE_TO_DRAFT = 50  // skip weak matches — quality over volume

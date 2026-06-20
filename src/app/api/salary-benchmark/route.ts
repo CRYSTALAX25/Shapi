@@ -4,7 +4,7 @@
 // field the candidate is moving INTO with transferable-but-limited experience.
 
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}))
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   if (!role) return NextResponse.json({ error: 'Please enter a role.' }, { status: 400 })
   if (!process.env.ANTHROPIC_API_KEY) return NextResponse.json({ error: 'Estimator unavailable.' }, { status: 500 })
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const prompt = `You are a compensation analyst for the ${location} job market. Estimate a realistic MONTHLY total-package salary band (base + typical allowances such as housing/transport, tax-free where applicable) in ${currency}.
 

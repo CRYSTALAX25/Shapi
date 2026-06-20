@@ -17,6 +17,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { hasProAccess } from '@/lib/subscriptions'
 
 export const maxDuration = 60
@@ -82,7 +83,7 @@ export async function POST() {
     }, { status: 403 })
   }
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const workHistory = Array.isArray(profile.work_history) ? profile.work_history : []
   const skills = Array.isArray(profile.skills) ? profile.skills : []

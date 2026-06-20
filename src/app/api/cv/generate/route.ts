@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { INDUSTRY_BRIEFS, INDUSTRY_FOCUS_SHORT, type Industry } from '@/lib/industry-briefs'
 import { hasCVAccess } from '@/lib/subscriptions'
 
@@ -127,7 +128,7 @@ export async function POST(request: Request) {
     const englishCached = existingCache['english'] as { cv: Record<string, unknown> } | undefined
     if (englishCached?.cv) {
       try {
-        const anthropicForTranslate = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+        const anthropicForTranslate = getAnthropic()
         const translatePrompt = `Translate this CV JSON's TEXT VALUES to ${targetLanguage}.
 
 RULES:
@@ -372,7 +373,7 @@ For certifications/courses/events/talks: copy from input "Continuous learning". 
 For sectionLabels: localise to the target language if not English (e.g. "Esperienza" for Italian Experience).`
 
   try {
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+    const anthropic = getAnthropic()
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 4000,

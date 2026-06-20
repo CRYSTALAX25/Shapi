@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export const maxDuration = 60
 
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   const allChat = Array.isArray(profile.whatsapp_chat) ? profile.whatsapp_chat as Array<{ role: string; content: string }> : []
   const userAnswers = allChat.filter(m => m.role === 'user').map(m => m.content).slice(0, 8)
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',

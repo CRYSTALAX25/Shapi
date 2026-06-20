@@ -12,6 +12,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export const maxDuration = 60
 
@@ -51,7 +52,7 @@ export async function POST(request: Request) {
     }
   } catch { /* anonymous — general guidance */ }
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const prompt = `You are Shapi, a blunt, practical business advisor. Someone wants to start their own "${field}" business in ${country}. Use their background to judge fit, and give concrete, country-specific guidance.
 

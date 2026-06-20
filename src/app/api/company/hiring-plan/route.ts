@@ -9,7 +9,7 @@
 // named variance drivers — no hedge-words. Auth optional. Fast path via Haiku.
 
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export const maxDuration = 30
 
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
   if (!country) return NextResponse.json({ error: 'Add your country for accurate guidance.' }, { status: 400 })
   if (!stage) return NextResponse.json({ error: 'Pick a stage.' }, { status: 400 })
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const budgetLine = monthly_burn_budget != null
     ? `Monthly burn budget for hiring: ~${monthly_burn_budget} (local currency).`

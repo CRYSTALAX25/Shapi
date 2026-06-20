@@ -13,6 +13,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export const maxDuration = 60
 
@@ -169,7 +170,7 @@ Return ONLY valid JSON in this exact shape:
 
 Be specific. Be sourced. Name variance drivers instead of using hedge-words.`
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   let parsed: { recommendations?: unknown }
   try {

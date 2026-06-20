@@ -6,7 +6,7 @@
 // generic "got it, your profile is being prepared" ack with a Claude-powered
 // edit interpreter.
 
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 type WorkEntry = {
@@ -68,7 +68,7 @@ export async function interpretAndApplyEdit(
   }
 
   const firstName = snapshot.full_name?.split(' ')[0] || 'there'
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const prompt = `You are Shapi handling a post-interview WhatsApp message from a candidate whose CV has already been generated. Your job: figure out what they want and act on it.
 

@@ -4,6 +4,7 @@
 
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export const maxDuration = 20
 
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
   if (!title) return NextResponse.json({ error: 'Add a role title.' }, { status: 400 })
   if (!description) return NextResponse.json({ error: 'Paste the job description.' }, { status: 400 })
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const prompt = `You are Shapi, an honest workforce strategist advising a hiring company. Score how AI-resistant THIS ROLE is, based on the job description.
 

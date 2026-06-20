@@ -4,7 +4,7 @@
 // free signup on the page. No auth (top-of-funnel); light input guards.
 
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export const maxDuration = 30
 
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   const about = (typeof body.about === 'string' ? body.about : '').trim().slice(0, 400)
   if (!role) return NextResponse.json({ error: 'Enter your job title.' }, { status: 400 })
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const prompt = `You are Shapi, an honest career strategist. Give a quick "AI-Proof Status" read for this worker. Be truthful, not alarmist and not falsely reassuring.
 

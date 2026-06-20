@@ -15,6 +15,7 @@
 // hook works for anonymous visitors.
 
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { NextResponse } from 'next/server'
 
 export const maxDuration = 60
@@ -87,7 +88,7 @@ export async function POST(request: Request) {
   const bytes = await file.arrayBuffer()
   const base64 = Buffer.from(bytes).toString('base64')
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   let response
   try {

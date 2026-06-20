@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export const maxDuration = 45
 
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   const userAnswers = allChat.filter(m => m.role === 'user').map(m => m.content).slice(0, 5)
   const workHistory = Array.isArray(profile.work_history) ? profile.work_history as Array<{ title?: string; company?: string; achievements?: string }> : []
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const outreachMode = mode || 'email'
   const isFollowUp = outreachMode === 'follow_up'

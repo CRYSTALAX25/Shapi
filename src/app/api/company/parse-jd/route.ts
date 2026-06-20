@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export const maxDuration = 30
 
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
   const { jd_text } = await request.json()
   if (!jd_text?.trim()) return NextResponse.json({ error: 'jd_text required' }, { status: 400 })
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',

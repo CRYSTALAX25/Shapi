@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendWhatsApp } from '@/lib/whatsapp'
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
   const { messages, profileData } = await request.json()
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const systemPrompt = `You are Shapi's CV builder assistant. Your job is to help candidates articulate their work experience, skills, and achievements in a way that gets them noticed by the right companies.
 

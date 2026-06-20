@@ -3,6 +3,7 @@
 
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export const maxDuration = 20
 
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
   const country = typeof body.country === 'string' ? body.country.trim() : ''
   if (!field) return NextResponse.json({ error: 'Add your trade/field first.' }, { status: 400 })
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
   const prompt = `Give typical pricing inputs for a "${field}" business${country ? ` in ${country}` : ''}, so a new owner can decide what to charge. Use sourced local-currency numbers — never return 0 for labour or materials.
 
 VOICE — STRICT: Speak with sourced confidence. NEVER use the words "indicative", "approximate" (as a hedge), or "rough". Synthesise from Numbeo cost-of-living, industry trade-body data, Anthropic/OpenAI published API pricing (for digital cost lines), and Shapi platform data.

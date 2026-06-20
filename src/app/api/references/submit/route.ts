@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendNominatedReferenceEmail, sendReferencesVerifiedEmail } from '@/lib/email'
 import { sendReferenceOutreach } from '@/lib/whatsapp'
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
   // Extract skills with Claude (non-fatal)
   let extractedSkills: string[] = []
   try {
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+    const anthropic = getAnthropic()
     const allText = isManager
       ? `${quality} ${achievement} ${skills} ${anything_else || ''}`
       : `${how_worked} ${biggest_strength} ${extra || ''}`

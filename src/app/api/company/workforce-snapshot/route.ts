@@ -10,6 +10,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 // Sonnet 4.6 with max_tokens=2600 can take 30–55s end-to-end. The previous
 // 60s cap was tripping the connection-drop bug Ana hit in testing. Vercel
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
     ? use_cases.slice(0, 3).map((u, i) => `${i + 1}. ${u}`).join('\n')
     : 'not provided — assume the common 2-3 use cases for this industry'
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const prompt = `You are Shapi's Workforce Intelligence engine. Produce a one-shot Workforce Snapshot for a company.
 

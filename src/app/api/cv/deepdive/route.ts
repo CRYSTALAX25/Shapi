@@ -20,7 +20,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { sendWhatsApp } from '@/lib/whatsapp'
 import { INDUSTRY_BRIEFS, INDUSTRY_META, type Industry } from '@/lib/industry-briefs'
 
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
   // Reads the candidate's existing CV against the industry brief, scores
   // how rich/thin the coverage is, identifies specific role-level thin spots
   // and brief-aligned gaps, and drafts the OPENING WhatsApp question.
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
   const firstName = (profile.full_name as string || 'there').split(' ')[0]
   const workHistory = Array.isArray(profile.work_history) ? profile.work_history : []
 

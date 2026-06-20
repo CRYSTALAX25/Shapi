@@ -15,6 +15,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export const maxDuration = 60
 
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
   const stage = companyData.stage || companyData.funding_stage || null
   const hq = companyData.hq || companyData.headquarters || profile.location || null
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   // Split roles by status so the prompt can distinguish what's still open
   // (don't double-recommend) from what's been filled / closed (proves the

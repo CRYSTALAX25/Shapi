@@ -24,6 +24,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 export type Axis = 'Head' | 'Hands' | 'Spark' | 'Heart'
@@ -248,7 +249,7 @@ export async function runPositioningTurn(
   const chat: Turn[] = Array.isArray(state.chat) ? state.chat : []
   chat.push({ role: 'user', content: userMessage })
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
   const res = await anthropic.messages.create({
     model: MODEL,
     max_tokens: 600,
@@ -296,7 +297,7 @@ export async function runPositioningExtraction(admin: SupabaseClient, userId: st
   const report = profile.verification_report as { claims_verified?: string[] } | null
   const verifiedClaims = Array.isArray(report?.claims_verified) ? report!.claims_verified! : []
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
   const res = await anthropic.messages.create({
     model: MODEL,
     max_tokens: 1600,

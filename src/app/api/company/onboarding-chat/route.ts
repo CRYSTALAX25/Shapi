@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
 
   const { messages } = await request.json()
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const systemPrompt = `You are Shapi's company onboarding assistant. Your job is to set up a company's profile through a short, friendly conversation — not a form.
 

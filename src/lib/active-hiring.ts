@@ -11,11 +11,12 @@
 // open role, with outreach drafted and waiting for your approval."
 
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { Resend } from 'resend'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { scoreCandidateForRole, type MatchCandidate, type MatchRole } from '@/lib/matching'
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+const anthropic = getAnthropic()
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://shapi.io'
 
 const MIN_SCORE = 55          // quality over volume — don't queue weak matches

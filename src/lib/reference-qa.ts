@@ -4,7 +4,7 @@
 // Used by the WhatsApp webhook when an incoming message comes from a phone
 // matching a candidate_references row in 'contacted' or 'opened' state.
 
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 type ChatTurn = { role: 'user' | 'assistant'; content: string }
 
@@ -237,7 +237,7 @@ export async function runReferenceTurn(opts: {
   nominatorCompany: string | null
   isTest: boolean
 }): Promise<{ reply: string; isDone: boolean }> {
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const exchangeCount = opts.history.filter(m => m.role === 'user').length - 1
 
@@ -289,7 +289,7 @@ export async function runReferenceTurn(opts: {
 // spoke/wrote in, plus an English translation. Lets us serve the right view to
 // the right reader (candidate / company / Shapi team) without re-translating.
 export async function parseManagerResponses(history: ChatTurn[]): Promise<ParsedManagerResponse> {
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
   const transcript = history.map(m => `${m.role === 'user' ? 'REFEREE' : 'SHAPI'}: ${m.content}`).join('\n')
 
   const res = await anthropic.messages.create({
@@ -340,7 +340,7 @@ Rules:
 }
 
 export async function parseNomineeResponses(history: ChatTurn[]): Promise<ParsedNomineeResponse> {
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
   const transcript = history.map(m => `${m.role === 'user' ? 'REFEREE' : 'SHAPI'}: ${m.content}`).join('\n')
 
   const res = await anthropic.messages.create({

@@ -3,7 +3,7 @@
 // search, JSON-only output. Auth optional.
 
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export const maxDuration = 20
 
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   if (!role) return NextResponse.json({ error: 'Add the role first.' }, { status: 400 })
   if (!country) return NextResponse.json({ error: 'Add the country first.' }, { status: 400 })
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
   const prompt = `Give a competitive ANNUAL salary band for a "${role}"${level ? ` (level: ${level})` : ''} in ${country}, so a hiring manager can decide what to offer.
 
 VOICE — STRICT: Speak with sourced confidence. NEVER use the words "indicative", "approximate" (as a hedge), or "rough". Do NOT tell the user to "confirm separately" or "confirm against their hiring market". Frame numbers as a 70%-confidence band synthesised from Mercer / PayScale / Numbeo cost-of-living / Glassdoor / government labour statistics. Numeric prefixes like "~$15" are fine; the words are not.

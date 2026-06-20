@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { matchCandidateToJobs } from '@/lib/matching'
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
   }
 
   // Parse with Claude
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
   const base64 = Buffer.from(bytes).toString('base64')
 
   let response

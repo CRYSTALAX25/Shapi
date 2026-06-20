@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 // Keep the assistant snappy — short, focused career answers
 export const maxDuration = 30
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+    const anthropic = getAnthropic()
     const systemPrompt = isCompany ? COMPANY_SYSTEM_PROMPT : CANDIDATE_SYSTEM_PROMPT
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',

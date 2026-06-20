@@ -9,7 +9,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 import { INDUSTRY_FOCUS_SHORT, INDUSTRY_META, type Industry } from '@/lib/industry-briefs'
 
 export const maxDuration = 45
@@ -49,7 +49,7 @@ export async function POST() {
     return NextResponse.json({ ok: true, coverage: existing, assessed: 0 })
   }
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
   const workHistory = Array.isArray(profile.work_history) ? profile.work_history : []
 
   const rubrics = toAssess.map(ind => {

@@ -8,7 +8,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 type WorkEntry = {
   title?: string
@@ -49,7 +49,7 @@ export async function POST() {
     })
   }
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const prompt = `You are advising on reference selection for a verified-hiring platform. Your task: pick the BEST 2 past-role managers + 1 current-role peer reference for this candidate, weighted by relevance to their target industries.
 

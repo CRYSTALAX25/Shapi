@@ -6,7 +6,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { getAnthropic } from '@/lib/anthropic'
 
 export const maxDuration = 60
 
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
   const skills = Array.isArray(profile.skills) ? profile.skills : []
   const workHistory = Array.isArray(profile.work_history) ? profile.work_history : []
 
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const anthropic = getAnthropic()
 
   const prompt = `You are Shapi, a blunt, practical career strategist for the AI era. A worker wants to move from one role to another. Give them the honest financial + skills reality and a concrete plan.
 
