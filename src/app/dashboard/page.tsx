@@ -678,7 +678,7 @@ export default async function Dashboard() {
                                 </button>
                               </form>
                             ) : replied ? (
-                              <Link href="/dashboard" className="text-[10px] font-bold text-[#38BDF8]">Interview proposed →</Link>
+                              <Link href="/applications" className="text-[10px] font-bold text-[#38BDF8]">Interview proposed →</Link>
                             ) : (
                               draft.match_reasons && draft.match_reasons.length > 0 && (
                                 <span className="text-[#7E7E8E] text-[10px]">{draft.match_reasons[0]}</span>

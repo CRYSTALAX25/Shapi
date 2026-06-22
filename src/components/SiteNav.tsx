@@ -46,7 +46,7 @@ export default function SiteNav({ active }: { active?: 'candidates' | 'companies
         <div className="flex items-center gap-5">
           {link('/for-candidates', t('common.footer.forCandidates'), 'candidates', 'hidden md:block')}
           {link('/for-companies', t('common.footer.forCompanies'), 'companies', 'hidden md:block')}
-          {link('/#pricing', t('common.nav.pricing'), 'pricing', 'hidden sm:block')}
+          {link('/company/pricing', t('common.nav.pricing'), 'pricing', 'hidden sm:block')}
           <Link href="/login" className="site-nav-link text-sm">{t('common.nav.signIn')}</Link>
           <LocalePicker />
           <Link href="/signup" className="site-nav-cta rounded-full px-4 py-2 text-sm font-black">

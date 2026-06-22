@@ -14,7 +14,7 @@ export default function SiteFooter() {
   const links: [string, string][] = [
     ['/for-candidates', t('common.footer.forCandidates')],
     ['/for-companies', t('common.footer.forCompanies')],
-    ['/#pricing', t('common.footer.pricing')],
+    ['/company/pricing', t('common.footer.pricing')],
     ['/blog', t('common.footer.blog')],
     ['/privacy', t('common.footer.privacy')],
     ['/terms', t('common.footer.terms')],
