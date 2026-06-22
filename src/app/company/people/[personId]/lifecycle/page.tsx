@@ -72,12 +72,21 @@ export default async function PersonLifecyclePage({
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('type, company_name, plan_tier, onboarding_complete')
+    .select('type, company_name, plan_tier, onboarding_complete, company_id')
     .eq('id', user.id)
     .single()
 
   if (!profile || profile.type !== 'company') redirect('/dashboard')
   if (!profile.onboarding_complete) redirect('/company/onboarding')
+
+  // HR-access gate (mirrors the per-person HR portal). The company lane scopes
+  // data by company_id = user.id, so the OWNER is the account whose own profile
+  // has no parent company_id. A teammate who joined by invite has company_id
+  // pointing at the owner. The lifecycle programs + decision audit are RLS-gated
+  // to owner / assigned HRBP / reporting manager, so a non-owner sees nothing —
+  // we show an explicit restricted state instead of an empty playbook surface.
+  const viewerCompanyId = (profile as { company_id?: string | null }).company_id ?? null
+  const isOwner = !viewerCompanyId || viewerCompanyId === user.id
 
   const { data: personData } = await supabase
     .from('persons')
@@ -191,17 +200,30 @@ export default async function PersonLifecyclePage({
           not generate the binding legal wording — a licensed adviser does.
         </div>
 
-        <LifecycleClient
-          personId={personId}
-          displayName={displayName}
-          personEmail={person.email}
-          roleTitle={seatTitle}
-          programs={programs}
-          decisions={decisions}
-          templates={LEGAL_TEMPLATES}
-          countries={TEMPLATE_COUNTRIES}
-          attachedTemplates={attachedTemplates as NonNullable<typeof attachedTemplates[number]>[]}
-        />
+        {!isOwner && programs.length === 0 && decisions.length === 0 ? (
+          <div
+            className="rounded-xl p-4 flex items-start gap-2.5"
+            style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.22)' }}
+          >
+            <span className="text-sm leading-none flex-shrink-0" aria-hidden>🔒</span>
+            <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              You don&apos;t have HR access to these records. Comp, time-off, and lifecycle data are
+              visible only to the company owner and assigned HR partners.
+            </p>
+          </div>
+        ) : (
+          <LifecycleClient
+            personId={personId}
+            displayName={displayName}
+            personEmail={person.email}
+            roleTitle={seatTitle}
+            programs={programs}
+            decisions={decisions}
+            templates={LEGAL_TEMPLATES}
+            countries={TEMPLATE_COUNTRIES}
+            attachedTemplates={attachedTemplates as NonNullable<typeof attachedTemplates[number]>[]}
+          />
+        )}
       </div>
     </main>
   )

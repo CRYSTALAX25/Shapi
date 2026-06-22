@@ -996,6 +996,22 @@ export default async function Dashboard() {
                 </div>
               </Link>
 
+              {/* Positioning CV — flagship statement + axis-tagged verified proofs */}
+              <Link href="/cv-lab" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05] transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-[#38BDF8]/15 flex items-center justify-center flex-shrink-0">
+                    <span className="text-lg">✨</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <h3 className="font-bold text-[#F4F4F7] text-sm">Positioning CV</h3>
+                      <span className="text-[10px] font-bold bg-[#38BDF8]/15 text-[#38BDF8] px-2 py-0.5 rounded-full">Preview</span>
+                    </div>
+                    <p className="text-[#7E7E8E] text-xs">Your statement + axis-tagged verified proofs.</p>
+                  </div>
+                </div>
+              </Link>
+
               {/* Work style */}
               <Link href="/work-style" className="gradient-border-card rounded-2xl p-6 block hover:bg-white/[0.05] transition-colors">
                 <div className="flex items-center gap-4">

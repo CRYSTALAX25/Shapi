@@ -3,6 +3,7 @@ import { runNurtureSweep } from '@/lib/nurture'
 import { runConciergeScanForAll, sendPendingConciergeOutreach } from '@/lib/concierge'
 import { runActiveHiringScanForAll, sendApprovedActiveHiringOutreach } from '@/lib/active-hiring'
 import { sweepPastEmployeeSourcing } from '@/lib/culture-sourcing'
+import { processOutreachQueue } from '@/lib/crosssell'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { buildDigestMessage, buildCompanyDigestMessage, sendWhatsApp } from '@/lib/whatsapp'
 
@@ -55,6 +56,7 @@ export async function GET(request: Request) {
     activeHiringScan?: unknown
     activeHiringSend?: unknown
     cultureSourcing?: unknown
+    crosssellOutreach?: unknown
   } = {
     ranAt: new Date().toISOString(),
     nurture: null,
@@ -185,6 +187,16 @@ export async function GET(request: Request) {
   } catch (err) {
     console.error('[cron/daily] culture sourcing failed:', err)
     summary.cultureSourcing = { error: String(err) }
+  }
+
+  // Cross-sell "Trojan candidate" outreach — enrich queued outreach, run cap +
+  // suppression checks, then send the verified-candidate teaser to hiring
+  // managers. Idempotent; degrades quietly if its migration hasn't run.
+  try {
+    summary.crosssellOutreach = await processOutreachQueue(createAdminClient())
+  } catch (err) {
+    console.error('[cron/daily] crosssell outreach failed:', err)
+    summary.crosssellOutreach = { error: String(err) }
   }
 
   return NextResponse.json({ ok: true, ...summary })

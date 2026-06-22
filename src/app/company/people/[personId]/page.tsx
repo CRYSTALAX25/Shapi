@@ -123,6 +123,23 @@ function EmptyState({ children }: { children: React.ReactNode }) {
   )
 }
 
+// Shown to a non-owner teammate for the RLS-gated HR tiles (Comp / Time off /
+// Lifecycle): the rows are invisible to them, so an empty state would wrongly
+// imply "no data exists" rather than "you can't see it".
+function RestrictedState({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="rounded-xl p-4 flex items-start gap-2.5"
+      style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.22)' }}
+    >
+      <span className="text-sm leading-none flex-shrink-0" aria-hidden>🔒</span>
+      <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.7)' }}>
+        {children}
+      </p>
+    </div>
+  )
+}
+
 function ProgressBar({ value, max, color }: { value: number; max: number; color: string }) {
   const pct = Math.max(0, Math.min(100, (value / max) * 100))
   return (
@@ -190,12 +207,24 @@ export default async function PersonHrPortalPage({
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('type, company_name, plan_tier, onboarding_complete')
+    .select('type, company_name, plan_tier, onboarding_complete, company_id')
     .eq('id', user.id)
     .single()
 
   if (!profile || profile.type !== 'company') redirect('/dashboard')
   if (!profile.onboarding_complete) redirect('/company/onboarding')
+
+  // HR-access gate. The whole company lane scopes data by company_id = user.id,
+  // so the OWNER is the account whose own profile has no parent company_id (or
+  // one equal to their id). A teammate who joined via invite has company_id
+  // pointing at the owner — they are NOT the owner. The Comp / Time-off /
+  // Lifecycle tables are RLS-gated to owner / assigned HRBP / reporting manager,
+  // so for a non-owner those reads come back empty. We can't cheaply confirm an
+  // HRBP/manager assignment here, so we render an explicit "no HR access"
+  // restricted state for those tiles rather than a misleading "nothing on file"
+  // empty state. The owner always sees the real data (or the genuine empty state).
+  const viewerCompanyId = (profile as { company_id?: string | null }).company_id ?? null
+  const isOwner = !viewerCompanyId || viewerCompanyId === user.id
 
   // Load the person scoped to this company. RLS also enforces company_id, but
   // we filter explicitly for clarity and a clean 404.
@@ -332,7 +361,12 @@ export default async function PersonHrPortalPage({
                 Open Lifecycle Playbooks (PIP / Separation) →
               </Link>
             </div>
-            {lifecycle.length === 0 ? (
+            {!isOwner && lifecycle.length === 0 ? (
+              <RestrictedState>
+                You don&apos;t have HR access to these records. Comp, time-off, and lifecycle data are
+                visible only to the company owner and assigned HR partners.
+              </RestrictedState>
+            ) : lifecycle.length === 0 ? (
               <EmptyState>
                 No active lifecycle programs. When you start an onboarding, PIP, redeployment,
                 reskill or separation for {displayName}, it appears here with 30 / 60 / 90-day
@@ -391,7 +425,12 @@ export default async function PersonHrPortalPage({
             title="Compensation"
             badge={{ label: 'Sensitive', color: '#FBBF24', bg: 'rgba(251,191,36,0.12)' }}
           >
-            {!hrProfile ? (
+            {!isOwner && !hrProfile ? (
+              <RestrictedState>
+                You don&apos;t have HR access to these records. Comp, time-off, and lifecycle data are
+                visible only to the company owner and assigned HR partners.
+              </RestrictedState>
+            ) : !hrProfile ? (
               <EmptyState>
                 No HR profile on file for {displayName} yet. Once their compensation record is
                 created, base salary, accrued performance bonus and the last comp-review date show
@@ -429,6 +468,13 @@ export default async function PersonHrPortalPage({
 
           {/* ── Tile 3 · Time off ────────────────────────────────────────── */}
           <Tile icon="🌴" title="Time off">
+            {!isOwner && !hrProfile && attendance.length === 0 ? (
+            <RestrictedState>
+              You don&apos;t have HR access to these records. Comp, time-off, and lifecycle data are
+              visible only to the company owner and assigned HR partners.
+            </RestrictedState>
+            ) : (
+            <>
             <div className="grid grid-cols-3 gap-2 mb-3">
               {[
                 { label: 'Annual', value: hrProfile?.annual_leave_balance_days, suffix: 'days left' },
@@ -462,6 +508,8 @@ export default async function PersonHrPortalPage({
               </span>
             </div>
             <AttendanceLedger entries={attendanceForClient} personId={personId} />
+            </>
+            )}
           </Tile>
 
           {/* ── Tile · Objectives (OKRs) ─────────────────────────────────── */}

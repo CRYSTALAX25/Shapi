@@ -1333,7 +1333,7 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
           Your visual org map appears here once you have at least one location, team and seat.
         </p>
         <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-          Upload a CSV below or add a location to get started.
+          Use the Locations / Import buttons in the top-right toolbar to add a site and upload its roster.
         </p>
       </div>
     )
@@ -2166,7 +2166,7 @@ export default function OrgCanvas({ locations, teams, persons, seats }: Props) {
             <p className="text-xs text-center px-6" style={{ color: 'var(--text-muted)' }}>
               {renderedLocations.length === 0
                 ? 'Pick a location to compare.'
-                : 'No teams or seats here yet — add them below or upload a CSV.'}
+                : 'No teams or seats here yet — use the Locations / Import buttons in the top-right toolbar to add them or upload a roster.'}
             </p>
           </div>
         )}

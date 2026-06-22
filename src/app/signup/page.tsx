@@ -10,6 +10,7 @@ import SignupWhatsApp from './SignupWhatsApp'
 function SignUpForm() {
   const searchParams = useSearchParams()
   const companyInvite = searchParams.get('company_invite') // company owner's user ID
+  const unlock = searchParams.get('unlock') // crosssell unlock token (Trojan-candidate loop)
   const inviteEmail = searchParams.get('email') // pre-filled email from invite
   // Pre-select role via ?type= so homepage CTAs ("I'm a candidate" / "I'm
   // hiring") don't dump the user on a blank toggle. Honor candidate/company,
@@ -17,6 +18,7 @@ function SignUpForm() {
   const typeHint = searchParams.get('type')
   const initialType: 'candidate' | 'company' | null =
     companyInvite ? 'company'
+    : unlock ? 'company'
     : typeHint === 'candidate' ? 'candidate'
     : typeHint === 'company' ? 'company'
     : null
@@ -66,6 +68,8 @@ function SignUpForm() {
       options: {
         emailRedirectTo: companyInvite
           ? `${location.origin}/company/dashboard?joined=1`
+          : unlock
+          ? `${location.origin}/company/dashboard?unlocked=1`
           : type === 'company'
           ? `${location.origin}/company/onboarding`
           : `${location.origin}/upload-cv`,
@@ -103,6 +107,8 @@ function SignUpForm() {
         },
         emailRedirectTo: companyInvite
           ? `${location.origin}/company/dashboard?joined=1`
+          : unlock
+          ? `${location.origin}/company/dashboard?unlocked=1`
           : type === 'company'
           ? `${location.origin}/company/onboarding`
           : `${location.origin}/upload-cv`,
@@ -115,6 +121,16 @@ function SignUpForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ company_id: companyInvite, user_id: signUpData.user.id, email }),
+      }).catch(() => {})
+    }
+
+    // If unlock token (Trojan-candidate cross-sell): claim it so the new company
+    // account is linked to the outreach + the candidate is revealed to them.
+    if (!error && signUpData?.user && unlock && type === 'company') {
+      fetch('/api/outreach/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: unlock, company_user_id: signUpData.user.id }),
       }).catch(() => {})
     }
 
