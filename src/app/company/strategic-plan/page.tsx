@@ -445,7 +445,7 @@ export default function TierBWorkspace() {
             <div className="mt-6 rounded-2xl p-5 flex items-center justify-between" style={cardStyle}>
               <div className="flex-1 min-w-0">
                 <p className="text-[#F4F4F7] font-bold text-sm mb-1">
-                  {isLocked ? 'Engagement is locked.' : allDone ? 'All four steps complete.' : 'Finish all four steps to lock the engagement.'}
+                  {isLocked ? 'Engagement is locked.' : allDone ? 'All five steps complete.' : 'Finish all five steps to lock the engagement.'}
                 </p>
                 <p className="text-[#7E7E8E] text-xs leading-relaxed">
                   {isLocked

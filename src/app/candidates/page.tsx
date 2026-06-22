@@ -147,6 +147,13 @@ export default async function CandidatesPage() {
                     </Link>
                   </div>
                 )}
+                {isPaid && (
+                  <div className="mt-4 pt-4 border-t border-[rgba(255,255,255,0.06)] flex items-center justify-end">
+                    <Link href={`/candidates/${c.id}`} className="text-xs font-bold hover:underline" style={{ color: '#38BDF8' }}>
+                      View full profile →
+                    </Link>
+                  </div>
+                )}
               </div>
             ))}
           </div>

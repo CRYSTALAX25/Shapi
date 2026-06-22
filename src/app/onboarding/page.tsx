@@ -55,11 +55,32 @@ export default function Onboarding() {
       const skills = skillsInput.split(',').map(s => s.trim()).filter(Boolean)
       await saveStep({ skills, ai_tier: aiTier || null })
     } else if (step === 3) {
+      // Fire off the one reference (best-effort) before completing. This used to
+      // be a dropped TODO — the collected reference was silently discarded.
+      if (refName.trim() && refEmail.trim()) {
+        const recent = work.find(w => w.company)
+        try {
+          await fetch('/api/references/request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              job_slot: 'onboarding_1',
+              ref_type: 'manager',
+              referee_name: refName.trim(),
+              referee_email: refEmail.trim(),
+              referee_title: refRelationship.trim() || undefined,
+              candidate_company: recent?.company || 'Previous employer',
+              candidate_job_title: recent?.title || undefined,
+            }),
+          })
+        } catch {
+          // Never block onboarding completion on the outreach call.
+        }
+      }
       await saveStep({
         onboarding_complete: true,
         completion_pct: 70,
       })
-      // TODO: trigger reference outreach email via Resend
     }
     setStep(s => s + 1)
   }

@@ -120,7 +120,12 @@ export default async function CompanyProfilePage() {
 
         {/* Independent employee trust score — aggregate only */}
         <div className="rounded-2xl p-6 mb-4" style={cardStyle}>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E] mb-1">Workplace trust score</p>
+          <div className="flex items-start justify-between gap-4 mb-1">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E7E8E]">Workplace trust score</p>
+            <Link href={`/c/${user.id}`} target="_blank" className="flex-shrink-0 text-[#38BDF8] text-xs font-bold hover:underline whitespace-nowrap">
+              View public page ↗
+            </Link>
+          </div>
           <p className="text-[#A6A6B4] text-sm leading-relaxed mb-4">
             Shapi independently surveys your current &amp; former employees — anonymously — and shows candidates
             this score. You see only the combined averages below, never who responded or any individual answer.

@@ -69,7 +69,7 @@ function RoleCard({ role }: { role: Role }) {
             {role.status === 'draft' ? 'Review draft →' : 'View / edit →'}
           </Link>
           {role.status === 'active' && (
-            <Link href={`/company/dashboard?role=${role.id}`}
+            <Link href={`/company/pipeline?role=${role.id}`}
               className="text-[#38BDF8] text-xs font-bold hover:opacity-80 whitespace-nowrap">
               See pipeline →
             </Link>

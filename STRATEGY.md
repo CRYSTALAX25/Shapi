@@ -411,6 +411,56 @@ white collar, WhatsApp-native**, expanding from once-a-year perm into high-frequ
 
 ---
 
+## 13b. The "Trojan candidate/company" two-way sourcing loop [IDEA — #1 post-launch build, raised 2026-06-22]
+
+> **The insight:** §13 is triggered by soft intent ("someone searched you"). The sharper version
+> is triggered by **hard intent + a specific target** — and it runs in BOTH directions. It is
+> probably our single strongest cold-start / company-acquisition mechanic. Every user becomes an
+> acquisition vector for the other side.
+
+**Direction A — candidate-led (the Active product's real purpose).**
+The candidate **imports a specific external job** they found on another board (LinkedIn/Bayt/etc.)
+into Shapi. We:
+1. Enrich the **hiring manager** for that exact role (see tooling below).
+2. Reach them with an **anonymized, verified candidate teaser** for that exact role: *"A verified
+   candidate is actively pursuing your [Role]. Here's their anonymized profile — sign up free to
+   unlock their name & contact."*
+3. **Unlock = the company signs up** (magic-link company account) → supply side seeded with a
+   real, interested candidate already attached. Candidate "sells" us into their target companies.
+
+**Direction B — company-led (the symmetric mirror; cf. §item 11 in §12 list).**
+A company has **a specific candidate in mind** (e.g. someone they saw on LinkedIn, not yet on
+Shapi). They route the approach **through Shapi**: we reach the candidate — *"[Company] wants your
+verified profile"* — the candidate signs up to engage. This doubles the funnel AND is an
+**anti-leakage capture**: routing direct outreach through us keeps the relationship on-platform,
+so the placement fee + two-sided confirmation (§leakage) apply.
+
+- **Why it matters:** marketplaces die on the cold side. This makes both sides self-serve
+  acquisition engines, each carrying a concrete, flattering, high-intent hook. The *verification*
+  framing is what keeps it from reading as spam.
+- **Enrichment tooling:** **Hunter.io** (email-finder + verifier) is the lead — used before, lower
+  bounce. **Do NOT use Apollo** (Ana's experience: high bounce). Consider **Dropcontact** as an
+  EU/PDPL-friendly backup. **Do NOT primarily scrape LinkedIn** (ToS violation, ban/breakage risk,
+  reputational own-goal for a *trust* brand) — use it only to identify *who*, then reach by email.
+- **Compliance / brand discipline:** dedicated **outreach subdomain** (not hello@shapi.io), warmed
+  + throttled; clear sender identity + one-click opt-out + suppression list; **cap volume**
+  (mirror §13's one-per-company-per-quarter). Direction B is more privacy-sensitive (cold-contacting
+  an *individual* — PDPL/GDPR stricter than B2B) → handle discreetly (don't tip off a current
+  employer), let the candidate control visibility, prefer warm channels.
+- **Consent + real anonymization:** the importing side consents by importing; let them **preview
+  the teaser before send**. Anonymize for real — mask name AND any identifying current employer
+  (niche role + city + employer can de-anonymize). `/p/[id]`'s blurred preview is the asset.
+- **~70% of plumbing exists:** scan/draft/prep, `active_applications` table, `company_research_requests`
+  (§13), `/p/[id]` teaser, concierge outreach infra, `/c/[id]` company page. **New to build:**
+  hiring-manager/candidate enrichment step, the anonymized teaser email, the **unlock = magic-link
+  signup** landing, suppression/cap logic.
+- **Sequencing:** build **Direction A first** (cleaner consent — the candidate is the paying user
+  driving it), Direction B second (stronger leakage capture, but privacy-sensitive). Needs a Hunter
+  API key + the outreach-subdomain decision before build — a deliberate post-travel build, not a
+  pre-flight rush.
+
+---
+
 ## 14. Client-side mirrors of candidate products [LOCKED Phase-2 roadmap, decided 2026-05-26]
 
 > **One-liner:** Every candidate-side tool we've built has a client-side mirror that drives recurring revenue, engagement, or moat. Locking the list so Phase 2 build order is clear.

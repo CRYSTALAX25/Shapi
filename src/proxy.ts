@@ -26,7 +26,9 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // Protected routes — redirect to login if not authenticated
-  const protectedPaths = ['/onboarding', '/dashboard', '/profile', '/evidence', '/cv-builder', '/pay', '/upload-cv', '/course-wallet', '/work-style', '/applications', '/company', '/candidates']
+  // Note: /worth, /ai-proof, /translate are intentionally PUBLIC lead-magnet
+  // tools (top-of-funnel, no auth) — do not add them here.
+  const protectedPaths = ['/onboarding', '/dashboard', '/profile', '/evidence', '/cv-builder', '/pay', '/upload-cv', '/course-wallet', '/work-style', '/applications', '/active', '/roles', '/company', '/candidates']
   // Public exceptions inside protected prefixes. /company/pricing is a
   // marketing page (linked from the /for-companies and /for-hrbps footers)
   // and handles its own signed-out state — its CTAs route anonymous visitors

@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import Link from 'next/link'
 import RoleInterestButton from './RoleInterestButton'
 import SubscribeButton from '@/components/SubscribeButton'
 import { getPrestigeForCompany, topAccolade } from '@/lib/company-prestige'
@@ -114,7 +115,13 @@ export default function RolesList({
                       )}
                     </div>
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <p className="text-[#C7C7D1] text-sm">{company.name}</p>
+                      <Link
+                        href={`/c/${role.company_id}`}
+                        className="text-[#C7C7D1] text-sm hover:text-[#38BDF8] hover:underline transition-colors"
+                        title={`See ${company.name}'s workplace trust score`}
+                      >
+                        {company.name}
+                      </Link>
                       {(() => {
                         const prestige = getPrestigeForCompany(company.name)
                         if (!prestige) return null
