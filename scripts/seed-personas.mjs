@@ -78,6 +78,7 @@ const EMAILS = {
   candA: 'ana.vbarber+test1@gmail.com',
   candB: 'ana.vbarber+test2@gmail.com',
   company1: 'ana.vbarber+company1@gmail.com',
+  company2: 'ana.vbarber+company2@gmail.com',
   teamMember: 'ana.vbarber+test4@gmail.com',
   hrbp: 'ana.vbarber+test5@gmail.com',
   referee: 'ana.vbarber+test6@gmail.com',
@@ -240,6 +241,8 @@ async function main() {
 
   // All company-scoped tables, in FK-safe DELETE order (children first).
   const RESET_TABLES = [
+    'applications',
+    'company_culture_references',
     'organizational_decisions',
     'brain_entries',
     'brain_sources',
@@ -791,6 +794,102 @@ async function main() {
   await reconcileReferences(B, refDefsB.map(([label]) => stableId(label + ':B')))
   report.push({ email: EMAILS.candB, role: 'Candidate B (pivot, voice CV)', id: B,
     rows: 'multilingual profile(basic) · 3 of 6 references completed · voice-note flavor' })
+
+  // =========================================================================
+  // PERSONA 7 — Company B "Cedar & Co" (Starter/Free, roles only, NO org spine,
+  // NO trust data → its /c/[id] shows the LOCKED trust state, contrast to C1)
+  // =========================================================================
+  console.log('\n' + '-'.repeat(76))
+  console.log('PERSONA 7 — Company B (Cedar & Co, Starter — roles only, no trust data)')
+  console.log('-'.repeat(76))
+  const company2 = await ensureAuthUser(EMAILS.company2, 'company')
+  const C2 = company2.id
+  await upsert('profiles', {
+    id: C2, type: 'company', company_name: 'Cedar & Co', company_size: '11-50',
+    industry: 'Technology', location: 'Abu Dhabi, UAE',
+    headline: 'Boutique product & design studio', onboarding_complete: true,
+    onboarding_step: 5, plan_tier: 'free', subscription_status: 'inactive',
+    paid: false, profile_live: true, completion_pct: 80,
+    company_data: JSON.stringify({ glassdoor_rating: 4.1, reddit_sentiment: 'positive' }),
+  }, 'id')
+  const c2r1 = stableId('c2:role:1')
+  const c2r2 = stableId('c2:role:2')
+  if (await tableExists('roles')) {
+    await upsert('roles', {
+      id: c2r1, company_id: C2, created_by: C2, title: 'Full-Stack Engineer',
+      department: 'Engineering', location: 'Abu Dhabi, UAE', remote: true,
+      salary_min: 18000, salary_max: 30000, salary_currency: 'AED', salary_visible: true,
+      engagement_type: 'permanent', accepts_pivot_candidates: true,
+      description: 'Build product end-to-end for our studio clients. React + Node, ship fast.',
+      requirements: '- 3+ yrs full-stack\n- React + Node\n- comfort owning features',
+      status: 'active', updated_at: new Date().toISOString(),
+    }, 'id')
+    await upsert('roles', {
+      id: c2r2, company_id: C2, created_by: C2, title: 'Product Designer',
+      department: 'Design', location: 'Abu Dhabi, UAE', remote: true,
+      salary_min: 15000, salary_max: 25000, salary_currency: 'AED', salary_visible: false,
+      engagement_type: 'contract', accepts_pivot_candidates: false,
+      description: 'Own UX for client products end-to-end. Figma, prototyping, design systems.',
+      status: 'active', updated_at: new Date().toISOString(),
+    }, 'id')
+  }
+  report.push({ email: EMAILS.company2, role: 'Company B (Cedar & Co, Starter)', id: C2,
+    rows: 'profile(free, glassdoor 4.1, no trust survey) · 2 active roles' })
+
+  // =========================================================================
+  // MARKETPLACE CROSS-DATA — makes trust score, Active product, and the
+  // pipeline testable with real data. All idempotent (upsert by id).
+  // =========================================================================
+  console.log('\n' + '-'.repeat(76))
+  console.log('MARKETPLACE CROSS-DATA (trust score · active jobs · pipeline)')
+  console.log('-'.repeat(76))
+
+  // 1. company1 workplace trust — 4 SUBMITTED culture references (≥3 floor → the
+  //    score goes LIVE on /c/<C1> and as a badge on /roles). Ratings 1-5.
+  if (await tableExists('company_culture_references')) {
+    // label, respondent_type, [paid_on_time, real_hours, manager_quality, promise_kept, respect_safety, growth, fair_treatment, would_recommend, exit_handled]
+    const cultureDefs = [
+      ['cr:1', 'current', [5, 4, 4, 5, 5, 4, 4, 5, null]],
+      ['cr:2', 'current', [4, 3, 4, 4, 4, 3, 4, 4, null]],
+      ['cr:3', 'past',    [5, 4, 5, 4, 5, 4, 4, 5, 4]],
+      ['cr:4', 'past',    [3, 3, 3, 4, 4, 3, 3, 4, 3]],
+    ]
+    for (const [label, rtype, r] of cultureDefs) {
+      await upsert('company_culture_references', {
+        id: stableId(label), company_id: C1,
+        token: createHash('sha256').update('shapi-seed::' + label).digest('hex').slice(0, 40),
+        respondent_type: rtype, source: 'seed', candidate_id: null,
+        paid_on_time: r[0], real_hours: r[1], manager_quality: r[2], promise_kept: r[3],
+        respect_safety: r[4], growth: r[5], fair_treatment: r[6], would_recommend: r[7],
+        exit_handled: r[8], flagged: false, submitted_at: new Date().toISOString(),
+      }, 'id')
+    }
+  }
+
+  // 2. Candidate A imported external jobs → /active has content + the new
+  //    "Get Shapi to reach them" cross-sell button is testable.
+  if (await tableExists('active_applications')) {
+    const extJobs = [
+      ['aa:1', 'Tabby', 'Senior Product Manager', 'https://tabby.ai/careers', 'Dubai, UAE', 'researching', 88],
+      ['aa:2', 'Careem', 'Group PM, Payments', 'https://careem.com/careers', 'Dubai, UAE', 'applied', 82],
+    ]
+    for (const [label, comp, title, url, loc, stage, score] of extJobs) {
+      await upsert('active_applications', {
+        id: stableId(label), candidate_id: A, company_name: comp, job_title: title,
+        job_url: url, location: loc, stage, match_score: score,
+      }, 'id')
+    }
+  }
+
+  // 3. Internal pipeline — applications so /company/pipeline + /candidates show
+  //    candidates at real stages.
+  if (await tableExists('applications')) {
+    await upsert('applications', { candidate_id: A, role_id: stableId('role:1'), company_id: C1, stage: 'interviewing' }, 'candidate_id,role_id')
+    await upsert('applications', { candidate_id: B, role_id: c2r1, company_id: C2, stage: 'shortlisted' }, 'candidate_id,role_id')
+  }
+
+  report.push({ email: '(cross-data)', role: 'Marketplace data', id: '—',
+    rows: 'company1 trust LIVE (4 culture refs) · Candidate A 2 imported jobs · 2 pipeline applications' })
 
   // =========================================================================
   // FINAL REPORT
