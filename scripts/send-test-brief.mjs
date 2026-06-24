@@ -22,6 +22,17 @@ const html = `
   <h1 style="font-size:22px;margin:0 0 4px">Shapi — Testing Kit &amp; Brief</h1>
   <p style="color:#666;margin:0 0 20px">Everything you need to start testing both sides of the marketplace.</p>
 
+  <div style="background:#ecfdf5;border:1px solid #34D399;border-radius:8px;padding:12px 16px;margin:0 0 20px">
+    <b style="color:#065f46">✅ Status: seeded &amp; ready to test.</b>
+    <p style="margin:6px 0 0;font-size:14px">The database is loaded — all 7 accounts live, company1 trust score live, roles + pipeline seeded. Just log in (below) and start.</p>
+    <p style="margin:6px 0 0;font-size:13px;color:#666"><b>Note:</b> the seed is a <u>terminal</u> command — <code>node scripts/seed-personas.mjs</code> — NOT something you paste into the Supabase SQL editor. Only the <code>.sql</code> files go in SQL.</p>
+  </div>
+
+  <h2 style="font-size:16px;border-bottom:2px solid #38BDF8;padding-bottom:4px">Magic-link test URLs (no login)</h2>
+  <p style="font-size:14px">Reference (referee answers QA): <a href="https://shapi.io/reference/45e44a03-9716-461b-887d-9ed994affee7">shapi.io/reference/45e44a03…</a><br>
+  Role-share (hiring manager reviews a role): <a href="https://shapi.io/r/M_zgM8g2xZZNGRunWXOujny1hNau5En2">shapi.io/r/M_zgM8g2…</a></p>
+  <p style="font-size:13px;color:#666">(These tokens regenerate every time you re-run the seed — grab fresh ones from the terminal output if you re-seed.)</p>
+
   <h2 style="font-size:16px;border-bottom:2px solid #38BDF8;padding-bottom:4px">1. Set up (≈5 min)</h2>
   <p><b>Run these SQL files in the Supabase SQL editor</b>, in order (all idempotent, additive, no data loss):</p>
   <ol style="margin:0 0 8px;padding-left:20px">
@@ -33,7 +44,8 @@ const html = `
     <li><code>crosssell_outreach.sql</code> — <b>NEW</b>, the cross-sell loop</li>
   </ol>
   <p style="color:#666;font-size:13px">If <code>create extension vector/pgcrypto</code> errors: Supabase Studio → Database → Extensions → toggle <code>vector</code> + <code>pgcrypto</code> ON, re-run #1.</p>
-  <p><b>Then seed the test data:</b> <code>node scripts/seed-personas.mjs</code> (auto-confirms all accounts, idempotent, re-runnable).</p>
+  <p><b>Then seed the test data (in the TERMINAL, not SQL):</b> <code>node scripts/seed-personas.mjs</code> (auto-confirms all accounts, idempotent, re-runnable).</p>
+  <p style="font-size:13px;color:#666"><b>Optional:</b> the 2 pre-loaded <code>/active</code> jobs may skip on first seed (a Postgres schema-cache lag). To load them, re-run <code>active_applications.sql</code> in SQL (it now force-adds the columns + reloads the cache), then re-run the seed. Not blocking — you can add a job manually in <code>/active</code> instead.</p>
 
   <h2 style="font-size:16px;border-bottom:2px solid #38BDF8;padding-bottom:4px">2. Test accounts (pre-loaded with data)</h2>
   <p>Shared password for ALL: <code style="background:#f4f4f4;padding:2px 6px">ShapiTest!2026</code> &nbsp;(all are <code>+</code>-aliases of your Gmail, so every one reaches you)</p>
