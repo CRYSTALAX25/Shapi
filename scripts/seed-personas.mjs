@@ -386,7 +386,7 @@ async function main() {
   // Sara Al-Mutairi (p:eng3) logs HR notes via WhatsApp — give her a number so
   // the WhatsApp logging tile renders her phone-first activity.
   await upsert('persons', {
-    id: persons['p:eng3'], company_id: C1, whatsapp_number: '+971501234599',
+    id: persons['p:eng3'], company_id: C1, full_name: 'Sara Al-Mutairi', whatsapp_number: '+971501234599',
   }, 'id')
 
   // --- Roles/Seats (~12), mixed status + Calibration Lens metrics ---
@@ -858,7 +858,7 @@ async function main() {
       await upsert('company_culture_references', {
         id: stableId(label), company_id: C1,
         token: createHash('sha256').update('shapi-seed::' + label).digest('hex').slice(0, 40),
-        respondent_type: rtype, source: 'seed', candidate_id: null,
+        respondent_type: rtype, source: 'manual', candidate_id: null,
         paid_on_time: r[0], real_hours: r[1], manager_quality: r[2], promise_kept: r[3],
         respect_safety: r[4], growth: r[5], fair_treatment: r[6], would_recommend: r[7],
         exit_handled: r[8], flagged: false, submitted_at: new Date().toISOString(),
@@ -867,25 +867,37 @@ async function main() {
   }
 
   // 2. Candidate A imported external jobs → /active has content + the new
-  //    "Get Shapi to reach them" cross-sell button is testable.
+  //    "Get Shapi to reach them" cross-sell button is testable. Best-effort:
+  //    if PostgREST's schema cache is stale for this table, skip without
+  //    aborting the whole seed (backfill via NOTIFY pgrst + re-run).
   if (await tableExists('active_applications')) {
-    const extJobs = [
-      ['aa:1', 'Tabby', 'Senior Product Manager', 'https://tabby.ai/careers', 'Dubai, UAE', 'researching', 88],
-      ['aa:2', 'Careem', 'Group PM, Payments', 'https://careem.com/careers', 'Dubai, UAE', 'applied', 82],
-    ]
-    for (const [label, comp, title, url, loc, stage, score] of extJobs) {
-      await upsert('active_applications', {
-        id: stableId(label), candidate_id: A, company_name: comp, job_title: title,
-        job_url: url, location: loc, stage, match_score: score,
-      }, 'id')
+    try {
+      const extJobs = [
+        ['aa:1', 'Tabby', 'Senior Product Manager', 'https://tabby.ai/careers', 'researching'],
+        ['aa:2', 'Careem', 'Group PM, Payments', 'https://careem.com/careers', 'applied'],
+      ]
+      for (const [label, comp, title, url, stage] of extJobs) {
+        await upsert('active_applications', {
+          id: stableId(label), candidate_id: A, company_name: comp, job_title: title,
+          job_url: url, stage,
+        }, 'id')
+      }
+      console.log('  active_applications: 2 imported jobs for Candidate A')
+    } catch (e) {
+      console.log('  ⚠ active_applications skipped (schema cache?):', e.message)
     }
   }
 
   // 3. Internal pipeline — applications so /company/pipeline + /candidates show
   //    candidates at real stages.
   if (await tableExists('applications')) {
-    await upsert('applications', { candidate_id: A, role_id: stableId('role:1'), company_id: C1, stage: 'interviewing' }, 'candidate_id,role_id')
-    await upsert('applications', { candidate_id: B, role_id: c2r1, company_id: C2, stage: 'shortlisted' }, 'candidate_id,role_id')
+    try {
+      await upsert('applications', { candidate_id: A, role_id: stableId('role:1'), company_id: C1, stage: 'interviewing' }, 'candidate_id,role_id')
+      await upsert('applications', { candidate_id: B, role_id: c2r1, company_id: C2, stage: 'shortlisted' }, 'candidate_id,role_id')
+      console.log('  applications: 2 pipeline rows')
+    } catch (e) {
+      console.log('  ⚠ applications skipped:', e.message)
+    }
   }
 
   report.push({ email: '(cross-data)', role: 'Marketplace data', id: '—',

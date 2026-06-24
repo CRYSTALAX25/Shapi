@@ -29,6 +29,20 @@ create table if not exists public.active_applications (
   updated_at timestamptz not null default now()
 );
 
+-- Defensive: if an older/minimal active_applications table already existed,
+-- `create table if not exists` above was a no-op — so ensure every column the
+-- app + seed use actually exists.
+alter table public.active_applications add column if not exists company_website text;
+alter table public.active_applications add column if not exists job_url text;
+alter table public.active_applications add column if not exists location text;
+alter table public.active_applications add column if not exists salary_range text;
+alter table public.active_applications add column if not exists match_score int;
+alter table public.active_applications add column if not exists match_reason text;
+alter table public.active_applications add column if not exists key_requirements jsonb;
+alter table public.active_applications add column if not exists hiring_manager_name text;
+alter table public.active_applications add column if not exists stage text not null default 'researching';
+alter table public.active_applications add column if not exists notes text;
+
 create index if not exists active_applications_candidate_idx
   on public.active_applications (candidate_id, created_at desc);
 
@@ -47,3 +61,7 @@ begin new.updated_at = now(); return new; end; $$;
 drop trigger if exists active_applications_updated_at on public.active_applications;
 create trigger active_applications_updated_at before update on public.active_applications
   for each row execute procedure set_active_applications_updated_at();
+
+-- Make PostgREST pick up the new columns immediately (avoids "column not
+-- found in schema cache" until the next auto-reload).
+notify pgrst, 'reload schema';
